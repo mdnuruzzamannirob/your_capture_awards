@@ -10,7 +10,14 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.extends(
+    "next/core-web-vitals",
+    "next/typescript",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:jsx-a11y/recommended",
+    "plugin:prettier/recommended",
+  ),
   {
     ignores: [
       "node_modules/**",
@@ -19,6 +26,16 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
     ],
+    rules: {
+      // react
+      "react/react-in-jsx-scope": "off",
+
+      // prettier
+      "prettier/prettier": "off",
+
+      // typescript
+      "@typescript-eslint/no-unused-vars": "off",
+    },
   },
 ];
 
