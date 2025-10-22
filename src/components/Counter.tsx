@@ -1,7 +1,7 @@
 "use client";
 
-import { useGetInitialCountQuery } from "@/features/counter/counterApi";
-import { decrement, increment } from "@/features/counter/counterSlice";
+import { useGetInitialCountQuery } from "@/store/features/counter/counterApi";
+import { decrement, increment } from "@/store/features/counter/counterSlice";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 
 export default function Counter() {

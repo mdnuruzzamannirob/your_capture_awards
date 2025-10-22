@@ -1,17 +1,13 @@
-import Signup from "@/components/auth/Signup";
-import { Metadata } from "next";
+import AuthForm from '@/components/auth/AuthFrom';
+import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Sign up",
-  description: "User Sign up page",
+  title: 'Sign up',
+  description: 'User Sign up page',
 };
 
 const SignupPage = () => {
-  return (
-    <>
-      <Signup />
-    </>
-  );
+  return <AuthForm type="signup" />;
 };
 
 export default SignupPage;
