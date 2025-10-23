@@ -6,8 +6,8 @@ export const metadata: Metadata = {
   description: 'Confirm Password page',
 };
 
-const ConfirmPasswordPage = () => {
+const ResetPasswordPage = () => {
   return <ResetPasswordForm />;
 };
 
-export default ConfirmPasswordPage;
+export default ResetPasswordPage;

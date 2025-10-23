@@ -1,15 +1,19 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import LogoName from '../LogoName';
 import { useForgotPasswordMutation, useVerifyOTPMutation } from '@/store/features/user/userApi';
+import { useRouter } from 'next/navigation';
 
 export default function VerifyOtpForm() {
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
   const [email, setEmail] = useState('');
   const [resendCoolDown, setResendCoolDown] = useState(0);
-  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  const [error, setError] = useState<string>('');
 
+  const router = useRouter();
+  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const [forgotPassword, { isLoading: isForgotLoading }] = useForgotPasswordMutation();
   const [verifyOtp, { isLoading }] = useVerifyOTPMutation();
 
@@ -22,7 +26,7 @@ export default function VerifyOtpForm() {
     return () => clearInterval(interval);
   }, [resendCoolDown]);
 
-  // OTP input handler
+  // otp handler
   const handleChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
     const newOtp = [...otp];
@@ -33,7 +37,7 @@ export default function VerifyOtpForm() {
     }
   };
 
-  // arrow & backspace navigation
+  // navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
@@ -54,35 +58,49 @@ export default function VerifyOtpForm() {
     e.preventDefault();
   };
 
-  // resend handler
+  // resend OTP
   const handleResend = async () => {
     if (resendCoolDown > 0) return;
     if (!email) {
-      alert('Enter your email first.');
+      setError('Please enter your email before resending.');
       return;
     }
 
     try {
+      setError('');
       await forgotPassword({ email }).unwrap();
-    } catch (error) {
-      console.log(error);
+      toast.success('OTP resent successfully! Check your inbox.');
+      setResendCoolDown(30);
+    } catch (err: any) {
+      const msg = err?.data?.message || 'Failed to resend OTP. Try again later.';
+      toast.error(msg);
     }
-
-    setResendCoolDown(30); // 30s cool down
   };
 
-  // submit handler
+  // verify OTP
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = otp.join('');
-    if (code.length < 6 || !email) return alert('Enter all fields');
+
+    if (code.length < 6) {
+      setError('Please enter the full 6-digit OTP.');
+      return;
+    }
+    if (!email) {
+      setError('Email field cannot be empty.');
+      return;
+    }
+
     try {
-      await verifyOtp({
-        email,
-        code,
-      }).unwrap();
-    } catch (error) {
-      console.log(error);
+      setError('');
+      await verifyOtp({ email, code }).unwrap();
+      toast.success('OTP verified successfully!');
+      router.push('/reset-password');
+    } catch (err: any) {
+      const msg = err?.data?.message || 'Invalid or expired OTP. Please try again.';
+      toast.error('Oops! Something went wrong', {
+        description: msg,
+      });
     }
   };
 
@@ -91,8 +109,11 @@ export default function VerifyOtpForm() {
       <header className="flex flex-col items-center space-y-2 text-center">
         <LogoName className="scale-125" />
       </header>
-      <div className="border-orange-2-400/60 w-full space-y-5 rounded-md border p-10">
+
+      <div className="w-full space-y-5 rounded-md border border-orange-400/60 p-10">
         <p className="font-medium">Enter Verification Code</p>
+
+        {error && <p className="text-sm text-red-500">{error}</p>}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3 flex gap-3">
@@ -115,18 +136,22 @@ export default function VerifyOtpForm() {
           </div>
 
           <p className="mb-4 text-xs text-gray-400">
-            If you didn&apos;t receive a code.&nbsp;
+            Didn&apos;t get a code?&nbsp;
             <button
               type="button"
-              disabled={resendCoolDown > 0}
+              disabled={resendCoolDown > 0 || isForgotLoading}
               onClick={handleResend}
               className="text-primary underline disabled:opacity-50"
             >
-              {resendCoolDown > 0 ? `Resend in ${resendCoolDown}s` : 'Resend'}
+              {resendCoolDown > 0
+                ? `Resend in ${resendCoolDown}s`
+                : isForgotLoading
+                  ? 'Sending...'
+                  : 'Resend'}
             </button>
           </p>
 
-          <div className="">
+          <div>
             <label htmlFor="email-input" className="mb-1 block text-sm font-medium">
               Email
             </label>
@@ -143,9 +168,10 @@ export default function VerifyOtpForm() {
 
           <button
             type="submit"
+            disabled={isLoading}
             className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-8 w-full rounded-sm py-[9px] text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Send
+            {isLoading ? 'Verifying...' : 'Send'}
           </button>
         </form>
       </div>
