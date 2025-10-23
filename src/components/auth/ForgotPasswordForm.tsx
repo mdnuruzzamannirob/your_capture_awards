@@ -5,22 +5,36 @@ import LogoName from '@/components/LogoName';
 import { ForgotFormData, forgotPassSchema } from '@/lib/userSchema';
 import { useForgotPasswordMutation } from '@/store/features/user/userApi';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 export default function ForgotPasswordForm() {
   const forgotPasswordForm = useForm<ForgotFormData>({
     resolver: zodResolver(forgotPassSchema),
   });
 
+  const router = useRouter();
   const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
   const onSubmit = async (data: ForgotFormData) => {
     try {
       await forgotPassword({ email: data.email }).unwrap();
-    } catch (error) {
-      console.log(error);
+
+      toast.message('Password reset email sent', {
+        description: 'Please check your inbox for the reset code.',
+      });
+
+      router.push('/verify-otp');
+    } catch (err: any) {
+      toast.error('Oops! Something went wrong', {
+        description:
+          err?.data?.message ||
+          err?.error ||
+          'Failed to send password reset email. Please try again.',
+      });
     }
   };
-  console.log(isLoading);
+
   return (
     <div className="mx-auto w-full max-w-xl space-y-10 pt-5 pb-10">
       <header className="flex flex-col items-center space-y-2 text-center">
@@ -43,10 +57,10 @@ export default function ForgotPasswordForm() {
 
           <button
             type="submit"
-            // disabled={isSigninLoading}
+            disabled={isLoading}
             className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-4 w-full rounded-sm py-[9px] text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {/* {isSigninLoading ? 'Signing in...' : 'Sign In'} */} Submit
+            {isLoading ? 'Sending...' : 'Send'}
           </button>
         </form>
       </div>

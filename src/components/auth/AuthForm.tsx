@@ -131,9 +131,9 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
           )}
           Remember Me
         </button>
-        <button type="button" className="text-sm font-medium text-gray-100 hover:underline">
+        <Link href="/forgot-password" className="text-sm font-medium text-gray-100 hover:underline">
           Forgot Password?
-        </button>
+        </Link>
       </div>
 
       <button

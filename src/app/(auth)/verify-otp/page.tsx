@@ -6,8 +6,8 @@ export const metadata: Metadata = {
   description: 'User verify page',
 };
 
-const VerificationPage = () => {
+const VerifyOtpPage = () => {
   return <VerifyOtpForm />;
 };
 
-export default VerificationPage;
+export default VerifyOtpPage;
