@@ -5,12 +5,14 @@ import { toast } from 'sonner';
 import LogoName from '../LogoName';
 import { useForgotPasswordMutation, useVerifyOTPMutation } from '@/store/features/user/userApi';
 import { useRouter } from 'next/navigation';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setUserEmail } from '@/store/features/user/userSlice';
 
 export default function VerifyOtpForm() {
+  const { email: defaultEmail } = useAppSelector((state) => state.user);
+
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(defaultEmail ?? '');
   const [resendCoolDown, setResendCoolDown] = useState(0);
   const [error, setError] = useState<string>('');
 

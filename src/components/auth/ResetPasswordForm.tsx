@@ -33,10 +33,12 @@ export default function ResetPasswordForm() {
         email: email ?? '',
       }).unwrap();
 
-      toast.success('Password reset successfully. You can now log in with your new password.');
+      toast.success('Password reset successfully.', {
+        description: 'You can now sign in with your new password.',
+      });
       router.push('/signin');
     } catch (error) {
-      toast.error('Failed to reset password. Please try again.', {
+      toast.error('Failed to reset password.', {
         description: (error as any)?.data?.message || '',
       });
     }
