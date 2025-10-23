@@ -2,12 +2,16 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import LogoName from '../LogoName';
+import { useForgotPasswordMutation, useVerifyOTPMutation } from '@/store/features/user/userApi';
 
 export default function VerifyOtpForm() {
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
   const [email, setEmail] = useState('');
   const [resendCoolDown, setResendCoolDown] = useState(0);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+
+  const [forgotPassword, { isLoading: isForgotLoading }] = useForgotPasswordMutation();
+  const [verifyOtp, { isLoading }] = useVerifyOTPMutation();
 
   // cool down timer
   useEffect(() => {
@@ -50,22 +54,36 @@ export default function VerifyOtpForm() {
     e.preventDefault();
   };
 
-  // resend handler (you’ll connect API here)
-  const handleResend = () => {
+  // resend handler
+  const handleResend = async () => {
     if (resendCoolDown > 0) return;
     if (!email) {
       alert('Enter your email first.');
       return;
     }
+
+    try {
+      await forgotPassword({ email }).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
+
     setResendCoolDown(30); // 30s cool down
   };
 
-  // submit handler (you’ll connect API here)
-  const handleSubmit = (e: React.FormEvent) => {
+  // submit handler
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = otp.join('');
     if (code.length < 6 || !email) return alert('Enter all fields');
-    console.log('Verifying OTP:', { email, code });
+    try {
+      await verifyOtp({
+        email,
+        code,
+      }).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -74,7 +92,7 @@ export default function VerifyOtpForm() {
         <LogoName className="scale-125" />
       </header>
       <div className="border-orange-2-400/60 w-full space-y-5 rounded-md border p-10">
-        <p>Enter Verification Code</p>
+        <p className="font-medium">Enter Verification Code</p>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3 flex gap-3">
@@ -102,21 +120,22 @@ export default function VerifyOtpForm() {
               type="button"
               disabled={resendCoolDown > 0}
               onClick={handleResend}
-              className="text-orange-500 underline disabled:opacity-50"
+              className="text-primary underline disabled:opacity-50"
             >
               {resendCoolDown > 0 ? `Resend in ${resendCoolDown}s` : 'Resend'}
             </button>
           </p>
 
           <div className="">
-            <label htmlFor="email-input" className="mb-1 block text-sm">
+            <label htmlFor="email-input" className="mb-1 block text-sm font-medium">
               Email
             </label>
             <input
               id="email-input"
               type="email"
-              className="mb-4 w-full rounded border border-gray-600 bg-transparent px-3 py-2 outline-none focus:border-orange-500"
+              className="focus:ring-primary h-[50px] w-full rounded-sm border px-3 text-sm shadow-2xs outline-none focus:border-transparent focus:ring-2"
               value={email}
+              required
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@company.com"
             />
@@ -124,7 +143,7 @@ export default function VerifyOtpForm() {
 
           <button
             type="submit"
-            className="w-full rounded bg-orange-500 py-2 text-white hover:bg-orange-600 disabled:opacity-50"
+            className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-8 w-full rounded-sm py-[9px] text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             Send
           </button>
