@@ -1,6 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQuery } from '@/store/rtkQueryClient';
 import { User } from './types';
+import { setUserToken } from './userSlice';
 
 export const userApi = createApi({
   reducerPath: 'userApi',
@@ -50,12 +51,20 @@ export const userApi = createApi({
     }),
 
     // Verify OTP
-    verifyOTP: builder.mutation<{ reset_password_token?: string }, { email: string; code: string }>(
-      {
-        query: (body) => ({ url: 'api/v1/users/verify-otp', method: 'POST', body }),
-        invalidatesTags: [{ type: 'User' }],
+    verifyOTP: builder.mutation<
+      { data: { reset_password_token?: string } },
+      { email: string; code: string }
+    >({
+      query: (body) => ({ url: 'api/v1/users/verify-otp', method: 'POST', body }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          console.log(data);
+          dispatch(setUserToken(data.data?.reset_password_token || ''));
+        } catch (err) {}
       },
-    ),
+      invalidatesTags: [{ type: 'User' }],
+    }),
   }),
 });
 

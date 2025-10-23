@@ -4,15 +4,21 @@ import FormField from '@/components/FormField';
 import LogoName from '@/components/LogoName';
 import { ConfirmFormData, resetPassSchema } from '@/lib/userSchema';
 import { useResetPasswordMutation } from '@/store/features/user/userApi';
+import { useAppSelector } from '@/store/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+import { toast } from 'sonner';
 
 export default function ResetPasswordForm() {
+  const { email, token } = useAppSelector((state) => state.user);
+
   const [showPass, setShowPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
 
+  const router = useRouter();
   const confirmPasswordForm = useForm<ConfirmFormData>({
     resolver: zodResolver(resetPassSchema),
   });
@@ -23,14 +29,18 @@ export default function ResetPasswordForm() {
       await resetPassword({
         password: data.password,
         confirmPassword: data.confirmPassword,
-        token: '6894219f2dd181bec5023e5b',
-        email: 'mdsahinsiraj2@gmail.com',
+        token: token ?? '',
+        email: email ?? '',
       }).unwrap();
+
+      toast.success('Password reset successfully. You can now log in with your new password.');
+      router.push('/login');
     } catch (error) {
-      console.log(error);
+      toast.error('Failed to reset password. Please try again.', {
+        description: (error as any)?.data?.message || '',
+      });
     }
   };
-  console.log(isLoading);
 
   return (
     <div className="mx-auto w-full max-w-xl space-y-10 pt-5 pb-10">
@@ -111,10 +121,10 @@ export default function ResetPasswordForm() {
 
           <button
             type="submit"
-            // disabled={isSigninLoading}
+            disabled={isLoading}
             className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-4 w-full rounded-sm py-[9px] text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {/* {isSigninLoading ? 'Signing in...' : 'Sign In'} */} Submit
+            {isLoading ? 'Submitting...' : 'Submit'}
           </button>
         </form>
       </div>
