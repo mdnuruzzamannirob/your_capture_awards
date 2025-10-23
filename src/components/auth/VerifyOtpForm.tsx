@@ -5,6 +5,8 @@ import { toast } from 'sonner';
 import LogoName from '../LogoName';
 import { useForgotPasswordMutation, useVerifyOTPMutation } from '@/store/features/user/userApi';
 import { useRouter } from 'next/navigation';
+import { useAppDispatch } from '@/store/hooks';
+import { setUserEmail } from '@/store/features/user/userSlice';
 
 export default function VerifyOtpForm() {
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
@@ -13,6 +15,7 @@ export default function VerifyOtpForm() {
   const [error, setError] = useState<string>('');
 
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const [forgotPassword, { isLoading: isForgotLoading }] = useForgotPasswordMutation();
   const [verifyOtp, { isLoading }] = useVerifyOTPMutation();
@@ -68,7 +71,10 @@ export default function VerifyOtpForm() {
 
     try {
       setError('');
+
       await forgotPassword({ email }).unwrap();
+
+      dispatch(setUserEmail(email));
       toast.success('OTP resent successfully! Check your inbox.');
       setResendCoolDown(30);
     } catch (err: any) {
@@ -93,7 +99,9 @@ export default function VerifyOtpForm() {
 
     try {
       setError('');
+
       await verifyOtp({ email, code }).unwrap();
+
       toast.success('OTP verified successfully!');
       router.push('/reset-password');
     } catch (err: any) {
