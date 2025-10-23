@@ -115,12 +115,12 @@ export default function VerifyOtpForm() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-xl space-y-10 pt-5 pb-10">
+    <div className="mx-auto w-full max-w-lg space-y-16 px-5 pt-5 pb-10">
       <header className="flex flex-col items-center space-y-2 text-center">
         <LogoName className="scale-125" />
       </header>
 
-      <div className="w-full space-y-5 rounded-md border border-orange-400/60 p-10">
+      <div className="w-full space-y-5 rounded-md border border-orange-400/60 p-8 md:p-10">
         <p className="font-medium">Enter Verification Code</p>
 
         {error && <p className="text-sm text-red-500">{error}</p>}
@@ -140,7 +140,7 @@ export default function VerifyOtpForm() {
                 onChange={(e) => handleChange(idx, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(e, idx)}
                 onPaste={handlePaste}
-                className="h-10 w-10 rounded border border-gray-500 bg-transparent text-center outline-none focus:border-orange-500"
+                className="size-8 rounded border border-gray-500 bg-transparent text-center outline-none focus:border-orange-500 md:size-10"
               />
             ))}
           </div>

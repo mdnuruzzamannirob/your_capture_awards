@@ -39,14 +39,16 @@ export default function ForgotPasswordForm() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-xl space-y-10 pt-5 pb-10">
+    <div className="mx-auto w-full max-w-lg space-y-16 px-5 pt-5 pb-10">
       <header className="flex flex-col items-center space-y-2 text-center">
         <LogoName className="scale-125" />
       </header>
-      <div className="border-orange-2-400/60 w-full space-y-10 rounded-md border p-10">
+      <div className="border-orange-2-400/60 w-full space-y-10 rounded-md border p-8 md:p-10">
         <div className="space-y-5">
-          <h1 className="font-rubik text-3xl font-medium">Forgot Password ?</h1>
-          <p>Enter your details below to request an your capture award account password reset.</p>
+          <h1 className="font-rubik text-2xl font-medium md:text-3xl">Forgot Password ?</h1>
+          <p className="max-md:text-sm">
+            Enter your details below to request an your capture award account password reset.
+          </p>
         </div>
         <form onSubmit={forgotPasswordForm.handleSubmit(onSubmit)}>
           <FormField<ForgotFormData>

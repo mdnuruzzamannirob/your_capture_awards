@@ -146,7 +146,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
     </form>
   );
 
-  // 🔹 Signup Form
+  // Signup Form
   const renderSignupForm = () => (
     <form onSubmit={signupForm.handleSubmit(signUpSubmit)} className="flex flex-col gap-3">
       <FormField<SignupFormData>
@@ -259,10 +259,10 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
   );
 
   return (
-    <div className="mx-auto w-full max-w-xl pt-5 pb-10">
+    <div className="mx-auto w-full max-w-lg px-5 pt-5 pb-10">
       <header className="flex flex-col items-center space-y-2 text-center">
         <LogoName className="scale-125" />
-        <h1 className="font-rubik mt-16 mb-10 text-3xl font-medium">
+        <h1 className="font-rubik mt-16 mb-10 text-2xl font-medium md:text-3xl">
           {type === 'signin' ? 'Great to have you back!' : 'Great to have you here!'}
         </h1>
         <div className="font-kumbh w-full space-y-6 font-light">
