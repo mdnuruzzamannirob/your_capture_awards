@@ -8,7 +8,11 @@ import Link from 'next/link';
 import { FaGoogle, FaFacebookF } from 'react-icons/fa';
 import { IoCheckbox, IoCheckboxOutline } from 'react-icons/io5';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
-import { useSigninMutation, useSignupMutation } from '@/store/features/auth/authApi';
+import {
+  useGoogleSigninQuery,
+  useSigninMutation,
+  useSignupMutation,
+} from '@/store/features/auth/authApi';
 import LogoName from '../LogoName';
 import FormField from '../FormField';
 import { SigninFormData, signinSchema, SignupFormData, signupSchema } from '@/lib/authSchema';
@@ -22,6 +26,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
   const router = useRouter();
   const [signin, { isLoading: isSigninLoading }] = useSigninMutation();
   const [signup, { isLoading: isSignupLoading }] = useSignupMutation();
+  const { refetch: googleSignin } = useGoogleSigninQuery(undefined, { skip: true });
 
   const signinForm = useForm<SigninFormData>({
     resolver: zodResolver(signinSchema),
@@ -70,8 +75,42 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
     }
   };
 
-  const handleOAuthLogin = (provider: 'google' | 'facebook') => {
-    toast.info(`${provider.toUpperCase()} login coming soon 🚀`);
+  const handleOAuthLogin = async (provider: 'google' | 'facebook') => {
+    try {
+      if (!['google', 'facebook'].includes(provider)) {
+        throw new Error('Unsupported OAuth provider');
+      }
+
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (!baseUrl) {
+        throw new Error('Missing NEXT_PUBLIC_API_URL');
+      }
+
+      // Inform user something is happening
+      toast.info(`Redirecting to ${provider}...`);
+
+      // Track redirect attempt to avoid double-tap
+      if (typeof window !== 'undefined') {
+        if ((window as any).isRedirecting) return;
+        (window as any).isRedirecting = true;
+      }
+
+      // Attempt redirect
+      window.location.assign(`${baseUrl}/api/v1/auth/${provider}`);
+    } catch (err: any) {
+      console.error('OAuth login error:', err);
+
+      // Fallback feedback
+      toast.error(
+        err?.message
+          ? `OAuth failed: ${err.message}`
+          : 'Something went wrong during login. Please try again.',
+      );
+    } finally {
+      if (typeof window !== 'undefined') {
+        (window as any).isRedirecting = false;
+      }
+    }
   };
 
   // Signin Form

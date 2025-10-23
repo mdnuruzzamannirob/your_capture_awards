@@ -8,7 +8,7 @@ export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery,
   endpoints: (builder) => ({
-    signin: builder.mutation<{ token: string; user: IUser }, TSigninData>({
+    signin: builder.mutation<{ data: { token: string; user: IUser } }, TSigninData>({
       query: (credentials) => ({
         url: 'api/v1/auth/signin',
         method: 'POST',
@@ -17,9 +17,9 @@ export const authApi = createApi({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(setToken(data.token));
+          dispatch(setToken(data.data?.token));
 
-          Cookies.set('token', data.token, {
+          Cookies.set('token', data.data?.token, {
             expires: 7,
             secure: true,
             sameSite: 'Strict',
@@ -29,7 +29,36 @@ export const authApi = createApi({
       },
     }),
 
-    signup: builder.mutation<{ token: string; user: IUser }, TSignupData>({
+    facebookSignin: builder.mutation<
+      { data: { token: string; user: IUser } },
+      { accessToken: string }
+    >({
+      query: ({ accessToken }) => ({
+        url: 'api/v1/auth/facebook',
+        method: 'POST',
+        body: { access_token: accessToken },
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setToken(data.data?.token));
+        } catch (err) {}
+      },
+    }),
+
+    googleSignin: builder.query<{ data: { token: string; user: IUser } }, void>({
+      query: () => ({
+        url: 'api/v1/auth/google',
+      }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(setToken(data.data?.token));
+        } catch (err) {}
+      },
+    }),
+
+    signup: builder.mutation<{ data: { token: string; user: IUser } }, TSignupData>({
       query: (userData) => ({
         url: 'api/v1/auth/register',
         method: 'POST',
@@ -38,9 +67,9 @@ export const authApi = createApi({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(setToken(data.token));
+          dispatch(setToken(data.data?.token));
 
-          Cookies.set('token', data.token, {
+          Cookies.set('token', data.data?.token, {
             expires: 7,
             secure: true,
             sameSite: 'Strict',
@@ -50,8 +79,8 @@ export const authApi = createApi({
       },
     }),
 
-    getProfile: builder.query<any, void>({
-      query: () => 'api/v1/auth/profile',
+    getMe: builder.query<any, void>({
+      query: () => 'api/v1/auth/me',
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
@@ -65,4 +94,5 @@ export const authApi = createApi({
   }),
 });
 
-export const { useSigninMutation, useSignupMutation, useGetProfileQuery } = authApi;
+export const { useSigninMutation, useSignupMutation, useGetMeQuery, useGoogleSigninQuery } =
+  authApi;
