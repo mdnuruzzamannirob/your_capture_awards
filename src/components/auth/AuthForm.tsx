@@ -82,7 +82,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
       }
 
       // Inform user something is happening
-      toast.info(`Redirecting to ${provider}...`);
+      toast.loading(`Redirecting to ${provider}...`);
 
       // Track redirect attempt to avoid double-tap
       if (typeof window !== 'undefined') {
