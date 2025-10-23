@@ -8,11 +8,7 @@ import Link from 'next/link';
 import { FaGoogle, FaFacebookF } from 'react-icons/fa';
 import { IoCheckbox, IoCheckboxOutline } from 'react-icons/io5';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
-import {
-  useGoogleSigninQuery,
-  useSigninMutation,
-  useSignupMutation,
-} from '@/store/features/auth/authApi';
+import { useSigninMutation, useSignupMutation } from '@/store/features/auth/authApi';
 import LogoName from '../LogoName';
 import FormField from '../FormField';
 import { SigninFormData, signinSchema, SignupFormData, signupSchema } from '@/lib/authSchema';
@@ -26,7 +22,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
   const router = useRouter();
   const [signin, { isLoading: isSigninLoading }] = useSigninMutation();
   const [signup, { isLoading: isSignupLoading }] = useSignupMutation();
-  const { refetch: googleSignin } = useGoogleSigninQuery(undefined, { skip: true });
 
   const signinForm = useForm<SigninFormData>({
     resolver: zodResolver(signinSchema),
