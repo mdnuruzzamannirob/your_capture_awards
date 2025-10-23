@@ -1,3 +1,4 @@
+import VerifyOtpForm from '@/components/auth/VerifyOtpForm';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 const VerificationPage = () => {
-  return <>VerificationPage</>;
+  return <VerifyOtpForm />;
 };
 
 export default VerificationPage;

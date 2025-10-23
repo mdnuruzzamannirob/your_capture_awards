@@ -10,7 +10,7 @@ import { IoCheckbox, IoCheckboxOutline } from 'react-icons/io5';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { useSigninMutation, useSignupMutation } from '@/store/features/auth/authApi';
 import LogoName from '../LogoName';
-import FormField from './FormField';
+import FormField from '../FormField';
 import { SigninFormData, signinSchema, SignupFormData, signupSchema } from '@/lib/authSchema';
 import { useRouter } from 'next/navigation';
 
@@ -82,7 +82,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         id="email"
         type="email"
         placeholder="Enter your email"
-        required
         register={signinForm.register}
         error={signinForm.formState.errors.email?.message as string}
       />
@@ -92,7 +91,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
           id="password"
           type={showPass ? 'text' : 'password'}
           placeholder="Enter your password"
-          required
           register={signinForm.register}
           error={signinForm.formState.errors.password?.message as string}
         />
@@ -156,7 +154,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         id="firstName"
         type="text"
         placeholder="Enter your first name"
-        required
         register={signupForm.register}
         error={signupForm.formState.errors.firstName?.message}
       />
@@ -165,7 +162,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         id="lastName"
         type="text"
         placeholder="Enter your last name"
-        required
         register={signupForm.register}
         error={signupForm.formState.errors.lastName?.message}
       />
@@ -174,7 +170,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         id="email"
         type="email"
         placeholder="Enter your email"
-        required
         register={signupForm.register}
         error={signupForm.formState.errors.email?.message as string}
       />
@@ -183,7 +178,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         id="phone"
         type="tel"
         placeholder="Enter your contact number"
-        required
         register={signupForm.register}
         error={signupForm.formState.errors.phone?.message}
       />
@@ -194,7 +188,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
           id="password"
           type={showPass ? 'text' : 'password'}
           placeholder="Enter your password"
-          required
           register={signupForm.register}
           error={signupForm.formState.errors.password?.message as string}
         />
@@ -228,7 +221,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
           id="confirmPassword"
           type={showConfirmPass ? 'text' : 'password'}
           placeholder="Confirm your password"
-          required
           register={signupForm.register}
           error={signupForm.formState.errors.confirmPassword?.message}
         />

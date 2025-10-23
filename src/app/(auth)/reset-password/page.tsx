@@ -1,3 +1,4 @@
+import ResetPasswordForm from '@/components/auth/ResetPasswordForm';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 const ConfirmPasswordPage = () => {
-  return <>ConfirmPasswordPage</>;
+  return <ResetPasswordForm />;
 };
 
 export default ConfirmPasswordPage;

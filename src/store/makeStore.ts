@@ -1,17 +1,19 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '@/store/features/auth/authSlice';
 import { authApi } from './features/auth/authApi';
+import { userApi } from './features/user/userApi';
 
 export const makeStore = () =>
   configureStore({
     reducer: {
       auth: authReducer,
       [authApi.reducerPath]: authApi.reducer,
+      [userApi.reducerPath]: userApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: false,
-      }).concat(authApi.middleware),
+      }).concat(authApi.middleware, userApi.middleware),
     devTools: process.env.NODE_ENV !== 'production',
   });
 
