@@ -15,7 +15,7 @@ const Navbar = () => {
   const pathname = usePathname();
 
   return (
-    <header className={cn('bg-background fixed top-0 right-0 left-0 z-50 py-5')}>
+    <header className={cn('bg-background fixed top-0 right-0 left-0 z-50 py-3')}>
       <nav className="container flex items-center justify-between">
         {/* left */}
         <LogoName />
@@ -48,7 +48,7 @@ const Navbar = () => {
 
           <Link
             href="/signin"
-            className="border-primary hover:border-primary/90 rounded-sm border px-5 py-2 text-sm transition-colors"
+            className="border-primary hover:border-primary/90 hover:text-foreground/90 rounded-sm border px-5 py-2 text-sm transition-colors"
           >
             Sign In
           </Link>
