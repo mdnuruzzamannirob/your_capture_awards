@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Kumbh_Sans } from 'next/font/google';
 import '../styles/globals.css';
 import { Toaster } from 'sonner';
 import Providers from './providers';
+import { getUser } from '@/lib/server/getUser';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -42,18 +43,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const data = await getUser();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} ${kumbhSans.variable} anti-aliased`}
       >
-        <Providers>
+        <Providers user={data?.user} token={data?.token}>
           {children} <Toaster expand={true} richColors closeButton />
         </Providers>
       </body>

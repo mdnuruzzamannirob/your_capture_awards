@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 import { navLinks } from '@/constants';
 import { FiSearch } from 'react-icons/fi';
 import { IoNotificationsOutline } from 'react-icons/io5';
+import UserMenu from '@/components/UserMenu';
 
 const Navbar = () => {
   const { token, user } = useAppSelector((state) => state?.auth);
@@ -42,24 +43,31 @@ const Navbar = () => {
           <button className="flex items-center justify-center rounded-full border p-2">
             <FiSearch />
           </button>
-          <button className="flex items-center justify-center rounded-full border p-2">
-            <IoNotificationsOutline />
-          </button>
 
-          <Link
-            href="/signin"
-            className="border-primary hover:border-primary/90 hover:text-foreground/90 rounded-sm border px-5 py-2 text-sm transition-colors"
-          >
-            Sign In
-          </Link>
-          <Link
-            href="/signup"
-            className="bg-primary border-primary hover:bg-primary/90 hover:border-primary/90 rounded-sm border px-5 py-2 text-sm transition-colors"
-          >
-            Sign Up
-          </Link>
-
-          {/* {(token || user) && <UserMenu />} */}
+          {token || user ? (
+            <>
+              <button className="flex items-center justify-center rounded-full border p-2">
+                <IoNotificationsOutline />
+              </button>
+              <UserMenu user={user} token={token} />
+            </>
+          ) : (
+            <>
+              {' '}
+              <Link
+                href="/signin"
+                className="border-primary hover:border-primary/90 hover:text-foreground/90 rounded-sm border px-5 py-2 text-sm transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/signup"
+                className="bg-primary border-primary hover:bg-primary/90 hover:border-primary/90 rounded-sm border px-5 py-2 text-sm transition-colors"
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
           {/* <Sidebar /> */}
         </div>
       </nav>

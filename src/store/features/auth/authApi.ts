@@ -10,16 +10,17 @@ export const authApi = createApi({
   endpoints: (builder) => ({
     signin: builder.mutation<{ data: { token: string; user: IUser } }, TSigninData>({
       query: (credentials) => ({
-        url: 'api/v1/auth/signin',
+        url: '/api/v1/auth/signin',
         method: 'POST',
         body: credentials,
       }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(setToken(data.data?.token));
+          dispatch(setToken(data.data.token));
+          dispatch(setUser(data.data.user));
 
-          Cookies.set('token', data.data?.token, {
+          Cookies.set('token', data.data.token, {
             expires: 7,
             secure: true,
             sameSite: 'Strict',
@@ -60,39 +61,34 @@ export const authApi = createApi({
 
     signup: builder.mutation<{ data: { token: string; user: IUser } }, TSignupData>({
       query: (userData) => ({
-        url: 'api/v1/auth/register',
+        url: '/api/v1/auth/register',
         method: 'POST',
         body: userData,
       }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(setToken(data.data?.token));
+          dispatch(setToken(data.data.token));
+          dispatch(setUser(data.data.user));
 
-          Cookies.set('token', data.data?.token, {
-            expires: 7,
-            secure: true,
-            sameSite: 'Strict',
-            path: '/',
-          });
-        } catch (err) {}
+          Cookies.set('token', data.data.token, { expires: 7 });
+        } catch {}
       },
     }),
 
-    getMe: builder.query<any, void>({
-      query: () => 'api/v1/auth/me',
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+    getMe: builder.query<{ data: { user: IUser; token: string | null } }, void>({
+      query: () => '/api/v1/auth/me',
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
           dispatch(setUser(data.data));
 
-          const cookieToken = Cookies.get('token');
+          const cookieToken = Cookies.get('token') ?? null;
           if (cookieToken) dispatch(setToken(cookieToken));
-        } catch (err) {}
+        } catch {}
       },
     }),
   }),
 });
 
-export const { useSigninMutation, useSignupMutation, useGetMeQuery, useGoogleSigninQuery } =
-  authApi;
+export const { useSigninMutation, useSignupMutation, useGetMeQuery } = authApi;

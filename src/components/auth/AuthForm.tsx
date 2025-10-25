@@ -11,7 +11,12 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { useSigninMutation, useSignupMutation } from '@/store/features/auth/authApi';
 import LogoName from '../LogoName';
 import FormField from '../FormField';
-import { SigninFormData, signinSchema, SignupFormData, signupSchema } from '@/lib/authSchema';
+import {
+  SigninFormData,
+  signinSchema,
+  SignupFormData,
+  signupSchema,
+} from '@/lib/schema/authSchema';
 import { useRouter } from 'next/navigation';
 
 const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
@@ -93,8 +98,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
       // Attempt redirect
       window.location.assign(`${baseUrl}/api/v1/auth/${provider}`);
     } catch (err: any) {
-      console.error('OAuth login error:', err);
-
       // Fallback feedback
       toast.error(
         err?.message

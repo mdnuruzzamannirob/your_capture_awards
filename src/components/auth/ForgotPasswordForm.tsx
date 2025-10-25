@@ -2,7 +2,7 @@
 
 import FormField from '@/components/FormField';
 import LogoName from '@/components/LogoName';
-import { ForgotFormData, forgotPassSchema } from '@/lib/userSchema';
+import { ForgotFormData, forgotPassSchema } from '@/lib/schema/userSchema';
 import { useForgotPasswordMutation } from '@/store/features/user/userApi';
 import { setUserEmail } from '@/store/features/user/userSlice';
 import { useAppDispatch } from '@/store/hooks';

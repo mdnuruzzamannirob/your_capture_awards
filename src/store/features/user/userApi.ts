@@ -59,7 +59,6 @@ export const userApi = createApi({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          console.log(data);
           dispatch(setUserToken(data.data?.reset_password_token || ''));
         } catch (err) {}
       },

@@ -2,7 +2,7 @@
 
 import FormField from '@/components/FormField';
 import LogoName from '@/components/LogoName';
-import { ConfirmFormData, resetPassSchema } from '@/lib/userSchema';
+import { ConfirmFormData, resetPassSchema } from '@/lib/schema/userSchema';
 import { useResetPasswordMutation } from '@/store/features/user/userApi';
 import { useAppSelector } from '@/store/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
