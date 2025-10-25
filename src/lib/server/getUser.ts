@@ -1,4 +1,3 @@
-// lib/getUser.ts
 import { cookies } from 'next/headers';
 
 export async function getUser() {

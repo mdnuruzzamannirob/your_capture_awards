@@ -56,7 +56,7 @@ export default async function RootLayout({
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} ${kumbhSans.variable} anti-aliased`}
       >
-        <Providers user={data?.user} token={data?.token}>
+        <Providers user={data?.user} token={data?.token || ''}>
           {children} <Toaster expand={true} richColors closeButton />
         </Providers>
       </body>
