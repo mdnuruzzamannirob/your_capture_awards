@@ -15,14 +15,7 @@ const Navbar = () => {
   const pathname = usePathname();
 
   return (
-    <header
-      className={cn(
-        'fixed top-0 right-0 left-0 z-50 py-5',
-        // scrolled
-        //   ? "bg-background border-inherit"
-        //   : "bg-transparent border-transparent"
-      )}
-    >
+    <header className={cn('bg-background fixed top-0 right-0 left-0 z-50 py-5')}>
       <nav className="container flex items-center justify-between">
         {/* left */}
         <LogoName />
