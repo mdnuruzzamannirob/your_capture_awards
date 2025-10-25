@@ -179,3 +179,9 @@
     @apply cursor-pointer;
   }
 }
+
+@layer utilities {
+  .container {
+    @apply mx-auto max-w-[1320px] px-4;
+  }
+}

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Kumbh_Sans } from 'next/font/google';
 import '../styles/globals.css';
-import { Providers } from '@/providers/ReduxProvider';
 import { Toaster } from 'sonner';
+import Providers from './providers';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
