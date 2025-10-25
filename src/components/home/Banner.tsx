@@ -4,7 +4,7 @@ import { GoDotFill } from 'react-icons/go';
 
 const Banner = () => {
   return (
-    <section className="relative flex flex-col-reverse items-center justify-between gap-20 pt-20 pb-10 lg:flex-row lg:gap-10 lg:pt-24">
+    <section className="relative container flex flex-col-reverse items-center justify-between gap-20 py-20 lg:flex-row lg:gap-10 lg:pt-24">
       {/* Left content */}
       <div className="flex-1 space-y-6">
         {/* Award logo */}
