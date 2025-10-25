@@ -7,11 +7,11 @@ const RootLayout = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <main>
+    <>
       <Header />
-      {children}
+      <div className="min-h-dvh py-[100px]">{children}</div>
       <Footer />
-    </main>
+    </>
   );
 };
 
