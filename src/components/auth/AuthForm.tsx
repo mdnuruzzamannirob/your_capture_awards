@@ -16,7 +16,7 @@ import {
   signinSchema,
   SignupFormData,
   signupSchema,
-} from '@/lib/schema/authSchema';
+} from '@/lib/schemas/authSchema';
 import { useRouter } from 'next/navigation';
 
 const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
