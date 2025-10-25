@@ -9,6 +9,7 @@ import { logout } from '@/store/features/auth/authSlice';
 import { cn } from '@/utils/cn';
 import { IUser } from '@/store/features/auth/types';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const UserMenu = ({ user, token }: { user: IUser | null; token: string | null }) => {
   const [open, setOpen] = useState(false);
@@ -18,27 +19,42 @@ const UserMenu = ({ user, token }: { user: IUser | null; token: string | null })
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button
-          className={cn(
-            'bg-gray-20 font-rubik hidden size-8 overflow-hidden rounded-full text-sm leading-none font-medium text-gray-100 lg:block',
-            !user || !token ? 'hidden' : 'lg:block',
-          )}
-        >
-          {user?.firstName?.charAt(0) || 'U'} {user?.lastName?.charAt(0) || null}
-        </button>
+        {user?.avatar ? (
+          <Image
+            alt="User Avatar"
+            src={user?.avatar}
+            width={34}
+            height={34}
+            className="size-[34px] cursor-pointer overflow-hidden rounded-full object-cover"
+          />
+        ) : (
+          <button
+            className={cn(
+              'hidden size-[34px] overflow-hidden rounded-full border text-xs leading-none font-medium lg:block',
+              !user || !token ? 'hidden' : 'lg:block',
+            )}
+          >
+            {user?.firstName?.charAt(0) || 'U'}
+            {user?.lastName?.charAt(0) || null}
+          </button>
+        )}
       </PopoverTrigger>
-      <PopoverContent className="w-56 p-4">
+      <PopoverContent
+        align="end"
+        className="bg-background border-black-2-600 text-foreground w-56 border p-4"
+      >
         <div className="mb-2 flex flex-col">
-          <span className="font-medium">{user?.firstName || 'Name not found'}</span>
-          <span className="text-muted-foreground text-xs">
-            {user?.email || 'johndoe@email.com'}
+          <span className="font-medium">
+            {user?.firstName || 'Name not found'} {user?.lastName || 'Name not found'}
           </span>
+          <span className="text-black-2-300 text-xs">{user?.email || 'johndoe@email.com'}</span>
         </div>
-        <div className="border-muted my-2 border-t"></div>
+        <div className="border-black-2-600 my-2 border-t"></div>
         <div className="flex flex-col">
           <Link
             href="/profile"
-            className={cn('hover:bg-gray-20 flex items-center gap-2 rounded p-2')}
+            onClick={() => setOpen(false)}
+            className={cn('hover:bg-gray-20 flex items-center gap-2 rounded p-2 hover:bg-white/5')}
           >
             <ProfileUser className="size-4" />
             Profile
@@ -47,9 +63,10 @@ const UserMenu = ({ user, token }: { user: IUser | null; token: string | null })
             onClick={() => {
               dispatch(logout());
               Cookies.remove('token');
+              setOpen(false);
             }}
             className={cn(
-              'mt-1 flex items-center gap-2 rounded-sm p-2 text-red-500 hover:bg-red-50',
+              'mt-1 flex items-center gap-2 rounded-sm p-2 text-red-500 outline-none hover:bg-red-500/5',
             )}
           >
             <LogOut className="size-4" />
