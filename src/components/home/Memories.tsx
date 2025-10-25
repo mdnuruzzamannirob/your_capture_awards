@@ -24,6 +24,7 @@ export default function Memories() {
       image: '/photographer.png',
     },
   ];
+
   return (
     <section className="relative container mt-24 space-y-10 pt-14 pb-40">
       {/* bg image */}
@@ -63,13 +64,13 @@ export default function Memories() {
         className="rounded-xl"
       >
         {images.map((src, i) => (
-          <SwiperSlide key={i} className="rounded-xl">
+          <SwiperSlide key={i} className="overflow-hidden rounded-xl">
             <Image
               src={src.image}
               alt={`Memory ${i + 1}`}
               width={500}
               height={300}
-              className="h-64 w-full object-cover transition-transform duration-500 hover:scale-105"
+              className="h-72 w-full object-cover transition-transform hover:scale-105"
             />
           </SwiperSlide>
         ))}
