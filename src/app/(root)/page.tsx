@@ -6,12 +6,12 @@ import Memories from '@/components/home/Memories';
 
 export default function HomePage() {
   return (
-    <main>
+    <>
       <Banner />
       <About />
       <Memories />
       <Discover />
       <Features />
-    </main>
+    </>
   );
 }

@@ -9,7 +9,7 @@ const RootLayout = ({
   return (
     <>
       <Header />
-      <div className="min-h-dvh py-[100px]">{children}</div>
+      <main className="min-h-dvh py-[100px]">{children}</main>
       <Footer />
     </>
   );
