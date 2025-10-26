@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import UploadCard from './UploadCard';
+import UploadPortfolioCard from './UploadPortfolioCard';
 import { CgWebsite } from 'react-icons/cg';
 import {
   Select,
@@ -52,7 +52,7 @@ export default function PortfolioSection() {
 
       {/* Grid */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
-        <UploadCard />
+        <UploadPortfolioCard />
         {/*<UploadSite /> */}
         {sorted.map((item) => (
           <div key={item.id} className="rounded-xl bg-white/5 p-5 transition hover:bg-white/10">

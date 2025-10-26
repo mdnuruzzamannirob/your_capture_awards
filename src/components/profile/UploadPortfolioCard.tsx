@@ -3,19 +3,52 @@
 import { useState, DragEvent, ChangeEvent, KeyboardEvent } from 'react';
 import Image from 'next/image';
 import { LucideCloudUpload, X } from 'lucide-react';
+import { cn } from '@/utils/cn';
+import { toast } from 'sonner';
 
-export default function UploadCard() {
+export default function UploadPortfolioCard() {
   const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [isError, setIsError] = useState<boolean>(false);
+
+  const uploadToServer = async (selectedFile: File) => {
+    setUploading(true);
+    setIsError(false);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      // You can store response URL/state here if needed
+    } catch (err: any) {
+      setIsError(true);
+      toast.error(err.message || err.data.message || 'Something went wrong!');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
-    setFile(e.target.files[0]);
+    const selected = e.target.files[0];
+    setFile(selected);
+    uploadToServer(selected); // <-- Trigger upload here
   };
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const dropped = e.dataTransfer.files[0];
-    if (dropped) setFile(dropped);
+    if (dropped) {
+      setFile(dropped);
+      uploadToServer(dropped); // <-- Or here
+    }
   };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => e.preventDefault();
@@ -27,7 +60,10 @@ export default function UploadCard() {
     }
   };
 
-  const removeFile = () => setFile(null);
+  const removeFile = () => {
+    setFile(null);
+    setIsError(false);
+  };
 
   return (
     <div
@@ -43,7 +79,7 @@ export default function UploadCard() {
       <input type="file" id="fileInput" className="hidden" onChange={handleFileChange} />
 
       {/* Empty state */}
-      {!file && (
+      {!file && !uploading && (
         <div className="flex size-full flex-col items-center justify-center text-center">
           <LucideCloudUpload className="size-10" />
           <p className="font-medium text-white/60">Drag & drop your file</p>
@@ -52,20 +88,27 @@ export default function UploadCard() {
         </div>
       )}
 
+      {/* Loading */}
+      {uploading && (
+        <div className="flex flex-col items-center justify-center text-center">
+          <div className="border-primary/20 border-t-primary mb-2 h-10 w-10 animate-spin rounded-full border-4" />
+          <p className="text-sm text-gray-300">Uploading...</p>
+        </div>
+      )}
+
       {/* File preview */}
-      {file && (
+      {file && !uploading && (
         <div className="relative flex size-full flex-col items-center justify-between">
-          {/* Preview Area (fills card minus padding) */}
           <div className="relative w-full flex-1 overflow-hidden rounded-lg bg-white/20">
             {file.type.startsWith('image/') ? (
               <Image
                 src={URL.createObjectURL(file)}
                 alt={file.name}
                 fill
-                className="object-cover"
+                className="min-h-20 object-cover"
               />
             ) : (
-              <div className="flex size-full items-center justify-center bg-white/25 text-sm text-gray-300">
+              <div className="flex size-full min-h-20 items-center justify-center bg-white/20 text-sm text-gray-300">
                 {file.name}
               </div>
             )}
@@ -80,8 +123,14 @@ export default function UploadCard() {
             </button>
           </div>
 
-          {/* File name */}
-          <p className="mt-2 w-full truncate text-center text-sm text-gray-300">{file.name}</p>
+          <p
+            className={cn(
+              'mt-2 w-full truncate text-center text-sm text-gray-300',
+              isError && 'text-red-500',
+            )}
+          >
+            {file.name}
+          </p>
         </div>
       )}
     </div>
