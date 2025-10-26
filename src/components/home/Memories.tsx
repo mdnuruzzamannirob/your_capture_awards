@@ -26,7 +26,7 @@ export default function Memories() {
   ];
 
   return (
-    <section className="relative container mt-24 space-y-10 pt-14 pb-40">
+    <section className="relative container my-20 space-y-10 pt-14 pb-40">
       {/* bg image */}
       <div className="absolute inset-0 -z-10 size-full opacity-15">
         <Image alt="background" src="/back-circle.png" fill />

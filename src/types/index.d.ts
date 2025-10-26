@@ -4,3 +4,10 @@ export type TSideItems = {
   icon: React.ReactNode;
   children?: TSideItems[];
 };
+
+export type DiscoverItem = {
+  key: string;
+  label: string;
+  sub: string;
+  img: string;
+};

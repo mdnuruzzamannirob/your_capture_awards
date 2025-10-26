@@ -5,7 +5,7 @@ import React from 'react';
 
 const About = () => {
   return (
-    <section className="container space-y-10 pt-24 pb-20">
+    <section className="container my-20 space-y-10 py-20">
       {/* title */}
       <div className="mx-auto w-36 text-center">
         <h1 className="text-2xl font-medium">ABOUT US</h1>
