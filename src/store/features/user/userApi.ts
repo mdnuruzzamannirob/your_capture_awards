@@ -64,6 +64,18 @@ export const userApi = createApi({
       },
       invalidatesTags: [{ type: 'User' }],
     }),
+
+    // Update Avatar
+    updateAvatar: builder.mutation<{ success: boolean; message?: string }, { avatar?: File }>({
+      query: (body) => ({ url: 'api/v1/users/avatar', method: 'PATCH', body }),
+      invalidatesTags: [{ type: 'User' }],
+    }),
+
+    // Update Cover
+    updateCover: builder.mutation<{ success: boolean; message?: string }, { cover?: File }>({
+      query: (body) => ({ url: 'api/v1/users/cover', method: 'PATCH', body }),
+      invalidatesTags: [{ type: 'User' }],
+    }),
   }),
 });
 
@@ -74,4 +86,6 @@ export const {
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useVerifyOTPMutation,
+  useUpdateAvatarMutation,
+  useUpdateCoverMutation,
 } = userApi;
