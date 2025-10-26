@@ -10,10 +10,12 @@ import { cn } from '@/utils/cn';
 import { IUser } from '@/store/features/auth/types';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 
 const UserMenu = ({ user, token }: { user: IUser | null; token: string | null }) => {
   const [open, setOpen] = useState(false);
 
+  const pathname = usePathname();
   const dispatch = useAppDispatch();
 
   return (
@@ -41,7 +43,7 @@ const UserMenu = ({ user, token }: { user: IUser | null; token: string | null })
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="bg-background border-black-2-600 text-foreground w-56 border p-4"
+        className="bg-background border-black-2-600 text-foreground w-56 rounded-xl border p-4"
       >
         <div className="mb-2 flex flex-col">
           <span className="font-medium">
@@ -49,12 +51,15 @@ const UserMenu = ({ user, token }: { user: IUser | null; token: string | null })
           </span>
           <span className="text-black-2-300 text-xs">{user?.email || 'johndoe@email.com'}</span>
         </div>
-        <div className="border-black-2-600 my-2 border-t"></div>
+        <div className="border-black-2-600 my-3 border-t"></div>
         <div className="flex flex-col">
           <Link
             href="/profile"
             onClick={() => setOpen(false)}
-            className={cn('hover:bg-gray-20 flex items-center gap-2 rounded p-2 hover:bg-white/5')}
+            className={cn(
+              'hover:bg-gray-20 flex items-center gap-2 rounded-sm p-2',
+              pathname === '/profile' ? 'bg-white/5' : 'hover:bg-white/5',
+            )}
           >
             <ProfileUser className="size-4" />
             Profile
@@ -66,7 +71,7 @@ const UserMenu = ({ user, token }: { user: IUser | null; token: string | null })
               setOpen(false);
             }}
             className={cn(
-              'mt-1 flex items-center gap-2 rounded-sm p-2 text-red-500 outline-none hover:bg-red-500/5',
+              'mt-1 flex items-center gap-2 rounded-sm p-2 text-red-500 outline-none hover:bg-red-500/10',
             )}
           >
             <LogOut className="size-4" />

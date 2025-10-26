@@ -91,7 +91,7 @@ export default function UploadPortfolioCard() {
       {/* Loading */}
       {uploading && (
         <div className="flex flex-col items-center justify-center text-center">
-          <div className="border-primary/20 border-t-primary mb-2 h-10 w-10 animate-spin rounded-full border-4" />
+          <div className="border-primary/20 border-t-primary mb-2 size-10 animate-spin rounded-full border-4" />
           <p className="text-sm text-gray-300">Uploading...</p>
         </div>
       )}

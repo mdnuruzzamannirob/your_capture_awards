@@ -3,7 +3,7 @@ import ProfileHeader from '@/components/profile/ProfileHeader';
 
 const ProfilePage = () => {
   return (
-    <main className="">
+    <main className="pb-20">
       <ProfileHeader />
       <PortfolioSection />
     </main>

@@ -21,7 +21,7 @@ const ProfileHeader = () => {
   return (
     <section className="bg-foreground text-background relative rounded-b-xl pb-5">
       {/* Background */}
-      <div className="h-80 w-full overflow-hidden">
+      <div className="h-40 w-full overflow-hidden sm:h-60 md:h-80">
         <Image
           src="https://wallpapers.com/images/high/retrowave-mountain-cover-hpjdu2b1wxpcpwt3.webp"
           alt="cover"
@@ -32,8 +32,8 @@ const ProfileHeader = () => {
       </div>
 
       {/* Profile info */}
-      <div className="container -mt-20 flex flex-col">
-        <div className="border-foreground bg-primary size-40 overflow-hidden rounded-full border-4">
+      <div className="container -mt-12 flex flex-col sm:-mt-16 md:-mt-20">
+        <div className="border-foreground bg-primary size-24 overflow-hidden rounded-full border-4 sm:size-32 md:size-40">
           <Image
             src="https://plus.unsplash.com/premium_photo-1671656349218-5218444643d8?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YXZhdGFyfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=500"
             alt="profile"
@@ -42,15 +42,15 @@ const ProfileHeader = () => {
             className="size-full object-cover"
           />
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
           <div className="">
-            <h1 className="text-primary font-kumbh my-3 text-2xl font-bold">
+            <h1 className="text-primary font-kumbh my-3 text-xl font-bold sm:text-2xl">
               {fullName}{' '}
               <button>
                 <FaRegCopy className="ml-1 size-4" />
               </button>
             </h1>
-            <div className="flex items-center gap-5 text-sm">
+            <div className="flex items-center gap-5 text-xs sm:text-sm">
               <p className="flex items-center gap-2">
                 <FaRegFlag className="size-4" /> {user?.location || 'N/A'}
               </p>{' '}
@@ -60,13 +60,13 @@ const ProfileHeader = () => {
               </p>
             </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-8">
+          <div className="flex flex-wrap gap-8 md:justify-center">
             {stats.map((stat) => (
               <div
                 key={stat.label}
                 className="flex flex-col items-center justify-center gap-2 text-center"
               >
-                <p className="text-foreground bg-primary flex size-12 items-center justify-center rounded-full text-lg font-medium">
+                <p className="text-foreground bg-primary flex size-10 items-center justify-center rounded-full font-medium md:size-12 md:text-lg">
                   {stat.value}
                 </p>
                 <p className="text-sm font-medium">{stat.label}</p>

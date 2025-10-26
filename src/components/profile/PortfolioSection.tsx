@@ -51,7 +51,7 @@ export default function PortfolioSection() {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         <UploadPortfolioCard />
         {/*<UploadSite /> */}
         {sorted.map((item) => (
