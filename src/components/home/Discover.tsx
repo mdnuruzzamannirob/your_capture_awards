@@ -8,7 +8,7 @@ const Discover = () => {
   const [hovered, setHovered] = useState<string | null>(null);
 
   return (
-    <section className="relative container my-20 flex min-h-screen flex-col items-center justify-center py-16">
+    <section className="relative container my-20 flex min-h-screen flex-col items-center justify-center py-20">
       {/* background image */}
       <div className="absolute inset-0 -z-10 size-full opacity-50">
         <Image alt="background" src="/skills.png" fill className="object-cover" />

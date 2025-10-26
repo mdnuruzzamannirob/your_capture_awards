@@ -1,7 +1,7 @@
-import { TSideItems } from '@/types';
+import { SideItems } from '@/types';
 import { AiOutlineHome } from 'react-icons/ai';
 
-export const sideItems: TSideItems[] = [
+export const sideItems: SideItems[] = [
   {
     name: 'Home',
     path: '/',
