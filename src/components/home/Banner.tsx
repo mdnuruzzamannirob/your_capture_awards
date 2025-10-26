@@ -59,7 +59,7 @@ const Banner = () => {
       {/* Right content */}
       <div className="relative flex flex-1 justify-center">
         <Image
-          src="/person.png"
+          src="/images/person.png"
           alt="Photographer holding camera"
           width={600}
           height={600}
@@ -70,28 +70,28 @@ const Banner = () => {
       {/* Background vectors */}
       <Image
         alt=""
-        src="/badge.png"
+        src="/icons/badge.png"
         width={24}
         height={24}
         className="absolute top-10 right-32 opacity-30"
       />
       <Image
         alt=""
-        src="/camera.png"
+        src="/icons/camera.png"
         width={50}
         height={50}
         className="absolute bottom-0 left-10"
       />
       <Image
         alt=""
-        src="/capture.png"
+        src="/icons/capture.png"
         width={50}
         height={50}
         className="absolute top-2/3 left-2/5 opacity-30"
       />
       <Image
         alt=""
-        src="/linked-camera.png"
+        src="/icons/linked-camera.png"
         width={100}
         height={100}
         className="absolute right-32 -bottom-10 -translate-x-1/5 opacity-60"

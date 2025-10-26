@@ -5,31 +5,14 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
+import { memoriesImages } from '@/constants';
 
 export default function Memories() {
-  const images = [
-    {
-      image: '/photographer.png',
-    },
-    {
-      image: '/photographer.png',
-    },
-    {
-      image: '/photographer.png',
-    },
-    {
-      image: '/photographer.png',
-    },
-    {
-      image: '/photographer.png',
-    },
-  ];
-
   return (
     <section className="relative container my-20 space-y-10 pt-14 pb-40">
       {/* bg image */}
       <div className="absolute inset-0 -z-10 size-full opacity-15">
-        <Image alt="background" src="/back-circle.png" fill />
+        <Image alt="background" src="/images/back-circle.png" fill />
       </div>
 
       {/* title */}
@@ -63,7 +46,7 @@ export default function Memories() {
         }}
         className="rounded-xl"
       >
-        {images.map((src, i) => (
+        {memoriesImages?.map((src, i) => (
           <SwiperSlide key={i} className="overflow-hidden rounded-xl">
             <Image
               src={src.image}

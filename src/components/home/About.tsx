@@ -22,7 +22,7 @@ const About = () => {
       <div className="flex flex-col gap-20 lg:flex-row">
         <div className="flex h-fit flex-col items-center gap-20 lg:flex-row">
           <Image
-            src="/photographer.png"
+            src="/images/photographer.png"
             alt="photographer"
             width={312}
             height={312}
@@ -41,7 +41,7 @@ const About = () => {
           </div>{' '}
         </div>
 
-        <Image src="/studio.png" alt="studio" className="h-auto" width={400} height={500} />
+        <Image src="/images/studio.png" alt="studio" className="h-auto" width={400} height={500} />
       </div>
     </section>
   );

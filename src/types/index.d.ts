@@ -10,6 +10,10 @@ export type NavLink = {
   href: string;
 };
 
+export type MemoriesImage = {
+  image: string;
+};
+
 export type DiscoverItem = {
   key: string;
   label: string;
