@@ -14,7 +14,7 @@ import Cookies from 'js-cookie';
 import { cn } from '@/utils/cn';
 import Link from 'next/link';
 import Image from 'next/image';
-import { TSideItems } from '@/types';
+import { SideItems } from '@/types';
 import { sideItems } from '@/constants/sideItems';
 
 const Sidebar = () => {
@@ -41,7 +41,7 @@ const Sidebar = () => {
     }));
   };
 
-  const renderMenuItems = (items: TSideItems[], level = 0) => {
+  const renderMenuItems = (items: SideItems[], level = 0) => {
     return items.map((item, index) => (
       <li key={index} className="flex flex-col gap-1">
         <button
