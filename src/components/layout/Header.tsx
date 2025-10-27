@@ -3,16 +3,16 @@
 import { cn } from '@/utils/cn';
 import LogoName from '../LogoName';
 import Link from 'next/link';
-import { useAppSelector } from '@/store/hooks';
 import { usePathname } from 'next/navigation';
 import { navLinks } from '@/constants';
 import { FiSearch } from 'react-icons/fi';
 import { IoNotificationsOutline } from 'react-icons/io5';
 import UserMenu from '@/components/UserMenu';
 import Sidebar from './Sidebar';
+import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
-  const { token, user } = useAppSelector((state) => state?.auth);
+  const { token, user } = useAuth();
 
   const pathname = usePathname();
 
@@ -56,7 +56,6 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              {' '}
               <Link
                 href="/signin"
                 className="border-primary hover:border-primary/90 hover:text-foreground/90 hidden rounded-sm border px-5 py-2 text-sm transition-colors xl:block"

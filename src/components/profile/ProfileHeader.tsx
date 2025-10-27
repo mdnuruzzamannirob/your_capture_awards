@@ -1,49 +1,70 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { FaRegCopy, FaRegFlag } from 'react-icons/fa';
 import { MdOutlineHowToVote } from 'react-icons/md';
+import { useState } from 'react';
+import { useGetStatsQuery } from '@/store/features/profile/profileApi';
+import { Skeleton } from '../ui/skeleton';
 
 const ProfileHeader = () => {
   const { user } = useAuth();
+  const [avatarError, setAvatarError] = useState(false);
+  const [coverError, setCoverError] = useState(false);
 
   const fullName = user?.firstName + ' ' + user?.lastName || 'Name not found';
 
-  const stats = [
-    { label: 'Photo', value: 63 },
-    { label: 'Achievements', value: 23 },
-    { label: 'Likes', value: 72 },
-    { label: 'Followers', value: 63 },
-    { label: 'Following', value: 30 },
-  ];
+  const { data: statsData, isLoading } = useGetStatsQuery();
+  const stats = statsData?.data
+    ? [
+        { label: 'Photo', value: statsData?.data?.userPhotos ?? 0 },
+        { label: 'Achievements', value: statsData?.data?.achievements ?? 0 },
+        { label: 'Likes', value: statsData?.data?.likes ?? 0 },
+        { label: 'Followers', value: statsData?.data?.followers ?? 0 },
+        { label: 'Following', value: statsData?.data?.followings ?? 0 },
+      ]
+    : [];
+
   return (
     <section className="bg-foreground text-background relative rounded-b-xl pb-5">
       {/* Background */}
-      <div className="h-40 w-full overflow-hidden sm:h-60 md:h-80">
-        <Image
-          src="https://wallpapers.com/images/high/retrowave-mountain-cover-hpjdu2b1wxpcpwt3.webp"
-          alt="cover"
-          width={1920}
-          height={500}
-          className="h-full w-full object-cover"
-        />
+      <div className="h-40 w-full overflow-hidden bg-gray-800 text-gray-300 sm:h-60 md:h-80">
+        {!coverError && user?.cover ? (
+          <Image
+            src={user.cover}
+            alt="cover"
+            width={1920}
+            height={500}
+            className="h-full w-full object-cover"
+            onError={() => setCoverError(true)}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gray-800 text-gray-300">
+            <p>No cover photo</p>
+          </div>
+        )}
       </div>
 
       {/* Profile info */}
       <div className="container -mt-12 flex flex-col sm:-mt-16 md:-mt-20">
-        <div className="border-foreground bg-primary size-24 overflow-hidden rounded-full border-4 sm:size-32 md:size-40">
-          <Image
-            src="https://plus.unsplash.com/premium_photo-1671656349218-5218444643d8?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YXZhdGFyfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=500"
-            alt="profile"
-            width={160}
-            height={160}
-            className="size-full object-cover"
-          />
+        <div className="border-foreground bg-primary size-24 overflow-hidden rounded-full border-4 text-white sm:size-32 md:size-40">
+          {!avatarError && user?.avatar ? (
+            <Image
+              src={user.avatar}
+              alt="profile"
+              width={160}
+              height={160}
+              className="size-full object-cover"
+              onError={() => setAvatarError(true)}
+            />
+          ) : (
+            <div className="flex size-full items-center justify-center text-sm">No Avatar</div>
+          )}
         </div>
+
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
-          <div className="">
+          <div>
             <h1 className="text-primary font-kumbh my-3 text-xl font-bold sm:text-2xl">
               {fullName}{' '}
               <button>
@@ -60,18 +81,31 @@ const ProfileHeader = () => {
               </p>
             </div>
           </div>
+
           <div className="flex flex-wrap gap-8 md:justify-center">
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="flex flex-col items-center justify-center gap-2 text-center"
-              >
-                <p className="text-foreground bg-primary flex size-10 items-center justify-center rounded-full font-medium md:size-12 md:text-lg">
-                  {stat.value}
-                </p>
-                <p className="text-sm font-medium">{stat.label}</p>
-              </div>
-            ))}
+            {isLoading
+              ? ['Photo', 'Achievements', 'Likes', 'Followers', 'Following'].map((stat, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col items-center justify-center gap-2 text-center"
+                  >
+                    <Skeleton className="size-10 rounded-full md:size-12" />
+
+                    <p className="text-sm font-medium">{stat}</p>
+                  </div>
+                ))
+              : stats.map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="flex flex-col items-center justify-center gap-2 text-center"
+                  >
+                    <p className="text-foreground bg-primary flex size-10 items-center justify-center rounded-full font-medium md:size-12 md:text-lg">
+                      {stat.value}
+                    </p>
+
+                    <p className="text-sm font-medium">{stat.label}</p>
+                  </div>
+                ))}
           </div>
         </div>
       </div>

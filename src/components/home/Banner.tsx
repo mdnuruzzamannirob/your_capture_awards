@@ -9,7 +9,7 @@ const Banner = () => {
       <div className="flex-1 space-y-6">
         {/* Award logo */}
         <div className="flex items-center gap-5">
-          <Image alt="Award" src="/award.png" width={90} height={90} />
+          <Image alt="Award" src="/icons/award.png" width={90} height={90} />
 
           <p className="from-primary to-foreground bg-linear-to-b bg-clip-text font-bold text-transparent">
             THE <br /> GAME <br /> AWARD

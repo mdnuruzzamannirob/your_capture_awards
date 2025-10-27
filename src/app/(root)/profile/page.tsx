@@ -1,7 +1,7 @@
 import PortfolioSection from '@/components/profile/PortfolioSection';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 
-const ProfilePage = () => {
+const ProfilePage = async () => {
   return (
     <main className="pb-20">
       <ProfileHeader />

@@ -7,6 +7,8 @@ export interface AuthUser {
   role: string;
   phone: number;
   avatar: string;
+  cover: string;
+  location: string;
 }
 
 export type SigninData = {
