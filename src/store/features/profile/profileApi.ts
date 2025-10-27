@@ -1,31 +1,25 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQuery } from '@/store/rtkQueryClient';
-import { setPhotos, setStats } from './profileSlice';
+import { deletePhoto, setPhoto, setPhotos, setStats } from './profileSlice';
 import { Stats } from './types';
 
 export const profileApi = createApi({
   reducerPath: 'profileApi',
   baseQuery,
   endpoints: (builder) => ({
-    createPhoto: builder.mutation<{ data: any }, { photo: File }>({
-      query: (body) => ({
-        url: '/profiles/photos',
+    createPhoto: builder.mutation<{ data: any }, FormData>({
+      query: (formData) => ({
+        url: '/profiles/photos/upload',
         method: 'POST',
-        body,
+        body: formData,
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        // try {
-        //   const {
-        //     data: { data },
-        //   } = await queryFulfilled;
-        //   dispatch(setUser(data));
-        //   Cookies.set('token', data.token, {
-        //     expires: 7,
-        //     secure: true,
-        //     sameSite: 'Strict',
-        //     path: '/',
-        //   });
-        // } catch (err) {}
+        try {
+          const {
+            data: { data },
+          } = await queryFulfilled;
+          dispatch(setPhoto(data));
+        } catch (err) {}
       },
     }),
 
@@ -36,8 +30,22 @@ export const profileApi = createApi({
           const {
             data: { data },
           } = await queryFulfilled;
-          dispatch(setPhotos(data));
+          dispatch(setPhotos(data.photos));
         } catch {}
+      },
+    }),
+
+    deletePhoto: builder.mutation<{ data: any }, string>({
+      query: (id) => ({
+        url: `/profiles/photos/${id}`,
+        method: 'DELETE',
+      }),
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+
+          dispatch(deletePhoto(id));
+        } catch (err) {}
       },
     }),
 
@@ -55,4 +63,9 @@ export const profileApi = createApi({
   }),
 });
 
-export const { useCreatePhotoMutation, useGetPhotosQuery, useGetStatsQuery } = profileApi;
+export const {
+  useCreatePhotoMutation,
+  useGetPhotosQuery,
+  useGetStatsQuery,
+  useDeletePhotoMutation,
+} = profileApi;

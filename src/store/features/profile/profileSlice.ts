@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Photo, ProfileState, Stats } from './types';
 
 const initialState: ProfileState = {
-  photos: null,
+  photos: [],
   stats: null,
   achievements: null,
 };
@@ -23,9 +23,9 @@ const profileSlice = createSlice({
       }
     },
 
-    deletePhoto: (state, action: PayloadAction<Photo>) => {
+    deletePhoto: (state, action: PayloadAction<string>) => {
       if (state.photos) {
-        state.photos = state.photos.filter((photo) => photo.id !== action.payload.id);
+        state.photos = state.photos.filter((photo) => photo.id !== action.payload);
       }
     },
 

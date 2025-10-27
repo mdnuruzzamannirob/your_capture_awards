@@ -5,11 +5,14 @@ import Image from 'next/image';
 import { LucideCloudUpload, X } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { toast } from 'sonner';
+import { useCreatePhotoMutation } from '@/store/features/profile/profileApi';
 
 export default function UploadPortfolioCard() {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [isError, setIsError] = useState<boolean>(false);
+
+  const [createPhoto] = useCreatePhotoMutation();
 
   const uploadToServer = async (selectedFile: File) => {
     setUploading(true);
@@ -17,19 +20,14 @@ export default function UploadPortfolioCard() {
 
     try {
       const formData = new FormData();
-      formData.append('file', selectedFile);
+      formData.append('photo', selectedFile);
 
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
+      await createPhoto(formData).unwrap();
 
-      const data = await res.json();
-
-      // You can store response URL/state here if needed
+      setFile(null);
     } catch (err: any) {
       setIsError(true);
-      toast.error(err.message || err.data.message || 'Something went wrong!');
+      toast.error(err.message || err.data?.message || 'Something went wrong!');
     } finally {
       setUploading(false);
     }
