@@ -22,7 +22,7 @@ export type Stats = {
 };
 
 export type ProfileState = {
-  photos: Photo[] | null;
+  photos: Photo[];
   stats: Stats | null;
   achievements: any | null;
 };
