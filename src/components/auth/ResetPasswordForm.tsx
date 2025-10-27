@@ -2,8 +2,9 @@
 
 import FormField from '@/components/FormField';
 import LogoName from '@/components/LogoName';
+import { useAuth } from '@/hooks/useAuth';
 import { ConfirmFormData, resetPassSchema } from '@/lib/schemas/userSchema';
-import { useResetPasswordMutation } from '@/store/features/user/userApi';
+import { useResetPasswordMutation } from '@/store/features/auth/authApi';
 import { useAppSelector } from '@/store/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -13,7 +14,7 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { toast } from 'sonner';
 
 export default function ResetPasswordForm() {
-  const { email, token } = useAppSelector((state) => state.user);
+  const { tempEmail, tempToken } = useAuth();
 
   const [showPass, setShowPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
@@ -29,8 +30,8 @@ export default function ResetPasswordForm() {
       await resetPassword({
         password: data.password,
         confirmPassword: data.confirmPassword,
-        token: token ?? '',
-        email: email ?? '',
+        token: tempToken ?? '',
+        email: tempEmail ?? '',
       }).unwrap();
 
       toast.success('Password reset successfully.', {

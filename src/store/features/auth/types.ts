@@ -1,4 +1,4 @@
-export interface IUser {
+export interface AuthUser {
   id: string;
   firstName: string;
   lastName: string;
@@ -7,16 +7,14 @@ export interface IUser {
   role: string;
   phone: number;
   avatar: string;
-  cover: string;
-  location: string | null;
 }
 
-export type TSigninData = {
+export type SigninData = {
   email: string;
   password: string;
 };
 
-export type TSignupData = {
+export type SignupData = {
   firstName: string;
   lastName: string;
   email: string;
@@ -25,7 +23,9 @@ export type TSignupData = {
   confirmPassword: string;
 };
 
-export interface IAuthState {
+export interface AuthState {
   token: string | null;
-  user: IUser | null;
+  user: AuthUser | null;
+  tempToken: string | null;
+  tempEmail: string | null;
 }

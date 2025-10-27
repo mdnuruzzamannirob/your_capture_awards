@@ -9,7 +9,7 @@ import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { usePathname, useRouter } from 'next/navigation';
 import { IoIosArrowDown } from 'react-icons/io';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { logout } from '@/store/features/auth/authSlice';
+import { signout } from '@/store/features/auth/authSlice';
 import Cookies from 'js-cookie';
 import { cn } from '@/utils/cn';
 import Link from 'next/link';
@@ -137,7 +137,7 @@ const Sidebar = () => {
                   {/* Logout Button */}
                   <button
                     onClick={() => {
-                      dispatch(logout());
+                      dispatch(signout());
                       Cookies.remove('token');
                       setOpen(false);
                     }}

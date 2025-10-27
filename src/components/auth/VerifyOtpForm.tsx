@@ -3,22 +3,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import LogoName from '../LogoName';
-import { useForgotPasswordMutation, useVerifyOTPMutation } from '@/store/features/user/userApi';
 import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setUserEmail } from '@/store/features/user/userSlice';
+import { useForgotPasswordMutation, useVerifyOTPMutation } from '@/store/features/auth/authApi';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function VerifyOtpForm() {
-  const { email: defaultEmail } = useAppSelector((state) => state.user);
+  const { tempEmail } = useAuth();
 
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
-  const [email, setEmail] = useState(defaultEmail ?? '');
   const [resendCoolDown, setResendCoolDown] = useState(0);
   const [error, setError] = useState<string>('');
 
   const router = useRouter();
-  const dispatch = useAppDispatch();
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+
   const [forgotPassword, { isLoading: isForgotLoading }] = useForgotPasswordMutation();
   const [verifyOtp, { isLoading }] = useVerifyOTPMutation();
 
@@ -66,7 +64,7 @@ export default function VerifyOtpForm() {
   // resend OTP
   const handleResend = async () => {
     if (resendCoolDown > 0) return;
-    if (!email) {
+    if (!tempEmail) {
       setError('Please enter your email before resending.');
       return;
     }
@@ -74,9 +72,8 @@ export default function VerifyOtpForm() {
     try {
       setError('');
 
-      await forgotPassword({ email }).unwrap();
+      await forgotPassword({ email: tempEmail }).unwrap();
 
-      dispatch(setUserEmail(email));
       toast.success('OTP resent successfully! Check your inbox.');
       setResendCoolDown(30);
     } catch (err: any) {
@@ -94,7 +91,7 @@ export default function VerifyOtpForm() {
       setError('Please enter the full 6-digit OTP.');
       return;
     }
-    if (!email) {
+    if (!tempEmail) {
       setError('Email field cannot be empty.');
       return;
     }
@@ -102,7 +99,7 @@ export default function VerifyOtpForm() {
     try {
       setError('');
 
-      await verifyOtp({ email, code }).unwrap();
+      await verifyOtp({ email: tempEmail, code }).unwrap();
 
       toast.success('OTP verified successfully!');
       router.push('/reset-password');
@@ -121,28 +118,38 @@ export default function VerifyOtpForm() {
       </header>
 
       <div className="w-full space-y-5 rounded-md border border-orange-400/60 p-8 md:p-10">
-        <p className="font-medium">Enter Verification Code</p>
-
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        <div className="space-y-5">
+          <h1 className="font-rubik text-2xl font-medium md:text-3xl">Verify OTP</h1>
+          <p className="max-md:text-sm">
+            We have sent you an OTP to your email address. Please check it and place the otp for
+            resetting password
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-3 flex gap-3">
-            {otp.map((digit, idx) => (
-              <input
-                key={idx}
-                ref={(el) => {
-                  inputsRef.current[idx] = el;
-                }}
-                type="text"
-                inputMode="numeric"
-                maxLength={1}
-                value={digit}
-                onChange={(e) => handleChange(idx, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(e, idx)}
-                onPaste={handlePaste}
-                className="size-8 rounded border border-gray-500 bg-transparent text-center outline-none focus:border-orange-500 md:size-10"
-              />
-            ))}
+          <div className="mb-4">
+            <label htmlFor="otp" className="mb-1 block text-sm font-medium">
+              Enter Verification Code
+            </label>
+            <div className="flex w-full items-center gap-3">
+              {otp.map((digit, idx) => (
+                <input
+                  key={idx}
+                  ref={(el) => {
+                    inputsRef.current[idx] = el;
+                  }}
+                  id="otp"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleChange(idx, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(e, idx)}
+                  onPaste={handlePaste}
+                  className="size-8 rounded border border-gray-500 bg-transparent text-center outline-none focus:border-orange-500 md:size-10"
+                />
+              ))}
+            </div>
           </div>
 
           <p className="mb-4 text-xs text-gray-400">
@@ -161,20 +168,7 @@ export default function VerifyOtpForm() {
             </button>
           </p>
 
-          <div>
-            <label htmlFor="email-input" className="mb-1 block text-sm font-medium">
-              Email
-            </label>
-            <input
-              id="email-input"
-              type="email"
-              className="focus:ring-primary h-[50px] w-full rounded-sm border px-3 text-sm shadow-2xs outline-none focus:border-transparent focus:ring-2"
-              value={email}
-              required
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@company.com"
-            />
-          </div>
+          {error && <p className="text-sm text-red-500">{error}</p>}
 
           <button
             type="submit"

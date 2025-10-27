@@ -3,9 +3,7 @@
 import FormField from '@/components/FormField';
 import LogoName from '@/components/LogoName';
 import { ForgotFormData, forgotPassSchema } from '@/lib/schemas/userSchema';
-import { useForgotPasswordMutation } from '@/store/features/user/userApi';
-import { setUserEmail } from '@/store/features/user/userSlice';
-import { useAppDispatch } from '@/store/hooks';
+import { useForgotPasswordMutation } from '@/store/features/auth/authApi';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -17,13 +15,11 @@ export default function ForgotPasswordForm() {
   });
 
   const router = useRouter();
-  const dispatch = useAppDispatch();
   const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
   const onSubmit = async (data: ForgotFormData) => {
     try {
       await forgotPassword({ email: data.email }).unwrap();
 
-      dispatch(setUserEmail(data.email));
       toast.message('Password reset email sent', {
         description: 'Please check your inbox for the reset code.',
       });

@@ -48,7 +48,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const data = await getUser();
+  const user = await getUser();
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -56,7 +56,7 @@ export default async function RootLayout({
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} ${kumbhSans.variable} anti-aliased`}
       >
-        <Providers user={data?.user} token={data?.token || ''}>
+        <Providers user={user}>
           {children} <Toaster expand={true} richColors closeButton />
         </Providers>
       </body>

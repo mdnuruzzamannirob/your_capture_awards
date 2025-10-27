@@ -27,3 +27,8 @@ export type FeatureItem = {
   href: string;
   img: string;
 };
+
+export type AuthData = {
+  user: AuthUser | null;
+  token: string | null;
+};

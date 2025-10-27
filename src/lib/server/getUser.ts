@@ -1,28 +1,34 @@
+import { AuthData } from '@/types';
 import { cookies } from 'next/headers';
 
-export async function getUser() {
+export async function getUser(): Promise<AuthData> {
   const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
+  const token = cookieStore.get('token')?.value || null;
+  const api = process.env.NEXT_PUBLIC_API_URL_V1;
 
-  if (!token) return null;
+  const defaultState: AuthData = {
+    user: null,
+    token: null,
+  };
+
+  if (!token || !api) return defaultState;
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const res = await fetch(`${api}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
       cache: 'no-store',
     });
 
-    if (!res.ok) return null;
+    if (!res.ok) return defaultState;
 
-    const data = await res.json();
+    const json = await res.json();
+    const user = json?.data || json;
 
     return {
-      user: data?.data || data,
+      user,
       token,
     };
-  } catch (error) {
-    return null;
+  } catch (err) {
+    return defaultState;
   }
 }

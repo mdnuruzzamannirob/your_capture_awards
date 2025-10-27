@@ -1,22 +1,21 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQuery } from '@/store/rtkQueryClient';
 import { User } from './types';
-import { setUserToken } from './userSlice';
 
 export const userApi = createApi({
   reducerPath: 'userApi',
   tagTypes: ['User', 'Users'],
   baseQuery,
   endpoints: (builder) => ({
-    // Get single user
+    // Get user
     getUser: builder.query<User, string>({
-      query: (id) => ({ url: `api/v1/users/${id}`, method: 'GET' }),
+      query: (id) => ({ url: `/users/${id}`, method: 'GET' }),
       providesTags: (result, error, id) => [{ type: 'User', id }],
     }),
 
     // Get users
     getUsers: builder.query<User[], { page?: number; limit?: number; q?: string } | void>({
-      query: (params) => ({ url: 'api/v1/users/all', params: params || { page: 1, limit: 20 } }),
+      query: (params) => ({ url: '/users/all', params: params || { page: 1, limit: 20 } }),
       providesTags: (result) =>
         result
           ? [
@@ -27,42 +26,12 @@ export const userApi = createApi({
     }),
 
     // Update user (partial)
-    updateUser: builder.mutation<User, { id: string; patch: Partial<User> }>({
-      query: ({ id, patch }) => ({ url: `api/v1/users/${id}`, method: 'PATCH', body: patch }),
+    updateUser: builder.mutation<User, { id: string; patchData: Partial<User> }>({
+      query: ({ id, patchData }) => ({ url: `/users/${id}`, method: 'PATCH', body: patchData }),
       invalidatesTags: (result, error, { id }) => [
         { type: 'User', id },
         { type: 'Users', id: 'LIST' },
       ],
-    }),
-
-    // Forgot password: send OTP or reset link
-    forgotPassword: builder.mutation<{ success: boolean; message?: string }, { email: string }>({
-      query: (body) => ({ url: 'api/v1/users/forget-password', method: 'POST', body }),
-      invalidatesTags: [{ type: 'User' }],
-    }),
-
-    // Reset password using token or OTP
-    resetPassword: builder.mutation<
-      { ok: boolean; message?: string },
-      { token?: string; email?: string; password: string; confirmPassword: string }
-    >({
-      query: (body) => ({ url: 'api/v1/users/reset-password', method: 'PATCH', body }),
-      invalidatesTags: [{ type: 'User' }],
-    }),
-
-    // Verify OTP
-    verifyOTP: builder.mutation<
-      { data: { reset_password_token?: string } },
-      { email: string; code: string }
-    >({
-      query: (body) => ({ url: 'api/v1/users/verify-otp', method: 'POST', body }),
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          dispatch(setUserToken(data.data?.reset_password_token || ''));
-        } catch (err) {}
-      },
-      invalidatesTags: [{ type: 'User' }],
     }),
 
     // Update Avatar
@@ -83,9 +52,6 @@ export const {
   useGetUserQuery,
   useGetUsersQuery,
   useUpdateUserMutation,
-  useForgotPasswordMutation,
-  useResetPasswordMutation,
-  useVerifyOTPMutation,
   useUpdateAvatarMutation,
   useUpdateCoverMutation,
 } = userApi;

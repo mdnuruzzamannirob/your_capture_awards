@@ -15,6 +15,12 @@ export interface User {
   socialProvider: string | null;
 }
 
+// export interface UserState {
+//   email: string | null;
+//   token: string | null;
+//   data: any | null;
+// }
+
 // export interface PaginatedUsers {
 //   items: User[];
 //   totalItems: number;
