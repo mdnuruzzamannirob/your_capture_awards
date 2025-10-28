@@ -27,20 +27,26 @@ const Navbar = () => {
         </div>
 
         {/* middle */}
-        <ul className="font-kumbh hidden flex-1 items-center justify-center gap-5 lg:flex">
-          {links?.map((link, index) => (
-            <li key={index}>
-              <Link
-                href={link.href}
-                className={cn(
-                  'hover:text-primary p-1 transition-colors',
-                  pathname === link.href ? 'text-primary' : 'text-inherit',
-                )}
-              >
-                {link.name}
-              </Link>
-            </li>
-          ))}
+        <ul className="font-kumbh hidden flex-1 items-center justify-center gap-5 select-none lg:flex">
+          {links?.map((link, index) => {
+            const isActive =
+              pathname === link.href ||
+              (Array.isArray(link.tags) && link.tags.some((tag) => pathname.includes(tag)));
+
+            return (
+              <li key={index}>
+                <Link
+                  href={isActive ? '#' : link.href}
+                  className={cn(
+                    'hover:text-primary p-1 transition-colors',
+                    isActive ? 'text-primary pointer-events-none cursor-default' : 'text-inherit',
+                  )}
+                >
+                  {link.name}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
 
         {/* right */}

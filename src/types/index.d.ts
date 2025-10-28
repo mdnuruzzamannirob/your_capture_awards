@@ -8,6 +8,7 @@ export type SideItems = {
 export type NavLink = {
   name: string;
   href: string;
+  tags?: string[];
 };
 
 export type MemoriesImage = {
