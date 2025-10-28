@@ -9,8 +9,8 @@ const RootLayout = ({
   return (
     <>
       <Header />
-      <main className="min-h-dvh py-[100px]">{children}</main>
-      {/* <Footer /> */}
+      <main className="min-h-dvh">{children}</main>
+      <Footer />
     </>
   );
 };

@@ -43,7 +43,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         description: 'Welcome back!',
       });
       signinForm.reset();
-      router.push('/');
+      router.push('/contest/joined');
     } catch (err: any) {
       toast.error('Oops! Something went wrong', {
         description:
@@ -66,7 +66,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         description: 'You can now log in with your new account.',
       });
       signupForm.reset();
-      router.push('/');
+      router.push('/contest/joined');
     } catch (err: any) {
       toast.error('Oops! Something went wrong', {
         description:

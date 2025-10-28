@@ -3,10 +3,10 @@ import ProfileHeader from '@/components/profile/ProfileHeader';
 
 const ProfilePage = async () => {
   return (
-    <main className="pb-20">
+    <>
       <ProfileHeader />
       <PortfolioSection />
-    </main>
+    </>
   );
 };
 

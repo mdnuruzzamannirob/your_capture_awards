@@ -1,13 +1,18 @@
 import { DiscoverItem, FeatureItem, MemoriesImage, NavLink } from '@/types';
 
 export const navLinks: NavLink[] = [
-  { name: 'Home', href: '/' },
   { name: 'Discover', href: '/discover' },
-  { name: 'Challengers', href: '/challengers' },
   { name: 'Exhibitions', href: '/exhibitions' },
-  { name: 'Teams', href: '/teams' },
-  { name: 'Pricing', href: '/pricing' },
   { name: 'About', href: '/about' },
+  { name: 'Contact', href: '/contact' },
+];
+
+export const userNavLinks: NavLink[] = [
+  { name: 'Contest', href: '/contest' },
+  { name: 'Teams', href: '/teams' },
+  { name: 'Exhibitions', href: '/exhibitions' },
+  { name: 'Discover', href: '/discover' },
+  { name: 'Pricing', href: '/pricing' },
 ];
 
 export const memoriesImages: MemoriesImage[] = [

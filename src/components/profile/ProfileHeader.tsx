@@ -12,8 +12,6 @@ import AvatarDialog from './AvatarDialog';
 
 const ProfileHeader = () => {
   const { user } = useAuth();
-  const [avatarError, setAvatarError] = useState(false);
-  const [avatarHover, setAvatarHover] = useState(false);
   const [coverError, setCoverError] = useState(false);
 
   const fullName = user?.firstName + ' ' + user?.lastName || 'Name not found';
@@ -30,7 +28,7 @@ const ProfileHeader = () => {
     : [];
 
   return (
-    <section className="bg-foreground text-background relative rounded-b-xl pb-5">
+    <section className="bg-foreground text-background relative mt-[91.38px] rounded-b-xl pb-5 lg:mt-[97.5px]">
       {/* Background */}
       <div className="relative h-40 w-full overflow-hidden bg-gray-800 text-gray-300 sm:h-60 md:h-80">
         {!coverError && user?.cover ? (

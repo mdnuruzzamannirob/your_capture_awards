@@ -4,7 +4,7 @@ import { cn } from '@/utils/cn';
 import LogoName from '../LogoName';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { navLinks } from '@/constants';
+import { navLinks, userNavLinks } from '@/constants';
 import { FiSearch } from 'react-icons/fi';
 import { IoNotificationsOutline } from 'react-icons/io5';
 import UserMenu from '@/components/UserMenu';
@@ -12,10 +12,10 @@ import Sidebar from './Sidebar';
 import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
-  const { token, user } = useAuth();
+  const { token, user, isAuthenticated } = useAuth();
 
   const pathname = usePathname();
-
+  const links = isAuthenticated ? userNavLinks : navLinks;
   return (
     <header className="bg-background fixed top-0 right-0 left-0 z-50 py-3">
       <nav className="container flex items-center justify-between">
@@ -28,7 +28,7 @@ const Navbar = () => {
 
         {/* middle */}
         <ul className="font-kumbh hidden flex-1 items-center justify-center gap-5 lg:flex">
-          {navLinks?.map((link, index) => (
+          {links?.map((link, index) => (
             <li key={index}>
               <Link
                 href={link.href}
