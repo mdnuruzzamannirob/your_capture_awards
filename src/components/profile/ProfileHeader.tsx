@@ -7,22 +7,13 @@ import { MdOutlineHowToVote } from 'react-icons/md';
 import { useState } from 'react';
 import { useGetStatsQuery } from '@/store/features/profile/profileApi';
 import { Skeleton } from '../ui/skeleton';
-import { FiEdit2 } from 'react-icons/fi';
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '../ui/dialog';
 import AddCoverDialog from './AddCoverDialog';
+import AvatarDialog from './AvatarDialog';
 
 const ProfileHeader = () => {
   const { user } = useAuth();
   const [avatarError, setAvatarError] = useState(false);
+  const [avatarHover, setAvatarHover] = useState(false);
   const [coverError, setCoverError] = useState(false);
 
   const fullName = user?.firstName + ' ' + user?.lastName || 'Name not found';
@@ -63,20 +54,7 @@ const ProfileHeader = () => {
 
       {/* Profile info */}
       <div className="relative container -mt-12 flex flex-col sm:-mt-16 md:-mt-20">
-        <div className="border-foreground bg-primary size-24 overflow-hidden rounded-full border-4 text-white sm:size-32 md:size-40">
-          {!avatarError && user?.avatar ? (
-            <Image
-              src={user.avatar}
-              alt="profile"
-              width={160}
-              height={160}
-              className="size-full object-cover"
-              onError={() => setAvatarError(true)}
-            />
-          ) : (
-            <div className="flex size-full items-center justify-center text-sm">No Avatar</div>
-          )}
-        </div>
+        <AvatarDialog />
 
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
           <div>
