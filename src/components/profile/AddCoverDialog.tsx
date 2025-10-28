@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent, useRef } from 'react';
 import { FiEdit2 } from 'react-icons/fi';
 import {
   Dialog,
@@ -24,6 +24,8 @@ export default function AddCoverDialog() {
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [updateCover, { isLoading }] = useUpdateCoverMutation();
   const [triggerGetMe] = useLazyGetMeQuery();
 
@@ -46,7 +48,6 @@ export default function AddCoverDialog() {
       await updateCover(formData).unwrap();
       triggerGetMe();
 
-      // reset UI
       toast.success('Cover photo updated successfully!');
       setFile(null);
       setPreview(null);
@@ -60,7 +61,7 @@ export default function AddCoverDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="absolute top-5 right-5 flex size-8 items-center justify-center rounded-full bg-white/10 transition hover:bg-white/20 lg:size-9">
+        <button className="absolute top-5 right-5 flex size-8 items-center justify-center rounded-full border bg-white/10 shadow transition hover:bg-white/20 lg:size-9">
           <FiEdit2 className="size-4" />
         </button>
       </DialogTrigger>
@@ -72,33 +73,27 @@ export default function AddCoverDialog() {
         </DialogHeader>
 
         <div className="grid gap-4 py-2">
-          {preview ? (
-            <Image
-              src={preview}
-              alt="Cover Preview"
-              width={400}
-              height={160}
-              className="h-40 w-full rounded-md object-cover"
-            />
-          ) : (
-            <div
-              className={cn(
-                'flex h-40 w-full items-center justify-center rounded-md border border-dashed border-gray-400 text-sm text-gray-500',
-                error && 'text-destructive border-destructive',
-              )}
-            >
-              No image selected
-            </div>
-          )}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className={cn(
+              'relative flex h-40 w-full cursor-pointer items-center justify-center overflow-hidden rounded-md border border-dashed border-gray-400 text-sm text-gray-500',
+              error && 'border-destructive text-destructive',
+            )}
+          >
+            {preview ? (
+              <Image src={preview} alt="Cover Preview" fill className="object-cover" />
+            ) : (
+              <span>No image selected</span>
+            )}
+          </button>
 
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className={cn(
-              'block w-full text-sm text-gray-300 file:mr-4 file:rounded-md file:border-0 file:bg-white/10 file:px-3 file:py-1 file:text-sm file:text-white hover:file:bg-white/20',
-              error && 'text-destructive',
-            )}
+            className="hidden" // hide the input
           />
         </div>
 
