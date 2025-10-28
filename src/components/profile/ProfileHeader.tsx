@@ -7,6 +7,18 @@ import { MdOutlineHowToVote } from 'react-icons/md';
 import { useState } from 'react';
 import { useGetStatsQuery } from '@/store/features/profile/profileApi';
 import { Skeleton } from '../ui/skeleton';
+import { FiEdit2 } from 'react-icons/fi';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog';
+import AddCoverDialog from './AddCoverDialog';
 
 const ProfileHeader = () => {
   const { user } = useAuth();
@@ -29,7 +41,7 @@ const ProfileHeader = () => {
   return (
     <section className="bg-foreground text-background relative rounded-b-xl pb-5">
       {/* Background */}
-      <div className="h-40 w-full overflow-hidden bg-gray-800 text-gray-300 sm:h-60 md:h-80">
+      <div className="relative h-40 w-full overflow-hidden bg-gray-800 text-gray-300 sm:h-60 md:h-80">
         {!coverError && user?.cover ? (
           <Image
             src={user.cover}
@@ -44,10 +56,13 @@ const ProfileHeader = () => {
             <p>No cover photo</p>
           </div>
         )}
+        <div className="absolute inset-0 container h-9">
+          <AddCoverDialog />
+        </div>
       </div>
 
       {/* Profile info */}
-      <div className="container -mt-12 flex flex-col sm:-mt-16 md:-mt-20">
+      <div className="relative container -mt-12 flex flex-col sm:-mt-16 md:-mt-20">
         <div className="border-foreground bg-primary size-24 overflow-hidden rounded-full border-4 text-white sm:size-32 md:size-40">
           {!avatarError && user?.avatar ? (
             <Image
