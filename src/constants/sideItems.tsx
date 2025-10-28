@@ -8,13 +8,38 @@ export const sideItems: SideItems[] = [
     icon: <AiOutlineHome className="size-4" />,
   },
   {
-    name: 'Shop',
-    path: '/products',
+    name: 'Discover',
+    path: '/discover',
+    icon: null,
+  },
+  {
+    name: 'Challengers',
+    path: '/challengers',
+    icon: null,
+  },
+  {
+    name: 'Exhibitions',
+    path: '/exhibitions',
+    icon: null,
+  },
+  {
+    name: 'Teams',
+    path: '/teams',
+    icon: null,
+  },
+  {
+    name: 'Pricing',
+    path: '/pricing',
     icon: null,
   },
   {
     name: 'About',
     path: '/about',
+    icon: null,
+  },
+  {
+    name: 'Profile',
+    path: '/profile',
     icon: null,
   },
 ];

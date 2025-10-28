@@ -16,6 +16,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { SideItems } from '@/types';
 import { sideItems } from '@/constants/sideItems';
+import LogoName from '../LogoName';
 
 const Sidebar = () => {
   const { token, user } = useAppSelector((state) => state?.auth);
@@ -54,11 +55,12 @@ const Sidebar = () => {
           }}
           className={cn(
             'flex w-full items-center justify-between gap-3 rounded-sm px-3 py-2 text-sm transition-colors',
-            pathname?.includes(item.path as string)
-              ? 'bg-[#EBEBEB]'
+            (item.path === '/' && pathname === '/') ||
+              (pathname.startsWith(item.path as string) && item.path !== '/')
+              ? 'bg-white/5'
               : openSubmenus[item.name]
-                ? 'bg-[#EBEBEB]'
-                : 'text-muted-foreground hover:bg-black/5 hover:text-inherit',
+                ? 'bg-white/5'
+                : 'text-foreground hover:bg-white/5 hover:text-inherit',
           )}
         >
           {item.name}
@@ -85,15 +87,15 @@ const Sidebar = () => {
             <RiMenuFill />
           </button>
         </DrawerTrigger>
-        <DrawerContent>
+        <DrawerContent className="bg-background text-foreground border-y-none border-l-none border-black-2-600 border-r">
           <VisuallyHidden>
             <DrawerTitle></DrawerTitle>
           </VisuallyHidden>
 
           <div className="flex h-full flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between border-b p-4">
-              <Logo />
+            <div className="border-black-2-600 flex items-center justify-between border-b px-4 py-3">
+              <LogoName className="w-44" />
               <button aria-label="Close menu" onClick={() => setOpen(false)}>
                 <IoCloseOutline className="size-5" />
               </button>
@@ -105,10 +107,10 @@ const Sidebar = () => {
             </nav>
 
             {/* User Section */}
-            <div className="mt-auto border-t p-4">
+            <div className="border-black-2-600 mt-auto border-t px-4 py-3">
               {user && token ? (
                 <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     {/* User Icon */}
                     {user?.avatar ? (
                       <Image
@@ -116,7 +118,7 @@ const Sidebar = () => {
                         src={user?.avatar}
                         width={34}
                         height={34}
-                        className="size-[34px] cursor-pointer overflow-hidden rounded-full object-cover"
+                        className="size-9 min-w-9 cursor-pointer overflow-hidden rounded-full object-cover"
                       />
                     ) : (
                       <button className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-700">
@@ -126,11 +128,11 @@ const Sidebar = () => {
                     )}
 
                     {/* User Info */}
-                    <div className="flex flex-col">
-                      <span className="font-medium">
+                    <div className="flex min-w-0 flex-col">
+                      <span className="truncate font-medium">
                         {user.firstName || 'Name not found'} {user.lastName}
                       </span>
-                      <span className="text-muted-foreground text-sm">{user.email}</span>
+                      <span className="text-muted-foreground truncate text-sm">{user.email}</span>
                     </div>
                   </div>
 
