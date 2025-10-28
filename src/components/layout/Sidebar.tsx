@@ -78,7 +78,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="flex-1 xl:hidden">
+    <div className="flex-1 lg:hidden">
       <Drawer direction="left" open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
           <button className="flex size-[34px] items-center justify-center rounded-full border">

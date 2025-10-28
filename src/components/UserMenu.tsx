@@ -20,7 +20,7 @@ const UserMenu = ({ user, token }: { user: AuthUser | null; token: string | null
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild className="hidden lg:block">
         {user?.avatar ? (
           <Image
             alt="User Avatar"

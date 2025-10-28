@@ -17,15 +17,17 @@ const Navbar = () => {
   const pathname = usePathname();
 
   return (
-    <header className={cn('bg-background fixed top-0 right-0 left-0 z-50 py-3')}>
+    <header className="bg-background fixed top-0 right-0 left-0 z-50 py-3">
       <nav className="container flex items-center justify-between">
-        <Sidebar />
+        <div className="flex items-center gap-3">
+          <Sidebar />
 
-        {/* left */}
-        <LogoName className="flex flex-1 items-center justify-center xl:justify-start" />
+          {/* left */}
+          <LogoName className="max-lg:w-44" />
+        </div>
 
         {/* middle */}
-        <ul className="font-kumbh hidden flex-1 items-center justify-center gap-5 xl:flex">
+        <ul className="font-kumbh hidden flex-1 items-center justify-center gap-5 lg:flex">
           {navLinks?.map((link, index) => (
             <li key={index}>
               <Link
@@ -42,7 +44,7 @@ const Navbar = () => {
         </ul>
 
         {/* right */}
-        <div className={cn('flex flex-1 items-center justify-end gap-5 max-xl:gap-3')}>
+        <div className="flex items-center justify-end gap-5 max-lg:gap-3">
           <button className="flex items-center justify-center rounded-full border p-2">
             <FiSearch />
           </button>
@@ -58,13 +60,13 @@ const Navbar = () => {
             <>
               <Link
                 href="/signin"
-                className="border-primary hover:border-primary/90 hover:text-foreground/90 hidden rounded-sm border px-5 py-2 text-sm transition-colors xl:block"
+                className="border-primary hover:border-primary/90 hover:text-foreground/90 hidden rounded-sm border px-5 py-2 text-sm transition-colors lg:block"
               >
                 Sign In
               </Link>
               <Link
                 href="/signup"
-                className="bg-primary border-primary hover:bg-primary/90 hover:border-primary/90 hidden rounded-sm border px-5 py-2 text-sm transition-colors xl:block"
+                className="bg-primary border-primary hover:bg-primary/90 hover:border-primary/90 hidden rounded-sm border px-5 py-2 text-sm transition-colors lg:block"
               >
                 Sign Up
               </Link>
