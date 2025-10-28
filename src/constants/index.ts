@@ -8,7 +8,11 @@ export const navLinks: NavLink[] = [
 ];
 
 export const userNavLinks: NavLink[] = [
-  { name: 'Contest', href: '/contest' },
+  {
+    name: 'Contest',
+    href: '/contest/joined',
+    tags: ['/contest', '/joined', '/open', '/closed', '/completed'],
+  },
   { name: 'Teams', href: '/teams' },
   { name: 'Exhibitions', href: '/exhibitions' },
   { name: 'Discover', href: '/discover' },
