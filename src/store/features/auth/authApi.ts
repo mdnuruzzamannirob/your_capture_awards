@@ -7,6 +7,7 @@ import { AuthUser, SigninData, SignupData } from './types';
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery,
+  tagTypes: ['Auth'],
   endpoints: (builder) => ({
     signin: builder.mutation<{ data: { token: string; user: AuthUser } }, SigninData>({
       query: (credentials) => ({
@@ -56,15 +57,18 @@ export const authApi = createApi({
 
     getMe: builder.query<{ data: { user: AuthUser; token: string | null } }, void>({
       query: () => '/auth/me',
+      providesTags: ['Auth'],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const {
             data: { data },
           } = await queryFulfilled;
-          dispatch(setUser(data));
 
-          const cookieToken = Cookies.get('token') ?? null;
-          if (cookieToken) dispatch(setToken(cookieToken));
+          const payload = {
+            user: data,
+            token: Cookies.get('token') ?? null,
+          };
+          dispatch(setUser(payload));
         } catch {}
       },
     }),
@@ -112,4 +116,5 @@ export const {
   useForgotPasswordMutation,
   useVerifyOTPMutation,
   useResetPasswordMutation,
+  useLazyGetMeQuery,
 } = authApi;

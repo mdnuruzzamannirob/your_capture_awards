@@ -23,14 +23,14 @@ export const userApi = createApi({
     }),
 
     // Update Avatar
-    updateAvatar: builder.mutation<{ success: boolean; message?: string }, { avatar?: File }>({
-      query: (body) => ({ url: 'api/v1/users/avatar', method: 'PATCH', body }),
+    updateAvatar: builder.mutation<{ success: boolean; message?: string }, FormData>({
+      query: (body) => ({ url: '/users/avatar', method: 'PATCH', body }),
       invalidatesTags: [{ type: 'User' }],
     }),
 
     // Update Cover
-    updateCover: builder.mutation<{ success: boolean; message?: string }, { cover?: File }>({
-      query: (body) => ({ url: 'api/v1/users/cover', method: 'PATCH', body }),
+    updateCover: builder.mutation<{ success: boolean; message?: string }, FormData>({
+      query: (body) => ({ url: '/users/cover', method: 'PATCH', body }),
       invalidatesTags: [{ type: 'User' }],
     }),
   }),
