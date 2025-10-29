@@ -14,7 +14,7 @@ import { IoKeyOutline } from 'react-icons/io5';
 import { FaPlus } from 'react-icons/fa6';
 import { MdOutlineCameraswitch } from 'react-icons/md';
 
-export default function SBKModal() {
+export default function SwapBoostKeyModal() {
   const [activeTab, setActiveTab] = useState<'swap' | 'boost' | 'key'>('swap');
   const [open, setOpen] = useState(false);
 

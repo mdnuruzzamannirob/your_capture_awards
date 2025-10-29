@@ -5,6 +5,7 @@ import { MdOutlineCameraswitch, MdOutlineHowToVote } from 'react-icons/md';
 import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { cn } from '@/utils/cn';
 import Link from 'next/link';
+import VoteModal from './VoteModal';
 
 const JoinedContestCard = ({ contest }: { contest: any }) => {
   const data = {
@@ -153,9 +154,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
 
       {/* Action Buttons */}
       <div className="flex items-center justify-between gap-3 px-4 pb-4">
-        <button className="text-primary bg-primary/15 border-primary/25 hover:bg-primary/20 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
-          <MdOutlineHowToVote /> Vote
-        </button>
+        <VoteModal />
         <button className="text-primary bg-primary/15 border-primary/25 hover:bg-primary/20 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
           <MdOutlineCameraswitch className="rotate-90" /> Swap
         </button>
