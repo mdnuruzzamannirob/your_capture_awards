@@ -4,6 +4,7 @@ import profileReducer from '@/store/features/profile/profileSlice';
 import { authApi } from './features/auth/authApi';
 import { userApi } from './features/user/userApi';
 import { profileApi } from './features/profile/profileApi';
+import { contestApi } from './features/contest/contestApi';
 
 export const makeStore = () =>
   configureStore({
@@ -13,11 +14,17 @@ export const makeStore = () =>
       [authApi.reducerPath]: authApi.reducer,
       [userApi.reducerPath]: userApi.reducer,
       [profileApi.reducerPath]: profileApi.reducer,
+      [contestApi.reducerPath]: contestApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: false,
-      }).concat(authApi.middleware, userApi.middleware, profileApi.middleware),
+      }).concat(
+        authApi.middleware,
+        userApi.middleware,
+        profileApi.middleware,
+        contestApi.middleware,
+      ),
     devTools: process.env.NODE_ENV !== 'production',
   });
 
