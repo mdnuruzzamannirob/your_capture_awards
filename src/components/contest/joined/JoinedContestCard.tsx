@@ -1,11 +1,12 @@
 'use client';
 import Image from 'next/image';
-import { UploadCloud, Users, BarChart3 } from 'lucide-react';
-import { MdOutlineCameraswitch, MdOutlineHowToVote } from 'react-icons/md';
+import { Users, BarChart3 } from 'lucide-react';
+import { MdOutlineCameraswitch } from 'react-icons/md';
 import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { cn } from '@/utils/cn';
 import Link from 'next/link';
 import VoteModal from './VoteModal';
+import UploadGrid from './UploadGrid';
 
 const JoinedContestCard = ({ contest }: { contest: any }) => {
   const data = {
@@ -78,7 +79,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
 
         <div className="flex flex-col items-center justify-center gap-1">
           <div className="text-xs uppercase">GS Point</div>
-          <div className="flex size-[100px] flex-col items-center justify-center gap-1 rounded-full border-4 border-[#FD8533] p-2">
+          <div className="border-black-2-600 flex size-[100px] flex-col items-center justify-center gap-1 rounded-full border-4 p-2">
             <div className="text-lg font-semibold">{data.gsPoint}</div>
             <div className="flex items-center justify-center">
               <p className="bg-orange-2-100 -ml-1 size-3 rounded-full" />
@@ -91,7 +92,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
 
         <div className="flex flex-col items-center justify-center gap-1">
           <div className="text-xs uppercase">Votes</div>
-          <div className="flex size-[100px] flex-col items-center justify-center gap-1 rounded-full border-4 border-[#FD8533] p-1">
+          <div className="border-black-2-600 flex size-[100px] flex-col items-center justify-center gap-1 rounded-full border-4 p-1">
             <div className="text-lg font-semibold">{data.votes}</div>
             <small className="text-[10px]">510 votes to next level</small>
           </div>
@@ -100,7 +101,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
         <div className="flex flex-col items-center justify-center gap-2">
           <div className="text-xs uppercase">Exposure</div>
 
-          <div className="relative flex size-[110px] flex-col items-center justify-center rounded-full border-4 border-[#FD8533]">
+          <div className="border-black-2-600 relative flex size-[110px] flex-col items-center justify-center rounded-full border-4">
             <div className="flex w-full justify-between px-3 text-[10px] text-gray-400">
               {labels.map((l, i) => (
                 <span key={i} className={cn(i + 1 <= level && 'font-semibold text-[#FD8533]')}>
@@ -127,38 +128,15 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
         </div>
       </div>
 
-      {/* Upload Section */}
-      <div className="flex items-center justify-between gap-3 p-4">
-        <div className="flex-1">
-          <Image
-            src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80"
-            alt="uploaded"
-            width={100}
-            height={80}
-            className="h-24 w-full rounded-lg object-cover"
-          />
-        </div>
-        <div className="flex h-24 flex-1 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-gray-600 transition hover:bg-white/10">
-          <UploadCloud className="text-primary" size={20} />
-          <p className="mt-1 text-xs text-gray-400">Upload Photo</p>
-        </div>
-        <div className="flex h-24 flex-1 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-gray-600 transition hover:bg-white/10">
-          <UploadCloud className="text-primary" size={20} />
-          <p className="mt-1 text-xs text-gray-400">Upload Photo</p>
-        </div>
-        <div className="flex h-24 flex-1 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-gray-600 transition hover:bg-white/10">
-          <UploadCloud className="text-primary" size={20} />
-          <p className="mt-1 text-xs text-gray-400">Upload Photo</p>
-        </div>
-      </div>
+      <UploadGrid />
 
       {/* Action Buttons */}
       <div className="flex items-center justify-between gap-3 px-4 pb-4">
         <VoteModal />
-        <button className="text-primary bg-primary/15 border-primary/25 hover:bg-primary/20 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
+        <button className="text-primary bg-primary/10 border-primary/25 hover:bg-primary/20 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
           <MdOutlineCameraswitch className="rotate-90" /> Swap
         </button>
-        <button className="text-primary bg-primary/15 border-primary/25 hover:bg-primary/20 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
+        <button className="text-primary bg-primary/10 border-primary/25 hover:bg-primary/20 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
           <AiOutlineThunderbolt /> Promote
         </button>
       </div>

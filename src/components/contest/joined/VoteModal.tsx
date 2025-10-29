@@ -14,7 +14,6 @@ const images = [
   { id: 2, src: '/images/photographer.png', title: 'Lion' },
   { id: 3, src: '/images/studio.png', title: 'Cat' },
   { id: 4, src: '/images/exhibition.png', title: 'White Cat' },
-
   { id: 7, src: '/images/exhibition.png', title: 'Bird' },
   { id: 9, src: '/images/photographer.png', title: 'Elephant' },
   { id: 8, src: '/images/studio.png', title: 'Puffins' },
@@ -64,7 +63,7 @@ export default function VoteModal() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="text-primary bg-primary/15 border-primary/25 hover:bg-primary/20 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
+        <button className="text-primary bg-primary/10 border-primary/25 hover:bg-primary/20 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
           <MdOutlineHowToVote /> Vote
         </button>
       </DialogTrigger>
