@@ -184,4 +184,12 @@
   .container {
     @apply mx-auto max-w-[1320px] px-4;
   }
+
+  .margin {
+    @apply mt-[75.38] lg:mt-[81.5px];
+  }
+
+  .margin-user {
+    @apply mt-[131.38px] lg:mt-[137.5px];
+  }
 }

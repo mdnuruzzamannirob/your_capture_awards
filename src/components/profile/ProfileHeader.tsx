@@ -28,7 +28,7 @@ const ProfileHeader = () => {
     : [];
 
   return (
-    <section className="bg-foreground text-background relative mt-[91.38px] rounded-b-xl pb-5 lg:mt-[97.5px]">
+    <section className="bg-foreground text-background margin relative rounded-b-xl pb-5">
       {/* Background */}
       <div className="relative h-40 w-full overflow-hidden bg-gray-800 text-gray-300 sm:h-60 md:h-80">
         {!coverError && user?.cover ? (

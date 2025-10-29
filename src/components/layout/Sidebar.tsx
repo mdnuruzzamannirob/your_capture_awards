@@ -94,10 +94,10 @@ const Sidebar = () => {
 
           <div className="flex h-full flex-col">
             {/* Header */}
-            <div className="border-black-2-600 flex items-center justify-between border-b px-4 py-3">
+            <div className="border-black-2-600 flex items-center justify-between border-b px-4 py-1">
               <LogoName className="w-44" />
               <button aria-label="Close menu" onClick={() => setOpen(false)}>
-                <IoCloseOutline className="size-5" />
+                <IoCloseOutline className="size-6" />
               </button>
             </div>
 
