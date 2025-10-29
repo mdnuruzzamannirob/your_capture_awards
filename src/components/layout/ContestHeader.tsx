@@ -8,7 +8,7 @@ import { LuTableOfContents } from 'react-icons/lu';
 const ContestHeader = () => {
   const pathname = usePathname();
   return (
-    <header className="fixed top-[91.38] right-0 left-0 bg-black lg:top-[97.5px]">
+    <header className="fixed top-[91.38] right-0 left-0 z-50 bg-black lg:top-[97.5px]">
       <nav className="container flex items-center gap-5 py-2">
         <div className="flex flex-1 justify-evenly gap-5">
           <h1 className="flex items-center gap-3">
