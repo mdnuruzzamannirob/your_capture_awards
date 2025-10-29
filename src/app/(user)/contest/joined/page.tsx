@@ -22,7 +22,7 @@ const JoinedPage = () => {
   ];
 
   return (
-    <main className="container mt-[153.5px] py-8">
+    <main className="margin-user container py-8">
       <SwapBoostKeyModal />
       <JoinNow />
 

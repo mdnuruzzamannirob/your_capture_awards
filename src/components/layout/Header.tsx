@@ -17,7 +17,7 @@ const Navbar = () => {
   const pathname = usePathname();
   const links = isAuthenticated ? userNavLinks : navLinks;
   return (
-    <header className="bg-background fixed top-0 right-0 left-0 z-50 py-3">
+    <header className="bg-background fixed top-0 right-0 left-0 z-50 py-1">
       <nav className="container flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Sidebar />
