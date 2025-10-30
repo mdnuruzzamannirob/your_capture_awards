@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { UploadCloud } from 'lucide-react';
 import {
@@ -14,7 +14,13 @@ import {
 import { HiOutlineDesktopComputer } from 'react-icons/hi';
 import { FaRegUser } from 'react-icons/fa';
 
-export default function UploadGrid() {
+export default function UploadGrid({
+  maxUploads,
+  currentImages,
+}: {
+  maxUploads: number;
+  currentImages: any[];
+}) {
   const [images, setImages] = useState<string[]>([
     'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
   ]);
@@ -27,14 +33,22 @@ export default function UploadGrid() {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const totalSlots = 4;
-  const remaining = totalSlots - images.length;
+  const remaining = maxUploads - images.length;
 
   const profileImages = [
+    ...currentImages,
     'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=400&q=80',
     'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
     'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&w=400&q=80',
   ];
+
+  useEffect(() => {
+    if (Array.isArray(currentImages)) {
+      const mapped = currentImages.map((img: any) => img?.url).filter(Boolean);
+
+      setImages(mapped);
+    }
+  }, [currentImages]);
 
   const handleChooseFile = () => {
     setSelectedImage(null); // reset before selecting new image

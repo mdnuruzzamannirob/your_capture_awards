@@ -15,12 +15,13 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
       contest?.img ||
       'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
     remainingTime: contest?.remainingTime || '12h 45m 34s',
-    photos: contest?.photos || 6,
+    photos: 6,
     gsPoint: contest?.gsPoint || 34,
     votes: contest?.votes || 89,
     exposure: contest?.exposure || 50,
   };
 
+  console.log(contest);
   const level = 2;
   const totalLevels = 5;
   const labels = ['L', '', 'M', '', 'H'];
@@ -30,8 +31,8 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
       {/* Top Banner */}
       <div className="relative">
         <Image
-          src={data.img}
-          alt={data.title}
+          src={contest.banner}
+          alt={contest.title}
           width={640}
           height={320}
           className="h-80 w-full rounded-t-xl bg-black object-cover opacity-60"
@@ -49,12 +50,12 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
           <span className="group-hover:underline">Ranking</span>
         </Link>
         <div className="absolute bottom-3 left-1/2 w-full -translate-x-1/2 px-3 text-center">
-          <h2 className="inline-block text-2xl font-semibold">{data.title}</h2>
+          <h2 className="inline-block text-2xl font-semibold">{contest.title}</h2>
           <p className="mt-2">{data.remainingTime}</p>
         </div>
 
         <div className="absolute top-0 right-0 z-10 transform rounded-tr-xl rounded-bl-xl bg-black/20 px-3 py-2 text-sm">
-          {data.photos} Photos
+          {contest.maxUploads} Photos
         </div>
       </div>
 
@@ -71,7 +72,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
               className="h-[100px] w-auto"
             />
             <span className="absolute top-1/2 left-1/2 flex size-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full">
-              <span className="text-sm font-bold">SKILLED</span>
+              <span className="text-sm font-bold">{contest.level_data.currentLevel}</span>
               <span className="text-xs font-medium">LEVEL</span>
             </span>
           </div>
@@ -93,8 +94,11 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
         <div className="flex flex-col items-center justify-center gap-1">
           <div className="text-xs uppercase">Votes</div>
           <div className="border-black-2-600 flex size-[100px] flex-col items-center justify-center gap-1 rounded-full border-4 p-1">
-            <div className="text-lg font-semibold">{data.votes}</div>
-            <small className="text-[10px]">510 votes to next level</small>
+            <div className="text-lg font-semibold">{contest.level_data.totalVotes}</div>
+            <small className="text-[10px]">
+              {contest.level_data.nextLevel.point - contest.level_data.totalVotes} votes to next
+              level
+            </small>
           </div>
         </div>
 
@@ -128,7 +132,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
         </div>
       </div>
 
-      <UploadGrid />
+      <UploadGrid maxUploads={contest.maxUploads} currentImages={contest.photos} />
 
       {/* Action Buttons */}
       <div className="flex items-center justify-between gap-3 px-4 pb-4">

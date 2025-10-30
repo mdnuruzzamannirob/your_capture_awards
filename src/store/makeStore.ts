@@ -6,8 +6,8 @@ import { userApi } from './features/user/userApi';
 import { profileApi } from './features/profile/profileApi';
 import { contestApi } from './features/contest/contestApi';
 
-export const makeStore = () =>
-  configureStore({
+export const makeStore = (preloadedState = {}) => {
+  return configureStore({
     reducer: {
       auth: authReducer,
       profile: profileReducer,
@@ -25,8 +25,10 @@ export const makeStore = () =>
         profileApi.middleware,
         contestApi.middleware,
       ),
+    preloadedState,
     devTools: process.env.NODE_ENV !== 'production',
   });
+};
 
 export type AppStore = ReturnType<typeof makeStore>;
 export type RootState = ReturnType<AppStore['getState']>;

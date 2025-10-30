@@ -53,7 +53,6 @@ export default function AddCoverDialog() {
       setPreview(null);
       setOpen(false);
     } catch (err: any) {
-      console.log(err);
       toast.error(err?.message || 'Something went wrong while uploading.');
     }
   };

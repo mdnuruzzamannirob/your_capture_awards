@@ -1,11 +1,11 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { baseQuery } from '@/store/rtkQueryClient';
+import { baseQuery } from '@/store/baseQuery';
 import { deletePhoto, setPhoto, setPhotos, setStats } from './profileSlice';
 import { Stats } from './types';
 
 export const profileApi = createApi({
   reducerPath: 'profileApi',
-  baseQuery,
+  baseQuery: baseQuery(typeof window === 'undefined'),
   endpoints: (builder) => ({
     createPhoto: builder.mutation<{ data: any }, FormData>({
       query: (formData) => ({

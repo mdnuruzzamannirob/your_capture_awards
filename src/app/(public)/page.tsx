@@ -14,7 +14,7 @@ export default async function HomePage() {
   const decoded = decodeToken(token);
   const role = decoded?.role;
 
-  if (role == 'USER') {
+  if (role === 'USER' || role === 'ADMIN') {
     redirect('/contest/joined');
   }
 

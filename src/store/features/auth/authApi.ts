@@ -1,12 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { baseQuery } from '@/store/rtkQueryClient';
-import { setTempEmail, setTempToken, setToken, setUser } from './authSlice';
+import { baseQuery } from '@/store/baseQuery';
+import { setTempEmail, setTempToken, setUser } from './authSlice';
 import Cookies from 'js-cookie';
 import { AuthUser, SigninData, SignupData } from './types';
 
 export const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery,
+  baseQuery: baseQuery(typeof window === 'undefined'),
   tagTypes: ['Auth'],
   endpoints: (builder) => ({
     signin: builder.mutation<{ data: { token: string; user: AuthUser } }, SigninData>({

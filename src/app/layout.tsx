@@ -1,19 +1,11 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono, Kumbh_Sans } from 'next/font/google';
+import { Kumbh_Sans } from 'next/font/google';
 import '../styles/globals.css';
 import { Toaster } from 'sonner';
-import Providers from './providers';
-import { getUser } from '@/lib/server/getUser';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
+import ReduxProvider from '../providers/ReduxProvider';
+import { cn } from '@/utils/cn';
+import { makeStore } from '@/store/makeStore';
+import { authApi } from '@/store/features/auth/authApi';
 
 const kumbhSans = Kumbh_Sans({
   variable: '--font-kumbh-sans',
@@ -48,17 +40,19 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getUser();
+  const store = makeStore();
+
+  await store.dispatch(authApi.endpoints.getMe.initiate());
+  await Promise.all(store.dispatch(authApi.util.getRunningQueriesThunk()));
+
+  const preloadedState = store.getState();
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} ${kumbhSans.className} anti-aliased`}
-      >
-        <Providers user={user}>
+      <body suppressHydrationWarning className={cn('anti-aliased', kumbhSans.className)}>
+        <ReduxProvider preloadedState={preloadedState}>
           {children} <Toaster expand={true} richColors closeButton />
-        </Providers>
+        </ReduxProvider>
       </body>
     </html>
   );

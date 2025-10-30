@@ -66,7 +66,6 @@ export default function AvatarDialog() {
       setFile(null);
       setPreview(null);
     } catch (err: any) {
-      console.log(err);
       toast.error(err?.message || 'Something went wrong.');
     }
   };

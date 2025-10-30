@@ -18,7 +18,7 @@ const ContestLayout = async ({ children }: { children: React.ReactNode }) => {
     redirect('/signin');
   }
 
-  if (role !== 'USER') {
+  if (role !== 'USER' && role !== 'ADMIN') {
     redirect('/');
   }
 

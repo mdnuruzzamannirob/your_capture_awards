@@ -1,36 +1,14 @@
-import JoinedContestCard from '@/components/contest/joined/JoinedContestCard';
+import JoinedContest from '@/components/contest/joined/JoinedContest';
 import JoinNow from '@/components/contest/joined/JoinNow';
 import SwapBoostKeyModal from '@/components/contest/joined/SwapBoostKeyModal';
 
-const JoinedPage = () => {
-  const joinedContestData = [
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-    {
-      id: 1,
-    },
-  ];
-
+const JoinedPage = async () => {
   return (
     <main className="margin-user container py-8">
       <SwapBoostKeyModal />
       <JoinNow />
 
-      <div className="grid grid-cols-2 gap-10">
-        {joinedContestData?.map((contest, index) => (
-          <JoinedContestCard key={index} contest={contest} />
-        ))}
-      </div>
+      <JoinedContest />
     </main>
   );
 };
