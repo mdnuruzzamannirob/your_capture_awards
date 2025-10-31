@@ -41,7 +41,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
           <CountdownTimer startDate={contest.startDate} endDate={contest.endDate} />
         </div>
 
-        <div className="absolute top-0 right-0 z-10 transform rounded-tr-xl rounded-bl-xl bg-black/20 px-3 py-2 text-sm">
+        <div className="absolute top-0 right-0 z-10 transform rounded-tr-xl rounded-bl-xl bg-black px-3 py-2 text-sm">
           {contest.maxUploads} Photos
         </div>
       </div>
