@@ -61,6 +61,17 @@ const ContestHeader = () => {
               Open
             </Link>
             <Link
+              href="/contest/upcoming"
+              className={cn(
+                'flex h-full flex-1 items-center justify-center rounded font-medium',
+                pathname === '/contest/upcoming'
+                  ? 'text-primary bg-primary/15'
+                  : 'hover:bg-white/10',
+              )}
+            >
+              Upcoming
+            </Link>
+            <Link
               href="/contest/closed"
               className={cn(
                 'flex h-full flex-1 items-center justify-center rounded font-medium',
@@ -75,7 +86,9 @@ const ContestHeader = () => {
             <LuTableOfContents
               className={cn(
                 'size-5',
-                pathname === '/contest/open' || pathname === '/contest/closed'
+                pathname === '/contest/open' ||
+                  pathname === '/contest/closed' ||
+                  pathname === '/contest/upcoming'
                   ? 'text-primary'
                   : 'text-gray-300',
               )}

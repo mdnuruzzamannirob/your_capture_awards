@@ -20,21 +20,28 @@ const CountdownTimer = ({ startDate, endDate, className = '' }: CountdownProps) 
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({});
   const [active, setActive] = useState(false);
 
-  useEffect(() => {
-    const start = new Date(startDate).getTime();
-    const end = new Date(endDate).getTime();
+  // Validate props
+  const startTime = new Date(startDate).getTime();
+  const endTime = new Date(endDate).getTime();
+  if (isNaN(startTime) || isNaN(endTime)) {
+    throw new Error('Invalid startDate or endDate passed to CountdownTimer');
+  }
+  if (startTime >= endTime) {
+    throw new Error('startDate must be before endDate in CountdownTimer');
+  }
 
+  useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();
 
-      if (!active && now >= start) setActive(true);
+      if (!active && now >= startTime) setActive(true);
 
-      if (now < start) {
+      if (now < startTime) {
         setTimeLeft({ message: 'Timer will start soon' });
         return;
       }
 
-      const diff = end - now;
+      const diff = endTime - now;
 
       if (diff <= 0) {
         clearInterval(interval);
@@ -52,8 +59,9 @@ const CountdownTimer = ({ startDate, endDate, className = '' }: CountdownProps) 
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [startDate, endDate, active]);
+  }, [startDate, endDate, active, startTime, endTime]);
 
+  // Prepare time units
   const units = [
     { value: timeLeft.days, label: 'd', width: 'min-w-[3ch]' },
     { value: timeLeft.hours, label: 'h', width: 'min-w-[2ch]' },
@@ -61,7 +69,7 @@ const CountdownTimer = ({ startDate, endDate, className = '' }: CountdownProps) 
     { value: timeLeft.seconds, label: 's', width: 'min-w-[2ch]' },
   ];
 
-  // Keep only active units (non-zero), always keep seconds
+  // Keep only non-zero units, always keep seconds
   const filtered = units.filter((u, i) => i === units.length - 1 || (u.value && u.value > 0));
 
   return (

@@ -68,13 +68,13 @@ export default function VoteModal() {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="border-foreground flex max-h-[95vh] max-w-[95vw] flex-col overflow-hidden border-2 bg-white p-0 sm:max-w-[95vw]">
+      <DialogContent className="border-black-2-600 flex max-h-[95vh] max-w-[95vw] flex-col overflow-hidden border-2 bg-white p-0 sm:max-w-[95vw]">
         {/* Header */}
         <VisuallyHidden>
           <DialogTitle />
         </VisuallyHidden>
 
-        <div className="relative h-full overflow-y-auto bg-red-500">
+        <div className="scrollbar-thin relative h-full overflow-y-auto bg-red-500">
           {/* Masonry-style grid */}
           <div className="columns-2 gap-0.5 bg-black p-0.5 sm:columns-3 lg:columns-4">
             {images.map((img, index) => {

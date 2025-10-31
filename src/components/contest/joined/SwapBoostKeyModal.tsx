@@ -24,6 +24,183 @@ export default function SwapBoostKeyModal() {
     setOpen(true);
   };
 
+  const swapPackage = [
+    {
+      title: 'Sign Swap',
+      amount: 40,
+      price: 1.99,
+      currency: '$',
+    },
+    {
+      title: 'Boost Swap',
+      amount: 120,
+      price: 4.99,
+      currency: '$',
+    },
+    {
+      title: 'Prime Swap',
+      amount: 300,
+      price: 9.99,
+      currency: '$',
+    },
+    {
+      title: 'Sign Swap',
+      amount: 40,
+      price: 1.99,
+      currency: '$',
+    },
+    {
+      title: 'Boost Swap',
+      amount: 120,
+      price: 4.99,
+      currency: '$',
+    },
+    {
+      title: 'Prime Swap',
+      amount: 300,
+      price: 9.99,
+      currency: '$',
+    },
+    {
+      title: 'Sign Swap',
+      amount: 40,
+      price: 1.99,
+      currency: '$',
+    },
+    {
+      title: 'Boost Swap',
+      amount: 120,
+      price: 4.99,
+      currency: '$',
+    },
+    {
+      title: 'Prime Swap',
+      amount: 300,
+      price: 9.99,
+      currency: '$',
+    },
+    {
+      title: 'Sign Swap',
+      amount: 40,
+      price: 1.99,
+      currency: '$',
+    },
+    {
+      title: 'Boost Swap',
+      amount: 120,
+      price: 4.99,
+      currency: '$',
+    },
+    {
+      title: 'Prime Swap',
+      amount: 300,
+      price: 9.99,
+      currency: '$',
+    },
+    {
+      title: 'Sign Swap',
+      amount: 40,
+      price: 1.99,
+      currency: '$',
+    },
+    {
+      title: 'Boost Swap',
+      amount: 120,
+      price: 4.99,
+      currency: '$',
+    },
+    {
+      title: 'Prime Swap',
+      amount: 300,
+      price: 9.99,
+      currency: '$',
+    },
+  ];
+  const boostPackage = [
+    {
+      title: 'Mini Boost',
+      amount: 50,
+      price: 2.99,
+      currency: '$',
+    },
+    {
+      title: 'Standard Boost',
+      amount: 150,
+      price: 5.99,
+      currency: '$',
+    },
+    {
+      title: 'Mega Boost',
+      amount: 350,
+      price: 11.99,
+      currency: '$',
+    },
+    {
+      title: 'Ultra Boost',
+      amount: 700,
+      price: 21.99,
+      currency: '$',
+    },
+    {
+      title: 'Mini Boost',
+      amount: 50,
+      price: 2.99,
+      currency: '$',
+    },
+    {
+      title: 'Standard Boost',
+      amount: 150,
+      price: 5.99,
+      currency: '$',
+    },
+  ];
+
+  const keyPackage = [
+    {
+      title: 'Bronze Key',
+      amount: 1,
+      price: 0.99,
+      currency: '$',
+    },
+    {
+      title: 'Silver Key',
+      amount: 5,
+      price: 4.49,
+      currency: '$',
+    },
+    {
+      title: 'Gold Key',
+      amount: 12,
+      price: 9.99,
+      currency: '$',
+    },
+    {
+      title: 'Platinum Key',
+      amount: 25,
+      price: 19.99,
+      currency: '$',
+    },
+
+    {
+      title: 'Platinum Key',
+      amount: 25,
+      price: 19.99,
+      currency: '$',
+    },
+    {
+      title: 'Bronze Key',
+      amount: 1,
+      price: 0.99,
+      currency: '$',
+    },
+    {
+      title: 'Silver Key',
+      amount: 5,
+      price: 4.49,
+      currency: '$',
+    },
+  ];
+
   return (
     <>
       {/* Buttons */}
@@ -69,9 +246,11 @@ export default function SwapBoostKeyModal() {
 
       {/* Modal */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="border-black-2-600 bg-background text-foreground flex max-h-[70vh] flex-col overflow-hidden p-5 sm:max-w-xl">
+        <DialogContent className="border-black-2-600 flex max-h-[95vh] max-w-[95vw] flex-col overflow-hidden border-2 max-sm:p-3 sm:max-h-[80vh] sm:max-w-[80vw]">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold capitalize">{activeTab}</DialogTitle>
+            <DialogTitle className="text-xl font-semibold capitalize">
+              {activeTab} Packages
+            </DialogTitle>
           </DialogHeader>
 
           <Tabs
@@ -79,106 +258,117 @@ export default function SwapBoostKeyModal() {
             onValueChange={(value: any) => setActiveTab(value)}
             className="h-full"
           >
-            <TabsList className="text-foreground w-full bg-white/5">
+            <TabsList className="text-foreground h-auto w-full bg-white/5">
               <TabsTrigger
                 value="swap"
-                className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary"
+                className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary py-2"
               >
                 <MdOutlineCameraswitch className="rotate-90" /> Swap
               </TabsTrigger>
               <TabsTrigger
                 value="boost"
-                className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary"
+                className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary py-2"
               >
                 <AiOutlineThunderbolt /> Boost
               </TabsTrigger>
               <TabsTrigger
                 value="key"
-                className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary"
+                className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary py-2"
               >
                 <IoKeyOutline /> Key
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="swap" className="flex flex-col lg:flex-row">
-              <div className="flex flex-col items-center justify-center gap-3">
-                <Image alt="" src="/images/swap-img.png" width={100} height={100} />
-                <p>The Science of Swapping</p>
+            <TabsContent value="swap" className="grid h-full grid-cols-1 gap-5 py-5 lg:grid-cols-4">
+              <div className="hidden flex-col items-center justify-center gap-3 lg:flex">
+                <Image
+                  alt=""
+                  src="/images/swap-img.png"
+                  width={100}
+                  height={100}
+                  className="h-auto w-[70%]"
+                />
+                <p className="text-center text-lg font-medium">The Science of Swapping</p>
               </div>
 
-              <div className="max-h-[50vh] flex-1 overflow-y-auto">
-                <div className="grid grid-cols-2 gap-2 p-1">
-                  <p>
-                    ... Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam, voluptates
-                    explicabo soluta veniam beatae pariatur accusamus at ipsa suscipit velit,
-                    inventore quasi nam molestias, aliquam non illum illo fuga quidem.
-                  </p>
-                  <p>
-                    ... Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sed voluptate
-                    nesciunt amet placeat aliquam, excepturi totam minima repellendus asperiores
-                    magnam, ea deleniti rerum aliquid adipisci minus nemo, architecto quisquam.
-                    Quis!
-                  </p>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perspiciatis sapiente
-                    repellendus dolor quas esse, dicta similique sint, est perferendis assumenda
-                    numquam officia ad. Ipsum dolores vel nisi debitis optio sunt?
-                  </p>
+              <div className="scrollbar-thin h-[78.5vh] overflow-y-auto sm:h-[61.5vh] lg:col-span-3">
+                <div className="grid grid-cols-2 gap-5 xl:grid-cols-3">
+                  {swapPackage.map((swap, index) => (
+                    <div
+                      key={index}
+                      className="border-black-2-600 flex flex-col items-center justify-center gap-3 rounded-md border bg-white/5 p-5"
+                    >
+                      <h1>{swap.title}</h1>
+                      <p>{swap.amount} Swap</p>
+                      <button className="text-foreground bg-primary rounded-sm px-5 py-2">
+                        {swap.price} {swap.currency}
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="boost" className="flex">
-              <div className="flex flex-col items-center justify-center gap-3">
-                <Image alt="" src="/images/swap-img.png" width={100} height={100} />
-                <p>The Science of Swapping</p>
+            <TabsContent
+              value="boost"
+              className="grid h-full grid-cols-1 gap-5 py-5 lg:grid-cols-4"
+            >
+              <div className="hidden flex-col items-center justify-center gap-3 lg:flex">
+                <Image
+                  alt=""
+                  src="/images/boost-img.png"
+                  width={100}
+                  height={100}
+                  className="h-auto w-[70%]"
+                />
+                <p className="text-center text-lg font-medium">Skip a voting session</p>
               </div>
-              <div className="grid flex-1 grid-cols-2">
-                <p>
-                  {' '}
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae eligendi
-                  laborum magnam et dolorem, eaque unde ex possimus sed dignissimos molestiae illum
-                  quam expedita laboriosam. Dolores voluptatem veritatis vel tempora?
-                </p>
-                <p>
-                  {' '}
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae eligendi
-                  laborum magnam et dolorem, eaque unde ex possimus sed dignissimos molestiae illum
-                  quam expedita laboriosam. Dolores voluptatem veritatis vel tempora?
-                </p>
-                <p>
-                  {' '}
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae eligendi
-                  laborum magnam et dolorem, eaque unde ex possimus sed dignissimos molestiae illum
-                  quam expedita laboriosam. Dolores voluptatem veritatis vel tempora?
-                </p>
+
+              <div className="scrollbar-thin h-[78.5vh] overflow-y-auto sm:h-[61.5vh] lg:col-span-3">
+                <div className="grid grid-cols-2 gap-5 xl:grid-cols-3">
+                  {boostPackage.map((boost, index) => (
+                    <div
+                      key={index}
+                      className="border-black-2-600 flex flex-col items-center justify-center gap-3 rounded-md border bg-white/5 p-5"
+                    >
+                      <h1>{boost.title}</h1>
+                      <p>{boost.amount} Boost</p>
+                      <button className="text-foreground bg-primary rounded-sm px-5 py-2">
+                        {boost.price} {boost.currency}
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </TabsContent>
 
-            <TabsContent value="key" className="flex">
-              <div className="flex flex-col items-center justify-center gap-3">
-                <Image alt="" src="/images/swap-img.png" width={100} height={100} />
-                <p>The Science of Swapping</p>
+            <TabsContent value="key" className="grid h-full grid-cols-1 gap-5 py-5 lg:grid-cols-4">
+              <div className="hidden flex-col items-center justify-center gap-3 lg:flex">
+                <Image
+                  alt=""
+                  src="/images/key-img.png"
+                  width={100}
+                  height={100}
+                  className="h-auto w-[70%]"
+                />
+                <p className="text-center text-lg font-medium">Unlock Boosts Early</p>
               </div>
-              <div className="grid flex-1 grid-cols-2">
-                <p>
-                  {' '}
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae eligendi
-                  laborum magnam et dolorem, eaque unde ex possimus sed dignissimos molestiae illum
-                  quam expedita laboriosam. Dolores voluptatem veritatis vel tempora?
-                </p>
-                <p>
-                  {' '}
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae eligendi
-                  laborum magnam et dolorem, eaque unde ex possimus sed dignissimos molestiae illum
-                  quam expedita laboriosam. Dolores voluptatem veritatis vel tempora?
-                </p>
-                <p>
-                  {' '}
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae eligendi
-                  laborum magnam et dolorem, eaque unde ex possimus sed dignissimos molestiae illum
-                  quam expedita laboriosam. Dolores voluptatem veritatis vel tempora?
-                </p>
+
+              <div className="scrollbar-thin h-[78.5vh] overflow-y-auto sm:h-[61.5vh] lg:col-span-3">
+                <div className="grid grid-cols-2 gap-5 xl:grid-cols-3">
+                  {keyPackage.map((key, index) => (
+                    <div
+                      key={index}
+                      className="border-black-2-600 flex flex-col items-center justify-center gap-3 rounded-md border bg-white/5 p-5"
+                    >
+                      <h1>{key.title}</h1>
+                      <p>{key.amount} Key</p>
+                      <button className="text-foreground bg-primary rounded-sm px-5 py-2">
+                        {key.price} {key.currency}
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </TabsContent>
           </Tabs>

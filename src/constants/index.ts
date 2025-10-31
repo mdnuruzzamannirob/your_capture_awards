@@ -11,7 +11,7 @@ export const userNavLinks: NavLink[] = [
   {
     name: 'Contest',
     href: '/contest/joined',
-    tags: ['/contest', '/joined', '/open', '/closed', '/completed'],
+    tags: ['/contest', '/joined', '/open', '/closed', '/completed', '/upcoming'],
   },
   { name: 'Teams', href: '/teams' },
   { name: 'Exhibitions', href: '/exhibitions' },

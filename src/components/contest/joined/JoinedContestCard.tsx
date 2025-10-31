@@ -7,24 +7,11 @@ import { cn } from '@/utils/cn';
 import Link from 'next/link';
 import VoteModal from './VoteModal';
 import UploadGrid from './UploadGrid';
+import CountdownTimer from './CountdownTimer';
+import { labels, totalLevels, valueToLevel } from '@/utils/valueToExposureLabel';
 
 const JoinedContestCard = ({ contest }: { contest: any }) => {
-  const data = {
-    title: contest?.title || 'Natural Beauty',
-    img:
-      contest?.img ||
-      'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
-    remainingTime: contest?.remainingTime || '12h 45m 34s',
-    photos: 6,
-    gsPoint: contest?.gsPoint || 34,
-    votes: contest?.votes || 89,
-    exposure: contest?.exposure || 50,
-  };
-
-  console.log(contest);
-  const level = 2;
-  const totalLevels = 5;
-  const labels = ['L', '', 'M', '', 'H'];
+  const level = valueToLevel(contest.level_data?.exposure_bonus);
 
   return (
     <div className="text-foreground rounded-xl border border-black bg-black">
@@ -51,7 +38,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
         </Link>
         <div className="absolute bottom-3 left-1/2 w-full -translate-x-1/2 px-3 text-center">
           <h2 className="inline-block text-2xl font-semibold">{contest.title}</h2>
-          <p className="mt-2">{data.remainingTime}</p>
+          <CountdownTimer startDate={contest.startDate} endDate={contest.endDate} />
         </div>
 
         <div className="absolute top-0 right-0 z-10 transform rounded-tr-xl rounded-bl-xl bg-black/20 px-3 py-2 text-sm">
@@ -81,7 +68,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
         <div className="flex flex-col items-center justify-center gap-1">
           <div className="text-xs uppercase">GS Point</div>
           <div className="border-black-2-600 flex size-[100px] flex-col items-center justify-center gap-1 rounded-full border-4 p-2">
-            <div className="text-lg font-semibold">{data.gsPoint}</div>
+            <div className="text-lg font-semibold">{0}</div>
             <div className="flex items-center justify-center">
               <p className="bg-orange-2-100 -ml-1 size-3 rounded-full" />
               <p className="bg-orange-2-200 -ml-1 size-3 rounded-full" />
