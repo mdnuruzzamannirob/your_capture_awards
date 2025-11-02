@@ -23,6 +23,7 @@ const eslintConfig = [
     rules: {
       // react
       'react/react-in-jsx-scope': 'off',
+      'react-hooks/exhaustive-deps': 'off',
 
       // prettier
       'prettier/prettier': 'off',

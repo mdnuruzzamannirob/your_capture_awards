@@ -14,7 +14,7 @@ const JoinNow = () => {
 
   return (
     <section
-      className="border-black-2-500 my-10 rounded-xl border-2 bg-cover bg-center bg-no-repeat"
+      className="border-black-2-600 my-10 rounded-xl border-2 bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage: `url(${data?.img})`,
       }}

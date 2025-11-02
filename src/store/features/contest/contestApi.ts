@@ -21,8 +21,29 @@ export const contestApi = createApi({
     getContest: builder.query<{ data: { data: any } }, ContestPayload>({
       query: ({ status }) => `/contests?status=${status}`,
     }),
+
+    getContestPhotos: builder.query<
+      { data: { data: { url: string; id: string }[] } },
+      { id: string }
+    >({
+      query: ({ id }) => `/contests/${id}/photos`,
+    }),
+
+    createVote: builder.mutation<{ data: { data: any } }, { id: string; photoIds: string[] }>({
+      query: ({ id, photoIds }) => ({
+        url: `/votes/${id}`,
+        method: 'POST',
+        body: { photoIds },
+      }),
+    }),
   }),
 });
 
-export const { useCreatePhotoToContestMutation, useGetContestQuery, useGetJoinedContestQuery } =
-  contestApi;
+export const {
+  useCreatePhotoToContestMutation,
+  useGetContestQuery,
+  useGetJoinedContestQuery,
+  useGetContestPhotosQuery,
+  useLazyGetContestPhotosQuery,
+  useCreateVoteMutation,
+} = contestApi;

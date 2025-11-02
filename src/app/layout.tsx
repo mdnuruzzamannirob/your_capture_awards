@@ -42,9 +42,10 @@ export default async function RootLayout({
 }>) {
   const store = makeStore();
 
+  console.log('check');
   await store.dispatch(authApi.endpoints.getMe.initiate());
   await Promise.all(store.dispatch(authApi.util.getRunningQueriesThunk()));
-
+  console.log('fetched');
   const preloadedState = store.getState();
 
   return (

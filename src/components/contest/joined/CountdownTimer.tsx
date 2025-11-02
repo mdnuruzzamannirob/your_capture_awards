@@ -1,4 +1,5 @@
 'use client';
+import { useGetJoinedContestQuery } from '@/store/features/contest/contestApi';
 import { cn } from '@/utils/cn';
 import { useEffect, useState } from 'react';
 
@@ -19,6 +20,7 @@ interface TimeLeft {
 const CountdownTimer = ({ startDate, endDate, className = '' }: CountdownProps) => {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({});
   const [active, setActive] = useState(false);
+  const { refetch } = useGetJoinedContestQuery();
 
   // Validate props
   const startTime = new Date(startDate).getTime();
@@ -47,6 +49,7 @@ const CountdownTimer = ({ startDate, endDate, className = '' }: CountdownProps) 
         clearInterval(interval);
         setActive(false);
         setTimeLeft({ message: "Time's up!" });
+        refetch();
         return;
       }
 

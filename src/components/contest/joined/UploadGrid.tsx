@@ -84,7 +84,7 @@ export default function UploadGrid({
   };
 
   return (
-    <div className="flex items-center justify-between gap-3 p-4">
+    <div className="grid grid-cols-4 gap-3 px-3 lg:px-5">
       {images.map((img, i) => (
         <div key={i} className="flex-1">
           <Image

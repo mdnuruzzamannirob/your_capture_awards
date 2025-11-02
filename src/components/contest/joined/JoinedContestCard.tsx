@@ -14,7 +14,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
   const level = valueToLevel(contest.level_data?.exposure_bonus);
 
   return (
-    <div className="text-foreground rounded-xl border border-black bg-black">
+    <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col justify-between gap-3 rounded-xl border-2 pb-3 lg:gap-5 lg:pb-5">
       {/* Top Banner */}
       <div className="relative">
         <Image
@@ -46,84 +46,85 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
         </div>
       </div>
 
-      {/* Stats Section */}
-      <div className="mx-4 grid grid-cols-4 gap-2 border-b border-white/10 py-4 text-center">
-        <div className="flex flex-col items-center justify-center gap-1">
-          <div className="text-xs uppercase">Current Level</div>
-          <div className="relative">
-            <Image
-              alt=""
-              src="/icons/ranked-badge.png"
-              width={150}
-              height={100}
-              className="h-[100px] w-auto"
-            />
-            <span className="absolute top-1/2 left-1/2 flex size-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full">
-              <span className="text-sm font-bold">{contest.level_data.currentLevel}</span>
-              <span className="text-xs font-medium">LEVEL</span>
-            </span>
+      <div className="flex flex-1 flex-col gap-3 lg:gap-5">
+        {/* Stats Section */}
+        <div className="grid grid-cols-4 gap-2 border-b border-white/10 px-3 pb-3 text-center lg:px-5 lg:pb-5">
+          <div className="flex flex-col items-center justify-center gap-1">
+            <div className="text-xs uppercase">Current Level</div>
+            <div className="relative">
+              <Image
+                alt=""
+                src="/icons/ranked-badge.png"
+                width={141}
+                height={100}
+                className="h-[100px] w-[141px]"
+              />
+              <span className="absolute top-1/2 left-1/2 flex size-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full">
+                <span className="text-sm font-bold">{contest.level_data.currentLevel}</span>
+                <span className="text-xs font-medium">LEVEL</span>
+              </span>
+            </div>
           </div>
-        </div>
 
-        <div className="flex flex-col items-center justify-center gap-1">
-          <div className="text-xs uppercase">GS Point</div>
-          <div className="border-black-2-600 flex size-[100px] flex-col items-center justify-center gap-1 rounded-full border-4 p-2">
-            <div className="text-lg font-semibold">{0}</div>
-            <div className="flex items-center justify-center">
-              <p className="bg-orange-2-100 -ml-1 size-3 rounded-full" />
-              <p className="bg-orange-2-200 -ml-1 size-3 rounded-full" />
-              <p className="bg-orange-2-300 -ml-1 size-3 rounded-full" />
-              <p className="bg-orange-2-400 -ml-1 size-3 rounded-full" />
+          <div className="flex flex-col items-center justify-center gap-1">
+            <div className="text-xs uppercase">GS Point</div>
+            <div className="border-black-2-600 flex size-[100px] flex-col items-center justify-center gap-1 rounded-full border-4 p-2">
+              <div className="text-lg font-semibold">{0}</div>
+              <div className="flex items-center justify-center">
+                <p className="bg-orange-2-100 -ml-1 size-3 rounded-full" />
+                <p className="bg-orange-2-200 -ml-1 size-3 rounded-full" />
+                <p className="bg-orange-2-300 -ml-1 size-3 rounded-full" />
+                <p className="bg-orange-2-400 -ml-1 size-3 rounded-full" />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center justify-center gap-1">
+            <div className="text-xs uppercase">Votes</div>
+            <div className="border-black-2-600 flex size-[100px] flex-col items-center justify-center gap-1 rounded-full border-4 p-1">
+              <div className="text-lg font-semibold">{contest.level_data.totalVotes}</div>
+              <small className="text-[10px]">
+                {contest.level_data.nextLevel.point - contest.level_data.totalVotes} votes to next
+                level
+              </small>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center justify-center gap-2">
+            <div className="text-xs uppercase">Exposure</div>
+
+            <div className="border-black-2-600 relative flex size-[100px] flex-col items-center justify-center rounded-full border-4">
+              <div className="flex w-full justify-between px-3 text-[10px] text-gray-400">
+                {labels.map((l, i) => (
+                  <span key={i} className={cn(i + 1 <= level && 'font-semibold text-[#FD8533]')}>
+                    {l}
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex gap-0.5">
+                {Array.from({ length: totalLevels }).map((_, i) => {
+                  const active = i + 1 <= level;
+                  return (
+                    <div
+                      key={i}
+                      className={cn(
+                        'h-1.5 w-3.5 rounded transition',
+                        active ? 'bg-[#FD8533]' : 'bg-white/20',
+                      )}
+                    ></div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-center gap-1">
-          <div className="text-xs uppercase">Votes</div>
-          <div className="border-black-2-600 flex size-[100px] flex-col items-center justify-center gap-1 rounded-full border-4 p-1">
-            <div className="text-lg font-semibold">{contest.level_data.totalVotes}</div>
-            <small className="text-[10px]">
-              {contest.level_data.nextLevel.point - contest.level_data.totalVotes} votes to next
-              level
-            </small>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center justify-center gap-2">
-          <div className="text-xs uppercase">Exposure</div>
-
-          <div className="border-black-2-600 relative flex size-[110px] flex-col items-center justify-center rounded-full border-4">
-            <div className="flex w-full justify-between px-3 text-[10px] text-gray-400">
-              {labels.map((l, i) => (
-                <span key={i} className={cn(i + 1 <= level && 'font-semibold text-[#FD8533]')}>
-                  {l}
-                </span>
-              ))}
-            </div>
-
-            <div className="flex gap-0.5">
-              {Array.from({ length: totalLevels }).map((_, i) => {
-                const active = i + 1 <= level;
-                return (
-                  <div
-                    key={i}
-                    className={cn(
-                      'h-1.5 w-4 rounded transition',
-                      active ? 'bg-[#FD8533]' : 'bg-white/20',
-                    )}
-                  ></div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        <UploadGrid maxUploads={contest.maxUploads} currentImages={contest.photos} />
       </div>
-
-      <UploadGrid maxUploads={contest.maxUploads} currentImages={contest.photos} />
-
       {/* Action Buttons */}
-      <div className="flex items-center justify-between gap-3 px-4 pb-4">
-        <VoteModal />
+      <div className="flex items-center justify-between gap-3 px-3 lg:px-5">
+        <VoteModal id={contest.id} />
         <button className="text-primary bg-primary/10 border-primary/25 hover:bg-primary/20 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
           <MdOutlineCameraswitch className="rotate-90" /> Swap
         </button>
