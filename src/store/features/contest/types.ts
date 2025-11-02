@@ -1,5 +1,5 @@
 export type PhotoToContestPayload = {
-  photo?: FormData;
+  photo?: File;
   photoId?: string;
   contestId: string;
 };

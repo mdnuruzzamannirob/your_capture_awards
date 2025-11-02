@@ -13,13 +13,20 @@ import {
 } from '@/components/ui/dialog';
 import { HiOutlineDesktopComputer } from 'react-icons/hi';
 import { FaRegUser } from 'react-icons/fa';
+import { useCreatePhotoToContestMutation } from '@/store/features/contest/contestApi';
+import { PhotoToContestPayload } from '@/store/features/contest/types';
+import { toast } from 'sonner';
 
 export default function UploadGrid({
   maxUploads,
   currentImages,
+  contestId,
+  title,
 }: {
   maxUploads: number;
   currentImages: any[];
+  contestId: string;
+  title: string;
 }) {
   const [images, setImages] = useState<string[]>([
     'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
@@ -31,12 +38,11 @@ export default function UploadGrid({
   const [uploading, setUploading] = useState(false);
   const [uploadSource, setUploadSource] = useState<'computer' | 'profile' | null>(null);
 
+  const [createPhotoToContest, { isLoading }] = useCreatePhotoToContestMutation();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
   const remaining = maxUploads - images.length;
 
   const profileImages = [
-    ...currentImages,
     'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=400&q=80',
     'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
     'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&w=400&q=80',
@@ -51,7 +57,6 @@ export default function UploadGrid({
   }, [currentImages]);
 
   const handleChooseFile = () => {
-    setSelectedImage(null); // reset before selecting new image
     fileInputRef.current?.click();
   };
 
@@ -66,14 +71,36 @@ export default function UploadGrid({
   };
 
   const handleSubmitUpload = async () => {
-    if (!selectedImage) return;
+    if (!selectedImage || !uploadSource) return;
+
     try {
       setUploading(true);
-      // simulate upload or replace with API
-      await new Promise((res) => setTimeout(res, 1200));
+
+      let payload: PhotoToContestPayload | undefined = undefined;
+
+      if (uploadSource === 'computer') {
+        const file = fileInputRef.current?.files?.[0];
+        if (!file) throw new Error('No file selected');
+
+        payload = {
+          contestId,
+          photo: file,
+        };
+      } else if (uploadSource === 'profile') {
+        payload = {
+          contestId,
+          photoId: selectedImage,
+        };
+      }
+
+      if (!payload) throw new Error('Invalid upload source');
+
+      await createPhotoToContest(payload).unwrap();
+
+      toast.success('Photo uploaded successfully');
       setImages((prev) => [...prev, selectedImage].slice(0, 4));
-    } catch (err) {
-      console.error('Upload failed:', err);
+    } catch (err: any) {
+      toast.error(err.message || err.data.message || err || 'Something went wrong!');
     } finally {
       setUploading(false);
       setOpenPreviewModal(false);
@@ -106,9 +133,12 @@ export default function UploadGrid({
             </div>
           </DialogTrigger>
 
-          <DialogContent>
+          <DialogContent className="border-black-2-600">
             <DialogHeader>
-              <DialogTitle>Select Upload Source</DialogTitle>
+              <DialogTitle className="font-normal">
+                {' '}
+                Upload photos to <span className="text-primary font-bold">{title}</span> challenge
+              </DialogTitle>
             </DialogHeader>
             <div className="flex w-full items-center justify-evenly gap-3 p-5">
               {/* Computer */}
@@ -118,9 +148,9 @@ export default function UploadGrid({
                   setOpenSourceModal(false);
                   setOpenPreviewModal(true);
                 }}
-                className="flex size-36 flex-col items-center justify-center gap-4 rounded-xl border transition-colors hover:bg-white/10"
+                className="border-black-2-500 flex size-36 flex-col items-center justify-center gap-4 rounded-xl border-2 transition-colors hover:bg-white/5"
               >
-                <HiOutlineDesktopComputer className="size-10" />
+                <HiOutlineDesktopComputer className="text-primary size-10" />
                 Computer
               </button>
 
@@ -132,9 +162,9 @@ export default function UploadGrid({
                   setSelectedImage(null); // reset selection for profile
                   setOpenPreviewModal(true);
                 }}
-                className="flex size-36 flex-col items-center justify-center gap-4 rounded-xl border transition-colors hover:bg-white/10"
+                className="border-black-2-500 flex size-36 flex-col items-center justify-center gap-4 rounded-xl border-2 transition-colors hover:bg-white/5"
               >
-                <FaRegUser className="size-10" />
+                <FaRegUser className="text-primary size-10" />
                 Profile
               </button>
             </div>
@@ -144,13 +174,13 @@ export default function UploadGrid({
 
       {/* Reusable Preview & Submit Modal */}
       <Dialog open={openPreviewModal} onOpenChange={setOpenPreviewModal}>
-        <DialogContent>
+        <DialogContent className="border-black-2-600">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="font-normal">
               {uploadSource === 'computer'
-                ? 'Upload from Computer'
+                ? 'Upload photo from Computer'
                 : uploadSource === 'profile'
-                  ? 'Upload from Profile'
+                  ? 'Upload photo from Profile'
                   : 'Preview & Submit'}
             </DialogTitle>
           </DialogHeader>
@@ -159,7 +189,16 @@ export default function UploadGrid({
             {/* Computer Flow */}
             {uploadSource === 'computer' && (
               <>
-                {!selectedImage && (
+                {selectedImage ? (
+                  <Image
+                    src={selectedImage}
+                    alt="Preview"
+                    width={400}
+                    height={200}
+                    onClick={handleChooseFile}
+                    className="border-black-2-600 h-48 w-full rounded-lg border border-dashed object-cover"
+                  />
+                ) : (
                   <button
                     onClick={handleChooseFile}
                     className="flex h-48 w-full items-center justify-center overflow-hidden rounded-lg border border-dashed border-gray-600"
@@ -197,17 +236,6 @@ export default function UploadGrid({
                   </button>
                 ))}
               </div>
-            )}
-
-            {/* Selected Preview */}
-            {selectedImage && (
-              <Image
-                src={selectedImage}
-                alt="Preview"
-                width={400}
-                height={200}
-                className="h-48 w-full rounded-lg object-cover"
-              />
             )}
           </div>
 

@@ -7,11 +7,26 @@ export const contestApi = createApi({
   baseQuery: baseQuery(typeof window === 'undefined'),
   endpoints: (builder) => ({
     createPhotoToContest: builder.mutation<{ data: { data: any } }, PhotoToContestPayload>({
-      query: ({ photo, photoId, contestId }) => ({
-        url: `/contests/${contestId}/upload`,
-        method: 'POST',
-        body: photo ? photo : photoId,
-      }),
+      query: ({ photo, photoId, contestId }) => {
+        // If uploading file
+        if (photo) {
+          const formData = new FormData();
+          formData.append('photo', photo);
+
+          return {
+            url: `/contests/${contestId}/upload`,
+            method: 'POST',
+            body: formData,
+          };
+        }
+
+        // If using existing profile photo
+        return {
+          url: `/contests/${contestId}/upload`,
+          method: 'POST',
+          body: photoId,
+        };
+      },
     }),
 
     getJoinedContest: builder.query<{ data: { data: any } }, ContestPayload | void>({

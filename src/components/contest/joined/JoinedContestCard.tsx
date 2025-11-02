@@ -11,15 +11,15 @@ import CountdownTimer from './CountdownTimer';
 import { labels, totalLevels, valueToLevel } from '@/utils/valueToExposureLabel';
 
 const JoinedContestCard = ({ contest }: { contest: any }) => {
-  const level = valueToLevel(contest.level_data?.exposure_bonus);
+  const level = valueToLevel(contest?.level_data?.exposure_bonus);
 
   return (
     <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col justify-between gap-3 rounded-xl border-2 pb-3 lg:gap-5 lg:pb-5">
       {/* Top Banner */}
       <div className="relative">
         <Image
-          src={contest.banner}
-          alt={contest.title}
+          src={contest?.banner}
+          alt={contest?.title}
           width={640}
           height={320}
           className="h-80 w-full rounded-t-xl bg-black object-cover opacity-60"
@@ -37,12 +37,12 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
           <span className="group-hover:underline">Ranking</span>
         </Link>
         <div className="absolute bottom-3 left-1/2 w-full -translate-x-1/2 px-3 text-center">
-          <h2 className="inline-block text-2xl font-semibold">{contest.title}</h2>
-          <CountdownTimer startDate={contest.startDate} endDate={contest.endDate} />
+          <h2 className="inline-block text-2xl font-semibold">{contest?.title}</h2>
+          <CountdownTimer startDate={contest?.startDate} endDate={contest?.endDate} />
         </div>
 
         <div className="absolute top-0 right-0 z-10 transform rounded-tr-xl rounded-bl-xl bg-black px-3 py-2 text-sm">
-          {contest.maxUploads} Photos
+          {contest?.maxUploads} Photos
         </div>
       </div>
 
@@ -60,7 +60,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
                 className="h-[100px] w-[141px]"
               />
               <span className="absolute top-1/2 left-1/2 flex size-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full">
-                <span className="text-sm font-bold">{contest.level_data.currentLevel}</span>
+                <span className="text-sm font-bold">{contest?.level_data.currentLevel}</span>
                 <span className="text-muted-foreground text-xs font-medium">LEVEL</span>
               </span>
             </div>
@@ -82,10 +82,10 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
           <div className="flex flex-col items-center justify-center gap-1">
             <div className="text-muted-foreground text-xs uppercase">Votes</div>
             <div className="border-black-2-600 flex size-[100px] flex-col items-center justify-center gap-1 rounded-full border-4 p-1">
-              <div className="text-lg font-semibold">{contest.level_data.totalVotes}</div>
+              <div className="text-lg font-semibold">{contest?.level_data.totalVotes}</div>
               <small className="text-muted-foreground text-[10px]">
                 <span className="text-foreground">
-                  {contest.level_data.nextLevel.point - contest.level_data.totalVotes}
+                  {contest?.level_data.nextLevel.point - contest?.level_data.totalVotes}
                 </span>{' '}
                 votes to next level
               </small>
@@ -122,11 +122,16 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
           </div>
         </div>
 
-        <UploadGrid maxUploads={contest.maxUploads} currentImages={contest.photos} />
+        <UploadGrid
+          contestId={contest?.id}
+          maxUploads={contest?.maxUploads}
+          currentImages={contest?.photos}
+          title={contest?.title}
+        />
       </div>
       {/* Action Buttons */}
       <div className="flex items-center justify-between gap-3 px-3 lg:px-5">
-        <VoteModal id={contest.id} />
+        <VoteModal id={contest?.id} />
         <button className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
           <MdOutlineCameraswitch className="rotate-90" /> Swap
         </button>
