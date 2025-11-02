@@ -50,7 +50,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
         {/* Stats Section */}
         <div className="grid grid-cols-4 gap-2 border-b border-white/10 px-3 pb-3 text-center lg:px-5 lg:pb-5">
           <div className="flex flex-col items-center justify-center gap-1">
-            <div className="text-xs uppercase">Current Level</div>
+            <div className="text-muted-foreground text-xs uppercase">Current Level</div>
             <div className="relative">
               <Image
                 alt=""
@@ -61,13 +61,13 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
               />
               <span className="absolute top-1/2 left-1/2 flex size-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full">
                 <span className="text-sm font-bold">{contest.level_data.currentLevel}</span>
-                <span className="text-xs font-medium">LEVEL</span>
+                <span className="text-muted-foreground text-xs font-medium">LEVEL</span>
               </span>
             </div>
           </div>
 
           <div className="flex flex-col items-center justify-center gap-1">
-            <div className="text-xs uppercase">GS Point</div>
+            <div className="text-muted-foreground text-xs uppercase">GS Point</div>
             <div className="border-black-2-600 flex size-[100px] flex-col items-center justify-center gap-1 rounded-full border-4 p-2">
               <div className="text-lg font-semibold">{0}</div>
               <div className="flex items-center justify-center">
@@ -80,18 +80,20 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
           </div>
 
           <div className="flex flex-col items-center justify-center gap-1">
-            <div className="text-xs uppercase">Votes</div>
+            <div className="text-muted-foreground text-xs uppercase">Votes</div>
             <div className="border-black-2-600 flex size-[100px] flex-col items-center justify-center gap-1 rounded-full border-4 p-1">
               <div className="text-lg font-semibold">{contest.level_data.totalVotes}</div>
-              <small className="text-[10px]">
-                {contest.level_data.nextLevel.point - contest.level_data.totalVotes} votes to next
-                level
+              <small className="text-muted-foreground text-[10px]">
+                <span className="text-foreground">
+                  {contest.level_data.nextLevel.point - contest.level_data.totalVotes}
+                </span>{' '}
+                votes to next level
               </small>
             </div>
           </div>
 
           <div className="flex flex-col items-center justify-center gap-2">
-            <div className="text-xs uppercase">Exposure</div>
+            <div className="text-muted-foreground text-xs uppercase">Exposure</div>
 
             <div className="border-black-2-600 relative flex size-[100px] flex-col items-center justify-center rounded-full border-4">
               <div className="flex w-full justify-between px-3 text-[10px] text-gray-400">
@@ -125,10 +127,10 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
       {/* Action Buttons */}
       <div className="flex items-center justify-between gap-3 px-3 lg:px-5">
         <VoteModal id={contest.id} />
-        <button className="text-primary bg-primary/10 border-primary/25 hover:bg-primary/20 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
+        <button className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
           <MdOutlineCameraswitch className="rotate-90" /> Swap
         </button>
-        <button className="text-primary bg-primary/10 border-primary/25 hover:bg-primary/20 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
+        <button className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
           <AiOutlineThunderbolt /> Promote
         </button>
       </div>

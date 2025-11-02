@@ -92,7 +92,7 @@ export default function UploadGrid({
             alt={`uploaded-${i}`}
             width={100}
             height={80}
-            className="h-24 w-full rounded-lg object-cover"
+            className="h-24 w-full rounded-lg object-cover select-none"
           />
         </div>
       ))}

@@ -52,7 +52,7 @@ export default function VoteModal({ id }: { id: string }) {
       }}
     >
       <DialogTrigger asChild>
-        <button className="text-primary bg-primary/10 border-primary/25 hover:bg-primary/20 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
+        <button className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
           <MdOutlineHowToVote /> Vote
         </button>
       </DialogTrigger>
