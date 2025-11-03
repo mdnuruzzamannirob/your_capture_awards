@@ -1,28 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogClose,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs';
 import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { IoKeyOutline } from 'react-icons/io5';
 import { FaPlus } from 'react-icons/fa6';
 import { MdOutlineCameraswitch } from 'react-icons/md';
 import Image from 'next/image';
+import { useSwapBoostKey } from '@/hooks/useSwapBoostKey';
 
 export default function SwapBoostKeyModal() {
-  const [activeTab, setActiveTab] = useState<'swap' | 'boost' | 'key'>('swap');
-  const [open, setOpen] = useState(false);
-
-  const openModal = (tab: 'swap' | 'boost' | 'key') => {
-    setActiveTab(tab);
-    setOpen(true);
-  };
+  const { open, activeTab, setActiveTab, setOpen, openModal } = useSwapBoostKey();
 
   const swapPackage = [
     {

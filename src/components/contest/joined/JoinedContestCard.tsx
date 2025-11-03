@@ -9,8 +9,10 @@ import VoteModal from './VoteModal';
 import UploadGrid from './UploadGrid';
 import CountdownTimer from './CountdownTimer';
 import { labels, totalLevels, valueToLevel } from '@/utils/valueToExposureLabel';
+import { useSwapBoostKey } from '@/hooks/useSwapBoostKey';
 
 const JoinedContestCard = ({ contest }: { contest: any }) => {
+  const { openModal } = useSwapBoostKey();
   const level = valueToLevel(contest?.level_data?.exposure_bonus);
 
   return (
@@ -22,7 +24,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
           alt={contest?.title}
           width={640}
           height={320}
-          className="h-80 w-full rounded-t-xl bg-black object-cover opacity-60"
+          className="bg-black-2-600 h-80 w-full rounded-t-xl object-cover opacity-60"
         />
 
         <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2">
@@ -42,7 +44,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
         </div>
 
         <div className="absolute top-0 right-0 z-10 transform rounded-tr-xl rounded-bl-xl bg-black px-3 py-2 text-sm">
-          {contest?.maxUploads} Photos
+          <span className="mr-1 font-bold">{contest?.maxUploads}</span> PHOTOS
         </div>
       </div>
 
@@ -129,13 +131,20 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
           title={contest?.title}
         />
       </div>
+
       {/* Action Buttons */}
       <div className="flex items-center justify-between gap-3 px-3 lg:px-5">
         <VoteModal id={contest?.id} />
-        <button className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
+        <button
+          onClick={() => openModal('swap')}
+          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition"
+        >
           <MdOutlineCameraswitch className="rotate-90" /> Swap
         </button>
-        <button className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
+        <button
+          onClick={() => openModal('boost')}
+          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition"
+        >
           <AiOutlineThunderbolt /> Promote
         </button>
       </div>
