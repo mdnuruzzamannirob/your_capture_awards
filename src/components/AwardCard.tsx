@@ -5,11 +5,11 @@ const AwardCard = ({
   title,
   keys = 0,
   swap = 0,
-  vote = 0,
+  boost = 0,
 }: {
   title: 'top-photographer' | 'top-photo' | 'yc-top-pick';
   swap?: number;
-  vote?: number;
+  boost?: number;
   keys?: number;
 }) => {
   return (
@@ -53,8 +53,8 @@ const AwardCard = ({
             </div>
             <div className="bg-foreground text-background z-10 flex h-36 w-32 flex-col items-center justify-center rounded border shadow-md">
               <Image alt="" src="/icons/vote.png" width={50} height={50} />
-              <h4 className="mt-1 text-lg font-extrabold">x{vote}</h4>
-              <h3 className="text-muted-foreground font-semibold">Vote</h3>
+              <h4 className="mt-1 text-lg font-extrabold">x{boost}</h4>
+              <h3 className="text-muted-foreground font-semibold">Boost</h3>
             </div>
             <div className="bg-foreground text-background flex h-36 w-32 -translate-x-5 translate-y-3 rotate-12 flex-col items-center justify-center rounded border shadow-md">
               <Image alt="" src="/icons/key.png" width={50} height={50} />
