@@ -29,12 +29,16 @@ export const contestApi = createApi({
       },
     }),
 
-    getJoinedContest: builder.query<{ data: { data: any } }, ContestPayload | void>({
-      query: () => `/contests/my-active-contests`,
+    getContests: builder.query<{ data: { data: any } }, ContestPayload>({
+      query: ({ status }) => `/contests?status=${status}`,
     }),
 
-    getContest: builder.query<{ data: { data: any } }, ContestPayload>({
-      query: ({ status }) => `/contests?status=${status}`,
+    getContest: builder.query<{ data: any }, { id: string }>({
+      query: ({ id }) => `/contests/${id}`,
+    }),
+
+    getJoinedContest: builder.query<{ data: { data: any } }, ContestPayload | void>({
+      query: () => `/contests/my-active-contests`,
     }),
 
     getContestPhotos: builder.query<
@@ -56,6 +60,7 @@ export const contestApi = createApi({
 
 export const {
   useCreatePhotoToContestMutation,
+  useGetContestsQuery,
   useGetContestQuery,
   useGetJoinedContestQuery,
   useGetContestPhotosQuery,

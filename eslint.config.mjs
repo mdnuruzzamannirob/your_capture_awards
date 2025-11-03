@@ -26,11 +26,11 @@ const eslintConfig = [
       'react-hooks/exhaustive-deps': 'off',
 
       // prettier
-      'prettier/prettier': 'warn',
+      'prettier/prettier': 'off',
 
       // typescript
-      '@typescript-eslint/no-unused-vars': 'warn',
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 ];

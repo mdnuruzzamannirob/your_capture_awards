@@ -11,7 +11,7 @@ const JoinedContest = () => {
   const joinedResult = (data as any)?.data ?? [];
   return (
     <section className="">
-      <div className="grid grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         {isLoading ? (
           [1, 2, 3, 4].map((_, index) => <JoinedContestCardSkeleton key={index} />)
         ) : joinedResult.length <= 0 ? (

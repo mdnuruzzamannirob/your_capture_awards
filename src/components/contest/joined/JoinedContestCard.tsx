@@ -19,13 +19,15 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
     <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col justify-between gap-3 rounded-xl border-2 pb-3 lg:gap-5 lg:pb-5">
       {/* Top Banner */}
       <div className="relative">
-        <Image
-          src={contest?.banner}
-          alt={contest?.title}
-          width={640}
-          height={320}
-          className="bg-black-2-600 h-80 w-full rounded-t-xl object-cover opacity-60"
-        />
+        <Link href={`/contest/joined/${contest?.id}`}>
+          <Image
+            src={contest?.banner}
+            alt={contest?.title}
+            width={640}
+            height={320}
+            className="bg-black-2-600 h-80 w-full rounded-t-xl object-cover opacity-60"
+          />
+        </Link>
 
         <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2">
           <Users size={16} />
