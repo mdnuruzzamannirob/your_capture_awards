@@ -7,7 +7,7 @@ import Image from 'next/image';
 
 const JoinedContest = () => {
   const { data, isLoading } = useGetJoinedContestQuery();
-  console.log(data);
+
   const joinedResult = (data as any)?.data ?? [];
   return (
     <section className="">
