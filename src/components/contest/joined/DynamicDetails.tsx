@@ -9,7 +9,7 @@ import {
 } from '@/store/features/contest/contestApi';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
 import Image from 'next/image';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { FaFacebookF, FaHourglassHalf, FaPlus } from 'react-icons/fa6';
 import { MdOutlineHowToVote, MdOutlinePaid } from 'react-icons/md';
 import CountdownTimer from './CountdownTimer';
@@ -98,7 +98,7 @@ const DynamicDetails = ({ id }: { id: string }) => {
               className="size-36 rounded-full object-cover"
             />
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold">{contest.creator.fullName ?? 'Name not found'}</h2>
+              <h2 className="text-2xl font-bold">{contest.creator.fullName}</h2>
               <div className="flex items-center gap-2">
                 <button className="flex items-center justify-center gap-1.5 rounded bg-blue-500 px-4 py-1.5 text-sm text-white">
                   Follow <FaPlus />
@@ -141,10 +141,15 @@ const DynamicDetails = ({ id }: { id: string }) => {
         {/* prices */}
         <TabsContent value="prices" className="space-y-32">
           {contest?.isMoneyContest ? (
-            <>
-              <AwardCard title="top-photographer" />
-              <AwardCard title="top-photo" />
-            </>
+            contest?.prizes.map((prize: any, index: any) => (
+              <AwardCard
+                key={index}
+                title={prize.category === 'TOP_PHOTO' ? 'top-photo' : 'top-photographer'}
+                swap={prize.trades}
+                boost={prize.charges}
+                keys={prize.keys}
+              />
+            ))
           ) : (
             <p className="mx-auto flex h-40 max-w-2xl items-center justify-center text-center">
               This contest is currently a non-monetary competition. While no cash prizes are
