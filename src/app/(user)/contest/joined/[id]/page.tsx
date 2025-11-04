@@ -13,7 +13,7 @@ const DynamicJoinedPage = async ({ params }: { params: { id: string } }) => {
     ((await store.dispatch(contestApi.endpoints.getContest.initiate({ id })))?.data as any).data ??
     {};
   await Promise.all(store.dispatch(contestApi.util.getRunningQueriesThunk()));
-
+  console.log(contest);
   const preloadedState = store.getState();
   return (
     <main className="margin-user space-y-10">

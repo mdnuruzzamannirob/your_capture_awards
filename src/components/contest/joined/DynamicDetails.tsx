@@ -51,7 +51,7 @@ const DynamicDetails = ({ id }: { id: string }) => {
   const contest = contestData?.data ?? {};
   const rankPhotos = rankPhotosData?.data ?? [];
   const rankPhotographers = rankPhotographersData?.data ?? [];
-
+  console.log(contest);
   return (
     <section className="container">
       <Tabs
@@ -113,7 +113,7 @@ const DynamicDetails = ({ id }: { id: string }) => {
             <p className="flex items-center gap-3">
               <MdOutlineHowToVote className="text-primary size-10" />{' '}
               <span className="flex items-center gap-2 uppercase">
-                <span className="text-xl font-bold">1000</span> Votes
+                <span className="text-xl font-bold">{contest?.totalVotes}</span> Votes
               </span>
             </p>
             <div className="flex items-center gap-3">
@@ -140,13 +140,23 @@ const DynamicDetails = ({ id }: { id: string }) => {
 
         {/* prices */}
         <TabsContent value="prices" className="space-y-32">
-          <AwardCard title="top-photographer" />
-          <AwardCard title="top-photo" />
+          {contest?.isMoneyContest ? (
+            <>
+              <AwardCard title="top-photographer" />
+              <AwardCard title="top-photo" />
+            </>
+          ) : (
+            <p className="mx-auto flex h-40 max-w-2xl items-center justify-center text-center">
+              This contest is currently a non-monetary competition. While no cash prizes are
+              awarded, top photographers and photos will still receive recognition and accolades for
+              their outstanding work. Keep participating and showcase your talent!
+            </p>
+          )}
         </TabsContent>
 
         {/* rules */}
         <TabsContent value="rules" className="">
-          {array.map((Item, index) => (
+          {contest?.rules?.map((rule: any, index: any) => (
             <div
               className={cn(
                 'border-primary space-y-5 border-t py-8',
@@ -154,8 +164,8 @@ const DynamicDetails = ({ id }: { id: string }) => {
               )}
               key={index}
             >
-              <h3 className="text-xl font-semibold">{Item?.name}</h3>
-              <p>{Item?.description}</p>
+              <h3 className="text-xl font-semibold">{rule?.name}</h3>
+              <p>{rule?.description}</p>
             </div>
           ))}
         </TabsContent>
