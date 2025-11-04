@@ -82,6 +82,8 @@ export const {
   useGetContestPhotosQuery,
   useLazyGetContestPhotosQuery,
   useGetContestRankPhotosQuery,
+  useLazyGetContestRankPhotosQuery,
   useGetContestRankPhotographersQuery,
+  useLazyGetContestRankPhotographersQuery,
   useCreateVoteMutation,
 } = contestApi;

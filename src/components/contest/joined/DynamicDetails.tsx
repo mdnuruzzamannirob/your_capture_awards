@@ -4,6 +4,8 @@ import {
   useGetContestQuery,
   useGetContestRankPhotographersQuery,
   useGetContestRankPhotosQuery,
+  useLazyGetContestRankPhotographersQuery,
+  useLazyGetContestRankPhotosQuery,
 } from '@/store/features/contest/contestApi';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
 import Image from 'next/image';
@@ -39,11 +41,12 @@ const DynamicDetails = ({ id }: { id: string }) => {
   );
 
   const { data: contestData, isLoading } = useGetContestQuery({ id });
-  const { data: rankPhotosData, isLoading: isRankPhotosLoading } = useGetContestRankPhotosQuery({
-    id,
-  });
-  const { data: rankPhotographersData, isLoading: isRankPhotographerLoading } =
-    useGetContestRankPhotographersQuery({ id });
+  const [rankPhotosTrigger, { data: rankPhotosData, isLoading: isRankPhotosLoading }] =
+    useLazyGetContestRankPhotosQuery();
+  const [
+    rankPhotographersTrigger,
+    { data: rankPhotographersData, isLoading: isRankPhotographerLoading },
+  ] = useLazyGetContestRankPhotographersQuery();
   const contest = contestData?.data ?? {};
   const rankPhotos = rankPhotosData?.data ?? [];
   const rankPhotographers = rankPhotographersData?.data ?? [];
@@ -77,6 +80,7 @@ const DynamicDetails = ({ id }: { id: string }) => {
           <TabsTrigger
             value="rank"
             className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary hover:text-primary flex w-full items-center justify-center rounded-full py-3 transition"
+            onClick={() => rankPhotosTrigger({ id })}
           >
             Rank
           </TabsTrigger>
@@ -111,16 +115,14 @@ const DynamicDetails = ({ id }: { id: string }) => {
                 <span className="text-xl font-bold">1000</span> Votes
               </span>
             </p>
-            <p className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <FaHourglassHalf className="text-primary size-10" />{' '}
-              <span className="flex items-center gap-2">
-                <CountdownTimer
-                  startDate={contest?.startDate}
-                  endDate={contest?.endDate}
-                  className="text-xl font-bold"
-                />
-              </span>
-            </p>
+              <CountdownTimer
+                startDate={contest?.startDate}
+                endDate={contest?.endDate}
+                className="text-xl font-bold"
+              />
+            </div>
             {contest.isMoneyContest && (
               <p className="flex items-center gap-3">
                 <MdOutlinePaid className="text-primary size-10" />{' '}
@@ -172,6 +174,7 @@ const DynamicDetails = ({ id }: { id: string }) => {
                 Top Photos
               </TabsTrigger>
               <TabsTrigger
+                onClick={() => rankPhotographersTrigger({ id })}
                 value="top-photographers"
                 className="data-[state=active]:border-primary data-[state=active]:text-primary hover:text-primary flex w-full items-center justify-center border-b-2 border-transparent py-3 transition"
               >
