@@ -1,6 +1,10 @@
 'use client';
 
-import { useGetContestQuery } from '@/store/features/contest/contestApi';
+import {
+  useGetContestQuery,
+  useGetContestRankPhotographersQuery,
+  useGetContestRankPhotosQuery,
+} from '@/store/features/contest/contestApi';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -10,72 +14,6 @@ import CountdownTimer from './CountdownTimer';
 import AwardCard from '@/components/AwardCard';
 import { cn } from '@/utils/cn';
 
-const photos = [
-  {
-    id: 1,
-    img: 'https://images.unsplash.com/photo-1605460375648-278bcbd579a6',
-    avatar: 'https://images.unsplash.com/photo-1605460375648-278bcbd579a6',
-    name: 'Liam Clark',
-    country: 'Switzerland',
-    likes: 420,
-  },
-  {
-    id: 2,
-    img: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470',
-    avatar: 'https://images.unsplash.com/photo-1605460375648-278bcbd579a6',
-    name: 'Sophia Carter',
-    country: 'Kenya',
-    likes: 360,
-  },
-  {
-    id: 3,
-    img: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994',
-    avatar: 'https://images.unsplash.com/photo-1605460375648-278bcbd579a6',
-    name: 'Emma Brown',
-    country: 'Morocco',
-    likes: 460,
-  },
-  {
-    id: 4,
-    img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e',
-    avatar: 'https://images.unsplash.com/photo-1605460375648-278bcbd579a6',
-    name: 'Oliver Jones',
-    country: 'Greece',
-    likes: 420,
-  },
-  {
-    id: 5,
-    img: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470',
-    avatar: 'https://images.unsplash.com/photo-1605460375648-278bcbd579a6',
-    name: 'Sophia Carter',
-    country: 'Kenya',
-    likes: 360,
-  },
-  {
-    id: 6,
-    img: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994',
-    avatar: 'https://images.unsplash.com/photo-1605460375648-278bcbd579a6',
-    name: 'Emma Brown',
-    country: 'Morocco',
-    likes: 460,
-  },
-  {
-    id: 7,
-    img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e',
-    avatar: 'https://images.unsplash.com/photo-1605460375648-278bcbd579a6',
-    name: 'Oliver Jones',
-    country: 'Greece',
-    likes: 420,
-  },
-  {
-    id: 8,
-    img: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee',
-    avatar: 'https://images.unsplash.com/photo-1605460375648-278bcbd579a6',
-    name: 'Mia Turner',
-    country: 'China',
-    likes: 460,
-  },
-];
 const array = [
   {
     name: 'Submission  Limit',
@@ -93,12 +31,22 @@ const array = [
     icon: '',
   },
 ];
+
 const DynamicDetails = ({ id }: { id: string }) => {
   const [activeTab, setActiveTab] = useState<'details' | 'prices' | 'rules' | 'rank'>('details');
+  const [activeRankTab, setActiveRankTab] = useState<'top-photos' | 'top-photographers'>(
+    'top-photos',
+  );
 
-  const { data, isLoading } = useGetContestQuery({ id });
-  const contest = data?.data ?? {};
-  console.log(contest);
+  const { data: contestData, isLoading } = useGetContestQuery({ id });
+  const { data: rankPhotosData, isLoading: isRankPhotosLoading } = useGetContestRankPhotosQuery({
+    id,
+  });
+  const { data: rankPhotographersData, isLoading: isRankPhotographerLoading } =
+    useGetContestRankPhotographersQuery({ id });
+  const contest = contestData?.data ?? {};
+  const rankPhotos = rankPhotosData?.data ?? [];
+  const rankPhotographers = rankPhotographersData?.data ?? [];
 
   return (
     <section className="container">
@@ -134,6 +82,7 @@ const DynamicDetails = ({ id }: { id: string }) => {
           </TabsTrigger>
         </TabsList>
 
+        {/* details */}
         <TabsContent value="details" className="space-y-10">
           <div className="flex items-center justify-center gap-5">
             <Image
@@ -185,10 +134,14 @@ const DynamicDetails = ({ id }: { id: string }) => {
             )}
           </div>
         </TabsContent>
+
+        {/* prices */}
         <TabsContent value="prices" className="space-y-32">
           <AwardCard title="top-photographer" />
           <AwardCard title="top-photo" />
         </TabsContent>
+
+        {/* rules */}
         <TabsContent value="rules" className="">
           {array.map((Item, index) => (
             <div
@@ -203,39 +156,138 @@ const DynamicDetails = ({ id }: { id: string }) => {
             </div>
           ))}
         </TabsContent>
-        <TabsContent value="rank" className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {photos?.map((topRank, index) => (
-            <div key={index} className="group relative cursor-pointer overflow-hidden rounded-lg">
-              <Image
-                src={topRank?.img}
-                alt=""
-                width={400}
-                height={260}
-                className="h-72 w-full rounded-lg object-cover transition-all duration-500 group-hover:brightness-60"
-              />
 
-              <div className="absolute top-2 left-2 rounded bg-black/50 px-2 py-1 font-bold">
-                #{index + 1}
-              </div>
+        {/* rank */}
+        <TabsContent value="rank">
+          <Tabs
+            value={activeRankTab}
+            onValueChange={(value: any) => setActiveRankTab(value)}
+            className="space-y-10"
+          >
+            <TabsList className="mx-auto flex w-full max-w-xl items-center justify-center p-1">
+              <TabsTrigger
+                value="top-photos"
+                className="data-[state=active]:border-primary data-[state=active]:text-primary hover:text-primary flex w-full items-center justify-center border-b-2 border-transparent py-3 transition"
+              >
+                Top Photos
+              </TabsTrigger>
+              <TabsTrigger
+                value="top-photographers"
+                className="data-[state=active]:border-primary data-[state=active]:text-primary hover:text-primary flex w-full items-center justify-center border-b-2 border-transparent py-3 transition"
+              >
+                Top Photographers
+              </TabsTrigger>
+            </TabsList>
 
-              <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-black/20 px-2 py-1 text-sm">
-                <MdOutlineHowToVote />
-                {topRank?.likes}
-              </div>
+            <TabsContent
+              value="top-photos"
+              className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              {rankPhotos?.map((topPhoto: any, index: number) => (
+                <div
+                  key={index}
+                  className="group relative cursor-pointer overflow-hidden rounded-lg"
+                >
+                  <Image
+                    src={topPhoto?.userPhoto?.url}
+                    alt=""
+                    width={400}
+                    height={260}
+                    className="h-72 w-full rounded-lg object-cover transition-all duration-500 group-hover:brightness-60"
+                  />
 
-              <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
-                <Image
-                  src={topRank?.avatar}
-                  alt="Profile avatar"
-                  width={70}
-                  height={70}
-                  className="bg-foreground mb-2 size-20 rounded-full object-cover"
-                />
-                <p className="font-semibold">{topRank?.name}</p>
-                <p className="text-black-2-50">{topRank?.country}</p>
-              </div>
-            </div>
-          ))}
+                  <div className="absolute top-2 left-2 rounded bg-black/50 px-2 py-1 font-bold">
+                    #{index + 1}
+                  </div>
+
+                  <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-black/20 px-2 py-1 text-sm">
+                    <MdOutlineHowToVote />
+                    {topPhoto?.voteCount}
+                  </div>
+
+                  <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
+                    <Image
+                      src={topPhoto?.user?.avatar}
+                      alt="Profile avatar"
+                      width={70}
+                      height={70}
+                      className="bg-foreground mb-2 size-20 rounded-full object-cover"
+                    />
+                    <p className="font-semibold">{topPhoto?.user?.fullName}</p>
+                    <p className="text-black-2-50">{topPhoto?.user?.country}</p>
+                  </div>
+                </div>
+              ))}
+            </TabsContent>
+            <TabsContent value="top-photographers" className="space-y-16">
+              {rankPhotographers?.participants?.map((rankPhotographer: any, index: number) => {
+                const progress = Math.max(
+                  (rankPhotographer?.totalVotes / rankPhotographers?.contestTotalVotes) * 100,
+                  10,
+                );
+
+                return (
+                  <div className="space-y-5" key={index}>
+                    <div className="flex items-center justify-between gap-5">
+                      <div className="flex w-1/3 items-center gap-3">
+                        <Image
+                          src={rankPhotographer?.user?.avatar}
+                          alt=""
+                          width={96}
+                          height={96}
+                          className="bg-black-2-600 size-24 min-w-24 rounded-full object-cover"
+                        />
+                        <div className="min-w-0">
+                          <h3 className="truncate text-lg font-semibold whitespace-nowrap">
+                            {rankPhotographer?.user?.fullName}
+                          </h3>
+                          <p className="text-sm">
+                            {rankPhotographer?.user?.country ?? 'Bangladesh'}
+                          </p>
+                          <button className="mt-1 w-fit rounded bg-blue-500 px-3 py-1 text-xs text-white">
+                            Follow +
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex w-full items-center">
+                        <div className="bg-black-2-500 -mr-5 flex h-12 w-full items-center justify-end rounded-l-full px-2">
+                          <div
+                            className={cn('bg-primary flex h-9 items-center rounded-l-full px-3')}
+                            style={{ width: `${progress}%` }}
+                          >
+                            {rankPhotographer?.totalVotes} Votes
+                          </div>
+                        </div>
+                        <div className="bg-primary flex size-20 min-w-20 items-center justify-center rounded-full text-2xl font-bold shadow">
+                          #{index + 1}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid h-60 grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
+                      {[...rankPhotographer.photos]
+                        .sort((a, b) => b?.voteCount - a?.voteCount)
+                        .map((photo: any, index: any) => (
+                          <div className="relative" key={index}>
+                            <Image
+                              src={photo?.photo?.url}
+                              alt=""
+                              width={400}
+                              height={280}
+                              className="h-60 w-full rounded-xl object-cover"
+                            />
+
+                            <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-black/20 px-2 py-1 text-sm">
+                              <MdOutlineHowToVote />
+                              {photo?.voteCount}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
     </section>

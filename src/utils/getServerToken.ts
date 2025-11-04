@@ -4,7 +4,6 @@ export const getServerToken = async () => {
     const cookieStore = await cookies();
     return cookieStore.get('token')?.value;
   } catch (error) {
-    console.warn('Attempted to get server cookies outside of Server Component context.');
-    return undefined;
+    return null;
   }
 };

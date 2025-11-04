@@ -6,6 +6,7 @@ export const contestApi = createApi({
   reducerPath: 'contestApi',
   baseQuery: baseQuery(typeof window === 'undefined'),
   endpoints: (builder) => ({
+    // create single contest or upload contest photo
     createPhotoToContest: builder.mutation<{ data: { data: any } }, PhotoToContestPayload>({
       query: ({ photo, photoId, contestId }) => {
         // If uploading file
@@ -29,18 +30,22 @@ export const contestApi = createApi({
       },
     }),
 
+    // get multiple contest data
     getContests: builder.query<{ data: { data: any } }, ContestPayload>({
       query: ({ status }) => `/contests?status=${status}`,
     }),
 
+    // get single contest data
     getContest: builder.query<{ data: any }, { id: string }>({
       query: ({ id }) => `/contests/${id}`,
     }),
 
+    // get join only contest data
     getJoinedContest: builder.query<{ data: { data: any } }, ContestPayload | void>({
       query: () => `/contests/my-active-contests`,
     }),
 
+    // get contest photos
     getContestPhotos: builder.query<
       { data: { data: { url: string; id: string }[] } },
       { id: string }
@@ -48,6 +53,17 @@ export const contestApi = createApi({
       query: ({ id }) => `/contests/${id}/photos`,
     }),
 
+    // get contest rank photos
+    getContestRankPhotos: builder.query<{ data: any }, { id: string }>({
+      query: ({ id }) => `/contests/${id}/rank-photos`,
+    }),
+
+    // get contest rank photographers
+    getContestRankPhotographers: builder.query<{ data: any }, { id: string }>({
+      query: ({ id }) => `/contests/${id}/rank-photographer`,
+    }),
+
+    // create contest vote
     createVote: builder.mutation<{ data: { data: any } }, { id: string; photoIds: string[] }>({
       query: ({ id, photoIds }) => ({
         url: `/votes/${id}`,
@@ -65,5 +81,7 @@ export const {
   useGetJoinedContestQuery,
   useGetContestPhotosQuery,
   useLazyGetContestPhotosQuery,
+  useGetContestRankPhotosQuery,
+  useGetContestRankPhotographersQuery,
   useCreateVoteMutation,
 } = contestApi;

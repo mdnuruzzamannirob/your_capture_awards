@@ -6,7 +6,7 @@ import { makeStore } from '@/store/makeStore';
 import Image from 'next/image';
 
 const DynamicJoinedPage = async ({ params }: { params: { id: string } }) => {
-  const { id } = params;
+  const { id } = await params;
   const store = makeStore();
 
   const contest =
