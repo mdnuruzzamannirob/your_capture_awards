@@ -13,7 +13,6 @@ import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
   const { token, user, isAuthenticated } = useAuth();
-
   const pathname = usePathname();
   const links = isAuthenticated ? userNavLinks : navLinks;
   return (
@@ -30,19 +29,19 @@ const Navbar = () => {
         <ul className="font-kumbh hidden flex-1 items-center justify-center gap-5 select-none lg:flex">
           {links?.map((link, index) => {
             const isActive =
-              pathname === link.href ||
-              (Array.isArray(link.tags) && link.tags.some((tag) => pathname.includes(tag)));
+              pathname === link?.href ||
+              (Array.isArray(link?.tags) && link?.tags.some((tag) => pathname.includes(tag)));
 
             return (
               <li key={index}>
                 <Link
-                  href={isActive ? '#' : link.href}
+                  href={isActive ? '#' : link?.href}
                   className={cn(
                     'hover:text-primary p-1 transition-colors',
                     isActive ? 'text-primary pointer-events-none cursor-default' : 'text-inherit',
                   )}
                 >
-                  {link.name}
+                  {link?.name}
                 </Link>
               </li>
             );
@@ -60,7 +59,7 @@ const Navbar = () => {
               <button className="flex items-center justify-center rounded-full border p-2">
                 <IoNotificationsOutline />
               </button>
-              <UserMenu user={user} token={token} />
+              <UserMenu user={user} token={token as string} />
             </>
           ) : (
             <>
