@@ -11,7 +11,7 @@ export const baseQuery = (
       process.env.NEXT_PUBLIC_API_URL_V1 || 'https://fttfmf0j-5002.inc1.devtunnels.ms/api/v1',
 
     prepareHeaders: async (headers) => {
-      let token: string | undefined;
+      let token: string | undefined | null;
 
       if (isServer) {
         token = await getServerToken();
