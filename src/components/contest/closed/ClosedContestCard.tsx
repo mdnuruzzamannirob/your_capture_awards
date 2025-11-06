@@ -1,27 +1,18 @@
 import Image from 'next/image';
-import CountdownTimer from '../joined/CountdownTimer';
 import Link from 'next/link';
 
-const OpenContestCard = ({ contest }: { contest: any }) => {
-  const now = new Date();
-  const contestStart = new Date(contest?.startDate);
-  const contestEnd = new Date(contest?.endDate);
-
-  const isFuture = contestStart > now;
-  const startDate = isFuture ? now.toISOString() : contestStart.toISOString();
-  const endDate = isFuture ? contestStart.toISOString() : contestEnd.toISOString();
-
+const ClosedContestCard = ({ contest }: { contest: any }) => {
   return (
     <div className="space-y-2 text-center">
-      <h3 className="text-lg font-medium">&quot;{contest.title}&quot;</h3>
+      <h3 className="text-lg font-medium">&quot;{contest?.title}&quot;</h3>
 
       <Link
-        href={`/contest/joined/${contest.id}`}
+        href={`/contest/joined/${contest?.id}`}
         className="group border-black-2-600 relative block h-72 overflow-hidden rounded-xl border-2"
       >
         <Image
           alt="Banner"
-          src={contest.banner}
+          src={contest?.banner}
           width={500}
           height={500}
           className="bg-black-2-600 size-full object-cover transition-all duration-300 group-hover:brightness-50"
@@ -39,15 +30,6 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
             <p className="font-medium text-white">{`By ${contest?.creator?.fullName ?? 'Unknown User'}`}</p>
           </div>
 
-          <div className="flex translate-y-3 justify-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-            <button
-              onClick={(e) => e.preventDefault()}
-              className="bg-foreground text-background rounded px-3 py-1 transition"
-            >
-              JOIN
-            </button>
-          </div>
-
           <div className="flex w-full items-center justify-between bg-black/80 py-2 text-white">
             <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
               <p className="font-semibold">
@@ -57,19 +39,15 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
             </div>
 
             <div className="border-primary flex h-12 flex-2 flex-col items-center justify-center border-r px-1">
-              <CountdownTimer startDate={startDate} endDate={endDate} className="gap-1" />
+              Nov 06 2025
             </div>
 
-            {isFuture ? (
-              <div className="flex h-12 w-fit flex-1 flex-col items-center justify-center px-1 text-center text-sm whitespace-nowrap">
-                Voting <br /> starts soon
-              </div>
-            ) : (
+            {
               <div className="flex h-12 flex-1 flex-col items-center justify-center px-1">
                 <p className="font-semibold">{0}</p>
                 <p className="text-xs">Votes</p>
               </div>
-            )}
+            }
           </div>
         </div>
       </Link>
@@ -77,4 +55,4 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
   );
 };
 
-export default OpenContestCard;
+export default ClosedContestCard;

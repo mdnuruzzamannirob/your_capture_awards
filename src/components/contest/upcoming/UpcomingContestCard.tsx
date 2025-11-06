@@ -2,7 +2,7 @@ import Image from 'next/image';
 import CountdownTimer from '../joined/CountdownTimer';
 import Link from 'next/link';
 
-const OpenContestCard = ({ contest }: { contest: any }) => {
+const UpcomingContestCard = ({ contest }: { contest: any }) => {
   const now = new Date();
   const contestStart = new Date(contest?.startDate);
   const contestEnd = new Date(contest?.endDate);
@@ -44,7 +44,7 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
               onClick={(e) => e.preventDefault()}
               className="bg-foreground text-background rounded px-3 py-1 transition"
             >
-              JOIN
+              View Details
             </button>
           </div>
 
@@ -77,4 +77,4 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
   );
 };
 
-export default OpenContestCard;
+export default UpcomingContestCard;
