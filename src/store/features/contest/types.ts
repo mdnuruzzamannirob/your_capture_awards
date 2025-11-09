@@ -4,11 +4,12 @@ export type PhotoToContestPayload = {
   contestId: string;
 };
 
+export type Status = 'COMPLETED' | 'UPCOMING' | 'CLOSED' | 'ACTIVE';
 export type ContestPayload = {
   page?: number;
   limit?: number;
   q?: string;
-  status?: 'COMPLETED' | 'UPCOMING' | 'CLOSED' | 'ACTIVE';
+  status?: Status;
 };
 
 export type ContestState = {

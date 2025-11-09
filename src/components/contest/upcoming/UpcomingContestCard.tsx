@@ -16,7 +16,7 @@ const UpcomingContestCard = ({ contest }: { contest: any }) => {
       <h3 className="text-lg font-medium">&quot;{contest.title}&quot;</h3>
 
       <Link
-        href={`/contest/joined/${contest.id}`}
+        href={`/contest/${contest.id}`}
         className="group border-black-2-600 relative block h-72 overflow-hidden rounded-xl border-2"
       >
         <Image

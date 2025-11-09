@@ -9,7 +9,6 @@ const CompletedContest = () => {
   const { data, isLoading } = useGetContestsQuery({ status: 'COMPLETED' });
 
   const completedResult = (data as any)?.data ?? [];
-  console.log(completedResult);
   return (
     <section className="">
       <div className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3">

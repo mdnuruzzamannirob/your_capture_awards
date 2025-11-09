@@ -19,7 +19,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
     <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col justify-between gap-3 rounded-xl border-2 pb-3 lg:gap-5 lg:pb-5">
       {/* Top Banner */}
       <div className="relative">
-        <Link href={`/contest/joined/${contest?.id}`}>
+        <Link href={`/contest/${contest?.id}`}>
           <Image
             src={contest?.banner}
             alt={contest?.title}

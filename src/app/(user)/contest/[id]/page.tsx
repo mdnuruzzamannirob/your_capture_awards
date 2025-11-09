@@ -1,4 +1,4 @@
-import DynamicDetails from '@/components/contest/joined/DynamicDetails';
+import ContestDetails from '@/components/contest/ContestDetails';
 import ReduxProvider from '@/providers/ReduxProvider';
 import { contestApi } from '@/store/features/contest/contestApi';
 import { makeStore } from '@/store/makeStore';
@@ -14,7 +14,7 @@ const DynamicJoinedPage = async ({ params }: { params: { id: string } }) => {
   const preloadedState = store.getState();
   return (
     <ReduxProvider preloadedState={preloadedState}>
-      <DynamicDetails id={id} />
+      <ContestDetails id={id} />
     </ReduxProvider>
   );
 };
