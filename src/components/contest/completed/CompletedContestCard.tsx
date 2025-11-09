@@ -1,78 +1,79 @@
+import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import Image from 'next/image';
-import CountdownTimer from '../joined/CountdownTimer';
 import Link from 'next/link';
+import { MdOutlineHowToVote } from 'react-icons/md';
 
 const CompletedContestCard = ({ contest }: { contest: any }) => {
-  const now = new Date();
-  const contestStart = new Date(contest?.startDate);
-  const contestEnd = new Date(contest?.endDate);
-
-  const isFuture = contestStart > now;
-  const startDate = isFuture ? now.toISOString() : contestStart.toISOString();
-  const endDate = isFuture ? contestStart.toISOString() : contestEnd.toISOString();
-
+  console.log(contest);
   return (
-    <div className="space-y-2 text-center">
-      <h3 className="text-lg font-medium">&quot;{contest.title}&quot;</h3>
-
-      <Link
-        href={`/contest/${contest.id}`}
-        className="group border-black-2-600 relative block h-72 overflow-hidden rounded-xl border-2"
-      >
+    <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col justify-between overflow-hidden rounded-xl border-2">
+      {/* Top Banner */}
+      <Link href={`/contest/${contest?.id}`} className="relative block">
         <Image
-          alt="Banner"
-          src={contest.banner}
-          width={500}
-          height={500}
-          className="bg-black-2-600 size-full object-cover transition-all duration-300 group-hover:brightness-50"
+          src={contest?.banner}
+          alt={contest?.title}
+          width={640}
+          height={320}
+          className="bg-black-2-500 h-80 w-full rounded-t-xl object-cover opacity-60"
         />
+        <h2 className="absolute top-1/2 left-1/2 w-full -translate-x-1/2 -translate-y-1/2 px-3 text-center text-2xl font-semibold">
+          {contest?.title}
+        </h2>
+      </Link>
 
-        <div className="absolute inset-0 flex flex-col justify-between">
-          <div className="flex -translate-y-3 items-center gap-2 p-5 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-            <Image
-              src={contest?.creator?.avatar}
-              alt="Author"
-              width={44}
-              height={44}
-              className="bg-black-2-500 size-12 min-w-12 rounded-full object-cover"
-            />
-            <p className="font-medium text-white">{`By ${contest?.creator?.fullName ?? 'Unknown User'}`}</p>
+      <div className="flex items-center justify-between p-5 text-center">
+        <div className="space-y-1">
+          <p className="text-sm font-semibold">{contest?.rank}</p>
+          <p className="text-xs opacity-70">LEVEL</p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-sm font-semibold">{contest.votes ?? 1500}</p>
+          <p className="text-xs opacity-70">VOTES</p>
+        </div>
+
+        <div className="space-y-1">
+          <p className="text-sm font-semibold">{formatDateToDayMonYear(contest.endDate)}</p>
+          <p className="text-xs opacity-70">END DATE</p>
+        </div>
+      </div>
+      <div className="border-black-2-700 flex flex-col items-center justify-center gap-5 border-b p-5">
+        <h3 className="text-lg font-medium">Achievements</h3>
+
+        <div className="flex items-center gap-6">
+          {/* Circle */}
+          <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/20 text-xs">
+            img
           </div>
 
-          <div className="flex translate-y-3 justify-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-            <button
-              onClick={(e) => e.preventDefault()}
-              className="bg-foreground text-background rounded px-3 py-1 transition"
-            >
-              JOIN
-            </button>
+          {/* Star */}
+          <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-white/20 text-xs">
+            img
           </div>
 
-          <div className="flex w-full items-center justify-between bg-black/80 py-2 text-white">
-            <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
-              <p className="font-semibold">
-                ${contest?.minPrize} - ${contest?.maxPrize}
-              </p>
-              <p className="text-xs">Prizes</p>
-            </div>
-
-            <div className="border-primary flex h-12 flex-2 flex-col items-center justify-center border-r px-1">
-              <CountdownTimer startDate={startDate} endDate={endDate} className="gap-1" />
-            </div>
-
-            {isFuture ? (
-              <div className="flex h-12 w-fit flex-1 flex-col items-center justify-center px-1 text-center text-sm whitespace-nowrap">
-                Voting <br /> starts soon
-              </div>
-            ) : (
-              <div className="flex h-12 flex-1 flex-col items-center justify-center px-1">
-                <p className="font-semibold">{0}</p>
-                <p className="text-xs">Votes</p>
-              </div>
-            )}
+          {/* Hexagon-like */}
+          <div className="flex h-20 w-20 items-center justify-center rounded-xl border border-white/20 text-xs">
+            img
           </div>
         </div>
-      </Link>
+      </div>
+      <div className="border-black-2-700 grid grid-cols-2 gap-1 border-b p-5">
+        {[1, 2, 3, 4].map((item, index) => (
+          <div key={index} className="group relative cursor-pointer overflow-hidden rounded-sm">
+            <Image
+              src="/images/studio.png"
+              alt=""
+              width={400}
+              height={260}
+              className="h-40 w-full rounded-sm object-cover transition-all duration-500 group-hover:brightness-50"
+            />
+
+            <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-black/20 px-2 py-1 text-xs">
+              <MdOutlineHowToVote />
+              {55}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
