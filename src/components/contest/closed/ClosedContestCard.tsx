@@ -1,3 +1,4 @@
+import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -38,13 +39,13 @@ const ClosedContestCard = ({ contest }: { contest: any }) => {
               <p className="text-xs">Prizes</p>
             </div>
 
-            <div className="border-primary flex h-12 flex-2 flex-col items-center justify-center border-r px-1">
-              Nov 06 2025
+            <div className="border-primary flex h-12 flex-2 flex-col items-center justify-center border-r px-1 text-sm">
+              {formatDateToDayMonYear(contest?.endDate)}
             </div>
 
             {
               <div className="flex h-12 flex-1 flex-col items-center justify-center px-1">
-                <p className="font-semibold">{0}</p>
+                <p className="font-semibold">{contest?.totalVotes}</p>
                 <p className="text-xs">Votes</p>
               </div>
             }
