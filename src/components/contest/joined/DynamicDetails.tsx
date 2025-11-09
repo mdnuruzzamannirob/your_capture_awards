@@ -37,7 +37,7 @@ const DynamicDetails = ({ id }: { id: string }) => {
       <section className="bg-black-2-600 relative h-60 w-full overflow-hidden text-gray-300 sm:h-60 md:h-96">
         {contest?.banner ? (
           <Image
-            src={contest.banner}
+            src={contest?.banner}
             alt="Banner"
             width={1920}
             height={500}
@@ -103,13 +103,13 @@ const DynamicDetails = ({ id }: { id: string }) => {
             <div className="flex items-center justify-center gap-5">
               <Image
                 alt="Profile Photo"
-                src={contest.creator.avatar}
+                src={contest?.creator?.avatar}
                 width={200}
                 height={200}
                 className="size-36 rounded-full object-cover"
               />
               <div className="space-y-4">
-                <h2 className="text-2xl font-bold">{contest.creator.fullName}</h2>
+                <h2 className="text-2xl font-bold">{contest?.creator?.fullName}</h2>
                 <div className="flex items-center gap-2">
                   <button className="flex items-center justify-center gap-1.5 rounded bg-blue-500 px-4 py-1.5 text-sm text-white">
                     Follow <FaPlus />
@@ -135,12 +135,12 @@ const DynamicDetails = ({ id }: { id: string }) => {
                   className="text-xl font-bold"
                 />
               </div>
-              {contest.isMoneyContest && (
+              {contest?.isMoneyContest && (
                 <p className="flex items-center gap-3">
                   <MdOutlinePaid className="text-primary size-10" />{' '}
                   <span className="flex items-center gap-2 uppercase">
                     <span className="text-xl font-bold">
-                      {contest.minPrize && contest.minPrize + ' - '} {contest.maxPrize} IN AWARDS
+                      {contest?.minPrize && contest?.minPrize + ' - '} {contest?.maxPrize} IN AWARDS
                     </span>{' '}
                     Ended
                   </span>

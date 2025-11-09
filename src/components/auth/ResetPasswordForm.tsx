@@ -2,7 +2,6 @@
 
 import FormField from '@/components/FormField';
 import LogoName from '@/components/LogoName';
-import { useAuth } from '@/hooks/useAuth';
 import { ConfirmFormData, resetPassSchema } from '@/lib/schemas/userSchema';
 import { useResetPasswordMutation } from '@/store/features/auth/authApi';
 import { useAppSelector } from '@/store/hooks';
@@ -14,7 +13,7 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { toast } from 'sonner';
 
 export default function ResetPasswordForm() {
-  const { tempEmail, tempToken } = useAuth();
+  const { tempEmail, tempToken } = useAppSelector((state) => state.auth);
 
   const [showPass, setShowPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);

@@ -5,10 +5,10 @@ import { toast } from 'sonner';
 import LogoName from '../LogoName';
 import { useRouter } from 'next/navigation';
 import { useForgotPasswordMutation, useVerifyOTPMutation } from '@/store/features/auth/authApi';
-import { useAuth } from '@/hooks/useAuth';
+import { useAppSelector } from '@/store/hooks';
 
 export default function VerifyOtpForm() {
-  const { tempEmail } = useAuth();
+  const { tempEmail } = useAppSelector((state) => state.auth);
 
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
   const [resendCoolDown, setResendCoolDown] = useState(0);

@@ -1,10 +1,10 @@
-import { RootState } from '@/store/makeStore';
-import { useSelector } from 'react-redux';
+import { useGetMeQuery } from '@/store/features/auth/authApi';
 import Cookies from 'js-cookie';
 
 export const useAuth = () => {
-  const { user, tempEmail, tempToken } = useSelector((state: RootState) => state.auth);
-  const token = Cookies.get('token');
+  const { data, isLoading, isFetching, refetch } = useGetMeQuery();
+  const user = data?.data ?? null;
+  const token = Cookies.get('token') ?? null;
   const isAuthenticated = !!token && !!user;
-  return { token, user, isAuthenticated, tempEmail, tempToken };
+  return { user, token, isAuthenticated, isLoading, isFetching, refetch };
 };

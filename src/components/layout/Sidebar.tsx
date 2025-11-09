@@ -3,13 +3,10 @@
 import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { useState } from 'react';
 import { RiMenuFill } from 'react-icons/ri';
-import Logo from '../Logo';
 import { IoCloseOutline } from 'react-icons/io5';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { usePathname, useRouter } from 'next/navigation';
 import { IoIosArrowDown } from 'react-icons/io';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { signout } from '@/store/features/auth/authSlice';
 import Cookies from 'js-cookie';
 import { cn } from '@/utils/cn';
 import Link from 'next/link';
@@ -17,16 +14,19 @@ import Image from 'next/image';
 import { SideItems } from '@/types';
 import { sideItems } from '@/constants/sideItems';
 import LogoName from '../LogoName';
+import { useAuth } from '@/hooks/useAuth';
+import { AuthUser } from '@/store/features/auth/types';
 
 const Sidebar = () => {
-  const { token, user } = useAppSelector((state) => state?.auth);
+  const auth = useAuth();
+  const user = auth.user as AuthUser | null;
+  const token = auth.token;
 
   const [open, setOpen] = useState(false);
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
 
   const pathname = usePathname();
   const router = useRouter();
-  const dispatch = useAppDispatch();
 
   const handleNavigation = (path: string | null) => {
     if (path) {
@@ -139,7 +139,6 @@ const Sidebar = () => {
                   {/* Logout Button */}
                   <button
                     onClick={() => {
-                      dispatch(signout());
                       Cookies.remove('token');
                       setOpen(false);
                     }}

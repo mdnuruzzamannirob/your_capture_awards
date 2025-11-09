@@ -10,22 +10,26 @@ import { IoNotificationsOutline } from 'react-icons/io5';
 import UserMenu from '@/components/UserMenu';
 import Sidebar from './Sidebar';
 import { useAuth } from '@/hooks/useAuth';
+import { useLayoutEffect, useState } from 'react';
 
 const Navbar = () => {
-  const { token, user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
   const pathname = usePathname();
+  useLayoutEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+
   const links = isAuthenticated ? userNavLinks : navLinks;
+
   return (
     <header className="bg-background fixed top-0 right-0 left-0 z-50 py-1">
       <nav className="container flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Sidebar />
-
-          {/* left */}
           <LogoName className="max-lg:w-44" />
         </div>
 
-        {/* middle */}
         <ul className="font-kumbh hidden flex-1 items-center justify-center gap-5 select-none lg:flex">
           {links?.map((link, index) => {
             const isActive =
@@ -48,18 +52,17 @@ const Navbar = () => {
           })}
         </ul>
 
-        {/* right */}
         <div className="flex items-center justify-end gap-5 max-lg:gap-3">
           <button className="flex items-center justify-center rounded-full border p-2">
             <FiSearch />
           </button>
 
-          {token || user ? (
+          {isAuthenticated ? (
             <>
               <button className="flex items-center justify-center rounded-full border p-2">
                 <IoNotificationsOutline />
               </button>
-              <UserMenu user={user} token={token as string} />
+              <UserMenu />
             </>
           ) : (
             <>

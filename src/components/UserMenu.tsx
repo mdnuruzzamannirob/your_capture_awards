@@ -4,19 +4,20 @@ import { useState } from 'react';
 import Cookies from 'js-cookie';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { LogOut, User as ProfileUser } from 'lucide-react';
-import { useAppDispatch } from '@/store/hooks';
-import { signout } from '@/store/features/auth/authSlice';
 import { cn } from '@/utils/cn';
 import { AuthUser } from '@/store/features/auth/types';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 
-const UserMenu = ({ user, token }: { user: AuthUser | null; token: string | null }) => {
+const UserMenu = () => {
+  const auth = useAuth();
+  const user = auth.user as AuthUser | null;
+  const token = auth.token;
   const [open, setOpen] = useState(false);
 
   const pathname = usePathname();
-  const dispatch = useAppDispatch();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -66,7 +67,6 @@ const UserMenu = ({ user, token }: { user: AuthUser | null; token: string | null
           </Link>
           <button
             onClick={() => {
-              dispatch(signout());
               Cookies.remove('token');
               setOpen(false);
             }}

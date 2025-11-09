@@ -12,6 +12,18 @@ pnpm dev
 bun dev
 ```
 
+## ENV
+
+```
+NEXT_PUBLIC_API_URL=https://fttfmf0j-5002.inc1.devtunnels.ms
+NEXT_PUBLIC_API_URL_V1=https://fttfmf0j-5002.inc1.devtunnels.ms/api/v1
+
+# NEXT_PUBLIC_API_URL=https://your-captuer-award.onrender.com/
+# NEXT_PUBLIC_API_URL_V1=https://your-captuer-award.onrender.com/api/v1
+
+NODE_ENV=development
+```
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.

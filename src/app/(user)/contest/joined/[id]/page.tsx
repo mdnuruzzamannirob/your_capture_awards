@@ -8,6 +8,7 @@ const DynamicJoinedPage = async ({ params }: { params: { id: string } }) => {
   const store = makeStore();
 
   await store.dispatch(contestApi.endpoints.getContest.initiate({ id }));
+
   await Promise.all(store.dispatch(contestApi.util.getRunningQueriesThunk()));
 
   const preloadedState = store.getState();

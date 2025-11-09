@@ -24,6 +24,7 @@ const eslintConfig = [
       // react
       'react/react-in-jsx-scope': 'off',
       'react-hooks/exhaustive-deps': 'off',
+      'react-hooks/set-state-in-effect': 'off',
 
       // prettier
       'prettier/prettier': 'off',
