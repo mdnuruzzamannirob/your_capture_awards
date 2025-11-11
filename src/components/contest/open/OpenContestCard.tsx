@@ -3,6 +3,7 @@ import CountdownTimer from '../joined/CountdownTimer';
 import Link from 'next/link';
 import { useRef } from 'react';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
+import { useLazyGetContestPhotosQuery } from '@/store/features/contest/contestApi';
 
 const OpenContestCard = ({ contest }: { contest: any }) => {
   const now = new Date();
@@ -17,8 +18,9 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
 
   const handleUpload = async ({ source, file, profileImageUrl }: any) => {
     console.log('Upload response:', { source, file, profileImageUrl });
-    // call API here
+    // ✅ You can call parent API here
   };
+
   return (
     <div className="space-y-2 text-center">
       <h3 className="text-lg font-medium">&quot;{contest.title}&quot;</h3>
@@ -32,25 +34,25 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
           src={contest.banner}
           width={500}
           height={500}
-          className="bg-black-2-600 size-full object-cover transition-all duration-300 group-hover:brightness-50"
+          className="size-full object-cover transition-all duration-300 group-hover:brightness-50"
         />
 
         <div className="absolute inset-0 flex flex-col justify-between">
-          {/* top hover */}
+          {/* Top Hover */}
           <div className="flex -translate-y-3 items-center gap-2 p-5 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
             <Image
               src={contest?.creator?.avatar}
               alt="Author"
               width={44}
               height={44}
-              className="bg-black-2-500 size-12 min-w-12 rounded-full object-cover"
+              className="size-12 min-w-12 rounded-full object-cover"
             />
             <p className="font-medium text-white">
               By {contest?.creator?.fullName ?? 'Unknown User'}
             </p>
           </div>
 
-          {/* Hover JOIN container — no click here */}
+          {/* JOIN Button */}
           <div className="pointer-events-none flex translate-y-3 justify-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
             <button
               onClick={(e) => {
@@ -64,16 +66,16 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
             </button>
           </div>
 
-          {/* bottom bar */}
+          {/* Footer */}
           <div className="flex w-full items-center justify-between bg-black/80 py-2 text-white">
-            <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
+            <div className="flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
               <p className="font-semibold">
                 ${contest?.minPrize} - ${contest?.maxPrize}
               </p>
               <p className="text-xs">Prizes</p>
             </div>
 
-            <div className="border-primary flex h-12 flex-2 flex-col items-center justify-center border-r px-1">
+            <div className="flex h-12 flex-2 flex-col items-center justify-center border-r px-1">
               <CountdownTimer startDate={startDate} endDate={endDate} className="gap-1" />
             </div>
 
@@ -91,6 +93,7 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
         </div>
       </Link>
 
+      {/* Modal */}
       <UploadModal
         ref={modalRef}
         type="join"
@@ -98,20 +101,7 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
         maxUpload={contest?.maxUpload}
         contestId={contest?.id}
         description={contest?.description}
-        profileImages={[
-          'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
-          'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=400&q=80',
-          'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
-          'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=400&q=80',
-          'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
-          'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=400&q=80',
-          'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
-          'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=400&q=80',
-        ]}
-        onUpload={(value) => {
-          console.log(value);
-          handleUpload(value);
-        }}
+        onUpload={handleUpload}
       />
     </div>
   );
