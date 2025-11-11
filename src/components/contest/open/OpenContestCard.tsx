@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import CountdownTimer from '../joined/CountdownTimer';
 import Link from 'next/link';
+import { useRef } from 'react';
+import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 
 const OpenContestCard = ({ contest }: { contest: any }) => {
   const now = new Date();
@@ -11,6 +13,12 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
   const startDate = isFuture ? now.toISOString() : contestStart.toISOString();
   const endDate = isFuture ? contestStart.toISOString() : contestEnd.toISOString();
 
+  const modalRef = useRef<UploadModalRef>(null);
+
+  const handleUpload = async ({ source, file, profileImageUrl }: any) => {
+    console.log('Upload response:', { source, file, profileImageUrl });
+    // call API here
+  };
   return (
     <div className="space-y-2 text-center">
       <h3 className="text-lg font-medium">&quot;{contest.title}&quot;</h3>
@@ -28,6 +36,7 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
         />
 
         <div className="absolute inset-0 flex flex-col justify-between">
+          {/* top hover */}
           <div className="flex -translate-y-3 items-center gap-2 p-5 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
             <Image
               src={contest?.creator?.avatar}
@@ -36,18 +45,26 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
               height={44}
               className="bg-black-2-500 size-12 min-w-12 rounded-full object-cover"
             />
-            <p className="font-medium text-white">{`By ${contest?.creator?.fullName ?? 'Unknown User'}`}</p>
+            <p className="font-medium text-white">
+              By {contest?.creator?.fullName ?? 'Unknown User'}
+            </p>
           </div>
 
-          <div className="flex translate-y-3 justify-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+          {/* Hover JOIN container — no click here */}
+          <div className="pointer-events-none flex translate-y-3 justify-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
             <button
-              onClick={(e) => e.preventDefault()}
-              className="bg-foreground text-background rounded px-3 py-1 transition"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                modalRef.current?.open();
+              }}
+              className="bg-foreground text-background pointer-events-auto rounded px-3 py-1"
             >
               JOIN
             </button>
           </div>
 
+          {/* bottom bar */}
           <div className="flex w-full items-center justify-between bg-black/80 py-2 text-white">
             <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
               <p className="font-semibold">
@@ -73,6 +90,29 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
           </div>
         </div>
       </Link>
+
+      <UploadModal
+        ref={modalRef}
+        type="join"
+        title={contest?.title}
+        maxUpload={contest?.maxUpload}
+        contestId={contest?.id}
+        description={contest?.description}
+        profileImages={[
+          'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
+          'https://images.unsplash.com/photo-1502685104226-ee32379fefbe?auto=format&fit=crop&w=400&q=80',
+        ]}
+        onUpload={(value) => {
+          console.log(value);
+          handleUpload(value);
+        }}
+      />
     </div>
   );
 };

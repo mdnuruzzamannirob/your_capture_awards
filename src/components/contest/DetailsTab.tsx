@@ -29,6 +29,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
           </div>
         </div>
       </div>
+
       <div className="flex items-center justify-evenly gap-3">
         <p className="flex items-center gap-3">
           <MdOutlineHowToVote className="text-primary size-10" />{' '}

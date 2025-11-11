@@ -5,7 +5,7 @@ import {
   useLazyGetContestRankPhotosQuery,
 } from '@/store/features/contest/contestApi';
 import Image from 'next/image';
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import getContestTabs from '@/utils/getContestTabs';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DetailsTab from './DetailsTab';
@@ -47,7 +47,7 @@ const ContestDetails = ({ id }: { id: string }) => {
 
   return (
     <main className="margin-user space-y-10">
-      <section className="bg-black-2-600 relative h-60 w-full overflow-hidden text-gray-300 sm:h-60 md:h-96">
+      <section className="bg-black-2-600 relative h-64 w-full overflow-hidden text-gray-300 sm:h-80 md:h-96 lg:h-[500px]">
         {contest?.banner ? (
           <Image
             src={contest?.banner}
@@ -64,16 +64,27 @@ const ContestDetails = ({ id }: { id: string }) => {
         )}
 
         <div className="absolute top-1/2 left-1/2 w-full -translate-x-1/2 -translate-y-1/2 space-y-3 text-center">
-          <h2 className="inline-block text-4xl font-semibold">{contest?.title}</h2>
-          <CountdownTimer startDate={contest?.startDate} endDate={contest?.endDate} />
-          <div className="mt-5 flex items-center justify-center gap-5">
-            <button className="bg-foreground text-background rounded px-5 py-2 font-medium shadow">
-              Upload Photo
-            </button>
-            <button className="bg-foreground text-background rounded px-5 py-2 font-medium shadow">
-              Vote
-            </button>
-          </div>
+          <h2 className="inline-block text-2xl font-semibold sm:text-3xl md:text-4xl lg:text-5xl">
+            {contest?.title}
+          </h2>
+
+          {contest.status === 'ACTIVE' && (
+            <>
+              <CountdownTimer
+                startDate={contest?.startDate}
+                endDate={contest?.endDate}
+                className="text-lg"
+              />
+              <div className="mt-5 flex items-center justify-center gap-5">
+                <button className="bg-background/20 text-foreground border-foreground w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10">
+                  Upload Photo
+                </button>
+                <button className="bg-background/20 text-foreground border-foreground w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10">
+                  Vote
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </section>
 
@@ -97,9 +108,7 @@ const ContestDetails = ({ id }: { id: string }) => {
           ))}
         </TabsList>
 
-        {tabs?.map((tab) => (
-          <Fragment key={tab.key}> {renderTabContent(tab.key)}</Fragment>
-        ))}
+        {renderTabContent(activeTab!)}
       </Tabs>
     </main>
   );

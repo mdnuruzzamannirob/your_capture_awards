@@ -1,6 +1,6 @@
 export type PhotoToContestPayload = {
   photo?: File;
-  photoId?: string;
+  photoId?: string | string[];
   contestId: string;
 };
 

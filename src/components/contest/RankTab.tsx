@@ -12,9 +12,7 @@ import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 const RankTab = ({ value, id }: { value: string; id: string }) => {
-  const [activeRankTab, setActiveRankTab] = useState<'top-photos' | 'top-photographers'>(
-    'top-photos',
-  );
+  const [activeRankTab, setActiveRankTab] = useState<'top-photo' | 'top-photographer'>('top-photo');
   const { data: rankPhotosData, isLoading: isRankPhotosLoading } = useGetContestRankPhotosQuery({
     id,
   });
@@ -34,17 +32,17 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
       >
         <TabsList className="bg-background mx-auto flex size-full max-w-xl items-center justify-center p-1">
           <TabsTrigger
-            value="top-photos"
+            value="top-photo"
             className="data-[state=active]:border-primary data-[state=active]:text-primary hover:text-primary flex w-full items-center justify-center border-transparent py-3 transition"
           >
-            Top Photos
+            Top Photo
           </TabsTrigger>
           <TabsTrigger
             onClick={() => rankPhotographersTrigger({ id })}
-            value="top-photographers"
+            value="top-photographer"
             className="data-[state=active]:border-primary data-[state=active]:text-primary hover:text-primary flex w-full items-center justify-center border-transparent py-3 transition"
           >
-            Top Photographers
+            Top Photographer
           </TabsTrigger>
         </TabsList>
 
