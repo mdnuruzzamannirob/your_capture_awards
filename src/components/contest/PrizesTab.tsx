@@ -5,7 +5,7 @@ import { TabsContent } from '../ui/tabs';
 
 const PrizesTab = ({ contest, value }: { contest: any; value: string }) => {
   return (
-    <TabsContent value={value} className="space-y-32">
+    <TabsContent value={value} className="mx-auto max-w-4xl space-y-32">
       {contest?.isMoneyContest ? (
         contest?.prizes.map((prize: any, index: any) => (
           <AwardCard
