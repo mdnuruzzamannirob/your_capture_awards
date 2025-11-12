@@ -3,7 +3,6 @@ import CountdownTimer from '../joined/CountdownTimer';
 import Link from 'next/link';
 import { useRef } from 'react';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
-import { useLazyGetContestPhotosQuery } from '@/store/features/contest/contestApi';
 
 const OpenContestCard = ({ contest }: { contest: any }) => {
   const now = new Date();
@@ -15,11 +14,6 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
   const endDate = isFuture ? contestStart.toISOString() : contestEnd.toISOString();
   const remaining = contest?.maxUploads - contest?.photos?.length;
   const modalRef = useRef<UploadModalRef>(null);
-
-  const handleUpload = async ({ source, file, profileImageUrl }: any) => {
-    console.log('Upload response:', { source, file, profileImageUrl });
-    // ✅ You can call parent API here
-  };
 
   return (
     <div className="space-y-2 text-center">
@@ -102,7 +96,6 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
         maxUploads={contest?.maxUploads}
         contestId={contest?.id}
         description={contest?.description}
-        onUpload={handleUpload}
       />
     </div>
   );
