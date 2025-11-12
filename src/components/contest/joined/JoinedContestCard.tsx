@@ -1,16 +1,16 @@
 'use client';
 import Image from 'next/image';
 import { Users, BarChart3 } from 'lucide-react';
-import { MdOutlineCameraswitch } from 'react-icons/md';
+import { MdOutlineCameraswitch, MdOutlineHowToVote } from 'react-icons/md';
 import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { cn } from '@/utils/cn';
 import Link from 'next/link';
-import VoteModal from './VoteModal';
 import UploadPhoto from './UploadPhoto';
 import CountdownTimer from '../CountdownTimer';
 import { labels, totalLevels, valueToLevel } from '@/utils/valueToExposureLabel';
 import { useSwapBoostKey } from '@/hooks/useSwapBoostKey';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import VoteModal, { VoteModalRef } from '@/components/VoteModal';
 
 const JoinedContestCard = ({ contest }: { contest: any }) => {
   const [images, setImages] = useState<string[]>([]);
@@ -23,6 +23,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
     }
   }, [contest?.photos]);
 
+  const modalRef = useRef<VoteModalRef>(null);
   const remaining = contest?.maxUploads - images.length;
 
   const { openModal } = useSwapBoostKey();
@@ -160,7 +161,14 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
 
       {/* Action Buttons */}
       <div className="flex items-center justify-between gap-3 px-3 lg:px-5">
-        <VoteModal id={contest?.id} />
+        <button
+          onClick={() => modalRef.current?.open()}
+          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition"
+        >
+          <MdOutlineHowToVote /> Vote
+        </button>
+
+        <VoteModal ref={modalRef} id={contest?.id} />
         <button
           onClick={() => openModal('swap')}
           className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition"
