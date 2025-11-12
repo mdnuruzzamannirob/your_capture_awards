@@ -13,7 +13,7 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
   const isFuture = contestStart > now;
   const startDate = isFuture ? now.toISOString() : contestStart.toISOString();
   const endDate = isFuture ? contestStart.toISOString() : contestEnd.toISOString();
-
+  const remaining = contest?.maxUploads - contest?.photos?.length;
   const modalRef = useRef<UploadModalRef>(null);
 
   const handleUpload = async ({ source, file, profileImageUrl }: any) => {
@@ -98,7 +98,8 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
         ref={modalRef}
         type="join"
         title={contest?.title}
-        maxUpload={contest?.maxUpload}
+        remaining={remaining}
+        maxUploads={contest?.maxUploads}
         contestId={contest?.id}
         description={contest?.description}
         onUpload={handleUpload}

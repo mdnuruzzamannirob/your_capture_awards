@@ -6,12 +6,24 @@ import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { cn } from '@/utils/cn';
 import Link from 'next/link';
 import VoteModal from './VoteModal';
-import UploadGrid from './UploadGrid';
+import UploadPhoto from './UploadPhoto';
 import CountdownTimer from './CountdownTimer';
 import { labels, totalLevels, valueToLevel } from '@/utils/valueToExposureLabel';
 import { useSwapBoostKey } from '@/hooks/useSwapBoostKey';
+import { useEffect, useState } from 'react';
 
 const JoinedContestCard = ({ contest }: { contest: any }) => {
+  const [images, setImages] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (Array.isArray(contest?.photos)) {
+      const mapped = contest?.photos.map((img: any) => img?.url).filter(Boolean);
+
+      setImages(mapped);
+    }
+  }, [contest?.photos]);
+
+  const remaining = contest?.maxUploads - images.length;
   const { openModal } = useSwapBoostKey();
   const level = valueToLevel(contest?.level_data?.exposure_bonus);
 
@@ -126,12 +138,23 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
           </div>
         </div>
 
-        <UploadGrid
-          contestId={contest?.id}
-          maxUploads={contest?.maxUploads}
-          currentImages={contest?.photos}
-          title={contest?.title}
-        />
+        <div className="grid grid-cols-4 gap-3 px-3 lg:px-5">
+          {images.map((img, i) => (
+            <div key={i} className="flex-1">
+              <Image
+                src={img}
+                alt={`uploaded-${i}`}
+                width={100}
+                height={80}
+                className="h-24 w-full rounded-lg object-cover select-none"
+              />
+            </div>
+          ))}
+
+          {Array.from({ length: remaining }).map((_, i) => (
+            <UploadPhoto key={i} contest={contest} setImages={setImages} remaining={remaining} />
+          ))}
+        </div>
       </div>
 
       {/* Action Buttons */}
