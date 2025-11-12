@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react';
 
 const JoinedContestCard = ({ contest }: { contest: any }) => {
   const [images, setImages] = useState<string[]>([]);
-
+  console.log(images);
   useEffect(() => {
     if (Array.isArray(contest?.photos)) {
       const mapped = contest?.photos.map((img: any) => img?.url).filter(Boolean);

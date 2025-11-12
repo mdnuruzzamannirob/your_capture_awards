@@ -40,6 +40,7 @@ interface UploadModalProps {
 
 const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
   ({ contestId, type = 'join', title, maxUploads, remaining, onUpload }, ref) => {
+    console.log(remaining);
     const [modalContentType, setModalContentType] = useState<ModalContentType>(
       type === 'join' ? 'preview' : 'choose',
     );
@@ -108,7 +109,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
           payload = { contestId, photo: file };
         } else if (uploadSource === 'profile') {
           if (selectedImages.length === 0) throw new Error('No image selected');
-          payload = { contestId, photoId: selectedImages.map((item) => item.id) };
+          payload = { contestId, photoIds: selectedImages.map((item) => item.id) };
         }
 
         if (!payload) throw new Error('Invalid upload source');
