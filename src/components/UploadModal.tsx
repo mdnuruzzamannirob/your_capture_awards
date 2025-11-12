@@ -28,7 +28,7 @@ interface UploadModalProps {
   contestId: string;
   type?: 'upload' | 'join';
   title: string;
-  description?: string;
+  description: string;
   maxUploads: number;
   remaining: number;
   onUpload?: (data: {
@@ -39,8 +39,7 @@ interface UploadModalProps {
 }
 
 const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
-  ({ contestId, type = 'join', title, maxUploads, remaining, onUpload }, ref) => {
-    console.log(remaining);
+  ({ contestId, type = 'join', description, title, maxUploads, remaining, onUpload }, ref) => {
     const [modalContentType, setModalContentType] = useState<ModalContentType>(
       type === 'join' ? 'preview' : 'choose',
     );
@@ -158,11 +157,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                   <p className="size-12 rounded-full border"></p>
                   <h3 className="font-medium">By Md. Nuruzzaman</h3>
                 </div>
-                <p>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure natus quia
-                  blanditiis dolorum aliquam sapiente nihil, vel porro eos amet quibusdam fuga dicta
-                  exercitationem harum non numquam voluptatum corporis neque.
-                </p>
+                <p>{description}</p>
               </div>
 
               {/* footer */}
@@ -299,18 +294,21 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                               alt={`profile-${i}`}
                               width={150}
                               height={140}
-                              className="bg-background h-20 w-full object-cover transition group-hover:opacity-50"
+                              className="h-20 w-full object-cover transition group-hover:brightness-40"
                             />
-                            <button
-                              onClick={() =>
-                                setSelectedImages(
-                                  selectedImages.filter((image) => image.url !== img.url),
-                                )
-                              }
-                              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-red-500 opacity-0 group-hover:opacity-100"
-                            >
-                              <AiOutlineDelete className="size-8" />
-                            </button>
+
+                            <div className="absolute inset-0 flex flex-col justify-center">
+                              <button
+                                onClick={() =>
+                                  setSelectedImages(
+                                    selectedImages.filter((image) => image.url !== img.url),
+                                  )
+                                }
+                                className="flex translate-y-3 items-center justify-center gap-2 text-red-500 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+                              >
+                                <AiOutlineDelete className="size-7" />
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>

@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import CountdownTimer from '../joined/CountdownTimer';
+import CountdownTimer from '../CountdownTimer';
 import Link from 'next/link';
 
 const UpcomingContestCard = ({ contest }: { contest: any }) => {
@@ -40,10 +40,7 @@ const UpcomingContestCard = ({ contest }: { contest: any }) => {
           </div>
 
           <div className="flex translate-y-3 justify-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-            <button
-              onClick={(e) => e.preventDefault()}
-              className="bg-foreground text-background rounded px-3 py-1 transition"
-            >
+            <button className="bg-foreground text-background rounded px-3 py-1 transition">
               View Details
             </button>
           </div>

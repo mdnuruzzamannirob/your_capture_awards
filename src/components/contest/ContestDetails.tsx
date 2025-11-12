@@ -5,15 +5,16 @@ import {
   useLazyGetContestRankPhotosQuery,
 } from '@/store/features/contest/contestApi';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import getContestTabs from '@/utils/getContestTabs';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DetailsTab from './DetailsTab';
-import CountdownTimer from './joined/CountdownTimer';
+import CountdownTimer from './CountdownTimer';
 import PrizesTab from './PrizesTab';
 import RankTab from './RankTab';
 import RulesTab from './RulesTab';
 import WinnersTab from './WinnersTab';
+import UploadModal, { UploadModalRef } from '../UploadModal';
 
 const ContestDetails = ({ id }: { id: string }) => {
   const { data: contestData } = useGetContestQuery({ id });
@@ -21,6 +22,9 @@ const ContestDetails = ({ id }: { id: string }) => {
   const contest = contestData?.data ?? {};
   const tabs = getContestTabs(contest?.status);
   const [activeTab, setActiveTab] = useState(tabs?.[0]?.key);
+
+  const modalRef = useRef<UploadModalRef>(null);
+  const remaining = (contest?.maxUploads ?? 0) - (contest?.uploadCount ?? 0);
 
   // render dynamic tab
   const renderTabContent = (key: string) => {
@@ -75,13 +79,31 @@ const ContestDetails = ({ id }: { id: string }) => {
                 endDate={contest?.endDate}
                 className="text-lg"
               />
+
               <div className="mt-5 flex items-center justify-center gap-5">
-                <button className="bg-background/20 text-foreground border-foreground w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10">
-                  Upload Photo
-                </button>
+                {remaining > 0 && (
+                  <button
+                    onClick={() => modalRef.current?.open()}
+                    className="bg-background/20 text-foreground border-foreground w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10"
+                  >
+                    Upload Photo
+                  </button>
+                )}
+
                 <button className="bg-background/20 text-foreground border-foreground w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10">
                   Vote
                 </button>
+
+                {/* Modal */}
+                <UploadModal
+                  ref={modalRef}
+                  type={contest?.uploadCount ? 'upload' : 'join'}
+                  title={contest?.title}
+                  remaining={remaining}
+                  maxUploads={contest?.maxUploads}
+                  contestId={contest?.id}
+                  description={contest?.description}
+                />
               </div>
             </>
           )}

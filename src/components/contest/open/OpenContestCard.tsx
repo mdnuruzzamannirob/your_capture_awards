@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import CountdownTimer from '../joined/CountdownTimer';
+import CountdownTimer from '../CountdownTimer';
 import Link from 'next/link';
 import { useRef } from 'react';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
@@ -12,7 +12,7 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
   const isFuture = contestStart > now;
   const startDate = isFuture ? now.toISOString() : contestStart.toISOString();
   const endDate = isFuture ? contestStart.toISOString() : contestEnd.toISOString();
-  const remaining = contest?.maxUploads - contest?.photos?.length;
+
   const modalRef = useRef<UploadModalRef>(null);
 
   return (
@@ -92,7 +92,7 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
         ref={modalRef}
         type="join"
         title={contest?.title}
-        remaining={remaining}
+        remaining={contest?.maxUploads}
         maxUploads={contest?.maxUploads}
         contestId={contest?.id}
         description={contest?.description}

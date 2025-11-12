@@ -56,7 +56,7 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
           </div>
         </div>
       </div>
-      <div className="border-black-2-700 grid grid-cols-2 gap-1 border-b p-5">
+      <div className="border-black-2-700 grid grid-cols-4 gap-1 border-b p-5">
         {[1, 2, 3, 4].map((item, index) => (
           <div key={index} className="group relative cursor-pointer overflow-hidden rounded-sm">
             <Image
@@ -64,12 +64,14 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
               alt=""
               width={400}
               height={260}
-              className="h-40 w-full rounded-sm object-cover transition-all duration-500 group-hover:brightness-50"
+              className="h-24 w-full rounded-sm object-cover transition-all duration-500 group-hover:brightness-40"
             />
 
-            <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-black/20 px-2 py-1 text-xs">
-              <MdOutlineHowToVote />
-              {55}
+            <div className="absolute inset-0 flex flex-col justify-center">
+              <p className="flex translate-y-3 items-center justify-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                <MdOutlineHowToVote />
+                {55}
+              </p>
             </div>
           </div>
         ))}
