@@ -76,7 +76,7 @@ const CountdownTimer = ({ startDate, endDate, className = '' }: CountdownProps) 
   const filtered = units.filter((u, i) => i === units.length - 1 || (u.value && u.value > 0));
 
   return (
-    <div className={cn('mt-2 flex items-center justify-center gap-2 font-mono text-sm', className)}>
+    <div className={cn('mt-2 flex items-center justify-center gap-3 font-mono text-sm', className)}>
       {filtered.map((u, i) => (
         <span key={i} className={`w-[2ch] text-right sm:w-[3ch]`}>
           {u.value?.toString().padStart(2, '0')}
