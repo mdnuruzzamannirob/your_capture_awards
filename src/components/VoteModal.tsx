@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import Image from 'next/image';
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { MdOutlineHowToVote } from 'react-icons/md';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import {
   useCreateVoteMutation,
@@ -12,12 +11,28 @@ import {
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function VoteModal({ id }: { id: string }) {
+export interface VoteModalRef {
+  open: () => void;
+}
+
+interface VoteModalProps {
+  id: string;
+}
+
+const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
   const [open, setOpen] = useState<boolean>(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const [trigger, { data, isLoading }] = useLazyGetContestPhotosQuery();
   const [voteUpload, { isLoading: voteLoading }] = useCreateVoteMutation();
+
+  // expose `open` method to parent
+  useImperativeHandle(ref, () => ({
+    open: () => {
+      setOpen(true);
+      trigger({ id });
+    },
+  }));
 
   const voteData: { url: string; id: string }[] =
     (data?.data as { url: string; id: string }[] | undefined) ?? [];
@@ -44,19 +59,7 @@ export default function VoteModal({ id }: { id: string }) {
   };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(open) => {
-        setOpen(open);
-        if (open) trigger({ id });
-      }}
-    >
-      <DialogTrigger asChild>
-        <button className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition">
-          <MdOutlineHowToVote /> Vote
-        </button>
-      </DialogTrigger>
-
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="border-black-2-600 flex h-[95vh] max-h-[95vh] w-[95vw] max-w-[95vw] flex-col overflow-hidden border-2 p-0 sm:max-h-[95vh] sm:max-w-[95vw]">
         <VisuallyHidden>
           <DialogTitle />
@@ -117,7 +120,7 @@ export default function VoteModal({ id }: { id: string }) {
           <button
             onClick={handleSubmit}
             disabled={voteLoading}
-            className="bg-primary text-foreground hover:bg-primary/90 absolute right-5 bottom-5 rounded px-5 py-2 font-medium shadow-lg transition disabled:opacity-60"
+            className="bg-primary text-foreground hover:bg-primary/90 absolute right-5 bottom-5 rounded px-5 py-2 font-medium uppercase shadow-lg transition disabled:opacity-60"
           >
             {voteLoading ? 'Submitting...' : 'SUBMIT VOTES'}
           </button>
@@ -125,4 +128,8 @@ export default function VoteModal({ id }: { id: string }) {
       </DialogContent>
     </Dialog>
   );
-}
+});
+
+VoteModal.displayName = 'VoteModal';
+
+export default VoteModal;
