@@ -7,14 +7,14 @@ import { cn } from '@/utils/cn';
 import Link from 'next/link';
 import VoteModal from './VoteModal';
 import UploadPhoto from './UploadPhoto';
-import CountdownTimer from './CountdownTimer';
+import CountdownTimer from '../CountdownTimer';
 import { labels, totalLevels, valueToLevel } from '@/utils/valueToExposureLabel';
 import { useSwapBoostKey } from '@/hooks/useSwapBoostKey';
 import { useEffect, useState } from 'react';
 
 const JoinedContestCard = ({ contest }: { contest: any }) => {
   const [images, setImages] = useState<string[]>([]);
-  console.log(images);
+
   useEffect(() => {
     if (Array.isArray(contest?.photos)) {
       const mapped = contest?.photos.map((img: any) => img?.url).filter(Boolean);
@@ -24,6 +24,7 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
   }, [contest?.photos]);
 
   const remaining = contest?.maxUploads - images.length;
+
   const { openModal } = useSwapBoostKey();
   const level = valueToLevel(contest?.level_data?.exposure_bonus);
 
