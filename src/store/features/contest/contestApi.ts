@@ -53,6 +53,13 @@ export const contestApi = createApi({
       query: ({ id }) => `/contests/${id}/photos`,
     }),
 
+    // get user photos
+    getUserPhotos: builder.query<{ data: { data: { url: string; id: string }[] } }, { id: string }>(
+      {
+        query: ({ id }) => `/contests/${id}/user-photos`,
+      },
+    ),
+
     // get contest rank photos
     getContestRankPhotos: builder.query<{ data: any }, { id: string }>({
       query: ({ id }) => `/contests/${id}/rank-photos`,
@@ -81,6 +88,8 @@ export const {
   useGetJoinedContestQuery,
   useGetContestPhotosQuery,
   useLazyGetContestPhotosQuery,
+  useLazyGetUserPhotosQuery,
+  useGetUserPhotosQuery,
   useGetContestRankPhotosQuery,
   useLazyGetContestRankPhotosQuery,
   useGetContestRankPhotographersQuery,

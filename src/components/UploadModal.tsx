@@ -11,7 +11,7 @@ import { IoImagesOutline } from 'react-icons/io5';
 import { AiOutlineDelete } from 'react-icons/ai';
 import {
   useCreatePhotoToContestMutation,
-  useLazyGetContestPhotosQuery,
+  useLazyGetUserPhotosQuery,
 } from '@/store/features/contest/contestApi';
 import { PhotoToContestPayload } from '@/store/features/contest/types';
 import { Skeleton } from './ui/skeleton';
@@ -52,7 +52,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [createPhotoToContest, { isLoading }] = useCreatePhotoToContestMutation();
-    const [trigger, { data, isLoading: isPhotosLoading }] = useLazyGetContestPhotosQuery();
+    const [trigger, { data, isLoading: isPhotosLoading }] = useLazyGetUserPhotosQuery();
     const photos = (data?.data ?? []) as { id: string; url: string }[];
 
     // expose `open` method to parent
@@ -239,7 +239,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                       width={400}
                       height={240}
                       onClick={() => fileInputRef.current?.click()}
-                      className="border-primary h-60 w-full cursor-pointer rounded-xl border border-dashed object-cover"
+                      className="border-primary bg-background h-60 w-full cursor-pointer rounded-xl border border-dashed object-cover"
                     />
                   ) : (
                     <button
