@@ -16,7 +16,13 @@ export default function UploadPhoto({
   const modalRef = useRef<UploadModalRef>(null);
 
   const handleUpload = async ({ profileImageUrl }: any) => {
-    setImages((prev) => [...prev, profileImageUrl].slice(0, 4));
+    if (Array.isArray(profileImageUrl)) {
+      setImages((prev) =>
+        [...prev, ...profileImageUrl.map((img: any) => img.url)].slice(0, contest.maxUploads),
+      );
+    } else if (typeof profileImageUrl === 'string') {
+      setImages((prev) => [...prev, profileImageUrl].slice(0, contest.maxUploads));
+    }
   };
 
   return (

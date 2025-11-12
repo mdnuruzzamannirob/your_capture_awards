@@ -8,7 +8,7 @@ export const contestApi = createApi({
   endpoints: (builder) => ({
     // create single contest or upload contest photo
     createPhotoToContest: builder.mutation<{ data: { data: any } }, PhotoToContestPayload>({
-      query: ({ photo, photoId, contestId }) => {
+      query: ({ photo, photoIds, contestId }) => {
         // If uploading file
         if (photo) {
           const formData = new FormData();
@@ -25,7 +25,7 @@ export const contestApi = createApi({
         return {
           url: `/contests/${contestId}/upload`,
           method: 'POST',
-          body: photoId,
+          body: { photoIds },
         };
       },
     }),
