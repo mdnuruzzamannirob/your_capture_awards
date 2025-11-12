@@ -29,8 +29,9 @@ interface UploadModalProps {
   type?: 'upload' | 'join';
   title: string;
   description?: string;
-  maxUpload: number;
-  onUpload: (data: {
+  maxUploads: number;
+  remaining: number;
+  onUpload?: (data: {
     source: UploadSource;
     file?: File;
     profileImageUrl?: string | { id: string; url: string }[];
@@ -38,7 +39,7 @@ interface UploadModalProps {
 }
 
 const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
-  ({ contestId, type = 'join', title, maxUpload, onUpload }, ref) => {
+  ({ contestId, type = 'join', title, maxUploads, remaining, onUpload }, ref) => {
     const [modalContentType, setModalContentType] = useState<ModalContentType>(
       type === 'join' ? 'preview' : 'choose',
     );
@@ -87,7 +88,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       }
 
       // Check max limit
-      if (selectedImages.length >= 4) {
+      if (selectedImages.length >= remaining) {
         toast.error('Maximum limit reached.', {
           description: 'You can upload up to 4 images only.',
         });
@@ -103,22 +104,29 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
 
         if (uploadSource === 'computer') {
           if (!file) throw new Error('No file selected');
+
           payload = { contestId, photo: file };
         } else if (uploadSource === 'profile') {
           if (selectedImages.length === 0) throw new Error('No image selected');
           payload = { contestId, photoId: selectedImages.map((item) => item.id) };
         }
-        console.log(payload);
+
         if (!payload) throw new Error('Invalid upload source');
 
         // upload to backend
         await createPhotoToContest(payload).unwrap();
 
-        await onUpload({
-          source: uploadSource!,
-          file: file ?? undefined,
-          profileImageUrl: selectedImages ?? undefined,
-        });
+        // Pass preview URL if type is "upload" and source is computer
+        if (onUpload) {
+          await onUpload({
+            source: uploadSource!,
+            file: file ?? undefined,
+            profileImageUrl:
+              uploadSource === 'computer' && type === 'upload'
+                ? preview
+                : (selectedImages ?? undefined),
+          });
+        }
 
         if (type === 'join') {
           router.push(
@@ -140,7 +148,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               {/* header */}
               <div className="space-y-2 text-center uppercase">
                 <h1 className="text-lg font-semibold sm:text-xl">{title}</h1>
-                <p>{maxUpload} Photo Challenge</p>
+                <p>{maxUploads} Photo Challenge</p>
               </div>
 
               {/* content */}
@@ -178,7 +186,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                 <h1 className="text-lg font-semibold sm:text-xl">
                   UPLOAD PHOTOS TO <span className="text-primary">{title}</span> CHALLENGE
                 </h1>
-                <p>{maxUpload} Photo Challenge</p>
+                <p>{maxUploads} Photo Challenge</p>
               </div>
 
               {/* content */}
@@ -218,7 +226,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                 <h1 className="text-lg font-semibold sm:text-xl">
                   UPLOAD PHOTOS TO <span className="text-primary">{title}</span> CHALLENGE
                 </h1>
-                <p>{maxUpload} Photo Challenge</p>
+                <p>{maxUploads} Photo Challenge</p>
               </div>
 
               {/* content */}
