@@ -24,7 +24,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
   const rankPhotographers = rankPhotographersData?.data ?? [];
 
   return (
-    <TabsContent value={value}>
+    <TabsContent value={value} className="mx-auto w-full max-w-4xl">
       <Tabs
         value={activeRankTab}
         onValueChange={(value: any) => setActiveRankTab(value)}
