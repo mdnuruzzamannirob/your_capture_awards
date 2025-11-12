@@ -15,6 +15,7 @@ import RankTab from './RankTab';
 import RulesTab from './RulesTab';
 import WinnersTab from './WinnersTab';
 import UploadModal, { UploadModalRef } from '../UploadModal';
+import VoteModal, { VoteModalRef } from '../VoteModal';
 
 const ContestDetails = ({ id }: { id: string }) => {
   const { data: contestData } = useGetContestQuery({ id });
@@ -23,7 +24,8 @@ const ContestDetails = ({ id }: { id: string }) => {
   const tabs = getContestTabs(contest?.status);
   const [activeTab, setActiveTab] = useState(tabs?.[0]?.key);
 
-  const modalRef = useRef<UploadModalRef>(null);
+  const uploadModalRef = useRef<UploadModalRef>(null);
+  const voteModalRef = useRef<VoteModalRef>(null);
   const remaining = (contest?.maxUploads ?? 0) - (contest?.uploadCount ?? 0);
 
   // render dynamic tab
@@ -83,20 +85,25 @@ const ContestDetails = ({ id }: { id: string }) => {
               <div className="mt-5 flex items-center justify-center gap-5">
                 {remaining > 0 && (
                   <button
-                    onClick={() => modalRef.current?.open()}
+                    onClick={() => uploadModalRef.current?.open()}
                     className="bg-background/20 text-foreground border-foreground w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10"
                   >
                     Upload Photo
                   </button>
                 )}
 
-                <button className="bg-background/20 text-foreground border-foreground w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10">
+                <button
+                  onClick={() => voteModalRef.current?.open()}
+                  className="bg-background/20 text-foreground border-foreground w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10"
+                >
                   Vote
                 </button>
 
+                <VoteModal ref={voteModalRef} id={contest?.id} />
+
                 {/* Modal */}
                 <UploadModal
-                  ref={modalRef}
+                  ref={uploadModalRef}
                   type={contest?.uploadCount ? 'upload' : 'join'}
                   title={contest?.title}
                   remaining={remaining}
