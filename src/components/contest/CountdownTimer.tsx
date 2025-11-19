@@ -50,7 +50,7 @@ const CountdownTimer = ({ startDate, endDate, refetch, className = '' }: Countdo
         setTimeLeft({ message: "Time's up!" });
         setTimeout(() => {
           refetch?.();
-        }, 2500);
+        }, 5000);
         return;
       }
 
