@@ -15,14 +15,15 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
     }
   }, [contest?.photos]);
 
+  console.log(contest);
   return (
-    <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col gap-5 overflow-hidden rounded-xl border-2 lg:flex-row">
-      <Link href={`/contest/${contest?.id}`} className="relative h-60 md:h-72 lg:flex-1">
+    <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col gap-5 overflow-hidden rounded-xl border-2 p-3 lg:flex-row">
+      <Link href={`/contest/${contest?.id}`} className="relative h-60 rounded-lg md:h-72 lg:flex-1">
         <Image
           src={contest?.banner}
           alt={contest?.title}
           fill
-          className="bg-black-2-600 size-full object-cover opacity-60"
+          className="bg-black-2-600 size-full rounded-lg object-cover opacity-60"
         />
         <h2 className="absolute inset-0 flex items-center justify-center p-3 text-center text-2xl font-semibold">
           {contest?.title}
@@ -50,7 +51,7 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col justify-between gap-5 p-3">
+      <div className="flex flex-1 flex-col justify-between gap-5">
         <div className="grid grid-cols-2 gap-1">
           {images?.map((item, index) => (
             <div key={index} className="group relative cursor-pointer overflow-hidden rounded-sm">
@@ -59,32 +60,31 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
                 alt="Uploaded Photo"
                 width={400}
                 height={260}
-                className="bg-black-2-700 h-24 w-full rounded-sm object-cover transition-all duration-500 group-hover:brightness-40"
+                className="bg-black-2-700 h-24 w-full rounded-sm object-cover opacity-80"
               />
-
-              <div className="absolute inset-0 flex flex-col justify-center">
-                <p className="flex translate-y-3 items-center justify-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                  <MdOutlineHowToVote />
-                  {55}
-                </p>
-              </div>
+              <p className="absolute bottom-2 left-2 flex items-center justify-center gap-1">
+                <MdOutlineHowToVote />
+                {55}
+              </p>
             </div>
           ))}
         </div>
 
-        <div className="flex items-center justify-between text-center">
+        <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <p className="text-sm font-semibold">{contest?.rank}</p>
             <p className="text-xs opacity-70">LEVEL</p>
+            <p className="text-lg font-semibold">{contest?.rank}</p>
           </div>
           <div className="space-y-1">
-            <p className="text-sm font-semibold">{contest.votes ?? 1500}</p>
-            <p className="text-xs opacity-70">VOTES</p>
+            <p className="text-xs uppercase opacity-70">Total VOTES</p>
+            <p className="flex items-center gap-1 text-lg font-semibold">
+              <MdOutlineHowToVote /> {contest.totalVote ?? 1500}
+            </p>
           </div>
 
           <div className="space-y-1">
-            <p className="text-sm font-semibold">{formatDateToDayMonYear(contest.endDate)}</p>
             <p className="text-xs opacity-70">END DATE</p>
+            <p className="text-lg font-semibold">{formatDateToDayMonYear(contest.endDate)}</p>
           </div>
         </div>
       </div>
