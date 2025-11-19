@@ -41,7 +41,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
       <div className="col-span-2">{contest?.description}</div>
 
       <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center lg:gap-3">
-        <p className="flex flex-1 items-center gap-3 uppercase">
+        <p className="flex flex-1 items-center gap-3 whitespace-nowrap uppercase">
           <MdOutlineHowToVote className="text-primary size-8 lg:size-10" />{' '}
           {!hasStarted ? (
             <span className="flex items-center gap-2">
@@ -54,7 +54,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
           )}
         </p>
 
-        <div className="flex flex-1 items-center gap-3 uppercase">
+        <div className="flex flex-1 items-center gap-3 whitespace-nowrap uppercase">
           <FaHourglassHalf className="text-primary size-8 lg:size-10" />
           {hasEnded ? (
             <p className="flex items-center gap-2">
@@ -78,7 +78,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
         </div>
 
         {contest?.isMoneyContest ? (
-          <div className="flex flex-1 items-center gap-3">
+          <div className="flex flex-1 items-center gap-3 whitespace-nowrap">
             <MdOutlinePaid className="text-primary size-8 lg:size-10" />{' '}
             <p className="flex items-center gap-2 uppercase">
               <span className="text-xl font-bold">

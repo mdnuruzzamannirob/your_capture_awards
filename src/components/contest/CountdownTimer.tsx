@@ -48,7 +48,9 @@ const CountdownTimer = ({ startDate, endDate, refetch, className = '' }: Countdo
         clearInterval(interval);
         setActive(false);
         setTimeLeft({ message: "Time's up!" });
-        refetch?.();
+        setTimeout(() => {
+          refetch?.();
+        }, 2500);
         return;
       }
 
