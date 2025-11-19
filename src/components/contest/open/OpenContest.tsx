@@ -6,7 +6,7 @@ import OpenContestCard from './OpenContestCard';
 import OpenContestCardSkeleton from './OpenContestCardSkeleton';
 
 const OpenContest = () => {
-  const { data, isLoading } = useGetContestsQuery({ status: 'ACTIVE' });
+  const { data, isLoading, refetch } = useGetContestsQuery({ status: 'ACTIVE' });
 
   const openResult = (data as any)?.data ?? [];
   return (
@@ -20,7 +20,7 @@ const OpenContest = () => {
         </div>
       ) : (
         openResult?.map((contest: any, index: number) => (
-          <OpenContestCard key={index} contest={contest} />
+          <OpenContestCard key={index} contest={contest} refetch={refetch} />
         ))
       )}
     </section>

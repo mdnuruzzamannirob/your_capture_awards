@@ -13,7 +13,7 @@ const PortfolioCard = ({ item }: { item: Photo }) => {
   // Delete handler
   const handleDelete = async (id: string) => {
     try {
-      await deletePhoto(id);
+      await deletePhoto(id).unwrap();
 
       toast.success('Photo deleted successfully');
       // sortedPhotos.splice(

@@ -2,7 +2,13 @@ import Image from 'next/image';
 import CountdownTimer from '../CountdownTimer';
 import Link from 'next/link';
 
-const UpcomingContestCard = ({ contest }: { contest: any }) => {
+const UpcomingContestCard = ({
+  contest,
+  refetch,
+}: {
+  contest: any;
+  refetch: () => Promise<any>;
+}) => {
   const now = new Date();
   const contestStart = new Date(contest?.startDate);
   const contestEnd = new Date(contest?.endDate);
@@ -40,7 +46,7 @@ const UpcomingContestCard = ({ contest }: { contest: any }) => {
           </div>
 
           <div className="flex translate-y-3 justify-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-            <button className="bg-foreground text-background rounded px-3 py-1 transition">
+            <button className="bg-foreground text-background rounded px-3 py-2 text-sm font-medium uppercase transition">
               View Details
             </button>
           </div>
@@ -53,8 +59,13 @@ const UpcomingContestCard = ({ contest }: { contest: any }) => {
               <p className="text-xs">Prizes</p>
             </div>
 
-            <div className="border-primary flex h-12 flex-2 flex-col items-center justify-center border-r px-1">
-              <CountdownTimer startDate={startDate} endDate={endDate} className="gap-1" />
+            <div className="border-primary flex h-12 flex-[1.5] flex-col items-center justify-center border-r px-1">
+              <CountdownTimer
+                startDate={startDate}
+                endDate={endDate}
+                refetch={refetch}
+                className="gap-1"
+              />
             </div>
 
             {isFuture ? (
