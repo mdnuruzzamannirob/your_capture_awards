@@ -26,16 +26,17 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
   const [trigger, { data, isLoading }] = useLazyGetContestPhotosQuery();
   const [voteUpload, { isLoading: voteLoading }] = useCreateVoteMutation();
 
+  const voteData: { url: string; id: string }[] =
+    (data?.data as { url: string; id: string }[] | undefined) ?? [];
+  const contestId = id;
+
   // expose `open` method to parent
   useImperativeHandle(ref, () => ({
     open: () => {
       setOpen(true);
-      trigger({ id });
+      trigger({ id: contestId });
     },
   }));
-
-  const voteData: { url: string; id: string }[] =
-    (data?.data as { url: string; id: string }[] | undefined) ?? [];
 
   const toggleVote = (id: string) => {
     setSelectedIds((prev) =>
