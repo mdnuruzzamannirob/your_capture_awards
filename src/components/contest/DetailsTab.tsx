@@ -16,7 +16,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
   const hasEnded = now > contestEnd;
 
   return (
-    <TabsContent value={value} className="mx-auto max-w-4xl space-y-10">
+    <TabsContent value={value} className="mx-auto w-full max-w-4xl space-y-10">
       <div className="flex flex-col items-center justify-center gap-5">
         <Image
           alt="Profile Photo"
@@ -40,9 +40,9 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
 
       <div className="col-span-2">{contest?.description}</div>
 
-      <div className="flex items-center justify-between gap-3">
-        <p className="flex items-center gap-3 uppercase">
-          <MdOutlineHowToVote className="text-primary size-10" />{' '}
+      <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center lg:gap-3">
+        <p className="flex flex-1 items-center gap-3 uppercase">
+          <MdOutlineHowToVote className="text-primary size-8 lg:size-10" />{' '}
           {!hasStarted ? (
             <span className="flex items-center gap-2">
               <span className="text-xl font-bold">VOTING</span> STARTS SOON
@@ -54,8 +54,8 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
           )}
         </p>
 
-        <div className="flex items-center gap-3 uppercase">
-          <FaHourglassHalf className="text-primary size-10" />
+        <div className="flex flex-1 items-center gap-3 uppercase">
+          <FaHourglassHalf className="text-primary size-8 lg:size-10" />
           {hasEnded ? (
             <p className="flex items-center gap-2">
               <span className="text-xl font-bold">{formatDateToDayMonYear(contest?.endDate)}</span>
@@ -78,8 +78,8 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
         </div>
 
         {contest?.isMoneyContest ? (
-          <div className="flex items-center gap-3">
-            <MdOutlinePaid className="text-primary size-10" />{' '}
+          <div className="flex flex-1 items-center gap-3">
+            <MdOutlinePaid className="text-primary size-8 lg:size-10" />{' '}
             <p className="flex items-center gap-2 uppercase">
               <span className="text-xl font-bold">
                 {contest?.minPrize && contest?.minPrize + '$ - '} {contest?.maxPrize + '$'}
@@ -88,8 +88,8 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
             </p>
           </div>
         ) : (
-          <div className="flex items-center gap-3">
-            <MdOutlinePaid className="text-primary size-10" />{' '}
+          <div className="flex flex-1 items-center gap-3 whitespace-nowrap">
+            <MdOutlinePaid className="text-primary size-8 lg:size-10" />{' '}
             <p className="flex items-center gap-2 uppercase">
               <span className="text-xl font-bold">Non-monetary </span> contest
             </p>

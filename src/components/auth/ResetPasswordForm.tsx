@@ -39,7 +39,7 @@ export default function ResetPasswordForm() {
       router.push('/signin');
     } catch (error) {
       toast.error('Failed to reset password.', {
-        description: (error as any)?.data?.message || '',
+        description: (error as any)?.message || (error as any)?.data?.message || '',
       });
     }
   };

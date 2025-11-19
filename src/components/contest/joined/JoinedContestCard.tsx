@@ -12,7 +12,7 @@ import { useSwapBoostKey } from '@/hooks/useSwapBoostKey';
 import { useEffect, useRef, useState } from 'react';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
 
-const JoinedContestCard = ({ contest }: { contest: any }) => {
+const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => Promise<any> }) => {
   const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
@@ -56,7 +56,11 @@ const JoinedContestCard = ({ contest }: { contest: any }) => {
         </Link>
         <div className="absolute bottom-3 left-1/2 w-full -translate-x-1/2 px-3 text-center">
           <h2 className="inline-block text-2xl font-semibold">{contest?.title}</h2>
-          <CountdownTimer startDate={contest?.startDate} endDate={contest?.endDate} />
+          <CountdownTimer
+            startDate={contest?.startDate}
+            refetch={refetch}
+            endDate={contest?.endDate}
+          />
         </div>
 
         <div className="absolute top-0 right-0 z-10 transform rounded-tr-xl rounded-bl-xl bg-black px-3 py-2 text-sm">

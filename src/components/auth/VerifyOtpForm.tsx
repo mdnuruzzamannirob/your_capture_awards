@@ -104,7 +104,7 @@ export default function VerifyOtpForm() {
       toast.success('OTP verified successfully!');
       router.push('/reset-password');
     } catch (err: any) {
-      const msg = err?.data?.message || 'Invalid or expired OTP. Please try again.';
+      const msg = err?.message || err?.data?.message || 'Invalid or expired OTP. Please try again.';
       toast.error('Oops! Something went wrong', {
         description: msg,
       });

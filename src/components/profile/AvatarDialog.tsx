@@ -60,13 +60,13 @@ export default function AvatarDialog() {
 
     try {
       await updateAvatar(formData).unwrap();
-      await triggerGetMe();
+      await triggerGetMe().unwrap();
       toast.success(user?.avatar ? 'Avatar updated successfully!' : 'Avatar added successfully!');
       setOpen(false);
       setFile(null);
       setPreview(null);
     } catch (err: any) {
-      toast.error(err?.message || 'Something went wrong.');
+      toast.error(err.message || err.data.message || 'Something went wrong.');
     }
   };
 

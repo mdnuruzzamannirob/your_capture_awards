@@ -47,12 +47,12 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
     if (selectedIds.length === 0) return;
 
     try {
-      await voteUpload({ id, photoIds: selectedIds });
+      await voteUpload({ id, photoIds: selectedIds }).unwrap();
       toast.success('Your votes have been submitted successfully!');
       setOpen(false);
       setSelectedIds([]);
     } catch (err: any) {
-      toast.error(err.message || 'Something went wrong. Please try again', {
+      toast.error(err.message || err.data.message || 'Something went wrong. Please try again', {
         position: 'top-right',
       });
     }

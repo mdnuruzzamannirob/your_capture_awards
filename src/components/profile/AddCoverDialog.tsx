@@ -46,14 +46,14 @@ export default function AddCoverDialog() {
 
     try {
       await updateCover(formData).unwrap();
-      triggerGetMe();
+      triggerGetMe().unwrap();
 
       toast.success('Cover photo updated successfully!');
       setFile(null);
       setPreview(null);
       setOpen(false);
     } catch (err: any) {
-      toast.error(err?.message || 'Something went wrong while uploading.');
+      toast.error(err.message || err.data.message || 'Something went wrong while uploading.');
     }
   };
 

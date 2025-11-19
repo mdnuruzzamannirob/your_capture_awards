@@ -32,14 +32,20 @@ const ClosedContestCard = ({ contest }: { contest: any }) => {
           </div>
 
           <div className="flex w-full items-center justify-between bg-black/80 py-2 text-white">
-            <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
-              <p className="font-semibold">
-                ${contest?.minPrize} - ${contest?.maxPrize}
-              </p>
-              <p className="text-xs">Prizes</p>
-            </div>
+            {contest?.isMoneyContest ? (
+              <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
+                <p className="font-semibold">
+                  ${contest?.minPrize} - ${contest?.maxPrize}
+                </p>
+                <p className="text-xs">Prizes</p>
+              </div>
+            ) : (
+              <div className="border-primary flex h-12 w-fit flex-1 flex-col items-center justify-center border-r px-1 text-center text-sm whitespace-nowrap">
+                No Cash Prize
+              </div>
+            )}
 
-            <div className="border-primary flex h-12 flex-2 flex-col items-center justify-center border-r px-1 text-sm">
+            <div className="border-primary flex h-12 flex-[1.5] flex-col items-center justify-center border-r px-1 text-sm">
               {formatDateToDayMonYear(contest?.endDate)}
             </div>
 

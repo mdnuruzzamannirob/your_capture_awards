@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { MdOutlineHowToVote } from 'react-icons/md';
 
 const CompletedContestCard = ({ contest }: { contest: any }) => {
-  console.log(contest);
   return (
     <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col justify-between overflow-hidden rounded-xl border-2">
       {/* Top Banner */}

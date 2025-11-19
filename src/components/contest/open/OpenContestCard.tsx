@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRef } from 'react';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 
-const OpenContestCard = ({ contest }: { contest: any }) => {
+const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Promise<any> }) => {
   const now = new Date();
   const contestStart = new Date(contest?.startDate);
   const contestEnd = new Date(contest?.endDate);
@@ -54,7 +54,7 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
                 e.stopPropagation();
                 modalRef.current?.open();
               }}
-              className="bg-foreground text-background pointer-events-auto rounded px-3 py-1"
+              className="bg-foreground text-background pointer-events-auto rounded px-3 py-2 text-sm font-medium uppercase transition"
             >
               JOIN
             </button>
@@ -69,8 +69,13 @@ const OpenContestCard = ({ contest }: { contest: any }) => {
               <p className="text-xs">Prizes</p>
             </div>
 
-            <div className="flex h-12 flex-2 flex-col items-center justify-center border-r px-1">
-              <CountdownTimer startDate={startDate} endDate={endDate} className="gap-1" />
+            <div className="flex h-12 flex-[1.5] flex-col items-center justify-center border-r px-1">
+              <CountdownTimer
+                startDate={startDate}
+                endDate={endDate}
+                refetch={refetch}
+                className="gap-1"
+              />
             </div>
 
             {isFuture ? (
