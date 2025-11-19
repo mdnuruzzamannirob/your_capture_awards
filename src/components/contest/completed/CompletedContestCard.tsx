@@ -1,4 +1,3 @@
-import { cn } from '@/utils/cn';
 import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -18,12 +17,12 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
 
   return (
     <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col gap-5 overflow-hidden rounded-xl border-2 lg:flex-row">
-      <Link href={`/contest/${contest?.id}`} className="relative h-60 lg:h-80 lg:flex-1">
+      <Link href={`/contest/${contest?.id}`} className="relative h-60 md:h-72 lg:flex-1">
         <Image
           src={contest?.banner}
           alt={contest?.title}
           fill
-          className="bg-black-2-500 size-full object-cover opacity-60"
+          className="bg-black-2-600 size-full object-cover opacity-60"
         />
         <h2 className="absolute inset-0 flex items-center justify-center p-3 text-center text-2xl font-semibold">
           {contest?.title}
@@ -51,7 +50,7 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col justify-between gap-5 p-5">
+      <div className="flex flex-1 flex-col justify-between gap-5 p-3">
         <div className="grid grid-cols-2 gap-1">
           {images?.map((item, index) => (
             <div key={index} className="group relative cursor-pointer overflow-hidden rounded-sm">

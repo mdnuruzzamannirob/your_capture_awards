@@ -18,8 +18,7 @@ const eslintConfig = [
       'react/react-in-jsx-scope': 'off',
       'react-hooks/exhaustive-deps': 'off',
       'react-hooks/set-state-in-effect': 'off',
-      // prettier
-      // 'prettier/prettier': 'off',
+
       // typescript
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
