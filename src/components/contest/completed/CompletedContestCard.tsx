@@ -18,7 +18,7 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
 
   return (
     <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col gap-5 overflow-hidden rounded-xl border-2 lg:flex-row">
-      <Link href={`/contest/${contest?.id}`} className="relative h-80 flex-1">
+      <Link href={`/contest/${contest?.id}`} className="relative h-60 lg:h-80 lg:flex-1">
         <Image
           src={contest?.banner}
           alt={contest?.title}
