@@ -11,7 +11,7 @@ const CompletedContest = () => {
   const completedResult = (data as any)?.data ?? [];
   return (
     <section className="">
-      <div className="grid grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 gap-10">
         {isLoading ? (
           [1, 2, 3, 4].map((_, index) => <OpenContestCardSkeleton key={index} />)
         ) : completedResult.length <= 0 ? (
