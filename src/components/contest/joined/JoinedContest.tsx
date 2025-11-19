@@ -6,9 +6,10 @@ import JoinedContestCardSkeleton from './JoinedContestCardSkeleton';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { labels, totalLevels } from '@/utils/valueToExposureLabel';
 import { cn } from '@/utils/cn';
+import VoteModal, { VoteModalRef } from '@/components/VoteModal';
 
 const JoinedContest = () => {
   const searchParams = useSearchParams();
@@ -17,8 +18,9 @@ const JoinedContest = () => {
   const contestTitle = searchParams.get('contestTitle');
   const [uploadModal, setUploadModal] = useState(joinSuccess === 'joinSuccess' ? true : false);
 
-  const { data, isLoading } = useGetJoinedContestQuery();
+  const { data, isLoading, refetch } = useGetJoinedContestQuery();
 
+  const voteModalRef = useRef<VoteModalRef>(null);
   const joinedResult = (data as any)?.data ?? [];
   return (
     <section className="">
@@ -32,7 +34,7 @@ const JoinedContest = () => {
           </div>
         ) : (
           joinedResult?.map((contest: any, index: number) => (
-            <JoinedContestCard key={index} contest={contest} />
+            <JoinedContestCard key={index} contest={contest} refetch={refetch} />
           ))
         )}
       </div>
@@ -94,15 +96,14 @@ const JoinedContest = () => {
                 Fill
               </button>
               <button
-                onClick={() => {
-                  // resetStates();
-                  // handleSubmit()
-                }}
+                onClick={() => voteModalRef.current?.open()}
                 // disabled={!file || isLoading}
                 className="bg-primary text-background rounded-sm px-5 py-2 text-sm"
               >
                 {isLoading ? 'Voting...' : 'Vote'}
               </button>
+
+              <VoteModal ref={voteModalRef} id={contestId as string} />
             </div>
           </div>
         </DialogContent>

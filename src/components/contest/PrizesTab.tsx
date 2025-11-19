@@ -5,7 +5,7 @@ import { TabsContent } from '../ui/tabs';
 
 const PrizesTab = ({ contest, value }: { contest: any; value: string }) => {
   return (
-    <TabsContent value={value} className="mx-auto max-w-4xl space-y-32">
+    <TabsContent value={value} className="mx-auto w-full max-w-4xl space-y-32">
       {contest?.isMoneyContest ? (
         contest?.prizes.map((prize: any, index: any) => (
           <AwardCard
@@ -17,7 +17,7 @@ const PrizesTab = ({ contest, value }: { contest: any; value: string }) => {
           />
         ))
       ) : (
-        <p className="mx-auto flex h-40 max-w-2xl items-center justify-center text-center">
+        <p className="flex h-40 items-center justify-center text-center">
           This contest is currently a non-monetary competition. While no cash prizes are awarded,
           top photographers and photos will still receive recognition and accolades for their
           outstanding work. Keep participating and showcase your talent!

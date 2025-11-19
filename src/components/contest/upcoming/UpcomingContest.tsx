@@ -6,7 +6,7 @@ import UpcomingContestCard from './UpcomingContestCard';
 import UpcomingContestCardSkeleton from './UpcomingContestCardSkeleton';
 
 const UpcomingContest = () => {
-  const { data, isLoading } = useGetContestsQuery({ status: 'UPCOMING' });
+  const { data, isLoading, refetch } = useGetContestsQuery({ status: 'UPCOMING' });
 
   const upcomingResult = (data as any)?.data ?? [];
 
@@ -21,7 +21,7 @@ const UpcomingContest = () => {
         </div>
       ) : (
         upcomingResult?.map((contest: any, index: number) => (
-          <UpcomingContestCard key={index} contest={contest} />
+          <UpcomingContestCard key={index} contest={contest} refetch={refetch} />
         ))
       )}
     </section>

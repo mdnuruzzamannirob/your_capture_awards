@@ -133,7 +133,11 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
             `/contest/joined?modal=joinSuccess&contestId=${contestId}&contestTitle=${title}`,
           );
         } else {
-          resetStates();
+          setModalContentType('choose');
+          setFile(null);
+          setPreview('');
+          setSelectedImages([]);
+          setUploadSource(null);
         }
       } catch (err: any) {
         toast.error(err.message || err.data?.message || 'Something went wrong!');
