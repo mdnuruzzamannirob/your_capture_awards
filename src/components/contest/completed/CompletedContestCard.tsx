@@ -78,13 +78,13 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
           <div className="space-y-1">
             <p className="text-xs uppercase opacity-70">Total VOTES</p>
             <p className="flex items-center gap-1 text-lg font-semibold">
-              <MdOutlineHowToVote /> {contest.totalVote ?? 1500}
+              <MdOutlineHowToVote /> {contest?.totalVotes ?? 0}
             </p>
           </div>
 
           <div className="space-y-1">
             <p className="text-xs opacity-70">END DATE</p>
-            <p className="text-lg font-semibold">{formatDateToDayMonYear(contest.endDate)}</p>
+            <p className="text-lg font-semibold">{formatDateToDayMonYear(contest?.endDate)}</p>
           </div>
         </div>
       </div>

@@ -6,7 +6,7 @@ import { FaFacebookF, FaLinkedin, FaXTwitter } from 'react-icons/fa6';
 const Footer = () => {
   return (
     <footer className="border-primary mt-20 border-t py-20">
-      <div className="container flex items-center justify-center gap-20">
+      <div className="container flex flex-col-reverse items-center justify-center gap-20 md:flex-row">
         <div className="space-y-5">
           <div className="flex items-center gap-3">
             <p className="border-primary text-primary flex items-center justify-center rounded-full border p-3">
@@ -29,7 +29,7 @@ const Footer = () => {
         </div>
 
         {/* divider */}
-        <div className="border-primary h-60 border-r" />
+        <div className="border-primary hidden h-60 border-r md:block" />
 
         <div className="space-y-5">
           <LogoName className="scale-125" />

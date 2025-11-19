@@ -31,7 +31,7 @@ const AwardCard = ({
 
       <div
         className={cn(
-          'flex items-center justify-between gap-10',
+          'flex items-center justify-between gap-10 overflow-hidden',
           title === 'top-photo' ? 'flex-col lg:flex-row-reverse' : 'flex-col lg:flex-row',
         )}
       >
@@ -44,19 +44,19 @@ const AwardCard = ({
           </p>
         </div>
 
-        <div className="h-60 w-fit px-7 pt-1">
+        <div className="h-60 w-fit pt-1 max-sm:scale-70 sm:px-7">
           <div className="relative flex w-fit items-center">
-            <div className="bg-foreground text-background flex h-36 w-32 translate-x-5 translate-y-3 -rotate-12 flex-col items-center justify-center rounded border shadow-md">
+            <div className="bg-foreground text-background flex h-32 w-28 translate-x-5 translate-y-3 -rotate-12 flex-col items-center justify-center rounded border shadow-md sm:h-36 sm:w-32">
               <Image alt="" src="/icons/swap.png" width={50} height={50} />
               <h4 className="mt-1 text-lg font-extrabold">x{swap}</h4>
               <h3 className="text-muted-foreground font-semibold">Swap</h3>
             </div>
-            <div className="bg-foreground text-background z-10 flex h-36 w-32 flex-col items-center justify-center rounded border shadow-md">
+            <div className="bg-foreground text-background z-10 flex h-32 w-28 flex-col items-center justify-center rounded border shadow-md sm:h-36 sm:w-32">
               <Image alt="" src="/icons/vote.png" width={50} height={50} />
               <h4 className="mt-1 text-lg font-extrabold">x{boost}</h4>
               <h3 className="text-muted-foreground font-semibold">Boost</h3>
             </div>
-            <div className="bg-foreground text-background flex h-36 w-32 -translate-x-5 translate-y-3 rotate-12 flex-col items-center justify-center rounded border shadow-md">
+            <div className="bg-foreground text-background flex h-32 w-28 -translate-x-5 translate-y-3 rotate-12 flex-col items-center justify-center rounded border shadow-md sm:h-36 sm:w-32">
               <Image alt="" src="/icons/key.png" width={50} height={50} />
               <h4 className="mt-1 text-lg font-extrabold">x{keys}</h4>
               <h3 className="text-muted-foreground font-semibold">Keys</h3>

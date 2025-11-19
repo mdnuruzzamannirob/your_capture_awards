@@ -39,7 +39,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
             alt={contest?.title}
             width={640}
             height={320}
-            className="bg-black-2-600 h-80 w-full rounded-t-xl object-cover opacity-60"
+            className="bg-black-2-600 h-60 w-full rounded-t-xl object-cover opacity-60 md:h-72 lg:h-80"
           />
         </Link>
 
@@ -70,7 +70,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
 
       <div className="flex flex-1 flex-col gap-3 lg:gap-5">
         {/* Stats Section */}
-        <div className="grid grid-cols-4 gap-2 border-b border-white/10 px-3 pb-3 text-center lg:px-5 lg:pb-5">
+        <div className="grid grid-cols-2 gap-2 border-b border-white/10 px-3 pb-3 text-center md:grid-cols-4 lg:px-5 lg:pb-5">
           <div className="flex flex-col items-center justify-center gap-1">
             <div className="text-muted-foreground text-xs uppercase">Current Level</div>
             <div className="relative">
@@ -79,7 +79,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
                 src="/icons/ranked-badge.png"
                 width={141}
                 height={100}
-                className="h-[100px] w-[141px]"
+                className="h-[100px] w-[141px] min-w-[141px]"
               />
               <span className="absolute top-1/2 left-1/2 flex size-20 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full">
                 <span className="text-sm font-bold">{contest?.level_data.currentLevel}</span>
@@ -144,7 +144,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-3 px-3 lg:px-5">
+        <div className="grid grid-cols-4 gap-1 px-3 md:gap-3 lg:px-5">
           {images.map((img, i) => (
             <div key={i} className="flex-1">
               <Image
@@ -164,10 +164,10 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-between gap-3 px-3 lg:px-5">
+      <div className="flex items-center justify-between gap-1 px-3 md:gap-3 lg:px-5">
         <button
           onClick={() => modalRef.current?.open()}
-          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition"
+          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
         >
           <MdOutlineHowToVote /> Vote
         </button>
@@ -175,13 +175,13 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
         <VoteModal ref={modalRef} id={contest?.id} />
         <button
           onClick={() => openModal('swap')}
-          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition"
+          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
         >
           <MdOutlineCameraswitch className="rotate-90" /> Swap
         </button>
         <button
           onClick={() => openModal('boost')}
-          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-5 py-2 transition"
+          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
         >
           <AiOutlineThunderbolt /> Promote
         </button>
