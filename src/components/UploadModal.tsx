@@ -41,7 +41,7 @@ interface UploadModalProps {
 const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
   ({ contestId, type = 'join', description, title, maxUploads, remaining, onUpload }, ref) => {
     const [modalContentType, setModalContentType] = useState<ModalContentType>(
-      type === 'join' ? 'preview' : 'preview',
+      type === 'join' ? 'preview' : 'choose',
     );
     const [uploadModal, setUploadModal] = useState(false);
     const [uploadSource, setUploadSource] = useState<UploadSource | null>(null);
