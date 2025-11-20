@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRef } from 'react';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
+import CornerCount from '@/components/CornerCount';
 
 const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Promise<any> }) => {
   const now = new Date();
@@ -31,7 +32,7 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
           height={500}
           className="size-full object-cover transition-all duration-300 group-hover:brightness-50"
         />
-
+        <CornerCount count={contest?.maxUploads} />
         <div className="absolute inset-0 flex flex-col justify-between">
           {/* Top Hover */}
           <div className="flex -translate-y-3 items-center gap-2 p-5 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">

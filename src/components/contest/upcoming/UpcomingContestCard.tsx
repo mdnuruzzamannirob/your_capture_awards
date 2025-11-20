@@ -2,6 +2,7 @@ import Image from 'next/image';
 import CountdownTimer from '../CountdownTimer';
 import Link from 'next/link';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
+import CornerCount from '@/components/CornerCount';
 
 const UpcomingContestCard = ({
   contest,
@@ -33,6 +34,8 @@ const UpcomingContestCard = ({
           height={500}
           className="bg-black-2-600 size-full object-cover transition-all duration-300 group-hover:brightness-50"
         />
+
+        <CornerCount count={contest?.maxUploads} />
 
         <div className="absolute inset-0 flex flex-col justify-between">
           <div className="flex -translate-y-3 items-center gap-2 p-5 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
