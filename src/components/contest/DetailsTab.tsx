@@ -6,6 +6,7 @@ import CountdownTimer from './CountdownTimer';
 import Image from 'next/image';
 import { TabsContent } from '../ui/tabs';
 import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
+import { formatPrizeRange } from '@/utils/formatPrizeRange';
 
 const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
   const now = new Date();
@@ -82,7 +83,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
             <MdOutlinePaid className="text-primary size-8 lg:size-10" />{' '}
             <p className="flex items-center gap-2 uppercase">
               <span className="text-xl font-bold">
-                {contest?.minPrize && contest?.minPrize + '$ - '} {contest?.maxPrize + '$'}
+                {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
               </span>{' '}
               IN AWARDS
             </p>

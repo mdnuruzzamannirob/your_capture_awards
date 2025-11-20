@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import CountdownTimer from '../CountdownTimer';
 import Link from 'next/link';
+import { formatPrizeRange } from '@/utils/formatPrizeRange';
 
 const UpcomingContestCard = ({
   contest,
@@ -54,18 +55,13 @@ const UpcomingContestCard = ({
           <div className="flex w-full items-center justify-between bg-black/80 py-2 text-white">
             <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
               <p className="font-semibold">
-                ${contest?.minPrize} - ${contest?.maxPrize}
+                {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
               </p>
               <p className="text-xs">Prizes</p>
             </div>
 
             <div className="border-primary flex h-12 flex-[1.5] flex-col items-center justify-center border-r px-1">
-              <CountdownTimer
-                startDate={startDate}
-                endDate={endDate}
-                refetch={refetch}
-                className="gap-1"
-              />
+              <CountdownTimer startDate={startDate} endDate={endDate} refetch={refetch} />
             </div>
 
             {isFuture ? (
