@@ -16,6 +16,7 @@ import RulesTab from './RulesTab';
 import WinnersTab from './WinnersTab';
 import UploadModal, { UploadModalRef } from '../UploadModal';
 import VoteModal, { VoteModalRef } from '../VoteModal';
+import CornerCount from '../CornerCount';
 
 const ContestDetails = ({ id }: { id: string }) => {
   const { data: contestData } = useGetContestQuery({ id });
@@ -68,6 +69,8 @@ const ContestDetails = ({ id }: { id: string }) => {
             <p>No banner photo</p>
           </div>
         )}
+
+        <CornerCount count={contest?.maxUploads} />
 
         <div className="absolute top-1/2 left-1/2 w-full -translate-x-1/2 -translate-y-1/2 space-y-3 text-center">
           <h2 className="inline-block text-2xl font-semibold sm:text-3xl md:text-4xl lg:text-5xl">
