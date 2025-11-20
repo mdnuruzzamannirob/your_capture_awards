@@ -74,15 +74,19 @@ const JoinedContest = () => {
             }}
           >
             <div className="text-foreground flex flex-col items-center justify-center bg-black/60 px-10 py-24 text-center">
-              <h1 className="text-5xl font-bold uppercase">{contest?.title}</h1>
-              <p className="mt-10 mb-5 text-xl">Fresh challenge just unveiled</p>
+              <h1 className="text-2xl font-bold uppercase sm:text-3xl md:text-4xl lg:text-5xl">
+                {contest?.title}
+              </h1>
+              <p className="mt-5 mb-3 sm:mt-6 sm:mb-4 sm:text-lg md:mt-8 md:mb-5 lg:mt-10 lg:text-xl">
+                Fresh challenge just unveiled
+              </p>
               <button
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   modalRef.current?.open();
                 }}
-                className="bg-primary hover:bg-primary/90 pointer-events-auto flex items-center justify-center gap-2 rounded-sm px-5 py-2 font-medium transition"
+                className="bg-primary hover:bg-primary/90 pointer-events-auto flex items-center justify-center gap-2 rounded-sm px-5 py-2 font-medium transition max-sm:text-sm"
               >
                 Join Now <FaArrowRightLong />
               </button>
