@@ -30,7 +30,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
   const level = valueToLevel(contest?.level_data?.exposure_bonus);
 
   return (
-    <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col justify-between gap-3 rounded-xl border-2 pb-3 lg:gap-5 lg:pb-5">
+    <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col justify-between gap-3 overflow-hidden rounded-xl border-2 pb-3 lg:gap-5 lg:pb-5">
       {/* Top Banner */}
       <div className="relative">
         <Link href={`/contest/${contest?.id}`}>
@@ -39,7 +39,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
             alt={contest?.title}
             width={640}
             height={320}
-            className="bg-black-2-600 h-60 w-full rounded-t-xl object-cover opacity-60 md:h-72 lg:h-80"
+            className="bg-black-2-600 h-60 w-full object-cover opacity-60 md:h-72 lg:h-80"
           />
         </Link>
 
