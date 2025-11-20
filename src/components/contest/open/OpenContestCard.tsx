@@ -63,14 +63,20 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
 
           {/* Footer */}
           <div className="flex w-full items-center justify-between bg-black/80 py-2 text-white">
-            <div className="flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
-              <p className="font-semibold">
-                {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
-              </p>
-              <p className="text-xs">Prizes</p>
-            </div>
+            {contest?.isMoneyContest ? (
+              <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
+                <p className="font-semibold">
+                  {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
+                </p>
+                <p className="text-xs">Prizes</p>
+              </div>
+            ) : (
+              <div className="border-primary flex h-12 w-fit flex-1 flex-col items-center justify-center border-r px-1 text-center text-sm whitespace-nowrap">
+                No Cash Prize
+              </div>
+            )}
 
-            <div className="flex h-12 flex-[1.5] flex-col items-center justify-center border-r px-1">
+            <div className="border-primary flex h-12 flex-[1.3] flex-col items-center justify-center border-r px-1">
               <CountdownTimer startDate={startDate} endDate={endDate} refetch={refetch} />
             </div>
 

@@ -46,7 +46,7 @@ const ClosedContestCard = ({ contest }: { contest: any }) => {
               </div>
             )}
 
-            <div className="border-primary flex h-12 flex-[1.5] flex-col items-center justify-center border-r px-1 text-sm">
+            <div className="border-primary flex h-12 flex-[1.3] flex-col items-center justify-center border-r px-1 text-sm">
               {formatDateToDayMonYear(contest?.endDate)}
             </div>
 
