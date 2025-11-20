@@ -1,5 +1,4 @@
 import JoinedContest from '@/components/contest/joined/JoinedContest';
-import JoinNow from '@/components/contest/joined/JoinNow';
 import SwapBoostKeyModal from '@/components/contest/joined/SwapBoostKeyModal';
 import ReduxProvider from '@/providers/ReduxProvider';
 import { SwapBoostKeyProvider } from '@/providers/SwapBoostKeyProvider';
@@ -10,6 +9,7 @@ const JoinedPage = async () => {
   const store = makeStore();
 
   await store.dispatch(contestApi.endpoints.getJoinedContest.initiate());
+  await store.dispatch(contestApi.endpoints.getContests.initiate({ status: 'ACTIVE' }));
   await Promise.all(store.dispatch(contestApi.util.getRunningQueriesThunk()));
 
   const preloadedState = store.getState();
@@ -19,7 +19,6 @@ const JoinedPage = async () => {
       <ReduxProvider preloadedState={preloadedState}>
         <SwapBoostKeyProvider>
           <SwapBoostKeyModal />
-          <JoinNow />
 
           <JoinedContest />
         </SwapBoostKeyProvider>
