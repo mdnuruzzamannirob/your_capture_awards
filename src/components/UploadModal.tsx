@@ -41,7 +41,7 @@ interface UploadModalProps {
 const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
   ({ contestId, type = 'join', description, title, maxUploads, remaining, onUpload }, ref) => {
     const [modalContentType, setModalContentType] = useState<ModalContentType>(
-      type === 'join' ? 'preview' : 'choose',
+      type === 'join' ? 'preview' : 'preview',
     );
     const [uploadModal, setUploadModal] = useState(false);
     const [uploadSource, setUploadSource] = useState<UploadSource | null>(null);
@@ -156,12 +156,12 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               </div>
 
               {/* content */}
-              <div className="h-54 space-y-3">
+              <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <p className="size-12 rounded-full border"></p>
                   <h3 className="font-medium">By Md. Nuruzzaman</h3>
                 </div>
-                <p>{description}</p>
+                <p className="max-h-60 min-h-28 overflow-y-auto">{description}</p>
               </div>
 
               {/* footer */}
