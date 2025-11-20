@@ -11,6 +11,7 @@ import { labels, totalLevels, valueToLevel } from '@/utils/valueToExposureLabel'
 import { useSwapBoostKey } from '@/hooks/useSwapBoostKey';
 import { useEffect, useRef, useState } from 'react';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
+import CornerCount from '@/components/CornerCount';
 
 const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => Promise<any> }) => {
   const [images, setImages] = useState<string[]>([]);
@@ -63,9 +64,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
           />
         </div>
 
-        <div className="absolute top-0 right-0 z-10 transform rounded-tr-xl rounded-bl-xl bg-black px-3 py-2 text-sm">
-          <span className="mr-1 font-bold">{contest?.maxUploads}</span> PHOTOS
-        </div>
+        <CornerCount count={contest?.maxUploads} />
       </div>
 
       <div className="flex flex-1 flex-col gap-3 lg:gap-5">

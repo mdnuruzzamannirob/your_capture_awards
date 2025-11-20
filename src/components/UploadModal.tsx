@@ -60,15 +60,6 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       open: () => setUploadModal(true),
     }));
 
-    const resetStates = () => {
-      setUploadModal(false);
-      setFile(null);
-      setPreview('');
-      setSelectedImages([]);
-      setUploadSource(null);
-      setModalContentType('preview');
-    };
-
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const imgFile = e.target.files?.[0];
       if (!imgFile) return;
@@ -132,13 +123,16 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
           router.push(
             `/contest/joined?modal=joinSuccess&contestId=${contestId}&contestTitle=${title}`,
           );
+          setUploadModal(false);
+          setModalContentType('preview');
         } else {
           setModalContentType('choose');
-          setFile(null);
-          setPreview('');
-          setSelectedImages([]);
-          setUploadSource(null);
         }
+
+        setFile(null);
+        setPreview('');
+        setSelectedImages([]);
+        setUploadSource(null);
       } catch (err: any) {
         toast.error(err.message || err.data?.message || 'Something went wrong!');
       }
