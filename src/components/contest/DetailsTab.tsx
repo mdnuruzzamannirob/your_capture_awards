@@ -46,11 +46,11 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
           <MdOutlineHowToVote className="text-primary size-8 lg:size-10" />{' '}
           {!hasStarted ? (
             <span className="flex items-center gap-2">
-              <span className="text-xl font-bold">VOTING</span> STARTS SOON
+              <span className="text-lg font-semibold">VOTING</span> STARTS SOON
             </span>
           ) : (
             <span className="flex items-center gap-2">
-              <span className="text-xl font-bold">{contest?.totalVotes}</span> Votes
+              <span className="text-lg font-semibold">{contest?.totalVotes}</span> Votes
             </span>
           )}
         </p>
@@ -59,18 +59,20 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
           <FaHourglassHalf className="text-primary size-8 lg:size-10" />
           {hasEnded ? (
             <p className="flex items-center gap-2">
-              <span className="text-xl font-bold">{formatDateToDayMonYear(contest?.endDate)}</span>
+              <span className="text-lg font-semibold">
+                {formatDateToDayMonYear(contest?.endDate)}
+              </span>
               Ended
             </p>
           ) : hasStarted ? (
             <CountdownTimer
               startDate={contest?.startDate}
               endDate={contest?.endDate}
-              className="text-xl font-bold"
+              className="text-lg font-semibold"
             />
           ) : (
             <p className="flex items-center gap-2">
-              <span className="text-xl font-bold">
+              <span className="text-lg font-semibold">
                 {formatDateToDayMonYear(contest?.startDate)}
               </span>
               Starts Soon
@@ -82,7 +84,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
           <div className="flex flex-1 items-center gap-3 whitespace-nowrap">
             <MdOutlinePaid className="text-primary size-8 lg:size-10" />{' '}
             <p className="flex items-center gap-2 uppercase">
-              <span className="text-xl font-bold">
+              <span className="text-lg font-semibold">
                 {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
               </span>{' '}
               IN AWARDS
@@ -92,7 +94,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
           <div className="flex flex-1 items-center gap-3 whitespace-nowrap">
             <MdOutlinePaid className="text-primary size-8 lg:size-10" />{' '}
             <p className="flex items-center gap-2 uppercase">
-              <span className="text-xl font-bold">Non-monetary </span> contest
+              <span className="text-lg font-semibold">Non-monetary </span> contest
             </p>
           </div>
         )}
