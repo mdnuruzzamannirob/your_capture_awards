@@ -92,14 +92,17 @@ const ContestDetails = ({ id }: { id: string }) => {
                   </button>
                 )}
 
-                <button
-                  onClick={() => voteModalRef.current?.open()}
-                  className="bg-background/20 text-foreground border-foreground w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10"
-                >
-                  Vote
-                </button>
-
-                <VoteModal ref={voteModalRef} id={contest?.id} />
+                {contest?.joined && (
+                  <>
+                    <button
+                      onClick={() => voteModalRef.current?.open()}
+                      className="bg-background/20 text-foreground border-foreground w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10"
+                    >
+                      Vote
+                    </button>
+                    <VoteModal ref={voteModalRef} id={contest?.id} />
+                  </>
+                )}
 
                 {/* Modal */}
                 <UploadModal
