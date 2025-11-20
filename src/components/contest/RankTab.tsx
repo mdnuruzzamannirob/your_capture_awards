@@ -47,7 +47,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
         </TabsList>
 
         <TabsContent
-          value="top-photos"
+          value="top-photo"
           className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
         >
           {isRankPhotosLoading
@@ -90,7 +90,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                 </div>
               ))}
         </TabsContent>
-        <TabsContent value="top-photographers" className="space-y-16">
+        <TabsContent value="top-photographer" className="space-y-16">
           {isRankPhotographerLoading
             ? [50, 30, 15, 5].map((value, index) => (
                 <div key={index} className="space-y-5">
