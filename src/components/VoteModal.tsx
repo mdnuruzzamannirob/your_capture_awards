@@ -110,7 +110,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
               })}
             </div>
           ) : (
-            <div className="flex size-full items-center justify-center text-lg text-gray-500">
+            <div className="flex size-full items-center justify-center p-5 text-center text-lg text-gray-500">
               No photos available for voting yet. Stay tuned and be ready to cast your vote soon!
             </div>
           )}
