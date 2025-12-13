@@ -16,6 +16,7 @@ import {
 import { PhotoToContestPayload } from '@/store/features/contest/types';
 import { Skeleton } from './ui/skeleton';
 import { useRouter } from 'next/navigation';
+import TipTapViewer from './tiptap-editor/TipTapViewer';
 
 export type ModalContentType = 'preview' | 'choose' | 'select';
 export type UploadSource = 'computer' | 'profile';
@@ -155,7 +156,9 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                   <p className="size-12 rounded-full border"></p>
                   <h3 className="font-medium">By Md. Nuruzzaman</h3>
                 </div>
-                <p className="max-h-60 min-h-28 overflow-y-auto">{description}</p>
+           
+                   <TipTapViewer content={description}  className="max-h-60 min-h-28 overflow-y-auto"/>
+              
               </div>
 
               {/* footer */}
