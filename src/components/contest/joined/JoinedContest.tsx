@@ -128,7 +128,7 @@ const JoinedContest = () => {
             <div className="space-y-5">
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="text-muted-foreground text-xs uppercase">Exposure</div>
-                <div className="border-black-2-600 relative flex size-[100px] flex-col items-center justify-center rounded-full border-4">
+                <div className="border-black-2-600 relative flex size-25 flex-col items-center justify-center rounded-full border-4">
                   <div className="flex w-full justify-between px-3 text-[10px] text-gray-400">
                     {labels.map((l, i) => (
                       <span key={i} className={cn(i + 1 <= 0 && 'font-semibold text-[#FD8533]')}>

@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { TabsContent } from '../ui/tabs';
 import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
+import TipTapViewer from '../tiptap-editor/TipTapViewer';
 
 const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
   const now = new Date();
@@ -39,7 +40,9 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
         </div>
       </div>
 
-      <div className="col-span-2">{contest?.description}</div>
+      <div className="col-span-2">
+        <TipTapViewer content={contest?.description} />
+      </div>
 
       <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center lg:gap-3">
         <p className="flex flex-1 items-center gap-3 whitespace-nowrap uppercase">
