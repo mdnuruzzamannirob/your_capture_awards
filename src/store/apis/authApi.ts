@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQuery } from '@/store/baseQuery';
 import Cookies from 'js-cookie';
-import { setTempEmail, setTempToken } from '../slices/authSlice';
+import { setTempEmail, setTempToken, setUser } from '../slices/authSlice';
 import { AuthUser, SigninData, SignupData } from '../types/authTypes';
 
 export const authApi = createApi({
@@ -20,14 +20,16 @@ export const authApi = createApi({
           const {
             data: { data },
           } = await queryFulfilled;
-
           Cookies.set('token', data.token, {
             expires: 7,
             secure: true,
             sameSite: 'Strict',
             path: '/',
           });
-        } catch (err) {}
+          dispatch(setUser(data.user));
+        } catch (err) {
+          console.error('Signin failed:', err);
+        }
       },
     }),
 
@@ -42,31 +44,29 @@ export const authApi = createApi({
           const {
             data: { data },
           } = await queryFulfilled;
-
           Cookies.set('token', data.token, {
             expires: 7,
             secure: true,
             sameSite: 'Strict',
             path: '/',
           });
-        } catch {}
+          dispatch(setUser(data.user));
+        } catch (err) {
+          console.error('Signup failed:', err);
+        }
       },
     }),
 
-    getMe: builder.query<{ data: { user: AuthUser; token: string | null } }, void>({
+    getMe: builder.query<{ data: AuthUser }, void>({
       query: () => '/auth/me',
       providesTags: ['Auth'],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
-          const {
-            data: { data },
-          } = await queryFulfilled;
-
-          const payload = {
-            user: data,
-            token: Cookies.get('token') ?? null,
-          };
-        } catch {}
+          const { data } = await queryFulfilled;
+          dispatch(setUser(data.data));
+        } catch (err) {
+          console.error('Failed to fetch user:', err);
+        }
       },
     }),
 
@@ -75,9 +75,10 @@ export const authApi = createApi({
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled;
-
           dispatch(setTempEmail(arg.email));
-        } catch (err) {}
+        } catch (err) {
+          console.error('Forgot password failed:', err);
+        }
       },
     }),
 
@@ -91,9 +92,10 @@ export const authApi = createApi({
           const {
             data: { data },
           } = await queryFulfilled;
-
           dispatch(setTempToken(data?.reset_password_token));
-        } catch (err) {}
+        } catch (err) {
+          console.error('OTP verification failed:', err);
+        }
       },
     }),
 
@@ -113,5 +115,4 @@ export const {
   useForgotPasswordMutation,
   useVerifyOTPMutation,
   useResetPasswordMutation,
-  useLazyGetMeQuery,
 } = authApi;

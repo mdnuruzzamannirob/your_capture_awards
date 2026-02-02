@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/utils/cn';
 import { useAuth } from '@/hooks/useAuth';
-import { useLazyGetMeQuery } from '@/store/apis/authApi';
+import { useGetMeQuery } from '@/store/apis/authApi';
 import { useUpdateAvatarMutation } from '@/store/apis/userApi';
 
 export default function AvatarDialog() {
@@ -29,7 +29,7 @@ export default function AvatarDialog() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [updateAvatar, { isLoading: isUpdating }] = useUpdateAvatarMutation();
-  const [triggerGetMe] = useLazyGetMeQuery();
+  const { refetch: triggerGetMe } = useGetMeQuery();
 
   // --- handle file change ---
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {

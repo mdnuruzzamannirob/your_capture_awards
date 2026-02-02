@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -14,7 +14,7 @@ import {
   SignupFormData,
   signupSchema,
 } from '@/lib/schemas/authSchema';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import FormField from '@/components/FormField';
 import LogoName from '@/components/LogoName';
 import { useSigninMutation, useSignupMutation } from '@/store/apis/authApi';
@@ -25,6 +25,9 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
   const [rememberMe, setRememberMe] = useState(false);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get('returnTo') || '/contest/joined';
+
   const [signin, { isLoading: isSigninLoading }] = useSigninMutation();
   const [signup, { isLoading: isSignupLoading }] = useSignupMutation();
 
@@ -38,23 +41,30 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
 
   const signInSubmit = async (data: SigninFormData) => {
     try {
-      await signin({ email: data?.email, password: data?.password }).unwrap();
+      const result = await signin({ email: data?.email, password: data?.password }).unwrap();
+
       toast.success('Login Successful', {
-        description: 'Welcome back!',
+        description: `Welcome back, ${result.data.user.firstName}!`,
       });
+
       signinForm.reset();
-      router.push('/contest/joined');
+      // Slight delay to show toast
+      setTimeout(() => router.push(returnTo), 800);
     } catch (err: any) {
-      toast.error('Oops! Something went wrong', {
-        description:
-          err?.data?.message || err?.error || 'Please check your credentials and try again.',
+      const errorMessage =
+        err?.data?.message || err?.error || 'Please check your credentials and try again.';
+
+      toast.error('Login Failed', {
+        description: errorMessage,
       });
+
+      console.error('Signin error:', err);
     }
   };
 
   const signUpSubmit = async (data: SignupFormData) => {
     try {
-      await signup({
+      const result = await signup({
         email: data?.email,
         firstName: data?.firstName,
         lastName: data?.lastName,
@@ -62,16 +72,23 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         password: data?.password,
         confirmPassword: data?.confirmPassword,
       }).unwrap();
-      toast.success('Account Created', {
-        description: 'You can now log in with your new account.',
+
+      toast.success('Account Created Successfully', {
+        description: `Welcome, ${result.data.user.firstName}! You're now signed in.`,
       });
+
       signupForm.reset();
-      router.push('/contest/joined');
+      // Slight delay to show toast
+      setTimeout(() => router.push(returnTo), 800);
     } catch (err: any) {
-      toast.error('Oops! Something went wrong', {
-        description:
-          err?.data?.message || err?.error || 'Please check your credentials and try again.',
+      const errorMessage =
+        err?.data?.message || err?.error || 'Something went wrong. Please try again.';
+
+      toast.error('Signup Failed', {
+        description: errorMessage,
       });
+
+      console.error('Signup error:', err);
     }
   };
 

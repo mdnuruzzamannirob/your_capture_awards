@@ -7,7 +7,6 @@ import { IoCloseOutline } from 'react-icons/io5';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { usePathname, useRouter } from 'next/navigation';
 import { IoIosArrowDown } from 'react-icons/io';
-import Cookies from 'js-cookie';
 import { cn } from '@/utils/cn';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -15,13 +14,11 @@ import { SideItems } from '@/types';
 import { sideItems } from '@/constants/sideItems';
 import LogoName from '../LogoName';
 import { useAuth } from '@/hooks/useAuth';
-import { AuthUser } from '@/store/types/authTypes';
+import Cookies from 'js-cookie';
+import { toast } from 'sonner';
 
 const Sidebar = () => {
-  const auth = useAuth();
-  const user = auth.user as AuthUser | null;
-  const token = auth.token;
-
+  const { user, token } = useAuth();
   const [open, setOpen] = useState(false);
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
 
@@ -33,6 +30,13 @@ const Sidebar = () => {
       router.push(path);
       setOpen(false);
     }
+  };
+
+  const handleLogout = () => {
+    Cookies.remove('token');
+    toast.success('Logged out successfully');
+    setOpen(false);
+    router.push('/signin');
   };
 
   const toggleSubmenu = (itemName: string) => {
@@ -138,10 +142,7 @@ const Sidebar = () => {
 
                   {/* Logout Button */}
                   <button
-                    onClick={() => {
-                      Cookies.remove('token');
-                      setOpen(false);
-                    }}
+                    onClick={handleLogout}
                     className="mt-2 w-full rounded-sm bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600"
                   >
                     Logout

@@ -11,15 +11,22 @@ export async function getUser(): Promise<AuthData> {
     token: null,
   };
 
-  if (!token || !api) return defaultState;
+  if (!token || !api) {
+    return defaultState;
+  }
 
   try {
     const res = await fetch(`${api}/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
       cache: 'no-store',
     });
 
-    if (!res.ok) return defaultState;
+    if (!res.ok) {
+      return defaultState;
+    }
 
     const json = await res.json();
     const user = json?.data || json;
@@ -29,6 +36,7 @@ export async function getUser(): Promise<AuthData> {
       token,
     };
   } catch (err) {
+    console.error('Failed to fetch user:', err);
     return defaultState;
   }
 }
