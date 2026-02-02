@@ -5,7 +5,7 @@ import JoinedContestCardSkeleton from './JoinedContestCardSkeleton';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { labels, totalLevels } from '@/utils/valueToExposureLabel';
 import { cn } from '@/utils/cn';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { FaArrowRightLong } from 'react-icons/fa6';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetJoinedContestQuery, useGetPublicContestsQuery } from '@/store/apis/contestApi';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 const JoinedContest = () => {
   const searchParams = useSearchParams();
@@ -24,12 +25,34 @@ const JoinedContest = () => {
   const modalRef = useRef<UploadModalRef>(null);
 
   const [uploadModal, setUploadModal] = useState(false);
+  const [page, setPage] = useState(1);
+  const [allContests, setAllContests] = useState<any[]>([]);
 
-  const { data, isLoading, refetch } = useGetJoinedContestQuery({ page: 1, limit: 20 });
+  const { data, isLoading, isFetching, refetch } = useGetJoinedContestQuery({ page, limit: 10 });
   const { data: open, isLoading: isOpenLoading } = useGetPublicContestsQuery({ status: 'ACTIVE' });
 
   const joinedResult = (data as any)?.data ?? [];
+  const totalPages = (data as any)?.pagination?.totalPages ?? 1;
+  const hasMore = page < totalPages;
   const contest = (open as any)?.data[0] ?? {};
+
+  // Accumulate contests data
+  useEffect(() => {
+    if (joinedResult.length > 0) {
+      setAllContests((prev) => {
+        const existingIds = new Set(prev.map((item) => item.id));
+        const newContests = joinedResult.filter((item: any) => !existingIds.has(item.id));
+        return [...prev, ...newContests];
+      });
+    }
+  }, [joinedResult]);
+
+  // Infinite scroll
+  const { loadMoreRef } = useInfiniteScroll({
+    hasMore,
+    isLoading: isFetching,
+    onLoadMore: () => setPage((prev) => prev + 1),
+  });
 
   useEffect(() => {
     if (joinSuccess === 'joinSuccess') {
@@ -97,17 +120,24 @@ const JoinedContest = () => {
       <div className="my-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
         {isLoading ? (
           [1, 2, 3, 4].map((_, index) => <JoinedContestCardSkeleton key={index} />)
-        ) : joinedResult.length <= 0 ? (
+        ) : allContests.length <= 0 ? (
           <div className="col-span-full flex w-full flex-col items-center justify-center py-20">
             <Image alt="" src="/images/no-result-found.webp" width={400} height={400} />
             <p>No Data Found!</p>
           </div>
         ) : (
-          joinedResult.map((contest: any, index: number) => (
+          allContests.map((contest: any, index: number) => (
             <JoinedContestCard key={index} contest={contest} refetch={refetch} />
           ))
         )}
       </div>
+
+      {/* Load more trigger */}
+      {hasMore && (
+        <div ref={loadMoreRef} className="my-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
+          {isFetching && [1, 2].map((_, index) => <JoinedContestCardSkeleton key={index} />)}
+        </div>
+      )}
 
       {/* Upload/Join Success Modal */}
       <Dialog
