@@ -1,4 +1,4 @@
-import { useGetMeQuery } from '@/store/features/auth/authApi';
+import { useGetMeQuery } from '@/store/apis/authApi';
 import Cookies from 'js-cookie';
 
 export const useAuth = () => {

@@ -1,4 +1,4 @@
-import { Status } from '@/store/features/contest/types';
+import { Status } from '@/store/types/contestTypes';
 
 const TAB_ORDER = ['winners', 'details', 'prizes', 'rules', 'rank'] as const;
 

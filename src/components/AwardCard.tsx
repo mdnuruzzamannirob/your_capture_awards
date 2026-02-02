@@ -67,28 +67,28 @@ const AwardCard = ({
               src="/icons/award-part1.png"
               width={385}
               height={100}
-              className="absolute -bottom-[70px] z-10"
+              className="absolute -bottom-17.5 z-10"
             />
             <Image
               alt=""
               src="/icons/logo-name.png"
               width={340}
               height={100}
-              className="absolute -bottom-[50px] left-1/2 z-10 -translate-x-1/2"
+              className="absolute -bottom-12.5 left-1/2 z-10 -translate-x-1/2"
             />
             <Image
               alt=""
               src="/icons/award-part3.png"
               width={70}
               height={150}
-              className="absolute -bottom-[88px] -left-6"
+              className="absolute -bottom-22 -left-6"
             />
             <Image
               alt=""
               src="/icons/award-part2.png"
               width={70}
               height={150}
-              className="absolute -right-7 -bottom-[88px]"
+              className="absolute -right-7 -bottom-22"
             />
           </div>
         </div>
