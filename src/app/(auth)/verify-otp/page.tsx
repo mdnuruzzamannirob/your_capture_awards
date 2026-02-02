@@ -1,4 +1,4 @@
-import VerifyOtpForm from '@/components/auth/VerifyOtpForm';
+import VerifyOtpForm from '@/components/module/auth/VerifyOtpForm';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

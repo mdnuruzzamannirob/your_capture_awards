@@ -15,7 +15,7 @@ import { SideItems } from '@/types';
 import { sideItems } from '@/constants/sideItems';
 import LogoName from '../LogoName';
 import { useAuth } from '@/hooks/useAuth';
-import { AuthUser } from '@/store/features/auth/types';
+import { AuthUser } from '@/store/types/authTypes';
 
 const Sidebar = () => {
   const auth = useAuth();
@@ -83,7 +83,7 @@ const Sidebar = () => {
     <div className="flex-1 lg:hidden">
       <Drawer direction="left" open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
-          <button className="flex size-[34px] items-center justify-center rounded-full border">
+          <button className="flex size-8.5 items-center justify-center rounded-full border">
             <RiMenuFill />
           </button>
         </DrawerTrigger>

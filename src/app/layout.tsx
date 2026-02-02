@@ -4,8 +4,6 @@ import '../styles/globals.css';
 import { Toaster } from 'sonner';
 import ReduxProvider from '../providers/ReduxProvider';
 import { cn } from '@/utils/cn';
-import { makeStore } from '@/store/makeStore';
-import { authApi } from '@/store/features/auth/authApi';
 
 const kumbhSans = Kumbh_Sans({
   variable: '--font-kumbh-sans',
@@ -40,17 +38,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const store = makeStore();
-
-  await store.dispatch(authApi.endpoints.getMe.initiate());
-  await Promise.all(store.dispatch(authApi.util.getRunningQueriesThunk()));
-
-  const preloadedState = store.getState();
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning className={cn('anti-aliased', kumbhSans.className)}>
-        <ReduxProvider preloadedState={preloadedState}>
+        <ReduxProvider>
           {children} <Toaster expand={true} richColors closeButton />
         </ReduxProvider>
       </body>

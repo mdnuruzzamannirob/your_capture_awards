@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer from '@/store/features/auth/authSlice';
-import profileReducer from '@/store/features/profile/profileSlice';
-import { authApi } from './features/auth/authApi';
-import { userApi } from './features/user/userApi';
-import { profileApi } from './features/profile/profileApi';
-import { contestApi } from './features/contest/contestApi';
+import authReducer from '@/store/slices/authSlice';
+import profileReducer from '@/store/slices/profileSlice';
+import { authApi } from '@/store/apis/authApi';
+import { userApi } from '@/store/apis/userApi';
+import { profileApi } from '@/store/apis/profileApi';
+import { contestApi } from '@/store/apis/contestApi';
 
 export const makeStore = (preloadedState = {}) => {
   return configureStore({
