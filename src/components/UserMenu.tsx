@@ -1,23 +1,32 @@
 'use client';
 
 import { useState } from 'react';
-import Cookies from 'js-cookie';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { LogOut, User as ProfileUser } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { AuthUser } from '@/store/types/authTypes';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import Cookies from 'js-cookie';
+import { toast } from 'sonner';
 
 const UserMenu = () => {
-  const auth = useAuth();
-  const user = auth.user as AuthUser | null;
-  const token = auth.token;
+  const { user, token } = useAuth();
   const [open, setOpen] = useState(false);
 
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    Cookies.remove('token');
+    toast.success('Logged out successfully');
+    setOpen(false);
+    router.push('/signin');
+  };
+
+  if (!user || !token) return null;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -34,7 +43,7 @@ const UserMenu = () => {
           <button
             className={cn(
               'hidden size-8.5 overflow-hidden rounded-full border text-xs leading-none font-medium lg:block',
-              !user || !token ? 'hidden' : 'lg:block',
+              'bg-primary/10 border-primary',
             )}
           >
             {user?.firstName?.charAt(0) || 'U'}
@@ -48,9 +57,9 @@ const UserMenu = () => {
       >
         <div className="mb-2 flex flex-col">
           <span className="font-medium">
-            {user?.firstName || 'Name not found'} {user?.lastName || 'Name not found'}
+            {user?.firstName || 'Name'} {user?.lastName || 'Not found'}
           </span>
-          <span className="text-black-2-300 text-xs">{user?.email || 'johndoe@email.com'}</span>
+          <span className="text-black-2-300 text-xs">{user?.email}</span>
         </div>
         <div className="border-black-2-600 my-3 border-t"></div>
         <div className="flex flex-col">
@@ -58,7 +67,7 @@ const UserMenu = () => {
             href="/profile"
             onClick={() => setOpen(false)}
             className={cn(
-              'hover:bg-gray-20 flex items-center gap-2 rounded-sm p-2',
+              'flex items-center gap-2 rounded-sm p-2 transition-colors outline-none',
               pathname === '/profile' ? 'bg-white/5' : 'hover:bg-white/5',
             )}
           >
@@ -66,13 +75,8 @@ const UserMenu = () => {
             Profile
           </Link>
           <button
-            onClick={() => {
-              Cookies.remove('token');
-              setOpen(false);
-            }}
-            className={cn(
-              'mt-1 flex items-center gap-2 rounded-sm p-2 text-red-500 outline-none hover:bg-red-500/10',
-            )}
+            onClick={handleLogout}
+            className="mt-1 flex items-center gap-2 rounded-sm p-2 text-red-500 transition-colors outline-none hover:bg-red-500/10"
           >
             <LogOut className="size-4" />
             Logout

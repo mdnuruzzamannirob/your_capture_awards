@@ -1,7 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import getContestTabs from '@/utils/getContestTabs';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DetailsTab from './DetailsTab';
@@ -18,6 +19,9 @@ import { useGetContestQuery, useLazyGetContestRankPhotosQuery } from '@/store/ap
 const ContestDetails = ({ id }: { id: string }) => {
   const { data: contestData } = useGetContestQuery({ id });
   const [rankPhotosTrigger] = useLazyGetContestRankPhotosQuery();
+  const searchParams = useSearchParams();
+  const modalParam = searchParams.get('modal');
+
   const contest = contestData?.data ?? {};
   const tabs = getContestTabs(contest?.status);
   const [activeTab, setActiveTab] = useState(tabs?.[0]?.key);
@@ -25,6 +29,13 @@ const ContestDetails = ({ id }: { id: string }) => {
   const uploadModalRef = useRef<UploadModalRef>(null);
   const voteModalRef = useRef<VoteModalRef>(null);
   const remaining = (contest?.maxUploads ?? 0) - (contest?.uploadCount ?? 0);
+
+  // Auto-open join modal if redirected from login
+  useEffect(() => {
+    if (modalParam === 'join' && uploadModalRef.current) {
+      uploadModalRef.current.open();
+    }
+  }, [modalParam]);
 
   // render dynamic tab
   const renderTabContent = (key: string) => {

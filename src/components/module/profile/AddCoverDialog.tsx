@@ -15,7 +15,7 @@ import {
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { cn } from '@/utils/cn';
-import { useLazyGetMeQuery } from '@/store/apis/authApi';
+import { useGetMeQuery } from '@/store/apis/authApi';
 import { useUpdateCoverMutation } from '@/store/apis/userApi';
 
 export default function AddCoverDialog() {
@@ -27,7 +27,7 @@ export default function AddCoverDialog() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [updateCover, { isLoading }] = useUpdateCoverMutation();
-  const [triggerGetMe] = useLazyGetMeQuery();
+  const { refetch: triggerGetMe } = useGetMeQuery();
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
