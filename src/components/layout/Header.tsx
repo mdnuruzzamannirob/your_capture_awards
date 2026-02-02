@@ -4,13 +4,13 @@ import { cn } from '@/utils/cn';
 import LogoName from '../LogoName';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { navLinks, userNavLinks } from '@/constants';
 import { FiSearch } from 'react-icons/fi';
 import { IoNotificationsOutline } from 'react-icons/io5';
 import UserMenu from '@/components/UserMenu';
 import Sidebar from './Sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { useLayoutEffect, useState } from 'react';
+import { navLinks } from '@/constants';
 
 const Navbar = () => {
   const { isAuthenticated } = useAuth();
@@ -19,8 +19,6 @@ const Navbar = () => {
   const pathname = usePathname();
   useLayoutEffect(() => setMounted(true), []);
   if (!mounted) return null;
-
-  const links = isAuthenticated ? userNavLinks : navLinks;
 
   return (
     <header className="bg-background fixed top-0 right-0 left-0 z-50 py-1">
@@ -31,7 +29,7 @@ const Navbar = () => {
         </div>
 
         <ul className="font-kumbh hidden flex-1 items-center justify-center gap-5 select-none lg:flex">
-          {links?.map((link, index) => {
+          {navLinks?.map((link, index) => {
             const isActive =
               pathname === link?.href ||
               (Array.isArray(link?.tags) && link?.tags.some((tag) => pathname.includes(tag)));

@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LuTableOfContents } from 'react-icons/lu';
 import { useState, useEffect, useLayoutEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 const ContestHeader = () => {
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
 
   const isChallenger = ['/contest/joined', '/contest/completed'].includes(pathname);
   const isDiscover = ['/contest/open', '/contest/upcoming', '/contest/closed'].includes(pathname);
@@ -26,6 +28,86 @@ const ContestHeader = () => {
   useLayoutEffect(() => setMounted(true), []);
   if (!mounted) return null;
 
+  // If not authenticated, show only Discover tabs
+  if (!isAuthenticated) {
+    return (
+      <header className="fixed top-[75.38px] right-0 left-0 z-50 bg-black lg:top-[81.5px]">
+        <nav className="container flex flex-col gap-1 py-2">
+          {/* ---------- MOBILE VIEW ---------- */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <Link
+              href="/contest/open"
+              className={cn(
+                'flex-1 rounded py-1 text-center font-medium',
+                pathname === '/contest/open'
+                  ? 'text-primary underline decoration-2 underline-offset-8'
+                  : 'text-gray-300',
+              )}
+            >
+              Open
+            </Link>
+            <Link
+              href="/contest/upcoming"
+              className={cn(
+                'flex-1 rounded py-1 text-center font-medium',
+                pathname === '/contest/upcoming'
+                  ? 'text-primary underline decoration-2 underline-offset-8'
+                  : 'text-gray-300',
+              )}
+            >
+              Upcoming
+            </Link>
+            <Link
+              href="/contest/closed"
+              className={cn(
+                'flex-1 rounded py-1 text-center font-medium',
+                pathname === '/contest/closed'
+                  ? 'text-primary underline decoration-2 underline-offset-8'
+                  : 'text-gray-300',
+              )}
+            >
+              Closed
+            </Link>
+          </div>
+
+          {/* ---------- DESKTOP VIEW ---------- */}
+          <div className="hidden items-center justify-center gap-3 lg:flex">
+            <Link
+              href="/contest/open"
+              className={cn(
+                'flex h-10 flex-1 items-center justify-center rounded px-6 font-medium',
+                pathname === '/contest/open' ? 'text-primary bg-primary/15' : 'hover:bg-white/10',
+              )}
+            >
+              Open
+            </Link>
+            <Link
+              href="/contest/upcoming"
+              className={cn(
+                'flex h-10 flex-1 items-center justify-center rounded px-6 font-medium',
+                pathname === '/contest/upcoming'
+                  ? 'text-primary bg-primary/15'
+                  : 'hover:bg-white/10',
+              )}
+            >
+              Upcoming
+            </Link>
+            <Link
+              href="/contest/closed"
+              className={cn(
+                'flex h-10 flex-1 items-center justify-center rounded px-6 font-medium',
+                pathname === '/contest/closed' ? 'text-primary bg-primary/15' : 'hover:bg-white/10',
+              )}
+            >
+              Closed
+            </Link>
+          </div>
+        </nav>
+      </header>
+    );
+  }
+
+  // Authenticated user view (full layout)
   return (
     <header className="fixed top-[75.38px] right-0 left-0 z-50 bg-black lg:top-[81.5px]">
       <nav className="container flex flex-col gap-1 py-2">

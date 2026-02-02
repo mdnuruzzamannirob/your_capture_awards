@@ -34,7 +34,7 @@ function FormField<TFormValues extends FieldValues>({
         required={required}
         {...(register ? register(id) : {})}
         className={cn(
-          'focus:ring-primary h-[50px] w-full rounded-sm border px-3 text-sm shadow-2xs outline-none focus:border-transparent focus:ring-2',
+          'focus:ring-primary h-12.5 w-full rounded-sm border px-3 text-sm shadow-2xs outline-none focus:border-transparent focus:ring-2',
           error && 'border-destructive focus:ring-destructive',
         )}
       />

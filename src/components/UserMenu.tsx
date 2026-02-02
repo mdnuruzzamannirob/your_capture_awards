@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { LogOut, User as ProfileUser } from 'lucide-react';
 import { cn } from '@/utils/cn';
-import { AuthUser } from '@/store/features/auth/types';
+import { AuthUser } from '@/store/types/authTypes';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -28,12 +28,12 @@ const UserMenu = () => {
             src={user?.avatar}
             width={34}
             height={34}
-            className="size-[34px] cursor-pointer overflow-hidden rounded-full object-cover"
+            className="size-8.5 cursor-pointer overflow-hidden rounded-full object-cover"
           />
         ) : (
           <button
             className={cn(
-              'hidden size-[34px] overflow-hidden rounded-full border text-xs leading-none font-medium lg:block',
+              'hidden size-8.5 overflow-hidden rounded-full border text-xs leading-none font-medium lg:block',
               !user || !token ? 'hidden' : 'lg:block',
             )}
           >

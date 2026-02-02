@@ -18,11 +18,6 @@ export const sideItems: SideItems[] = [
     icon: null,
   },
   {
-    name: 'Exhibitions',
-    path: '/exhibitions',
-    icon: null,
-  },
-  {
     name: 'Teams',
     path: '/teams',
     icon: null,

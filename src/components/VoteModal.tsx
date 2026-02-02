@@ -4,12 +4,9 @@ import { forwardRef, useImperativeHandle, useState } from 'react';
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import {
-  useCreateVoteMutation,
-  useLazyGetContestPhotosQuery,
-} from '@/store/features/contest/contestApi';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useLazyGetContestPhotosQuery, useCreateVoteMutation } from '@/store/apis/contestApi';
 
 export interface VoteModalRef {
   open: () => void;
