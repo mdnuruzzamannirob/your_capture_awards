@@ -13,6 +13,7 @@ import { PhotoToContestPayload } from '@/store/types/contestTypes';
 import { Skeleton } from './ui/skeleton';
 import { useRouter } from 'next/navigation';
 import TipTapViewer from './custom/tiptap-editor/TipTapViewer';
+import { useAuth } from '@/hooks/useAuth';
 import {
   useCreatePhotoToContestMutation,
   useLazyGetUserPhotosQuery,
@@ -52,13 +53,22 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
 
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const { isAuthenticated } = useAuth();
     const [createPhotoToContest, { isLoading }] = useCreatePhotoToContestMutation();
     const [trigger, { data, isLoading: isPhotosLoading }] = useLazyGetUserPhotosQuery();
     const photos = (data?.data ?? []) as { id: string; url: string }[];
 
     // expose `open` method to parent
     useImperativeHandle(ref, () => ({
-      open: () => setUploadModal(true),
+      open: () => {
+        // If not authenticated and type is 'join', redirect to signin with return URL
+        if (!isAuthenticated && type === 'join') {
+          const returnUrl = `/contest/${contestId}?modal=join`;
+          router.push(`/signin?returnTo=${encodeURIComponent(returnUrl)}`);
+          return;
+        }
+        setUploadModal(true);
+      },
     }));
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,7 +137,8 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
           setUploadModal(false);
           setModalContentType('preview');
         } else {
-          setModalContentType('choose');
+          setUploadModal(false);
+          setModalContentType('preview');
         }
 
         setFile(null);

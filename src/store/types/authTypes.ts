@@ -26,6 +26,7 @@ export type SignupData = {
 };
 
 export interface AuthState {
+  user: AuthUser | null;
   tempToken: string | null;
   tempEmail: string | null;
 }

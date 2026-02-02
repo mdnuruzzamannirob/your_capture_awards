@@ -3,11 +3,31 @@
 import Image from 'next/image';
 import UpcomingContestCard from './UpcomingContestCard';
 import UpcomingContestCardSkeleton from './UpcomingContestCardSkeleton';
-import { useGetPublicContestsQuery } from '@/store/apis/contestApi';
+import { useGetPublicContestsQuery, useGetPrivateContestsQuery } from '@/store/apis/contestApi';
+import { useAuth } from '@/hooks/useAuth';
 
-const UpcomingContest = () => {
-  const { data, isLoading, refetch } = useGetPublicContestsQuery({ status: 'UPCOMING' });
+interface UpcomingContestProps {
+  isAuthenticated?: boolean;
+}
 
+const UpcomingContest = ({
+  isAuthenticated: propIsAuthenticated = false,
+}: UpcomingContestProps) => {
+  // Use client-side auth as source of truth (synchronous, no hydration delay)
+  const { isAuthenticated: clientIsAuthenticated } = useAuth();
+
+  // Use client auth; during SSR hydration, prop value is used as fallback
+  const isAuthenticated =
+    clientIsAuthenticated !== null ? clientIsAuthenticated : propIsAuthenticated;
+
+  // Use private API if authenticated, public API otherwise
+  const publicQuery = useGetPublicContestsQuery({ status: 'UPCOMING' }, { skip: isAuthenticated });
+  const privateQuery = useGetPrivateContestsQuery(
+    { status: 'UPCOMING' },
+    { skip: !isAuthenticated },
+  );
+
+  const { data, isLoading, refetch } = isAuthenticated ? privateQuery : publicQuery;
   const upcomingResult = (data as any)?.data ?? [];
 
   return (

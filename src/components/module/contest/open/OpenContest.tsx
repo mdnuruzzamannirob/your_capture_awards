@@ -3,12 +3,27 @@
 import Image from 'next/image';
 import OpenContestCard from './OpenContestCard';
 import OpenContestCardSkeleton from './OpenContestCardSkeleton';
-import { useGetPublicContestsQuery } from '@/store/apis/contestApi';
+import { useGetPublicContestsQuery, useGetPrivateContestsQuery } from '@/store/apis/contestApi';
+import { useAuth } from '@/hooks/useAuth';
 
-const OpenContest = () => {
-  const { data, isLoading, refetch } = useGetPublicContestsQuery({ status: 'ACTIVE' });
+interface OpenContestProps {
+  isAuthenticated?: boolean;
+}
 
+const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenContestProps) => {
+  // Use client-side auth as source of truth (synchronous, no hydration delay)
+  const { isAuthenticated: clientIsAuthenticated } = useAuth();
+
+  // Use client auth; during SSR hydration, prop value is used as fallback
+  const isAuthenticated =
+    clientIsAuthenticated !== null ? clientIsAuthenticated : propIsAuthenticated;
+  // Use private API if authenticated, public API otherwise
+  const publicQuery = useGetPublicContestsQuery({ status: 'ACTIVE' }, { skip: isAuthenticated });
+  const privateQuery = useGetPrivateContestsQuery({ status: 'ACTIVE' }, { skip: !isAuthenticated });
+
+  const { data, isLoading, refetch } = isAuthenticated ? privateQuery : publicQuery;
   const openResult = (data as any)?.data ?? [];
+
   return (
     <section className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3">
       {isLoading ? (

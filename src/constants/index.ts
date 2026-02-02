@@ -3,7 +3,7 @@ import { DiscoverItem, FeatureItem, MemoriesImage, NavLink } from '@/types';
 export const navLinks: NavLink[] = [
   {
     name: 'Contest',
-    href: '/contest/joined',
+    href: '/contest',
     tags: ['/contest', '/joined', '/open', '/closed', '/completed', '/upcoming'],
   },
   { name: 'Teams', href: '/teams' },

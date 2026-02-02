@@ -3,11 +3,25 @@
 import Image from 'next/image';
 import ClosedContestCard from './ClosedContestCard';
 import ClosedContestCardSkeleton from './ClosedContestCardSkeleton';
-import { useGetPublicContestsQuery } from '@/store/apis/contestApi';
+import { useGetPublicContestsQuery, useGetPrivateContestsQuery } from '@/store/apis/contestApi';
+import { useAuth } from '@/hooks/useAuth';
 
-const ClosedContest = () => {
-  const { data, isLoading } = useGetPublicContestsQuery({ status: 'CLOSED' });
+interface ClosedContestProps {
+  isAuthenticated?: boolean;
+}
 
+const ClosedContest = ({ isAuthenticated: propIsAuthenticated = false }: ClosedContestProps) => {
+  // Use client-side auth as source of truth (synchronous, no hydration delay)
+  const { isAuthenticated: clientIsAuthenticated } = useAuth();
+
+  // Use client auth; during SSR hydration, prop value is used as fallback
+  const isAuthenticated =
+    clientIsAuthenticated !== null ? clientIsAuthenticated : propIsAuthenticated;
+  // Use private API if authenticated, public API otherwise
+  const publicQuery = useGetPublicContestsQuery({ status: 'CLOSED' }, { skip: isAuthenticated });
+  const privateQuery = useGetPrivateContestsQuery({ status: 'CLOSED' }, { skip: !isAuthenticated });
+
+  const { data, isLoading } = isAuthenticated ? privateQuery : publicQuery;
   const closedResult = (data as any)?.data ?? [];
 
   return (
