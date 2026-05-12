@@ -147,7 +147,7 @@ export default function CreateTeamPage() {
                     setTeamDraft({ ...teamDraft, description: event.target.value })
                   }
                   placeholder="Describe the team culture, match style, and what members should expect."
-                  className="border-input focus-visible:border-ring focus-visible:ring-ring/50 min-h-36 w-full rounded-md border border-black-2-600 bg-black-2-900/40 px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-[3px]"
+                  className="border-input focus-visible:border-ring focus-visible:ring-ring/50 min-h-36 w-full rounded-md border bg-black-2-900/40 px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-[3px]"
                 />
               </FormField>
 
