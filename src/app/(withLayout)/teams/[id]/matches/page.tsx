@@ -1,15 +1,9 @@
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
 import {
   ArrowLeft,
-  Award,
   Ban,
   Check,
-  Clock3,
   Coins,
   Crown,
   Lock,
@@ -21,16 +15,11 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useMemo, useState } from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   activeMatch,
   challenges,
@@ -47,6 +36,15 @@ import {
   StatCard,
   StatusBadge,
 } from '@/components/module/teams/teamUi';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/utils/cn';
 
 type MatchFilter = 'all' | 'eligible' | 'locked';
@@ -67,6 +65,8 @@ export default function TeamMatchesPage() {
 
   const isJoinedTeam = currentUser.teamId === params.id;
   const isLeader = isJoinedTeam && currentUser.role === 'Leader';
+  const activeChallenge =
+    challenges.find((challenge) => challenge.id === startedChallengeId) ?? null;
   const hasActiveMatch = Boolean(activeMatch || startedChallengeId);
 
   const filteredChallenges = useMemo(() => {
@@ -89,7 +89,7 @@ export default function TeamMatchesPage() {
   const joinedMemberCount = teamMembers.filter((member) => matchParticipants[member.id]).length;
   const liveTeamScore = teamMembers.reduce(
     (total, member) => total + (matchParticipants[member.id] ? member.matchVotes : 0),
-    activeMatch.teamScore,
+    0,
   );
 
   if (!team) {
@@ -115,9 +115,9 @@ export default function TeamMatchesPage() {
             Back to team
           </Link>
         </Button>
-        <section className="rounded-md border border-black-2-700 bg-black-2-800/50 p-8 text-center">
+        <section className="border-black-2-700 bg-black-2-800/50 rounded-md border p-8 text-center">
           <Lock className="text-primary mx-auto size-12" />
-          <h1 className="mt-5 font-kumbh text-2xl font-bold">Match room locked</h1>
+          <h1 className="font-kumbh mt-5 text-2xl font-bold">Match room locked</h1>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-400">
             You need to be a team member before viewing match contests for this team.
           </p>
@@ -156,35 +156,53 @@ export default function TeamMatchesPage() {
       <section className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-6">
           {hasActiveMatch && (
-            <section className="rounded-md border border-primary/40 bg-orange-2-900/20 p-5">
+            <section className="border-primary/40 bg-orange-2-900/20 rounded-md border p-5">
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <StatusBadge icon={Swords} label="Active team match" tone="gold" />
-                <StatusBadge icon={Timer} label={activeMatch.timeRemaining} />
+                <StatusBadge icon={Timer} label={activeMatch?.timeRemaining ?? 'Running'} />
               </div>
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
                 <div>
-                  <h2 className="font-kumbh text-2xl font-bold">{activeMatch.challengeName}</h2>
-                  <p className="mt-1 text-sm text-orange-2-200">{activeMatch.theme}</p>
+                  <h2 className="font-kumbh text-2xl font-bold">
+                    {activeMatch?.challengeName ?? activeChallenge?.name ?? 'Team Match'}
+                  </h2>
+                  <p className="text-orange-2-200 mt-1 text-sm">
+                    {activeMatch?.theme ?? activeChallenge?.theme ?? 'Match in progress'}
+                  </p>
                   <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                    <StatCard icon={Users} label="Joined Members" value={`${joinedMemberCount}/${teamMembers.length}`} />
-                    <StatCard icon={Zap} label="Team Score" value={liveTeamScore.toLocaleString()} />
-                    <StatCard icon={Trophy} label="Rival Score" value={activeMatch.rivalScore.toLocaleString()} />
+                    <StatCard
+                      icon={Users}
+                      label="Joined Members"
+                      value={`${joinedMemberCount}/${teamMembers.length}`}
+                    />
+                    <StatCard
+                      icon={Zap}
+                      label="Team Score"
+                      value={liveTeamScore.toLocaleString()}
+                    />
+                    <StatCard
+                      icon={Trophy}
+                      label="Rival Score"
+                      value={(activeMatch?.rivalScore ?? 0).toLocaleString()}
+                    />
                   </div>
                 </div>
 
                 <div className="rounded-md border border-white/10 bg-black/35 p-4">
                   <p className="text-sm text-zinc-400">Rival team</p>
-                  <p className="mt-1 text-xl font-bold">{activeMatch.rivalTeam}</p>
+                  <p className="mt-1 text-xl font-bold">
+                    {activeMatch?.rivalTeam ?? 'Auto-assigned team'}
+                  </p>
                   <p className="mt-4 text-sm text-zinc-400">Winner reward</p>
-                  <p className="mt-1 text-lg font-semibold text-orange-2-200">
-                    {activeMatch.rewardCoins.toLocaleString()} coins
+                  <p className="text-orange-2-200 mt-1 text-lg font-semibold">
+                    {(activeMatch?.rewardCoins ?? 0).toLocaleString()} coins
                   </p>
                 </div>
               </div>
             </section>
           )}
 
-          <section className="rounded-md border border-black-2-700 bg-black-2-800/50 p-4 md:p-5">
+          <section className="border-black-2-700 bg-black-2-800/50 rounded-md border p-4 md:p-5">
             <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_180px]">
               <div className="relative">
                 <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-zinc-500" />
@@ -197,7 +215,7 @@ export default function TeamMatchesPage() {
               </div>
 
               <Select value={filter} onValueChange={(value) => setFilter(value as MatchFilter)}>
-                <SelectTrigger className="w-full border-black-2-600 bg-black-2-900/40">
+                <SelectTrigger className="border-black-2-600 bg-black-2-900/40 w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -224,7 +242,7 @@ export default function TeamMatchesPage() {
         </div>
 
         <aside className="space-y-6">
-          <section className="rounded-md border border-black-2-700 bg-black-2-800/50 p-5">
+          <section className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
             <h2 className="font-kumbh text-xl font-bold">Match Rules</h2>
             <div className="mt-5 space-y-3">
               <RuleLine label="Contest duration" value="5h to 24h" passed />
@@ -234,31 +252,48 @@ export default function TeamMatchesPage() {
             </div>
           </section>
 
-          <section className="rounded-md border border-black-2-700 bg-black-2-800/50 p-5">
+          <section className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
             <h2 className="font-kumbh text-xl font-bold">Member Opt In</h2>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">
+              Members join individually. You can only control your own participation.
+            </p>
             <div className="mt-5 space-y-3">
+              <div className="border-black-2-700 bg-black-2-900/35 flex flex-col gap-3 rounded-md border p-3">
+                <MemberRow
+                  member={
+                    teamMembers.find((member) => member.id === currentUser.id) ?? teamMembers[0]
+                  }
+                  compact
+                />
+                <Button
+                  size="sm"
+                  variant={matchParticipants[currentUser.id] ? 'secondary' : 'outline'}
+                  className={cn(
+                    'border-black-2-600 w-full',
+                    matchParticipants[currentUser.id] &&
+                      'bg-primary hover:bg-primary/90 text-white',
+                  )}
+                  onClick={() =>
+                    setMatchParticipants((current) => ({
+                      ...current,
+                      [currentUser.id]: !current[currentUser.id],
+                    }))
+                  }
+                >
+                  {matchParticipants[currentUser.id] ? 'Joined Match' : 'Join Match'}
+                </Button>
+              </div>
+
               {teamMembers.map((member) => (
                 <div
                   key={member.id}
-                  className="flex flex-col gap-3 rounded-md border border-black-2-700 bg-black-2-900/35 p-3"
+                  className="border-black-2-700 bg-black-2-900/35 flex items-center justify-between gap-3 rounded-md border p-3"
                 >
                   <MemberRow member={member} compact />
-                  <Button
-                    size="sm"
-                    variant={matchParticipants[member.id] ? 'secondary' : 'outline'}
-                    className={cn(
-                      'w-full border-black-2-600',
-                      matchParticipants[member.id] && 'bg-primary text-white hover:bg-primary/90',
-                    )}
-                    onClick={() =>
-                      setMatchParticipants((current) => ({
-                        ...current,
-                        [member.id]: !current[member.id],
-                      }))
-                    }
-                  >
-                    {matchParticipants[member.id] ? 'Joined Match' : 'Join Match'}
-                  </Button>
+                  <StatusBadge
+                    label={matchParticipants[member.id] ? 'Joined' : 'Not Joined'}
+                    tone={matchParticipants[member.id] ? 'green' : 'default'}
+                  />
                 </div>
               ))}
             </div>
@@ -286,7 +321,7 @@ function ContestMatchCard({
   const canStart = !lockedReason;
 
   return (
-    <article className="overflow-hidden rounded-md border border-black-2-700 bg-black-2-800/50">
+    <article className="border-black-2-700 bg-black-2-800/50 overflow-hidden rounded-md border">
       <div className="relative h-44">
         <Image
           src={challenge.banner}
@@ -322,7 +357,7 @@ function ContestMatchCard({
           <MiniMetric label="Members" value={challenge.membersJoined} />
         </div>
 
-        <div className="mt-5 flex items-center justify-between gap-3 rounded-md border border-black-2-700 bg-black-2-900/35 p-3">
+        <div className="border-black-2-700 bg-black-2-900/35 mt-5 flex items-center justify-between gap-3 rounded-md border p-3">
           <div className="flex items-center gap-2">
             <Coins className="text-primary size-4" />
             <span className="text-sm text-zinc-300">Reward</span>
@@ -341,7 +376,7 @@ function ContestMatchCard({
 
 function RuleLine({ label, passed, value }: { label: string; passed: boolean; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-md border border-black-2-700 bg-black-2-900/35 p-3">
+    <div className="border-black-2-700 bg-black-2-900/35 flex items-center justify-between gap-3 rounded-md border p-3">
       <div className="flex min-w-0 items-center gap-2">
         {passed ? (
           <Check className="text-primary size-4 shrink-0" />
