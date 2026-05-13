@@ -1,9 +1,11 @@
 'use client';
 
+import { ArrowLeft, BadgeCheck, Crown, ImageIcon, Lock } from 'lucide-react';
 import Link from 'next/link';
-import { useState, type ElementType, type ReactNode } from 'react';
-import { ArrowLeft, BadgeCheck, Ban, Crown, ImageIcon, Lock, Users } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
 
+import { currentUser } from '@/components/module/teams/teamData';
+import { PageHeader } from '@/components/module/teams/teamUi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -13,8 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { currentUser } from '@/components/module/teams/teamData';
-import { InventoryStat, PageHeader, StatusBadge } from '@/components/module/teams/teamUi';
 
 export default function CreateTeamPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -43,33 +43,31 @@ export default function CreateTeamPage() {
       </Button>
 
       <PageHeader
-        eyebrow={
-          <StatusBadge
-            icon={canCreateTeam ? BadgeCheck : Ban}
-            label={canCreateTeam ? 'Eligible to create' : 'Not eligible'}
-            tone={canCreateTeam ? 'green' : 'red'}
-          />
-        }
         title="Create Team"
-        description="Set the team identity, capacity, and public details. The creator becomes Team Leader automatically."
+        description="Set your team identity and publish your team workspace. Team creator becomes Team Leader automatically."
       />
 
       <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="rounded-md border border-black-2-700 bg-black-2-800/50 p-5 md:p-6">
+        <div className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5 md:p-6">
           {!canCreateTeam ? (
             <LockedState />
           ) : submitted ? (
             <div className="flex min-h-80 flex-col items-center justify-center text-center">
               <BadgeCheck className="text-primary size-12" />
-              <h2 className="mt-5 font-kumbh text-2xl font-bold">Team draft ready</h2>
+              <h2 className="font-kumbh mt-5 text-2xl font-bold">Team draft ready</h2>
               <p className="mt-2 max-w-md text-sm leading-6 text-zinc-400">
-                Your team is ready to publish.
+                Your team profile is ready. You can now open teams and continue in the team
+                workspace.
               </p>
               <div className="mt-6 flex flex-col gap-2 sm:flex-row">
                 <Button asChild>
-                  <Link href="/teams">View Teams</Link>
+                  <Link href="/teams">Open Teams</Link>
                 </Button>
-                <Button variant="outline" className="border-black-2-600" onClick={() => setSubmitted(false)}>
+                <Button
+                  variant="outline"
+                  className="border-black-2-600"
+                  onClick={() => setSubmitted(false)}
+                >
                   Edit Draft
                 </Button>
               </div>
@@ -110,7 +108,7 @@ export default function CreateTeamPage() {
                     value={teamDraft.capacity}
                     onValueChange={(value) => setTeamDraft({ ...teamDraft, capacity: value })}
                   >
-                    <SelectTrigger className="w-full border-black-2-600 bg-black-2-900/40">
+                    <SelectTrigger className="border-black-2-600 bg-black-2-900/40 w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -127,7 +125,7 @@ export default function CreateTeamPage() {
                     value={teamDraft.focus}
                     onValueChange={(value) => setTeamDraft({ ...teamDraft, focus: value })}
                   >
-                    <SelectTrigger className="w-full border-black-2-600 bg-black-2-900/40">
+                    <SelectTrigger className="border-black-2-600 bg-black-2-900/40 w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -147,11 +145,11 @@ export default function CreateTeamPage() {
                     setTeamDraft({ ...teamDraft, description: event.target.value })
                   }
                   placeholder="Describe the team culture, match style, and what members should expect."
-                  className="border-input focus-visible:border-ring focus-visible:ring-ring/50 min-h-36 w-full rounded-md border bg-black-2-900/40 px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:ring-[3px]"
+                  className="border-input focus-visible:border-ring focus-visible:ring-ring/50 bg-black-2-900/40 placeholder:text-muted-foreground min-h-36 w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
                 />
               </FormField>
 
-              <div className="rounded-md border border-dashed border-black-2-600 p-5">
+              <div className="border-black-2-600 rounded-md border border-dashed p-5">
                 <div className="flex items-start gap-3">
                   <ImageIcon className="text-primary mt-1 size-5" />
                   <div>
@@ -172,27 +170,25 @@ export default function CreateTeamPage() {
         </div>
 
         <aside className="space-y-4">
-          <div className="rounded-md border border-black-2-700 bg-black-2-800/50 p-5">
-            <h2 className="font-kumbh text-xl font-bold">Eligibility</h2>
+          <div className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
+            <h2 className="font-kumbh text-xl font-bold">What Happens Next</h2>
             <div className="mt-5 space-y-3">
-              <RuleRow
-                icon={currentUser.registered ? BadgeCheck : Lock}
-                label="Registered account"
-                passed={currentUser.registered}
+              <InfoRow
+                icon={BadgeCheck}
+                label="Create team profile"
+                description="Set team name, identity, description, and capacity."
               />
-              <RuleRow
-                icon={currentUser.subscribed ? BadgeCheck : Lock}
-                label="Active subscription"
-                passed={currentUser.subscribed}
+              <InfoRow
+                icon={Crown}
+                label="Become Team Leader"
+                description="Leader can approve requests, manage members, and start team matches."
               />
-              <RuleRow icon={Crown} label="Creator becomes Team Leader" passed />
+              <InfoRow
+                icon={ImageIcon}
+                label="Maintain banner quality"
+                description="Use a clean, high-resolution image for consistent visual quality."
+              />
             </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 rounded-md border border-black-2-700 bg-black-2-800/50 p-2">
-            <InventoryStat label="Coins" value={currentUser.coins.toLocaleString()} />
-            <InventoryStat label="Keys" value={currentUser.keys} />
-            <InventoryStat label="Boosts" value={currentUser.boosts} />
           </div>
         </aside>
       </section>
@@ -204,10 +200,9 @@ function LockedState() {
   return (
     <div className="flex min-h-80 flex-col items-center justify-center text-center">
       <Lock className="text-primary size-12" />
-      <h2 className="mt-5 font-kumbh text-2xl font-bold">Team creation locked</h2>
+      <h2 className="font-kumbh mt-5 text-2xl font-bold">Subscription Required</h2>
       <p className="mt-2 max-w-md text-sm leading-6 text-zinc-400">
-        Only subscribed users can create teams. You can still browse teams and send join requests
-        after registration.
+        Only subscribed users can create teams. Upgrade your plan to unlock team creation.
       </p>
       <Button asChild className="mt-6">
         <Link href="/pricing">View Plans</Link>
@@ -225,22 +220,22 @@ function FormField({ children, label }: { children: ReactNode; label: string }) 
   );
 }
 
-function RuleRow({
+function InfoRow({
   icon: Icon,
+  description,
   label,
-  passed,
 }: {
-  icon: ElementType;
+  icon: (props: { className?: string }) => ReactNode;
+  description: string;
   label: string;
-  passed: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-md border border-black-2-700 bg-black-2-900/35 p-3">
+    <div className="border-black-2-700 bg-black-2-900/35 rounded-md border p-3">
       <div className="flex min-w-0 items-center gap-3">
         <Icon className="text-primary size-4 shrink-0" />
-        <span className="truncate text-sm">{label}</span>
+        <span className="truncate text-sm font-medium">{label}</span>
       </div>
-      <StatusBadge label={passed ? 'OK' : 'Locked'} tone={passed ? 'green' : 'red'} />
+      <p className="mt-2 text-sm leading-6 text-zinc-400">{description}</p>
     </div>
   );
 }

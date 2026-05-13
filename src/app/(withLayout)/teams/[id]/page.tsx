@@ -1,14 +1,9 @@
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { useMemo, useState } from 'react';
 import {
   Activity,
   ArrowLeft,
   Award,
-  BadgeCheck,
   Check,
   Crown,
   MessageCircle,
@@ -23,19 +18,14 @@ import {
   X,
   Zap,
 } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useMemo, useState } from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   activeMatch,
+  challenges,
   chatMessages,
   currentUser,
   getTeamById,
@@ -57,8 +47,17 @@ import {
   MiniMetric,
   StatCard,
   StatusBadge,
-  WalletRow,
 } from '@/components/module/teams/teamUi';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/utils/cn';
 
 export default function TeamDetailsPage() {
@@ -105,7 +104,7 @@ function PublicTeamProfile({ team }: { team: TeamProfile }) {
       <TeamHero team={team} joined={false} />
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="rounded-md border border-black-2-700 bg-black-2-800/50 p-5">
+        <div className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="font-kumbh text-2xl font-bold">Team Profile</h2>
@@ -113,7 +112,13 @@ function PublicTeamProfile({ team }: { team: TeamProfile }) {
             </div>
             <StatusBadge
               label={team.availability}
-              tone={team.availability === 'Open' ? 'green' : team.availability === 'Full' ? 'red' : 'gold'}
+              tone={
+                team.availability === 'Open'
+                  ? 'green'
+                  : team.availability === 'Full'
+                    ? 'red'
+                    : 'gold'
+              }
             />
           </div>
 
@@ -125,29 +130,39 @@ function PublicTeamProfile({ team }: { team: TeamProfile }) {
 
           <div className="mt-6 flex flex-wrap gap-2">
             {team.tags.map((tag) => (
-              <span key={tag} className="rounded-sm border border-black-2-600 px-2 py-1 text-xs text-zinc-300">
+              <span
+                key={tag}
+                className="border-black-2-600 rounded-sm border px-2 py-1 text-xs text-zinc-300"
+              >
                 {tag}
               </span>
             ))}
           </div>
         </div>
 
-        <aside className="rounded-md border border-black-2-700 bg-black-2-800/50 p-5">
-          <h2 className="font-kumbh text-xl font-bold">Join Request</h2>
-          <div className="mt-5 space-y-3">
-            <RuleLine
-              label="Registered account"
-              passed={currentUser.registered}
-              failedLabel="Sign in required"
-            />
-            <RuleLine label="Member slot available" passed={!isFull} failedLabel="Team full" />
-            <RuleLine label="Request not sent" passed={!requested} failedLabel="Already requested" />
-          </div>
+        <aside className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
+          <h2 className="font-kumbh text-xl font-bold">Join This Team</h2>
+          <p className="mt-2 text-sm leading-6 text-zinc-400">
+            Send a join request to this team. Team Leader reviews all requests before approval.
+          </p>
 
-          <Button className="mt-5 w-full" disabled={!canRequestJoin} onClick={() => setRequested(true)}>
+          <Button
+            className="mt-5 w-full"
+            disabled={!canRequestJoin}
+            onClick={() => setRequested(true)}
+          >
             <UserPlus className="size-4" />
             {requested ? 'Request Sent' : isFull ? 'Team Full' : 'Request Join'}
           </Button>
+
+          {!currentUser.registered && (
+            <p className="text-red-light mt-3 text-xs">
+              Sign in is required to send a join request.
+            </p>
+          )}
+          {isFull && (
+            <p className="text-red-light mt-3 text-xs">No member slots are currently available.</p>
+          )}
         </aside>
       </section>
     </div>
@@ -158,6 +173,7 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
   const [members, setMembers] = useState<TeamMember[]>(teamMembers);
   const [requests, setRequests] = useState<JoinRequest[]>(joinRequests);
   const [leaderboardPeriod, setLeaderboardPeriod] = useState<LeaderboardPeriod>('weekly');
+  const [startedChallengeId, setStartedChallengeId] = useState<string | null>(null);
   const [matchParticipants, setMatchParticipants] = useState<Record<string, boolean>>({
     m1: true,
     m2: true,
@@ -167,12 +183,16 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
   });
 
   const capacityPercent = Math.min((members.length / team.capacity) * 100, 100);
+  const isLeader = currentUser.role === 'Leader';
+  const activeChallenge =
+    challenges.find((challenge) => challenge.id === startedChallengeId) ?? null;
+  const hasActiveMatch = Boolean(activeMatch || activeChallenge);
   const joinedMemberCount = members.filter((member) => matchParticipants[member.id]).length;
   const liveTeamScore = useMemo(
     () =>
       members.reduce(
         (total, member) => total + (matchParticipants[member.id] ? member.matchVotes : 0),
-        activeMatch.teamScore,
+        0,
       ),
     [matchParticipants, members],
   );
@@ -214,9 +234,9 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
       <TeamHero team={team} joined />
 
       <Tabs defaultValue="overview" className="gap-5">
-        <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-md border border-black-2-700 bg-black-2-800/70 p-1 sm:grid-cols-3 xl:grid-cols-6">
+        <TabsList className="border-black-2-700 bg-black-2-800/70 grid h-auto w-full grid-cols-2 gap-1 rounded-md border p-1 sm:grid-cols-3 xl:grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="manage">Manage</TabsTrigger>
+          <TabsTrigger value="manage">{isLeader ? 'Manage' : 'Members'}</TabsTrigger>
           <TabsTrigger value="match">Match</TabsTrigger>
           <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
@@ -224,63 +244,58 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-            <div className="rounded-md border border-black-2-700 bg-black-2-800/50 p-5">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="font-kumbh text-xl font-bold">Team Identity</h2>
-                  <p className="mt-1 text-sm text-zinc-400">{team.identity}</p>
-                </div>
-                <StatusBadge icon={Users} label={`${members.length} members`} />
+          <section className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="font-kumbh text-xl font-bold">Team Identity</h2>
+                <p className="mt-1 text-sm text-zinc-400">{team.identity}</p>
               </div>
+              <StatusBadge icon={Users} label={`${members.length} members`} />
+            </div>
 
-              <div className="mt-6">
-                <div className="mb-2 flex items-center justify-between text-sm">
-                  <span className="text-zinc-400">Member capacity</span>
-                  <span className="font-medium">
-                    {members.length}/{team.capacity}
-                  </span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-black-2-700">
-                  <div className="bg-primary h-full rounded-full" style={{ width: `${capacityPercent}%` }} />
-                </div>
+            <div className="mt-6">
+              <div className="mb-2 flex items-center justify-between text-sm">
+                <span className="text-zinc-400">Member capacity</span>
+                <span className="font-medium">
+                  {members.length}/{team.capacity}
+                </span>
               </div>
-
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {members.slice(0, 4).map((member) => (
-                  <MemberRow key={member.id} member={member} compact />
-                ))}
+              <div className="bg-black-2-700 h-2 overflow-hidden rounded-full">
+                <div
+                  className="bg-primary h-full rounded-full"
+                  style={{ width: `${capacityPercent}%` }}
+                />
               </div>
             </div>
 
-            <div className="rounded-md border border-black-2-700 bg-black-2-800/50 p-5">
-              <h2 className="font-kumbh text-xl font-bold">Team Wallet</h2>
-              <div className="mt-5 space-y-3">
-                <WalletRow label="Team coins" value={team.coins.toLocaleString()} />
-                <WalletRow label="Keys owned" value={currentUser.keys} />
-                <WalletRow label="Boosts owned" value={currentUser.boosts} />
-                <WalletRow label="Swaps owned" value={currentUser.swaps} />
-              </div>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {members.slice(0, 4).map((member) => (
+                <MemberRow key={member.id} member={member} compact />
+              ))}
             </div>
           </section>
         </TabsContent>
 
         <TabsContent value="manage" className="space-y-6">
           <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.75fr)]">
-            <div className="rounded-md border border-black-2-700 bg-black-2-800/50 p-5">
+            <div className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="font-kumbh text-xl font-bold">Members</h2>
                   <p className="mt-1 text-sm text-zinc-400">Leader, Moderator, and Member roles</p>
                 </div>
-                <StatusBadge icon={ShieldCheck} label="Role controls" tone="blue" />
+                <StatusBadge
+                  icon={ShieldCheck}
+                  label={isLeader ? 'Leader controls enabled' : 'Read only'}
+                  tone={isLeader ? 'blue' : 'default'}
+                />
               </div>
 
               <div className="mt-5 space-y-3">
                 {members.map((member) => (
                   <div
                     key={member.id}
-                    className="grid gap-3 rounded-md border border-black-2-700 bg-black-2-900/35 p-3 md:grid-cols-[minmax(0,1fr)_160px_120px]"
+                    className="border-black-2-700 bg-black-2-900/35 grid gap-3 rounded-md border p-3 md:grid-cols-[minmax(0,1fr)_160px_120px]"
                   >
                     <MemberRow member={member} />
 
@@ -289,9 +304,9 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
                       onValueChange={(value) =>
                         handleMemberRoleValue(value, member.id, handleRoleChange)
                       }
-                      disabled={member.role === 'Leader'}
+                      disabled={!isLeader || member.role === 'Leader'}
                     >
-                      <SelectTrigger className="w-full border-black-2-600 bg-black-2-800">
+                      <SelectTrigger className="border-black-2-600 bg-black-2-800 w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -303,7 +318,7 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
                     <Button
                       variant="outline"
                       className="border-red-normal/40 text-red-light hover:bg-red-normal/15 hover:text-red-light"
-                      disabled={member.role === 'Leader'}
+                      disabled={!isLeader || member.role === 'Leader'}
                       onClick={() => handleRemoveMember(member.id)}
                     >
                       <UserMinus className="size-4" />
@@ -314,21 +329,27 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
               </div>
             </div>
 
-            <div className="rounded-md border border-black-2-700 bg-black-2-800/50 p-5">
+            <div className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h2 className="font-kumbh text-xl font-bold">Join Requests</h2>
-                  <p className="mt-1 text-sm text-zinc-400">{requests.length} pending</p>
+                  <p className="mt-1 text-sm text-zinc-400">
+                    {isLeader
+                      ? `${requests.length} pending`
+                      : 'Only Team Leader can review requests'}
+                  </p>
                 </div>
                 <UserPlus className="text-primary size-5" />
               </div>
 
               <div className="mt-5 space-y-3">
-                {requests.length ? (
+                {!isLeader ? (
+                  <EmptyBlock icon={ShieldCheck} title="Request review is limited to Team Leader" />
+                ) : requests.length ? (
                   requests.map((request) => (
                     <div
                       key={request.id}
-                      className="rounded-md border border-black-2-700 bg-black-2-900/35 p-4"
+                      className="border-black-2-700 bg-black-2-900/35 rounded-md border p-4"
                     >
                       <div className="flex items-start gap-3">
                         <AvatarLabel name={request.name} />
@@ -370,75 +391,172 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
         </TabsContent>
 
         <TabsContent value="match" className="space-y-6">
-          <section className="rounded-md border border-primary/40 bg-orange-2-900/20 p-5">
-            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
-              <div>
-                <div className="mb-3 flex flex-wrap items-center gap-2">
-                  <StatusBadge icon={Swords} label="Active team match" tone="gold" />
-                  <StatusBadge icon={Timer} label={activeMatch.timeRemaining} />
+          {hasActiveMatch ? (
+            <section className="border-primary/40 bg-orange-2-900/20 rounded-md border p-5">
+              <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
+                <div>
+                  <div className="mb-3 flex flex-wrap items-center gap-2">
+                    <StatusBadge icon={Swords} label="Active team match" tone="gold" />
+                    <StatusBadge icon={Timer} label={activeMatch?.timeRemaining ?? 'Running'} />
+                  </div>
+                  <h2 className="font-kumbh text-2xl font-bold">
+                    {activeMatch?.challengeName ?? activeChallenge?.name ?? 'Team Match'}
+                  </h2>
+                  <p className="text-orange-2-200 mt-1 text-sm">
+                    {activeMatch?.theme ?? activeChallenge?.theme ?? 'Match in progress'}
+                  </p>
+                  <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                    <StatCard
+                      icon={Users}
+                      label="Joined Members"
+                      value={`${joinedMemberCount}/${members.length}`}
+                    />
+                    <StatCard
+                      icon={Zap}
+                      label="Team Score"
+                      value={liveTeamScore.toLocaleString()}
+                    />
+                    <StatCard
+                      icon={Trophy}
+                      label="Rival Score"
+                      value={(activeMatch?.rivalScore ?? 0).toLocaleString()}
+                    />
+                  </div>
                 </div>
-                <h2 className="font-kumbh text-2xl font-bold">{activeMatch.challengeName}</h2>
-                <p className="mt-1 text-sm text-orange-2-200">{activeMatch.theme}</p>
-                <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                  <StatCard icon={Users} label="Joined Members" value={`${joinedMemberCount}/${members.length}`} />
-                  <StatCard icon={Zap} label="Team Score" value={liveTeamScore.toLocaleString()} />
-                  <StatCard icon={Trophy} label="Rival Score" value={activeMatch.rivalScore.toLocaleString()} />
-                </div>
-              </div>
 
-              <div className="rounded-md border border-white/10 bg-black/35 p-4">
-                <p className="text-sm text-zinc-400">Rival team</p>
-                <p className="mt-1 text-xl font-bold">{activeMatch.rivalTeam}</p>
-                <p className="mt-4 text-sm text-zinc-400">Winner reward</p>
-                <p className="mt-1 text-lg font-semibold text-orange-2-200">
-                  {activeMatch.rewardCoins.toLocaleString()} coins
-                </p>
-                <Button asChild className="mt-5 w-full">
-                  <Link href={`/teams/${team.id}/matches`}>
-                    <Swords className="size-4" />
-                    Browse Contests
-                  </Link>
-                </Button>
+                <div className="rounded-md border border-white/10 bg-black/35 p-4">
+                  <p className="text-sm text-zinc-400">Rival team</p>
+                  <p className="mt-1 text-xl font-bold">
+                    {activeMatch?.rivalTeam ?? 'Auto-assigned team'}
+                  </p>
+                  <p className="mt-4 text-sm text-zinc-400">Match rule</p>
+                  <p className="text-orange-2-200 mt-1 text-lg font-semibold">
+                    One active team match at a time
+                  </p>
+                  <Button asChild className="mt-5 w-full">
+                    <Link href={`/teams/${team.id}/matches`}>
+                      <Swords className="size-4" />
+                      Open Match Room
+                    </Link>
+                  </Button>
+                </div>
               </div>
+            </section>
+          ) : (
+            <section className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
+              <h2 className="font-kumbh text-xl font-bold">No Active Match</h2>
+              <p className="mt-2 text-sm leading-6 text-zinc-400">
+                Start a team match from an eligible challenge. Rival team will be assigned
+                automatically.
+              </p>
+            </section>
+          )}
+
+          <section className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="font-kumbh text-xl font-bold">Match Challenges</h2>
+                <p className="mt-1 text-sm text-zinc-400">
+                  Eligible contests: 5h to 24h duration, Standard only
+                </p>
+              </div>
+              {!isLeader && <StatusBadge label="Start match: Leader only" tone="red" />}
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2">
+              {challenges.map((challenge) => {
+                const lockedReason = getLockedReason(challenge, hasActiveMatch, isLeader);
+                const canStart = !lockedReason;
+
+                return (
+                  <div
+                    key={challenge.id}
+                    className="border-black-2-700 bg-black-2-900/35 rounded-md border p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="font-semibold">{challenge.name}</h3>
+                        <p className="mt-1 text-sm text-zinc-400">{challenge.theme}</p>
+                      </div>
+                      <StatusBadge
+                        label={challenge.contestType}
+                        tone={challenge.contestType === 'Standard' ? 'green' : 'red'}
+                      />
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-3 gap-2">
+                      <MiniMetric label="Time Left" value={challenge.timeRemaining} />
+                      <MiniMetric label="Duration" value={`${challenge.durationHours}h`} />
+                      <MiniMetric label="Joined" value={challenge.membersJoined} />
+                    </div>
+
+                    <Button
+                      className="mt-4 w-full"
+                      disabled={!canStart}
+                      onClick={() => setStartedChallengeId(challenge.id)}
+                    >
+                      <Swords className="size-4" />
+                      {canStart ? 'Start Match' : lockedReason}
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
           </section>
 
-          <section className="grid gap-3 md:grid-cols-2">
-            {members.map((member) => (
-              <div
-                key={member.id}
-                className="flex flex-col gap-3 rounded-md border border-black-2-700 bg-black-2-800/50 p-3 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <MemberRow member={member} compact />
+          <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
+              <h2 className="font-kumbh text-xl font-bold">Your Match Participation</h2>
+              <p className="mt-2 text-sm leading-6 text-zinc-400">
+                Participation is optional. Join to contribute your votes to team score.
+              </p>
+
+              <div className="border-black-2-700 bg-black-2-900/35 mt-5 rounded-md border p-3">
+                <MemberRow
+                  member={members.find((member) => member.id === currentUser.id) ?? members[0]}
+                  compact
+                />
                 <Button
+                  className="mt-3 w-full"
                   size="sm"
-                  variant={matchParticipants[member.id] ? 'secondary' : 'outline'}
-                  className={cn(
-                    'shrink-0 border-black-2-600',
-                    matchParticipants[member.id] && 'bg-primary text-white hover:bg-primary/90',
-                  )}
+                  variant={matchParticipants[currentUser.id] ? 'secondary' : 'outline'}
                   onClick={() =>
                     setMatchParticipants((current) => ({
                       ...current,
-                      [member.id]: !current[member.id],
+                      [currentUser.id]: !current[currentUser.id],
                     }))
                   }
                 >
-                  {matchParticipants[member.id] ? 'Joined' : 'Join Match'}
+                  {matchParticipants[currentUser.id] ? 'Joined Match' : 'Join Match'}
                 </Button>
               </div>
-            ))}
+            </div>
+
+            <div className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
+              <h2 className="font-kumbh text-xl font-bold">Team Participation Status</h2>
+              <div className="mt-5 space-y-3">
+                {members.map((member) => (
+                  <div key={member.id} className="flex items-center justify-between gap-3">
+                    <MemberRow member={member} compact />
+                    <StatusBadge
+                      label={matchParticipants[member.id] ? 'Joined' : 'Not Joined'}
+                      tone={matchParticipants[member.id] ? 'green' : 'default'}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           </section>
         </TabsContent>
 
         <TabsContent value="leaderboard" className="space-y-5">
-          <section className="rounded-md border border-black-2-700 bg-black-2-800/50 p-5">
+          <section className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <h2 className="font-kumbh text-xl font-bold">Team Leaderboard</h2>
                 <p className="mt-1 text-sm text-zinc-400">Fair matchmaking by skill level</p>
               </div>
-              <div className="grid grid-cols-3 gap-1 rounded-md border border-black-2-700 bg-black-2-900/50 p-1">
+              <div className="border-black-2-700 bg-black-2-900/50 grid grid-cols-3 gap-1 rounded-md border p-1">
                 {(['weekly', 'monthly', 'yearly'] as LeaderboardPeriod[]).map((period) => (
                   <button
                     key={period}
@@ -456,12 +574,12 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
               </div>
             </div>
 
-            <div className="mt-5 overflow-hidden rounded-md border border-black-2-700">
+            <div className="border-black-2-700 mt-5 overflow-hidden rounded-md border">
               {leaderboard[leaderboardPeriod].map((row) => (
                 <div
                   key={row.team}
                   className={cn(
-                    'grid gap-3 border-b border-black-2-700 p-4 last:border-b-0 sm:grid-cols-[70px_minmax(0,1fr)_100px_100px]',
+                    'border-black-2-700 grid gap-3 border-b p-4 last:border-b-0 sm:grid-cols-[70px_minmax(0,1fr)_100px_100px]',
                     row.team === team.name && 'bg-primary/10',
                   )}
                 >
@@ -488,7 +606,7 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
           {matchHistory.map((match) => (
             <div
               key={`${match.opponent}-${match.challenge}`}
-              className="grid gap-4 rounded-md border border-black-2-700 bg-black-2-800/50 p-4 md:grid-cols-[minmax(0,1fr)_120px_130px_110px]"
+              className="border-black-2-700 bg-black-2-800/50 grid gap-4 rounded-md border p-4 md:grid-cols-[minmax(0,1fr)_120px_130px_110px]"
             >
               <div>
                 <p className="font-semibold">{match.challenge}</p>
@@ -505,8 +623,8 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
         </TabsContent>
 
         <TabsContent value="chat">
-          <section className="rounded-md border border-black-2-700 bg-black-2-800/50">
-            <div className="flex items-center justify-between border-b border-black-2-700 p-5">
+          <section className="border-black-2-700 bg-black-2-800/50 rounded-md border">
+            <div className="border-black-2-700 flex items-center justify-between border-b p-5">
               <div>
                 <h2 className="font-kumbh text-xl font-bold">Team Chat</h2>
                 <p className="mt-1 text-sm text-zinc-400">Visible to all members</p>
@@ -518,7 +636,7 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
               {chatMessages.map((message) => (
                 <div key={`${message.author}-${message.time}`} className="flex gap-3">
                   <AvatarLabel name={message.author} />
-                  <div className="min-w-0 flex-1 rounded-md border border-black-2-700 bg-black-2-900/35 p-3">
+                  <div className="border-black-2-700 bg-black-2-900/35 min-w-0 flex-1 rounded-md border p-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-semibold">{message.author}</p>
                       <StatusBadge
@@ -533,8 +651,11 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
               ))}
             </div>
 
-            <div className="grid gap-2 border-t border-black-2-700 p-4 sm:grid-cols-[minmax(0,1fr)_auto]">
-              <Input placeholder="Message your team" className="border-black-2-600 bg-black-2-900/40" />
+            <div className="border-black-2-700 grid gap-2 border-t p-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+              <Input
+                placeholder="Message your team"
+                className="border-black-2-600 bg-black-2-900/40"
+              />
               <Button>
                 <Send className="size-4" />
                 Send
@@ -549,7 +670,7 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
 
 function TeamHero({ joined, team }: { joined: boolean; team: TeamProfile }) {
   return (
-    <section className="overflow-hidden rounded-md border border-black-2-700 bg-black-2-800/50">
+    <section className="border-black-2-700 bg-black-2-800/50 overflow-hidden rounded-md border">
       <div className="relative min-h-72">
         <Image
           src={team.banner}
@@ -565,19 +686,20 @@ function TeamHero({ joined, team }: { joined: boolean; team: TeamProfile }) {
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="max-w-2xl">
               <div className="mb-3 flex flex-wrap items-center gap-2">
-                {joined && <StatusBadge icon={Crown} label={`${currentUser.role} view`} tone="gold" />}
-                <StatusBadge icon={ShieldCheck} label="Moderator role ready" tone="blue" />
+                {joined && (
+                  <StatusBadge icon={Crown} label={`${currentUser.role} view`} tone="gold" />
+                )}
                 <StatusBadge icon={Users} label={`${team.memberCount}/${team.capacity} slots`} />
               </div>
               <h1 className="font-kumbh text-3xl font-bold text-white md:text-4xl">{team.name}</h1>
-              <p className="mt-2 text-sm font-medium text-orange-2-200">{team.identity}</p>
+              <p className="text-orange-2-200 mt-2 text-sm font-medium">{team.identity}</p>
               <p className="mt-4 max-w-xl text-sm leading-6 text-zinc-300">{team.description}</p>
             </div>
 
             <div className="grid grid-cols-3 gap-2 rounded-md border border-white/10 bg-black/45 p-2 text-center sm:min-w-72">
               <InventoryStat label="Rank" value={`#${team.rank}`} />
               <InventoryStat label="Wins" value={`${team.winRate}%`} />
-              <InventoryStat label="Coins" value={team.coins.toLocaleString()} />
+              <InventoryStat label="Members" value={`${team.memberCount}/${team.capacity}`} />
             </div>
           </div>
 
@@ -592,23 +714,6 @@ function TeamHero({ joined, team }: { joined: boolean; team: TeamProfile }) {
   );
 }
 
-function RuleLine({
-  failedLabel,
-  label,
-  passed,
-}: {
-  failedLabel: string;
-  label: string;
-  passed: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3 rounded-md border border-black-2-700 bg-black-2-900/35 p-3">
-      <span className="text-sm text-zinc-300">{label}</span>
-      <StatusBadge label={passed ? 'OK' : failedLabel} tone={passed ? 'green' : 'red'} />
-    </div>
-  );
-}
-
 function handleMemberRoleValue(
   value: string,
   memberId: string,
@@ -617,4 +722,24 @@ function handleMemberRoleValue(
   if (value === 'Leader' || value === 'Moderator' || value === 'Member') {
     onRoleChange(memberId, value);
   }
+}
+
+function getLockedReason(
+  challenge: {
+    durationHours: number;
+    eligible: boolean;
+    ineligibleReason?: string;
+    contestType: string;
+  },
+  hasActiveMatch: boolean,
+  isLeader: boolean,
+) {
+  if (!isLeader) return 'Leader only';
+  if (hasActiveMatch) return 'Match active';
+  if (!challenge.eligible) return challenge.ineligibleReason ?? 'Not eligible';
+  if (challenge.durationHours < 5) return 'Under 5 hours';
+  if (challenge.durationHours > 24) return 'Over 24 hours';
+  if (challenge.contestType !== 'Standard') return `${challenge.contestType} contest`;
+
+  return null;
 }
