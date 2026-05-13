@@ -141,7 +141,7 @@ export function PageHeader({
       <div className="max-w-3xl">
         {eyebrow && <div className="mb-3 flex flex-wrap items-center gap-2">{eyebrow}</div>}
         <h1 className="font-kumbh text-3xl font-extrabold text-white md:text-5xl">{title}</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400 md:text-base">{description}</p>
+        <p className="mt-3 max-w-2xl max-md:text-sm leading-6 text-zinc-400">{description}</p>
       </div>
     </div>
   );
