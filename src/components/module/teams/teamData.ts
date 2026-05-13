@@ -284,16 +284,7 @@ export const challenges: Challenge[] = [
   },
 ];
 
-export const activeMatch: ActiveMatch = {
-  id: 'match-1',
-  challengeName: 'Portrait Sprint',
-  theme: 'Natural light portrait',
-  rivalTeam: 'Monochrome Lab',
-  timeRemaining: '4h 18m',
-  teamScore: 849,
-  rivalScore: 792,
-  rewardCoins: 1250,
-};
+export const activeMatch: ActiveMatch | null = null;
 
 export const leaderboard: Record<
   LeaderboardPeriod,
@@ -303,19 +294,54 @@ export const leaderboard: Record<
     { rank: 1, team: 'Monochrome Lab', level: 'Platinum IV', wins: 9, points: 1840, trend: '+3' },
     { rank: 2, team: 'Aperture Alliance', level: 'Gold III', wins: 7, points: 1695, trend: '+2' },
     { rank: 3, team: 'Wild Frame Club', level: 'Silver I', wins: 6, points: 1440, trend: '+1' },
-    { rank: 4, team: 'Color Run Collective', level: 'Silver II', wins: 5, points: 1210, trend: '-1' },
+    {
+      rank: 4,
+      team: 'Color Run Collective',
+      level: 'Silver II',
+      wins: 5,
+      points: 1210,
+      trend: '-1',
+    },
   ],
   monthly: [
     { rank: 1, team: 'Aperture Alliance', level: 'Gold III', wins: 21, points: 6420, trend: '+1' },
     { rank: 2, team: 'Monochrome Lab', level: 'Platinum IV', wins: 19, points: 6180, trend: '-1' },
     { rank: 3, team: 'Wild Frame Club', level: 'Silver I', wins: 16, points: 5190, trend: '+4' },
-    { rank: 4, team: 'Color Run Collective', level: 'Silver II', wins: 13, points: 4740, trend: '+2' },
+    {
+      rank: 4,
+      team: 'Color Run Collective',
+      level: 'Silver II',
+      wins: 13,
+      points: 4740,
+      trend: '+2',
+    },
   ],
   yearly: [
-    { rank: 1, team: 'Monochrome Lab', level: 'Platinum IV', wins: 124, points: 38240, trend: '+6' },
-    { rank: 2, team: 'Aperture Alliance', level: 'Gold III', wins: 116, points: 36180, trend: '+8' },
+    {
+      rank: 1,
+      team: 'Monochrome Lab',
+      level: 'Platinum IV',
+      wins: 124,
+      points: 38240,
+      trend: '+6',
+    },
+    {
+      rank: 2,
+      team: 'Aperture Alliance',
+      level: 'Gold III',
+      wins: 116,
+      points: 36180,
+      trend: '+8',
+    },
     { rank: 3, team: 'Wild Frame Club', level: 'Silver I', wins: 97, points: 30940, trend: '+3' },
-    { rank: 4, team: 'Color Run Collective', level: 'Silver II', wins: 84, points: 27820, trend: '-2' },
+    {
+      rank: 4,
+      team: 'Color Run Collective',
+      level: 'Silver II',
+      wins: 84,
+      points: 27820,
+      trend: '-2',
+    },
   ],
 };
 
