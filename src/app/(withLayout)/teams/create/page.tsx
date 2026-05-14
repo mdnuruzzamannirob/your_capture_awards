@@ -24,23 +24,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useRouter } from 'next/navigation';
 
 type TeamDraft = {
   name: string;
   identity: string;
   description: string;
   capacity: string;
-  focus: string;
+  visibility: string;
 };
 
 export default function CreateTeamPage() {
+  const router = useRouter();
   const [submitted, setSubmitted] = useState(false);
   const [teamDraft, setTeamDraft] = useState<TeamDraft>({
     name: '',
     identity: '',
     description: '',
     capacity: '12',
-    focus: 'Street',
+    visibility: 'PUBLIC',
   });
 
   const canCreateTeam = currentUser.registered && currentUser.subscribed;
@@ -72,13 +74,13 @@ export default function CreateTeamPage() {
         <div className={`${teamShellClass} p-5 md:p-6`}>
           {!canCreateTeam ? (
             <LockedState />
-          ) : submitted ? (
-            <CreatedTeamCard draft={teamDraft} onLeave={() => setSubmitted(false)} />
           ) : (
             <div className="space-y-6">
               <div className="space-y-1">
-                <h2 className="font-kumbh text-2xl font-bold text-foreground">Team Information</h2>
-                <p className="text-muted-foreground text-sm">Set your team identity and basic details</p>
+                <h2 className="font-kumbh text-foreground text-2xl font-bold">Team Information</h2>
+                <p className="text-muted-foreground text-sm">
+                  Set your team identity and basic details
+                </p>
               </div>
 
               <form
@@ -88,97 +90,89 @@ export default function CreateTeamPage() {
                   if (canSubmit) setSubmitted(true);
                 }}
               >
-                <section className={`${teamPanelClass} space-y-4 p-5`}>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField label="Team Name" hint="Your team's display name">
-                      <Input
-                        value={teamDraft.name}
-                        onChange={(event) => setTeamDraft({ ...teamDraft, name: event.target.value })}
-                        placeholder="Aperture Alliance"
-                        className="border-black-2-600 bg-black-2-700 text-foreground placeholder:text-muted-foreground"
-                      />
-                    </FormField>
-
-                    <FormField label="Team Identity" hint="Short tagline or focus area">
-                      <Input
-                        value={teamDraft.identity}
-                        onChange={(event) =>
-                          setTeamDraft({ ...teamDraft, identity: event.target.value })
-                        }
-                        placeholder="Editorial street photographers"
-                        className="border-black-2-600 bg-black-2-700 text-foreground placeholder:text-muted-foreground"
-                      />
-                    </FormField>
-                  </div>
-
-                  <FormField label="Description" hint="Describe your team culture and contest focus">
-                    <textarea
-                      value={teamDraft.description}
-                      onChange={(event) =>
-                        setTeamDraft({ ...teamDraft, description: event.target.value })
-                      }
-                      placeholder="Describe the team culture, match style, and contest focus. What makes your team unique?"
-                      className="border-black-2-600 bg-black-2-700 text-foreground placeholder:text-muted-foreground min-h-32 w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField label="Team Name" hint="Your team's display name">
+                    <Input
+                      value={teamDraft.name}
+                      onChange={(event) => setTeamDraft({ ...teamDraft, name: event.target.value })}
+                      placeholder="Aperture Alliance"
+                      className="border-black-2-600 bg-black-2-700 text-foreground placeholder:text-muted-foreground"
                     />
                   </FormField>
-                </section>
 
-                <section className={`${teamPanelClass} space-y-4 p-5`}>
-                  <div className="space-y-1">
-                    <h3 className="font-semibold text-foreground">Team Settings</h3>
-                    <p className="text-muted-foreground text-xs">Configure your team size and focus area</p>
-                  </div>
+                  <FormField label="Team Identity" hint="Short tagline or focus area">
+                    <Input
+                      value={teamDraft.identity}
+                      onChange={(event) =>
+                        setTeamDraft({ ...teamDraft, identity: event.target.value })
+                      }
+                      placeholder="Editorial street photographers"
+                      className="border-black-2-600 bg-black-2-700 text-foreground placeholder:text-muted-foreground"
+                    />
+                  </FormField>
+                </div>
 
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField label="Member Capacity" hint="Maximum team members allowed">
-                      <Select
-                        value={teamDraft.capacity}
-                        onValueChange={(value) => setTeamDraft({ ...teamDraft, capacity: value })}
-                      >
-                        <SelectTrigger className="border-black-2-600 bg-black-2-700 text-foreground w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="8">8 members</SelectItem>
-                          <SelectItem value="10">10 members</SelectItem>
-                          <SelectItem value="12">12 members</SelectItem>
-                          <SelectItem value="15">15 members</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormField>
+                <FormField label="Description" hint="Describe your team culture and contest focus">
+                  <textarea
+                    value={teamDraft.description}
+                    onChange={(event) =>
+                      setTeamDraft({ ...teamDraft, description: event.target.value })
+                    }
+                    placeholder="Describe the team culture, match style, and contest focus. What makes your team unique?"
+                    className="border-black-2-600 bg-black-2-700 text-foreground placeholder:text-muted-foreground min-h-32 w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
+                  />
+                </FormField>
 
-                    <FormField label="Main Focus" hint="Primary photography style">
-                      <Select
-                        value={teamDraft.focus}
-                        onValueChange={(value) => setTeamDraft({ ...teamDraft, focus: value })}
-                      >
-                        <SelectTrigger className="border-black-2-600 bg-black-2-700 text-foreground w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Street">Street</SelectItem>
-                          <SelectItem value="Portrait">Portrait</SelectItem>
-                          <SelectItem value="Nature">Nature</SelectItem>
-                          <SelectItem value="Studio">Studio</SelectItem>
-                          <SelectItem value="Editorial">Editorial</SelectItem>
-                          <SelectItem value="Lifestyle">Lifestyle</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormField>
-                  </div>
-                </section>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField label="Member Capacity" hint="Maximum team members allowed">
+                    <Select
+                      value={teamDraft.capacity}
+                      onValueChange={(value) => setTeamDraft({ ...teamDraft, capacity: value })}
+                    >
+                      <SelectTrigger className="border-black-2-600 bg-black-2-700 text-foreground w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="8">8 members</SelectItem>
+                        <SelectItem value="10">10 members</SelectItem>
+                        <SelectItem value="12">12 members</SelectItem>
+                        <SelectItem value="15">15 members</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormField>
+
+                  <FormField label="Visibility" hint="Who can see and join your team?">
+                    <Select
+                      value={teamDraft.visibility}
+                      onValueChange={(value) => setTeamDraft({ ...teamDraft, visibility: value })}
+                    >
+                      <SelectTrigger className="border-black-2-600 bg-black-2-700 text-foreground w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PUBLIC">Public</SelectItem>
+                        <SelectItem value="PRIVATE">Private</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormField>
+                </div>
 
                 <section className={`${teamPanelClass} border-dashed p-5`}>
                   <div className="flex items-start gap-4">
-                    <div className="bg-primary/15 border-primary/25 text-primary flex size-10 items-center justify-center rounded-md border shrink-0">
+                    <div className="bg-primary/15 border-primary/25 text-primary flex size-10 shrink-0 items-center justify-center rounded-md border">
                       <ImageIcon className="size-5" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-foreground">Team Banner</h3>
+                      <h3 className="text-foreground font-semibold">Team Banner</h3>
                       <p className="text-muted-foreground mt-1 text-sm">
-                        A clean photo banner keeps the team card consistent in browse view. Upload a representative image (1200x600px recommended).
+                        A clean photo banner keeps the team card consistent in browse view. Upload a
+                        representative image (1200x600px recommended).
                       </p>
-                      <Button variant="outline" className="mt-3 border-black-2-600 bg-black-2-700" disabled>
+                      <Button
+                        variant="outline"
+                        className="border-black-2-600 bg-black-2-700 mt-3"
+                        disabled
+                      >
                         <ImageIcon className="size-4" />
                         Upload Banner
                       </Button>
@@ -186,11 +180,16 @@ export default function CreateTeamPage() {
                   </div>
                 </section>
 
-                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-black-2-600 pt-6">
-                  <div className="text-sm text-muted-foreground">
-                    You'll be able to edit these details after team creation.
+                <div className="border-black-2-600 flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="text-muted-foreground text-sm">
+                    You&apos;ll be able to edit these details after team creation.
                   </div>
-                  <Button type="submit" disabled={!canSubmit} size="lg">
+                  <Button
+                    type="submit"
+                    onClick={() => router.push('/teams')}
+                    disabled={!canSubmit}
+                    size="lg"
+                  >
                     <Sparkles className="size-4" />
                     Create Team
                   </Button>
@@ -205,10 +204,10 @@ export default function CreateTeamPage() {
 }
 
 function CreatedTeamCard({ draft, onLeave }: { draft: TeamDraft; onLeave: () => void }) {
-  const tags = [draft.focus, 'Recruiting', 'New team'];
+  const tags = [draft.visibility, 'Recruiting', 'New team'];
 
   return (
-    <article className="overflow-hidden rounded-xl border-2 border-black-2-600 bg-black-2-800">
+    <article className="border-black-2-600 bg-black-2-800 overflow-hidden rounded-xl border-2">
       <div className="relative min-h-80">
         <Image
           src="/images/TeamPhoto.png"
@@ -234,9 +233,7 @@ function CreatedTeamCard({ draft, onLeave }: { draft: TeamDraft; onLeave: () => 
                   <p className="text-orange-2-200 mt-2 text-sm font-medium">{draft.identity}</p>
                 </div>
               </div>
-              <p className="mt-5 max-w-2xl text-sm leading-6 text-zinc-200">
-                {draft.description}
-              </p>
+              <p className="mt-5 max-w-2xl text-sm leading-6 text-zinc-200">{draft.description}</p>
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -252,7 +249,7 @@ function CreatedTeamCard({ draft, onLeave }: { draft: TeamDraft; onLeave: () => 
             <div className="grid grid-cols-3 gap-2">
               <MiniMetric label="Members" value={`1/${draft.capacity}`} />
               <MiniMetric label="Rank" value="New" />
-              <MiniMetric label="Focus" value={draft.focus} />
+              <MiniMetric label="Visibility" value={draft.visibility} />
             </div>
 
             <div className="border-black-2-600 bg-black-2-700 mt-4 rounded-md border p-3">
@@ -297,7 +294,15 @@ function LockedState() {
   );
 }
 
-function FormField({ children, label, hint }: { children: ReactNode; label: string; hint?: string }) {
+function FormField({
+  children,
+  label,
+  hint,
+}: {
+  children: ReactNode;
+  label: string;
+  hint?: string;
+}) {
   return (
     <label className="block">
       <span className="mb-1 block text-sm font-medium">{label}</span>
