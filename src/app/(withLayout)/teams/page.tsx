@@ -6,7 +6,15 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
 import { currentUser, teams, type TeamProfile } from '@/components/module/teams/teamData';
-import { AvatarLabel, MiniMetric, PageHeader, StatusBadge } from '@/components/module/teams/teamUi';
+import {
+  AvatarLabel,
+  MiniMetric,
+  PageHeader,
+  StatusBadge,
+  teamPanelClass,
+  teamShellClass,
+  teamTagClass,
+} from '@/components/module/teams/teamUi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -57,12 +65,14 @@ export default function TeamsPage() {
       />
 
       <section className="mt-8 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
+        <div className={`${teamShellClass} p-5`}>
           {!canCreateTeam ? (
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="font-kumbh text-2xl font-bold">Create a Team Workspace</h2>
-                <p className="mt-2 max-w-xl text-sm leading-6 text-zinc-400">
+                <h2 className="text-foreground font-kumbh text-2xl font-bold">
+                  Create a Team Workspace
+                </h2>
+                <p className="text-muted-foreground mt-2 max-w-xl text-sm leading-6">
                   Team creation is available for subscribed users. Upgrade your plan to create and
                   lead your own team.
                 </p>
@@ -77,8 +87,8 @@ export default function TeamsPage() {
           ) : (
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="font-kumbh text-2xl font-bold">Create a New Team</h2>
-                <p className="mt-2 max-w-xl text-sm leading-6 text-zinc-400">
+                <h2 className="text-foreground font-kumbh text-2xl font-bold">Create a New Team</h2>
+                <p className="text-muted-foreground mt-2 max-w-xl text-sm leading-6">
                   As a subscribed user, you can create a team and become Team Leader automatically.
                 </p>
               </div>
@@ -92,14 +102,16 @@ export default function TeamsPage() {
           )}
         </div>
 
-        <div className="border-black-2-700 bg-black-2-800/50 rounded-md border p-4">
+        <div className={`${teamPanelClass} p-4`}>
           {myTeam ? (
             <div className="flex h-full flex-col gap-4 sm:flex-row lg:flex-col">
               <div className="flex min-w-0 flex-1 items-center gap-3">
                 <AvatarLabel name={myTeam.name} />
                 <div className="min-w-0">
-                  <p className="text-sm text-zinc-400">Your current team</p>
-                  <h2 className="font-kumbh truncate text-xl font-bold">{myTeam.name}</h2>
+                  <p className="text-muted-foreground text-sm">Your current team</p>
+                  <h2 className="text-foreground font-kumbh truncate text-xl font-bold">
+                    {myTeam.name}
+                  </h2>
                 </div>
               </div>
               <Button asChild>
@@ -113,8 +125,8 @@ export default function TeamsPage() {
             <div className="flex items-start gap-3">
               <Lock className="text-primary mt-1 size-5" />
               <div>
-                <h2 className="font-kumbh text-xl font-bold">No team joined</h2>
-                <p className="mt-1 text-sm text-zinc-400">
+                <h2 className="text-foreground font-kumbh text-xl font-bold">No team joined</h2>
+                <p className="text-muted-foreground mt-1 text-sm">
                   Request to join a team or create a new one.
                 </p>
               </div>
@@ -123,20 +135,20 @@ export default function TeamsPage() {
         </div>
       </section>
 
-      <section className="border-black-2-700 bg-black-2-800/50 mt-6 rounded-md border p-4 md:p-5">
+      <section className={`${teamShellClass} mt-6 p-4 md:p-5`}>
         <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_180px_auto]">
           <div className="relative">
-            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-zinc-500" />
+            <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
             <Input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search by team name, theme, leader, or tag"
-              className="border-black-2-600 bg-black-2-900/40 pl-9"
+              className="border-black-2-600 bg-black-2-700 text-foreground placeholder:text-muted-foreground pl-9"
             />
           </div>
 
           <Select value={filter} onValueChange={(value) => setFilter(value as TeamFilter)}>
-            <SelectTrigger className="border-black-2-600 bg-black-2-900/40 w-full">
+            <SelectTrigger className="border-black-2-600 bg-black-2-700 text-foreground w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -154,7 +166,7 @@ export default function TeamsPage() {
               </Link>
             </Button>
           ) : (
-            <Button asChild variant="outline" className="border-black-2-600">
+            <Button asChild variant="outline" className="border-black-2-600 bg-black-2-700">
               <Link href="/pricing">
                 <Lock className="size-4" />
                 Subscribe to Create
@@ -196,7 +208,7 @@ function TeamDirectoryCard({
   const isFull = team.memberCount >= team.capacity;
 
   return (
-    <article className="border-black-2-700 bg-black-2-800/50 overflow-hidden rounded-md border">
+    <article className={`${teamShellClass} overflow-hidden`}>
       <Link href={`/teams/${team.id}`} className="group relative block h-44 overflow-hidden">
         <Image
           src={team.banner}
@@ -219,19 +231,16 @@ function TeamDirectoryCard({
         <div className="flex items-start gap-3">
           <AvatarLabel name={team.name} />
           <div className="min-w-0 flex-1">
-            <h2 className="font-kumbh truncate text-xl font-bold">{team.name}</h2>
-            <p className="mt-1 truncate text-sm text-zinc-400">{team.identity}</p>
+            <h2 className="text-foreground font-kumbh truncate text-xl font-bold">{team.name}</h2>
+            <p className="text-muted-foreground mt-1 truncate text-sm">{team.identity}</p>
           </div>
         </div>
 
-        <p className="mt-4 line-clamp-2 text-sm leading-6 text-zinc-300">{team.description}</p>
+        <p className="text-foreground mt-4 line-clamp-2 text-sm leading-6">{team.description}</p>
 
         <div className="mt-4 flex flex-wrap gap-2">
           {team.tags.map((tag) => (
-            <span
-              key={tag}
-              className="border-black-2-600 rounded-sm border px-2 py-1 text-xs text-zinc-300"
-            >
+            <span key={tag} className={teamTagClass}>
               {tag}
             </span>
           ))}
