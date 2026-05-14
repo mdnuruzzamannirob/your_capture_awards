@@ -35,6 +35,7 @@ import {
   PageHeader,
   StatCard,
   StatusBadge,
+  teamShellClass,
 } from '@/components/module/teams/teamUi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -95,7 +96,11 @@ export default function TeamMatchesPage() {
   if (!team) {
     return (
       <main className="margin container py-8 lg:py-10">
-        <Button asChild variant="ghost" className="mb-5 px-0 text-zinc-300 hover:bg-transparent">
+        <Button
+          asChild
+          variant="ghost"
+          className="text-muted-foreground hover:text-foreground mb-5 px-0 hover:bg-transparent"
+        >
           <Link href="/teams">
             <ArrowLeft className="size-4" />
             Back to teams
@@ -109,13 +114,17 @@ export default function TeamMatchesPage() {
   if (!isJoinedTeam) {
     return (
       <main className="margin container py-8 lg:py-10">
-        <Button asChild variant="ghost" className="mb-5 px-0 text-zinc-300 hover:bg-transparent">
+        <Button
+          asChild
+          variant="ghost"
+          className="text-muted-foreground hover:text-foreground mb-5 px-0 hover:bg-transparent"
+        >
           <Link href={`/teams/${team.id}`}>
             <ArrowLeft className="size-4" />
             Back to team
           </Link>
         </Button>
-        <section className="border-black-2-700 bg-black-2-800/50 rounded-md border p-8 text-center">
+        <section className={`${teamShellClass} p-8 text-center`}>
           <Lock className="text-primary mx-auto size-12" />
           <h1 className="font-kumbh mt-5 text-2xl font-bold">Match room locked</h1>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-400">
@@ -202,7 +211,7 @@ export default function TeamMatchesPage() {
             </section>
           )}
 
-          <section className="border-black-2-700 bg-black-2-800/50 rounded-md border p-4 md:p-5">
+          <section className={`${teamShellClass} p-4 md:p-5`}>
             <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_180px]">
               <div className="relative">
                 <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-zinc-500" />
@@ -210,12 +219,12 @@ export default function TeamMatchesPage() {
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Search contests"
-                  className="border-black-2-600 bg-black-2-900/40 pl-9"
+                  className="border-border/70 bg-background/60 text-foreground placeholder:text-muted-foreground pl-9"
                 />
               </div>
 
               <Select value={filter} onValueChange={(value) => setFilter(value as MatchFilter)}>
-                <SelectTrigger className="border-black-2-600 bg-black-2-900/40 w-full">
+                <SelectTrigger className="border-border/70 bg-background/60 text-foreground w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
