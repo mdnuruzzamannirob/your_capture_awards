@@ -1,6 +1,7 @@
 import type { ElementType, ReactNode } from 'react';
 
 import { cn } from '@/utils/cn';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import type { TeamMember } from './teamData';
 
@@ -26,7 +27,7 @@ export function StatusBadge({
   return (
     <span
       className={cn(
-        'inline-flex w-fit items-center gap-1.5 rounded-sm border px-2 py-1 text-xs font-medium',
+        'inline-flex w-fit items-center gap-1 rounded-sm border px-2 py-0.5 text-xs font-medium',
         tone === 'default' && 'border-border/60 bg-background/60 text-muted-foreground',
         tone === 'gold' && 'border-orange-2-500/40 bg-orange-2-500/10 text-orange-2-100',
         tone === 'green' && 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200',
@@ -35,7 +36,7 @@ export function StatusBadge({
         className,
       )}
     >
-      {Icon && <Icon className="size-3.5" />}
+      {Icon && <Icon className="size-3" />}
       {label}
     </span>
   );
@@ -86,19 +87,25 @@ export function WalletRow({ label, value }: { label: string; value: string | num
   );
 }
 
-export function MemberRow({ member, compact = false }: { member: TeamMember; compact?: boolean }) {
+export function MemberRow({ member, compact = false, showRoleAsBadge = true }: { member: TeamMember; compact?: boolean; showRoleAsBadge?: boolean }) {
   return (
     <div className="flex min-w-0 items-center gap-3">
       <AvatarLabel name={member.name} />
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col gap-1">
           <p className="truncate font-semibold">{member.name}</p>
-          <StatusBadge
-            label={member.role}
-            tone={
-              member.role === 'Leader' ? 'gold' : member.role === 'Moderator' ? 'blue' : 'default'
-            }
-          />
+          <div className="flex flex-wrap items-center gap-2">
+            {showRoleAsBadge ? (
+              <StatusBadge
+                label={member.role}
+                tone={
+                  member.role === 'Leader' ? 'gold' : member.role === 'Moderator' ? 'blue' : 'default'
+                }
+              />
+            ) : (
+              <span className="text-xs text-muted-foreground">{member.role}</span>
+            )}
+          </div>
         </div>
         <p className="text-muted-foreground mt-1 truncate text-sm">
           {member.specialty}
@@ -150,6 +157,60 @@ export function PageHeader({
         <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-6 md:text-base">
           {description}
         </p>
+      </div>
+    </div>
+  );
+}
+
+export function TeamDetailsSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className={`${teamShellClass} h-96 overflow-hidden`}>
+        <Skeleton className="h-full w-full bg-black-2-700" />
+      </div>
+
+      <div className={`${teamShellClass} p-5`}>
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-1/3 bg-black-2-700" />
+          <Skeleton className="h-4 w-full bg-black-2-700" />
+          <Skeleton className="h-4 w-5/6 bg-black-2-700" />
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <Skeleton className="h-20 bg-black-2-700" />
+            <Skeleton className="h-20 bg-black-2-700" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function MemberCardSkeleton() {
+  return (
+    <div className={`${teamCardClass} space-y-3 p-3`}>
+      <div className="flex items-center gap-3">
+        <Skeleton className="size-10 shrink-0 rounded-md bg-black-2-700" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-4 w-2/3 bg-black-2-700" />
+          <Skeleton className="h-3 w-1/2 bg-black-2-700" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function MatchCardSkeleton() {
+  return (
+    <div className={`${teamShellClass} overflow-hidden`}>
+      <Skeleton className="h-44 w-full bg-black-2-700 rounded-none" />
+      <div className="space-y-4 p-5">
+        <Skeleton className="h-6 w-2/3 bg-black-2-700" />
+        <Skeleton className="h-4 w-1/2 bg-black-2-700" />
+        <div className="grid grid-cols-3 gap-2">
+          <Skeleton className="h-16 bg-black-2-700" />
+          <Skeleton className="h-16 bg-black-2-700" />
+          <Skeleton className="h-16 bg-black-2-700" />
+        </div>
+        <Skeleton className="h-10 w-full bg-black-2-700" />
       </div>
     </div>
   );
