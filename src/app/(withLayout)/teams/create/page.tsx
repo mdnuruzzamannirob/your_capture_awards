@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useState, type ReactNode } from 'react';
 
 import { currentUser } from '@/components/module/teams/teamData';
-import { PageHeader } from '@/components/module/teams/teamUi';
+import { PageHeader, teamPanelClass, teamShellClass } from '@/components/module/teams/teamUi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -35,7 +35,11 @@ export default function CreateTeamPage() {
 
   return (
     <main className="margin container py-8 lg:py-10">
-      <Button asChild variant="ghost" className="mb-5 px-0 text-zinc-300 hover:bg-transparent">
+      <Button
+        asChild
+        variant="ghost"
+        className="text-muted-foreground hover:text-foreground mb-5 px-0 hover:bg-transparent"
+      >
         <Link href="/teams">
           <ArrowLeft className="size-4" />
           Back to teams
@@ -48,14 +52,16 @@ export default function CreateTeamPage() {
       />
 
       <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5 md:p-6">
+        <div className={`${teamShellClass} p-5 md:p-6`}>
           {!canCreateTeam ? (
             <LockedState />
           ) : submitted ? (
             <div className="flex min-h-80 flex-col items-center justify-center text-center">
               <BadgeCheck className="text-primary size-12" />
-              <h2 className="font-kumbh mt-5 text-2xl font-bold">Team draft ready</h2>
-              <p className="mt-2 max-w-md text-sm leading-6 text-zinc-400">
+              <h2 className="text-foreground font-kumbh mt-5 text-2xl font-bold">
+                Team draft ready
+              </h2>
+              <p className="text-muted-foreground mt-2 max-w-md text-sm leading-6">
                 Your team profile is ready. You can now open teams and continue in the team
                 workspace.
               </p>
@@ -86,7 +92,7 @@ export default function CreateTeamPage() {
                     value={teamDraft.name}
                     onChange={(event) => setTeamDraft({ ...teamDraft, name: event.target.value })}
                     placeholder="Aperture Alliance"
-                    className="border-black-2-600 bg-black-2-900/40"
+                    className="border-black-2-600 bg-black-2-700 text-foreground placeholder:text-muted-foreground"
                   />
                 </FormField>
 
@@ -97,7 +103,7 @@ export default function CreateTeamPage() {
                       setTeamDraft({ ...teamDraft, identity: event.target.value })
                     }
                     placeholder="Editorial street photographers"
-                    className="border-black-2-600 bg-black-2-900/40"
+                    className="border-black-2-600 bg-black-2-700 text-foreground placeholder:text-muted-foreground"
                   />
                 </FormField>
               </div>
@@ -108,7 +114,7 @@ export default function CreateTeamPage() {
                     value={teamDraft.capacity}
                     onValueChange={(value) => setTeamDraft({ ...teamDraft, capacity: value })}
                   >
-                    <SelectTrigger className="border-black-2-600 bg-black-2-900/40 w-full">
+                    <SelectTrigger className="border-border/70 bg-background/60 text-foreground w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -125,7 +131,7 @@ export default function CreateTeamPage() {
                     value={teamDraft.focus}
                     onValueChange={(value) => setTeamDraft({ ...teamDraft, focus: value })}
                   >
-                    <SelectTrigger className="border-black-2-600 bg-black-2-900/40 w-full">
+                    <SelectTrigger className="border-black-2-600 bg-black-2-700 text-foreground w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -145,16 +151,16 @@ export default function CreateTeamPage() {
                     setTeamDraft({ ...teamDraft, description: event.target.value })
                   }
                   placeholder="Describe the team culture, match style, and what members should expect."
-                  className="border-input focus-visible:border-ring focus-visible:ring-ring/50 bg-black-2-900/40 placeholder:text-muted-foreground min-h-36 w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
+                  className="bg-black-2-700 text-foreground border-black-2-600 placeholder:text-muted-foreground min-h-36 w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
                 />
               </FormField>
 
-              <div className="border-black-2-600 rounded-md border border-dashed p-5">
+              <div className={`${teamPanelClass} border-dashed p-5`}>
                 <div className="flex items-start gap-3">
                   <ImageIcon className="text-primary mt-1 size-5" />
                   <div>
-                    <h2 className="font-semibold">Team banner</h2>
-                    <p className="mt-1 text-sm text-zinc-400">
+                    <h2 className="text-foreground font-semibold">Team banner</h2>
+                    <p className="text-muted-foreground mt-1 text-sm">
                       Add a banner image for the team profile.
                     </p>
                   </div>
@@ -170,8 +176,8 @@ export default function CreateTeamPage() {
         </div>
 
         <aside className="space-y-4">
-          <div className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
-            <h2 className="font-kumbh text-xl font-bold">What Happens Next</h2>
+          <div className={`${teamShellClass} p-5`}>
+            <h2 className="text-foreground font-kumbh text-xl font-bold">What Happens Next</h2>
             <div className="mt-5 space-y-3">
               <InfoRow
                 icon={BadgeCheck}
@@ -200,8 +206,8 @@ function LockedState() {
   return (
     <div className="flex min-h-80 flex-col items-center justify-center text-center">
       <Lock className="text-primary size-12" />
-      <h2 className="font-kumbh mt-5 text-2xl font-bold">Subscription Required</h2>
-      <p className="mt-2 max-w-md text-sm leading-6 text-zinc-400">
+      <h2 className="text-foreground font-kumbh mt-5 text-2xl font-bold">Subscription Required</h2>
+      <p className="text-muted-foreground mt-2 max-w-md text-sm leading-6">
         Only subscribed users can create teams. Upgrade your plan to unlock team creation.
       </p>
       <Button asChild className="mt-6">
@@ -214,7 +220,7 @@ function LockedState() {
 function FormField({ children, label }: { children: ReactNode; label: string }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-sm font-medium text-zinc-300">{label}</span>
+      <span className="text-foreground mb-2 block text-sm font-medium">{label}</span>
       {children}
     </label>
   );
@@ -230,12 +236,12 @@ function InfoRow({
   label: string;
 }) {
   return (
-    <div className="border-black-2-700 bg-black-2-900/35 rounded-md border p-3">
+    <div className="border-black-2-600 bg-black-2-700 rounded-md border p-3">
       <div className="flex min-w-0 items-center gap-3">
         <Icon className="text-primary size-4 shrink-0" />
-        <span className="truncate text-sm font-medium">{label}</span>
+        <span className="text-foreground truncate text-sm font-medium">{label}</span>
       </div>
-      <p className="mt-2 text-sm leading-6 text-zinc-400">{description}</p>
+      <p className="text-muted-foreground mt-2 text-sm leading-6">{description}</p>
     </div>
   );
 }

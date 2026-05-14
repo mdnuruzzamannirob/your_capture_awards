@@ -47,6 +47,9 @@ import {
   MiniMetric,
   StatCard,
   StatusBadge,
+  teamCardClass,
+  teamShellClass,
+  teamTagClass,
 } from '@/components/module/teams/teamUi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -67,7 +70,11 @@ export default function TeamDetailsPage() {
   if (!team) {
     return (
       <main className="margin container py-8 lg:py-10">
-        <Button asChild variant="ghost" className="mb-5 px-0 text-zinc-300 hover:bg-transparent">
+        <Button
+          asChild
+          variant="ghost"
+          className="text-muted-foreground hover:text-foreground mb-5 px-0 hover:bg-transparent"
+        >
           <Link href="/teams">
             <ArrowLeft className="size-4" />
             Back to teams
@@ -82,7 +89,11 @@ export default function TeamDetailsPage() {
 
   return (
     <main className="margin container py-8 lg:py-10">
-      <Button asChild variant="ghost" className="mb-5 px-0 text-zinc-300 hover:bg-transparent">
+      <Button
+        asChild
+        variant="ghost"
+        className="text-muted-foreground hover:text-foreground mb-5 px-0 hover:bg-transparent"
+      >
         <Link href="/teams">
           <ArrowLeft className="size-4" />
           Back to teams
@@ -104,11 +115,13 @@ function PublicTeamProfile({ team }: { team: TeamProfile }) {
       <TeamHero team={team} joined={false} />
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
+        <div className={`${teamShellClass} p-5`}>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="font-kumbh text-2xl font-bold">Team Profile</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">{team.description}</p>
+              <h2 className="text-foreground font-kumbh text-2xl font-bold">Team Profile</h2>
+              <p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-6">
+                {team.description}
+              </p>
             </div>
             <StatusBadge
               label={team.availability}
@@ -130,19 +143,16 @@ function PublicTeamProfile({ team }: { team: TeamProfile }) {
 
           <div className="mt-6 flex flex-wrap gap-2">
             {team.tags.map((tag) => (
-              <span
-                key={tag}
-                className="border-black-2-600 rounded-sm border px-2 py-1 text-xs text-zinc-300"
-              >
+              <span key={tag} className={teamTagClass}>
                 {tag}
               </span>
             ))}
           </div>
         </div>
 
-        <aside className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
-          <h2 className="font-kumbh text-xl font-bold">Join This Team</h2>
-          <p className="mt-2 text-sm leading-6 text-zinc-400">
+        <aside className={`${teamShellClass} p-5`}>
+          <h2 className="text-foreground font-kumbh text-xl font-bold">Join This Team</h2>
+          <p className="text-muted-foreground mt-2 text-sm leading-6">
             Send a join request to this team. Team Leader reviews all requests before approval.
           </p>
 
@@ -234,7 +244,7 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
       <TeamHero team={team} joined />
 
       <Tabs defaultValue="overview" className="gap-5">
-        <TabsList className="border-black-2-700 bg-black-2-800/70 grid h-auto w-full grid-cols-2 gap-1 rounded-md border p-1 sm:grid-cols-3 xl:grid-cols-6">
+        <TabsList className="bg-background/70 border-border/70 grid h-auto w-full grid-cols-2 gap-1 rounded-md border p-1 shadow-sm sm:grid-cols-3 xl:grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="manage">{isLeader ? 'Manage' : 'Members'}</TabsTrigger>
           <TabsTrigger value="match">Match</TabsTrigger>
@@ -244,23 +254,23 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <section className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
+          <section className={`${teamShellClass} p-5`}>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="font-kumbh text-xl font-bold">Team Identity</h2>
-                <p className="mt-1 text-sm text-zinc-400">{team.identity}</p>
+                <h2 className="text-foreground font-kumbh text-xl font-bold">Team Identity</h2>
+                <p className="text-muted-foreground mt-1 text-sm">{team.identity}</p>
               </div>
               <StatusBadge icon={Users} label={`${members.length} members`} />
             </div>
 
             <div className="mt-6">
               <div className="mb-2 flex items-center justify-between text-sm">
-                <span className="text-zinc-400">Member capacity</span>
-                <span className="font-medium">
+                <span className="text-muted-foreground">Member capacity</span>
+                <span className="text-foreground font-medium">
                   {members.length}/{team.capacity}
                 </span>
               </div>
-              <div className="bg-black-2-700 h-2 overflow-hidden rounded-full">
+              <div className="bg-muted h-2 overflow-hidden rounded-full">
                 <div
                   className="bg-primary h-full rounded-full"
                   style={{ width: `${capacityPercent}%` }}
@@ -278,11 +288,13 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
 
         <TabsContent value="manage" className="space-y-6">
           <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.75fr)]">
-            <div className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
+            <div className={`${teamShellClass} p-5`}>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="font-kumbh text-xl font-bold">Members</h2>
-                  <p className="mt-1 text-sm text-zinc-400">Leader, Moderator, and Member roles</p>
+                  <h2 className="text-foreground font-kumbh text-xl font-bold">Members</h2>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    Leader, Moderator, and Member roles
+                  </p>
                 </div>
                 <StatusBadge
                   icon={ShieldCheck}
@@ -295,7 +307,7 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
                 {members.map((member) => (
                   <div
                     key={member.id}
-                    className="border-black-2-700 bg-black-2-900/35 grid gap-3 rounded-md border p-3 md:grid-cols-[minmax(0,1fr)_160px_120px]"
+                    className={`${teamCardClass} grid gap-3 p-3 md:grid-cols-[minmax(0,1fr)_160px_120px]`}
                   >
                     <MemberRow member={member} />
 
@@ -306,7 +318,7 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
                       }
                       disabled={!isLeader || member.role === 'Leader'}
                     >
-                      <SelectTrigger className="border-black-2-600 bg-black-2-800 w-full">
+                      <SelectTrigger className="border-black-2-600 bg-black-2-700 text-foreground w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -329,11 +341,11 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
               </div>
             </div>
 
-            <div className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
+            <div className={`${teamShellClass} p-5`}>
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h2 className="font-kumbh text-xl font-bold">Join Requests</h2>
-                  <p className="mt-1 text-sm text-zinc-400">
+                  <h2 className="text-foreground font-kumbh text-xl font-bold">Join Requests</h2>
+                  <p className="text-muted-foreground mt-1 text-sm">
                     {isLeader
                       ? `${requests.length} pending`
                       : 'Only Team Leader can review requests'}
@@ -347,19 +359,18 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
                   <EmptyBlock icon={ShieldCheck} title="Request review is limited to Team Leader" />
                 ) : requests.length ? (
                   requests.map((request) => (
-                    <div
-                      key={request.id}
-                      className="border-black-2-700 bg-black-2-900/35 rounded-md border p-4"
-                    >
+                    <div key={request.id} className={`${teamCardClass} p-4`}>
                       <div className="flex items-start gap-3">
                         <AvatarLabel name={request.name} />
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="font-semibold">{request.name}</p>
+                            <p className="text-foreground font-semibold">{request.name}</p>
                             <StatusBadge label={`${request.rating} rating`} tone="green" />
                           </div>
-                          <p className="mt-1 text-sm text-zinc-400">{request.specialty}</p>
-                          <p className="mt-3 text-sm leading-5 text-zinc-300">{request.note}</p>
+                          <p className="text-muted-foreground mt-1 text-sm">{request.specialty}</p>
+                          <p className="text-foreground/90 mt-3 text-sm leading-5">
+                            {request.note}
+                          </p>
                         </div>
                       </div>
                       <div className="mt-4 grid grid-cols-2 gap-2">
@@ -399,7 +410,7 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
                     <StatusBadge icon={Swords} label="Active team match" tone="gold" />
                     <StatusBadge icon={Timer} label={activeMatch?.timeRemaining ?? 'Running'} />
                   </div>
-                  <h2 className="font-kumbh text-2xl font-bold">
+                  <h2 className="text-foreground font-kumbh text-2xl font-bold">
                     {activeMatch?.challengeName ?? activeChallenge?.name ?? 'Team Match'}
                   </h2>
                   <p className="text-orange-2-200 mt-1 text-sm">
@@ -424,12 +435,12 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
                   </div>
                 </div>
 
-                <div className="rounded-md border border-white/10 bg-black/35 p-4">
-                  <p className="text-sm text-zinc-400">Rival team</p>
-                  <p className="mt-1 text-xl font-bold">
+                <div className="border-black-2-600 bg-black-2-800 rounded-md border p-4">
+                  <p className="text-muted-foreground text-sm">Rival team</p>
+                  <p className="text-foreground mt-1 text-xl font-bold">
                     {activeMatch?.rivalTeam ?? 'Auto-assigned team'}
                   </p>
-                  <p className="mt-4 text-sm text-zinc-400">Match rule</p>
+                  <p className="text-muted-foreground mt-4 text-sm">Match rule</p>
                   <p className="text-orange-2-200 mt-1 text-lg font-semibold">
                     One active team match at a time
                   </p>
@@ -443,20 +454,20 @@ function JoinedTeamDashboard({ team }: { team: TeamProfile }) {
               </div>
             </section>
           ) : (
-            <section className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
-              <h2 className="font-kumbh text-xl font-bold">No Active Match</h2>
-              <p className="mt-2 text-sm leading-6 text-zinc-400">
+            <section className="border-black-2-600 bg-black-2-800 rounded-md border p-5">
+              <h2 className="text-foreground font-kumbh text-xl font-bold">No Active Match</h2>
+              <p className="text-muted-foreground mt-2 text-sm leading-6">
                 Start a team match from an eligible challenge. Rival team will be assigned
                 automatically.
               </p>
             </section>
           )}
 
-          <section className="border-black-2-700 bg-black-2-800/50 rounded-md border p-5">
+          <section className="border-black-2-600 bg-black-2-800 rounded-md border p-5">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="font-kumbh text-xl font-bold">Match Challenges</h2>
-                <p className="mt-1 text-sm text-zinc-400">
+                <h2 className="text-foreground font-kumbh text-xl font-bold">Match Challenges</h2>
+                <p className="text-muted-foreground mt-1 text-sm">
                   Eligible contests: 5h to 24h duration, Standard only
                 </p>
               </div>

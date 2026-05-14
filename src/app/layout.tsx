@@ -1,9 +1,10 @@
+import { Toaster } from '@/components/ui/sonner';
+import { cn } from '@/utils/cn';
 import type { Metadata } from 'next';
 import { Kumbh_Sans } from 'next/font/google';
-import '../styles/globals.css';
-import { Toaster } from 'sonner';
 import ReduxProvider from '../providers/ReduxProvider';
-import { cn } from '@/utils/cn';
+import ThemeProvider from '../providers/ThemeProvider';
+import '../styles/globals.css';
 
 const kumbhSans = Kumbh_Sans({
   variable: '--font-kumbh-sans',
@@ -39,11 +40,27 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning className={cn('anti-aliased', kumbhSans.className)}>
-        <ReduxProvider>
-          {children} <Toaster expand={true} richColors closeButton />
-        </ReduxProvider>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body
+        suppressHydrationWarning
+        className={cn(
+          'bg-background text-foreground antialiased',
+          kumbhSans.className,
+          kumbhSans.variable,
+        )}
+      >
+        <ThemeProvider>
+          <ReduxProvider>
+            {children}{' '}
+            <Toaster
+              expand
+              richColors
+              position="bottom-right"
+              swipeDirections={['bottom', 'left', 'right', 'top']}
+              duration={3000}
+            />
+          </ReduxProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
