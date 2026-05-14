@@ -81,15 +81,11 @@ export default function TeamsPage() {
         description="Find an active photo contest team, create your own workspace, and keep your current team visible from one place."
       />
 
-      <section className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-        {joinedTeam ? (
-          <CurrentTeamCard team={joinedTeam} onLeave={() => setJoinedTeamId(null)} />
-        ) : (
-          <NoTeamCard />
-        )}
-
+      {joinedTeam ? (
+        <CurrentTeamCard team={joinedTeam} onLeave={() => setJoinedTeamId(null)} />
+      ) : (
         <CreateTeamPanel canCreateTeam={canCreateTeam} joinedTeam={joinedTeam} />
-      </section>
+      )}
 
       {!joinedTeam && (
         <>
@@ -101,7 +97,7 @@ export default function TeamsPage() {
                   Search by style, leader, contest focus, or team name.
                 </p>
               </div>
-              <span className={teamTagClass}>One team at a time</span>
+             
             </div>
 
             <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_190px]">
@@ -159,7 +155,7 @@ export default function TeamsPage() {
 
 function CurrentTeamCard({ onLeave, team }: { onLeave: () => void; team: TeamProfile }) {
   return (
-    <article className={`${teamShellClass} overflow-hidden`}>
+    <article className={`${teamShellClass} my-8 overflow-hidden`}>
       <div className="relative min-h-72">
         <Image
           src={team.banner}
@@ -192,7 +188,10 @@ function CurrentTeamCard({ onLeave, team }: { onLeave: () => void; team: TeamPro
 
             <div className="flex flex-wrap gap-2">
               {team.tags.map((tag) => (
-                <span key={tag} className="rounded-sm border border-white/10 bg-black/40 px-2 py-1 text-xs text-zinc-200">
+                <span
+                  key={tag}
+                  className="rounded-sm border border-white/10 bg-black/40 px-2 py-1 text-xs text-zinc-200"
+                >
                   {tag}
                 </span>
               ))}
@@ -217,7 +216,7 @@ function CurrentTeamCard({ onLeave, team }: { onLeave: () => void; team: TeamPro
               <Button asChild>
                 <Link href={`/teams/${team.id}`}>
                   <ShieldCheck className="size-4" />
-                  Workspace
+                  Open Team
                 </Link>
               </Button>
               <Button
@@ -254,7 +253,10 @@ function NoTeamCard() {
       <div className="mt-6 grid gap-3 sm:grid-cols-3">
         <MiniMetric label="Your Plan" value={currentUser.plan} />
         <MiniMetric label="Coins" value={currentUser.coins.toLocaleString()} />
-        <MiniMetric label="Open Slots" value={teams.filter((team) => team.availability !== 'Full').length} />
+        <MiniMetric
+          label="Open Slots"
+          value={teams.filter((team) => team.availability !== 'Full').length}
+        />
       </div>
     </section>
   );
@@ -268,38 +270,40 @@ function CreateTeamPanel({
   joinedTeam: TeamProfile | null;
 }) {
   return (
-    <aside className={`${teamPanelClass} flex min-h-72 flex-col justify-between p-5`}>
-      <div>
-        <div className="bg-primary/15 border-primary/25 text-primary flex size-11 items-center justify-center rounded-md border">
-          <Crown className="size-5" />
-        </div>
-        <h2 className="font-kumbh mt-5 text-2xl font-bold">Create Team</h2>
-        <p className="text-muted-foreground mt-2 text-sm leading-6">
-          Build a contest squad with your own focus, capacity, and team identity.
-        </p>
+    <aside className={`${teamPanelClass} my-8 p-5`}>
+      <div className="bg-primary/15 border-primary/25 text-primary flex size-11 items-center justify-center rounded-md border">
+        <Crown className="size-5" />
       </div>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex-1">
+          <h2 className="font-kumbh mt-5 text-2xl font-bold">Create Team</h2>
+          <p className="text-muted-foreground mt-2 text-sm leading-6">
+            Build a contest squad with your own focus, capacity, and team identity.
+          </p>
+        </div>
 
-      <div className="mt-6">
-        {canCreateTeam ? (
-          <Button asChild className="w-full">
-            <Link href="/teams/create">
-              <Sparkles className="size-4" />
-              Create Team
-            </Link>
-          </Button>
-        ) : joinedTeam ? (
-          <Button disabled className="w-full">
-            <Lock className="size-4" />
-            Already in a team
-          </Button>
-        ) : (
-          <Button asChild variant="outline" className="border-black-2-600 w-full bg-black-2-700">
-            <Link href="/pricing">
+        <div className="mt-6">
+          {canCreateTeam ? (
+            <Button asChild className="w-full">
+              <Link href="/teams/create">
+                <Sparkles className="size-4" />
+                Create Team
+              </Link>
+            </Button>
+          ) : joinedTeam ? (
+            <Button disabled className="w-full">
               <Lock className="size-4" />
-              Subscribe to Create
-            </Link>
-          </Button>
-        )}
+              Already in a team
+            </Button>
+          ) : (
+            <Button asChild variant="outline" className="border-black-2-600 bg-black-2-700 w-full">
+              <Link href="/pricing">
+                <Lock className="size-4" />
+                Subscribe to Create
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
     </aside>
   );
@@ -400,22 +404,22 @@ function TeamsGridSkeleton() {
     <>
       {Array.from({ length: 6 }).map((_, index) => (
         <div key={index} className={`${teamShellClass} overflow-hidden`}>
-          <Skeleton className="h-44 rounded-none bg-black-2-700" />
+          <Skeleton className="bg-black-2-700 h-44 rounded-none" />
           <div className="space-y-4 p-5">
             <div className="flex items-center gap-3">
-              <Skeleton className="size-10 bg-black-2-700" />
+              <Skeleton className="bg-black-2-700 size-10" />
               <div className="flex-1 space-y-2">
-                <Skeleton className="h-5 w-2/3 bg-black-2-700" />
-                <Skeleton className="h-4 w-1/2 bg-black-2-700" />
+                <Skeleton className="bg-black-2-700 h-5 w-2/3" />
+                <Skeleton className="bg-black-2-700 h-4 w-1/2" />
               </div>
             </div>
-            <Skeleton className="h-16 bg-black-2-700" />
+            <Skeleton className="bg-black-2-700 h-16" />
             <div className="grid grid-cols-3 gap-2">
-              <Skeleton className="h-14 bg-black-2-700" />
-              <Skeleton className="h-14 bg-black-2-700" />
-              <Skeleton className="h-14 bg-black-2-700" />
+              <Skeleton className="bg-black-2-700 h-14" />
+              <Skeleton className="bg-black-2-700 h-14" />
+              <Skeleton className="bg-black-2-700 h-14" />
             </div>
-            <Skeleton className="h-9 bg-black-2-700" />
+            <Skeleton className="bg-black-2-700 h-9" />
           </div>
         </div>
       ))}

@@ -335,16 +335,14 @@ function ParticipantPanel({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-kumbh text-xl font-bold">Joined Members</h2>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Members who opted into this battle.
-          </p>
+          <p className="text-muted-foreground mt-1 text-sm">Members who opted into this battle.</p>
         </div>
         <Button
           size="sm"
           variant={matchParticipants[currentUser.id] ? 'secondary' : 'outline'}
           className={cn(
             'border-black-2-600',
-            matchParticipants[currentUser.id] && 'bg-primary text-white hover:bg-primary/90',
+            matchParticipants[currentUser.id] && 'bg-primary hover:bg-primary/90 text-white',
           )}
           onClick={onToggle}
         >
@@ -498,7 +496,7 @@ function MatchChatPanel() {
         <MessageCircle className="text-primary size-5" />
       </div>
 
-      <div className="max-h-140 space-y-4 overflow-y-auto p-5 scrollbar-thin">
+      <div className="max-h-140 scrollbar-thin space-y-4 overflow-y-auto p-5">
         {chatMessages.map((message) => (
           <div key={`${message.author}-${message.time}`} className="flex gap-3">
             <AvatarLabel name={message.author} />

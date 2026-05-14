@@ -1,7 +1,7 @@
 import type { ElementType, ReactNode } from 'react';
 
-import { cn } from '@/utils/cn';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/utils/cn';
 
 import type { TeamMember } from './teamData';
 
@@ -87,7 +87,15 @@ export function WalletRow({ label, value }: { label: string; value: string | num
   );
 }
 
-export function MemberRow({ member, compact = false, showRoleAsBadge = true }: { member: TeamMember; compact?: boolean; showRoleAsBadge?: boolean }) {
+export function MemberRow({
+  member,
+  compact = false,
+  showRoleAsBadge = true,
+}: {
+  member: TeamMember;
+  compact?: boolean;
+  showRoleAsBadge?: boolean;
+}) {
   return (
     <div className="flex min-w-0 items-center gap-3">
       <AvatarLabel name={member.name} />
@@ -99,11 +107,15 @@ export function MemberRow({ member, compact = false, showRoleAsBadge = true }: {
               <StatusBadge
                 label={member.role}
                 tone={
-                  member.role === 'Leader' ? 'gold' : member.role === 'Moderator' ? 'blue' : 'default'
+                  member.role === 'Leader'
+                    ? 'gold'
+                    : member.role === 'Moderator'
+                      ? 'blue'
+                      : 'default'
                 }
               />
             ) : (
-              <span className="text-xs text-muted-foreground">{member.role}</span>
+              <span className="text-muted-foreground text-xs">{member.role}</span>
             )}
           </div>
         </div>
@@ -154,7 +166,7 @@ export function PageHeader({
       <div className="max-w-3xl">
         {eyebrow && <div className="mb-3 flex flex-wrap items-center gap-2">{eyebrow}</div>}
         <h1 className="font-kumbh text-foreground text-3xl font-extrabold md:text-5xl">{title}</h1>
-        <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-6 md:text-base">
+        <p className="text-muted-foreground mt-3 max-w-2xl leading-6 max-md:text-sm">
           {description}
         </p>
       </div>
@@ -166,17 +178,17 @@ export function TeamDetailsSkeleton() {
   return (
     <div className="space-y-6">
       <div className={`${teamShellClass} h-96 overflow-hidden`}>
-        <Skeleton className="h-full w-full bg-black-2-700" />
+        <Skeleton className="bg-black-2-700 h-full w-full" />
       </div>
 
       <div className={`${teamShellClass} p-5`}>
         <div className="space-y-4">
-          <Skeleton className="h-8 w-1/3 bg-black-2-700" />
-          <Skeleton className="h-4 w-full bg-black-2-700" />
-          <Skeleton className="h-4 w-5/6 bg-black-2-700" />
+          <Skeleton className="bg-black-2-700 h-8 w-1/3" />
+          <Skeleton className="bg-black-2-700 h-4 w-full" />
+          <Skeleton className="bg-black-2-700 h-4 w-5/6" />
           <div className="mt-6 grid grid-cols-2 gap-3">
-            <Skeleton className="h-20 bg-black-2-700" />
-            <Skeleton className="h-20 bg-black-2-700" />
+            <Skeleton className="bg-black-2-700 h-20" />
+            <Skeleton className="bg-black-2-700 h-20" />
           </div>
         </div>
       </div>
@@ -188,10 +200,10 @@ export function MemberCardSkeleton() {
   return (
     <div className={`${teamCardClass} space-y-3 p-3`}>
       <div className="flex items-center gap-3">
-        <Skeleton className="size-10 shrink-0 rounded-md bg-black-2-700" />
+        <Skeleton className="bg-black-2-700 size-10 shrink-0 rounded-md" />
         <div className="flex-1 space-y-2">
-          <Skeleton className="h-4 w-2/3 bg-black-2-700" />
-          <Skeleton className="h-3 w-1/2 bg-black-2-700" />
+          <Skeleton className="bg-black-2-700 h-4 w-2/3" />
+          <Skeleton className="bg-black-2-700 h-3 w-1/2" />
         </div>
       </div>
     </div>
@@ -201,16 +213,16 @@ export function MemberCardSkeleton() {
 export function MatchCardSkeleton() {
   return (
     <div className={`${teamShellClass} overflow-hidden`}>
-      <Skeleton className="h-44 w-full bg-black-2-700 rounded-none" />
+      <Skeleton className="bg-black-2-700 h-44 w-full rounded-none" />
       <div className="space-y-4 p-5">
-        <Skeleton className="h-6 w-2/3 bg-black-2-700" />
-        <Skeleton className="h-4 w-1/2 bg-black-2-700" />
+        <Skeleton className="bg-black-2-700 h-6 w-2/3" />
+        <Skeleton className="bg-black-2-700 h-4 w-1/2" />
         <div className="grid grid-cols-3 gap-2">
-          <Skeleton className="h-16 bg-black-2-700" />
-          <Skeleton className="h-16 bg-black-2-700" />
-          <Skeleton className="h-16 bg-black-2-700" />
+          <Skeleton className="bg-black-2-700 h-16" />
+          <Skeleton className="bg-black-2-700 h-16" />
+          <Skeleton className="bg-black-2-700 h-16" />
         </div>
-        <Skeleton className="h-10 w-full bg-black-2-700" />
+        <Skeleton className="bg-black-2-700 h-10 w-full" />
       </div>
     </div>
   );
