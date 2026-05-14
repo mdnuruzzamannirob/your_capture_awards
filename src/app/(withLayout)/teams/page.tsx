@@ -1,9 +1,20 @@
 'use client';
 
-import { Crown, Eye, Lock, Search, ShieldCheck, UserPlus } from 'lucide-react';
+import {
+  CheckCircle2,
+  Crown,
+  Lock,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Trophy,
+  UserMinus,
+  UserPlus,
+  Users,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { currentUser, teams, type TeamProfile } from '@/components/module/teams/teamData';
 import {
@@ -24,198 +35,299 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 
-type TeamFilter = 'all' | 'open' | 'joined';
+type TeamFilter = 'all' | 'open' | 'limited';
 
 export default function TeamsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<TeamFilter>('all');
-  const [requestedTeamIds, setRequestedTeamIds] = useState<string[]>(['wild-frame']);
+  const [joinedTeamId, setJoinedTeamId] = useState<string | null>(currentUser.teamId);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const myTeam = teams.find((team) => team.id === currentUser.teamId);
-  const canCreateTeam = currentUser.registered && currentUser.subscribed;
-  const canRequestJoin = currentUser.registered;
+  useEffect(() => {
+    const loadingTimer = window.setTimeout(() => setIsLoading(false), 650);
+
+    return () => window.clearTimeout(loadingTimer);
+  }, []);
+
+  const joinedTeam = teams.find((team) => team.id === joinedTeamId) ?? null;
+  const canCreateTeam = currentUser.registered && currentUser.subscribed && !joinedTeam;
+  const canJoinTeam = currentUser.registered && !joinedTeam;
 
   const filteredTeams = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
-    return teams.filter((team) => {
-      const matchesQuery = [team.name, team.identity, team.description, team.leader, ...team.tags]
-        .join(' ')
-        .toLowerCase()
-        .includes(query);
-      const matchesFilter =
-        filter === 'all' ||
-        (filter === 'open' && team.memberCount < team.capacity) ||
-        (filter === 'joined' && team.id === currentUser.teamId);
+    return teams
+      .filter((team) => team.id !== joinedTeamId)
+      .filter((team) => {
+        const matchesQuery = [team.name, team.identity, team.description, team.leader, ...team.tags]
+          .join(' ')
+          .toLowerCase()
+          .includes(query);
+        const matchesFilter =
+          filter === 'all' ||
+          (filter === 'open' && team.availability === 'Open') ||
+          (filter === 'limited' && team.availability === 'Limited');
 
-      return matchesQuery && matchesFilter;
-    });
-  }, [filter, searchQuery]);
-
-  const handleRequestJoin = (teamId: string) => {
-    setRequestedTeamIds((current) => (current.includes(teamId) ? current : [...current, teamId]));
-  };
+        return matchesQuery && matchesFilter;
+      });
+  }, [filter, joinedTeamId, searchQuery]);
 
   return (
     <main className="margin container py-8 lg:py-10">
       <PageHeader
         title="Teams"
-        description="Browse teams, request to join, or create a team workspace if you are subscribed."
+        description="Find an active photo contest team, create your own workspace, and keep your current team visible from one place."
       />
 
-      <section className="mt-8 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <div className={`${teamShellClass} p-5`}>
-          {!canCreateTeam ? (
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-foreground font-kumbh text-2xl font-bold">
-                  Create a Team Workspace
-                </h2>
-                <p className="text-muted-foreground mt-2 max-w-xl text-sm leading-6">
-                  Team creation is available for subscribed users. Upgrade your plan to create and
-                  lead your own team.
-                </p>
-              </div>
-              <Button asChild className="shrink-0">
-                <Link href="/pricing">
-                  <Crown className="size-4" />
-                  View Plans
-                </Link>
-              </Button>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-foreground font-kumbh text-2xl font-bold">Create a New Team</h2>
-                <p className="text-muted-foreground mt-2 max-w-xl text-sm leading-6">
-                  As a subscribed user, you can create a team and become Team Leader automatically.
-                </p>
-              </div>
-              <Button asChild className="shrink-0">
-                <Link href="/teams/create">
-                  <UserPlus className="size-4" />
-                  Create Team
-                </Link>
-              </Button>
-            </div>
-          )}
-        </div>
+      <section className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+        {joinedTeam ? (
+          <CurrentTeamCard team={joinedTeam} onLeave={() => setJoinedTeamId(null)} />
+        ) : (
+          <NoTeamCard />
+        )}
 
-        <div className={`${teamPanelClass} p-4`}>
-          {myTeam ? (
-            <div className="flex h-full flex-col gap-4 sm:flex-row lg:flex-col">
-              <div className="flex min-w-0 flex-1 items-center gap-3">
-                <AvatarLabel name={myTeam.name} />
-                <div className="min-w-0">
-                  <p className="text-muted-foreground text-sm">Your current team</p>
-                  <h2 className="text-foreground font-kumbh truncate text-xl font-bold">
-                    {myTeam.name}
-                  </h2>
-                </div>
-              </div>
-              <Button asChild>
-                <Link href={`/teams/${myTeam.id}`}>
-                  <Eye className="size-4" />
-                  Open Team
-                </Link>
-              </Button>
-            </div>
-          ) : (
-            <div className="flex items-start gap-3">
-              <Lock className="text-primary mt-1 size-5" />
+        <CreateTeamPanel canCreateTeam={canCreateTeam} joinedTeam={joinedTeam} />
+      </section>
+
+      {!joinedTeam && (
+        <>
+          <section className={`${teamShellClass} mt-6 p-4 md:p-5`}>
+            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h2 className="text-foreground font-kumbh text-xl font-bold">No team joined</h2>
+                <h2 className="font-kumbh text-xl font-bold">Browse Teams</h2>
                 <p className="text-muted-foreground mt-1 text-sm">
-                  Request to join a team or create a new one.
+                  Search by style, leader, contest focus, or team name.
                 </p>
               </div>
+              <span className={teamTagClass}>One team at a time</span>
             </div>
-          )}
-        </div>
-      </section>
 
-      <section className={`${teamShellClass} mt-6 p-4 md:p-5`}>
-        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_180px_auto]">
-          <div className="relative">
-            <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-            <Input
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search by team name, theme, leader, or tag"
-              className="border-black-2-600 bg-black-2-700 text-foreground placeholder:text-muted-foreground pl-9"
-            />
-          </div>
+            <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_190px]">
+              <div className="relative">
+                <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+                <Input
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search team name, style, leader, or tags"
+                  className="border-black-2-600 bg-black-2-700 text-foreground placeholder:text-muted-foreground pl-9"
+                />
+              </div>
 
-          <Select value={filter} onValueChange={(value) => setFilter(value as TeamFilter)}>
-            <SelectTrigger className="border-black-2-600 bg-black-2-700 text-foreground w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Teams</SelectItem>
-              <SelectItem value="open">Open Slots</SelectItem>
-              <SelectItem value="joined">My Team</SelectItem>
-            </SelectContent>
-          </Select>
+              <Select value={filter} onValueChange={(value) => setFilter(value as TeamFilter)}>
+                <SelectTrigger className="border-black-2-600 bg-black-2-700 text-foreground w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Teams</SelectItem>
+                  <SelectItem value="open">Open Slots</SelectItem>
+                  <SelectItem value="limited">Limited Slots</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </section>
 
-          {canCreateTeam ? (
-            <Button asChild>
-              <Link href="/teams/create">
-                <UserPlus className="size-4" />
-                Create Team
-              </Link>
-            </Button>
-          ) : (
-            <Button asChild variant="outline" className="border-black-2-600 bg-black-2-700">
-              <Link href="/pricing">
-                <Lock className="size-4" />
-                Subscribe to Create
-              </Link>
-            </Button>
-          )}
-        </div>
-      </section>
-
-      <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {filteredTeams.map((team) => (
-          <TeamDirectoryCard
-            key={team.id}
-            canRequestJoin={canRequestJoin}
-            isCurrentTeam={team.id === currentUser.teamId}
-            isRequested={requestedTeamIds.includes(team.id)}
-            onRequestJoin={handleRequestJoin}
-            team={team}
-          />
-        ))}
-      </section>
+          <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {isLoading ? (
+              <TeamsGridSkeleton />
+            ) : filteredTeams.length ? (
+              filteredTeams.map((team) => (
+                <TeamDirectoryCard
+                  key={team.id}
+                  canJoinTeam={canJoinTeam}
+                  hasJoinedTeam={Boolean(joinedTeam)}
+                  onJoin={() => setJoinedTeamId(team.id)}
+                  team={team}
+                />
+              ))
+            ) : (
+              <div className={`${teamShellClass} p-8 text-center md:col-span-2 xl:col-span-3`}>
+                <Search className="text-primary mx-auto size-10" />
+                <h2 className="font-kumbh mt-4 text-2xl font-bold">No teams found</h2>
+                <p className="text-muted-foreground mx-auto mt-2 max-w-md text-sm leading-6">
+                  Try another keyword or clear the filter to browse all available teams.
+                </p>
+              </div>
+            )}
+          </section>
+        </>
+      )}
     </main>
   );
 }
 
+function CurrentTeamCard({ onLeave, team }: { onLeave: () => void; team: TeamProfile }) {
+  return (
+    <article className={`${teamShellClass} overflow-hidden`}>
+      <div className="relative min-h-72">
+        <Image
+          src={team.banner}
+          alt={`${team.name} banner`}
+          width={960}
+          height={420}
+          priority
+          className="absolute inset-0 size-full object-cover opacity-45"
+        />
+        <div className="absolute inset-0 bg-black/60" />
+
+        <div className="relative grid min-h-72 gap-6 p-5 md:p-6 lg:grid-cols-[minmax(0,1fr)_280px]">
+          <div className="flex min-w-0 flex-col justify-between gap-8">
+            <div>
+              <div className="mb-4 flex flex-wrap items-center gap-2">
+                <StatusBadge icon={CheckCircle2} label="Current team" tone="green" />
+                <StatusBadge icon={Users} label={`${team.memberCount}/${team.capacity} members`} />
+              </div>
+              <div className="flex items-start gap-3">
+                <AvatarLabel name={team.name} />
+                <div className="min-w-0">
+                  <h2 className="font-kumbh text-3xl font-extrabold text-white md:text-4xl">
+                    {team.name}
+                  </h2>
+                  <p className="text-orange-2-200 mt-2 text-sm font-medium">{team.identity}</p>
+                </div>
+              </div>
+              <p className="mt-5 max-w-2xl text-sm leading-6 text-zinc-200">{team.description}</p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {team.tags.map((tag) => (
+                <span key={tag} className="rounded-sm border border-white/10 bg-black/40 px-2 py-1 text-xs text-zinc-200">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-black-2-600 bg-black-2-800/85 rounded-lg border p-4">
+            <div className="grid grid-cols-3 gap-2">
+              <MiniMetric label="Rank" value={`#${team.rank}`} />
+              <MiniMetric label="Wins" value={`${team.winRate}%`} />
+              <MiniMetric label="Coins" value={team.coins.toLocaleString()} />
+            </div>
+
+            <div className="border-black-2-600 mt-4 rounded-md border bg-black/25 p-3">
+              <p className="text-muted-foreground text-xs">Team Leader</p>
+              <p className="mt-1 font-semibold">{team.leader}</p>
+              <p className="text-muted-foreground mt-3 text-xs">Looking for</p>
+              <p className="mt-1 text-sm leading-5 text-zinc-200">{team.lookingFor}</p>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <Button asChild>
+                <Link href={`/teams/${team.id}`}>
+                  <ShieldCheck className="size-4" />
+                  Workspace
+                </Link>
+              </Button>
+              <Button
+                variant="outline"
+                className="border-red-normal/40 text-red-light hover:bg-red-normal/15 hover:text-red-light"
+                onClick={onLeave}
+              >
+                <UserMinus className="size-4" />
+                Leave
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function NoTeamCard() {
+  return (
+    <section className={`${teamShellClass} flex min-h-72 flex-col justify-center p-5 md:p-6`}>
+      <div className="flex items-start gap-4">
+        <div className="bg-primary/15 border-primary/25 text-primary flex size-12 shrink-0 items-center justify-center rounded-md border">
+          <Users className="size-6" />
+        </div>
+        <div>
+          <h2 className="font-kumbh text-2xl font-bold">No team joined</h2>
+          <p className="text-muted-foreground mt-2 max-w-xl text-sm leading-6">
+            Join one team from the browse list below or create a new team if your account is ready.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+        <MiniMetric label="Your Plan" value={currentUser.plan} />
+        <MiniMetric label="Coins" value={currentUser.coins.toLocaleString()} />
+        <MiniMetric label="Open Slots" value={teams.filter((team) => team.availability !== 'Full').length} />
+      </div>
+    </section>
+  );
+}
+
+function CreateTeamPanel({
+  canCreateTeam,
+  joinedTeam,
+}: {
+  canCreateTeam: boolean;
+  joinedTeam: TeamProfile | null;
+}) {
+  return (
+    <aside className={`${teamPanelClass} flex min-h-72 flex-col justify-between p-5`}>
+      <div>
+        <div className="bg-primary/15 border-primary/25 text-primary flex size-11 items-center justify-center rounded-md border">
+          <Crown className="size-5" />
+        </div>
+        <h2 className="font-kumbh mt-5 text-2xl font-bold">Create Team</h2>
+        <p className="text-muted-foreground mt-2 text-sm leading-6">
+          Build a contest squad with your own focus, capacity, and team identity.
+        </p>
+      </div>
+
+      <div className="mt-6">
+        {canCreateTeam ? (
+          <Button asChild className="w-full">
+            <Link href="/teams/create">
+              <Sparkles className="size-4" />
+              Create Team
+            </Link>
+          </Button>
+        ) : joinedTeam ? (
+          <Button disabled className="w-full">
+            <Lock className="size-4" />
+            Already in a team
+          </Button>
+        ) : (
+          <Button asChild variant="outline" className="border-black-2-600 w-full bg-black-2-700">
+            <Link href="/pricing">
+              <Lock className="size-4" />
+              Subscribe to Create
+            </Link>
+          </Button>
+        )}
+      </div>
+    </aside>
+  );
+}
+
 function TeamDirectoryCard({
-  canRequestJoin,
-  isCurrentTeam,
-  isRequested,
-  onRequestJoin,
+  canJoinTeam,
+  hasJoinedTeam,
+  onJoin,
   team,
 }: {
-  canRequestJoin: boolean;
-  isCurrentTeam: boolean;
-  isRequested: boolean;
-  onRequestJoin: (teamId: string) => void;
+  canJoinTeam: boolean;
+  hasJoinedTeam: boolean;
+  onJoin: () => void;
   team: TeamProfile;
 }) {
   const isFull = team.memberCount >= team.capacity;
+  const canJoin = canJoinTeam && !isFull;
 
   return (
     <article className={`${teamShellClass} overflow-hidden`}>
-      <Link href={`/teams/${team.id}`} className="group relative block h-44 overflow-hidden">
+      <div className="relative h-44 overflow-hidden">
         <Image
           src={team.banner}
           alt={`${team.name} team banner`}
           width={620}
           height={280}
-          className="size-full object-cover opacity-75 transition-transform duration-300 group-hover:scale-105"
+          className="size-full object-cover opacity-75"
         />
         <div className="absolute inset-0 bg-black/35" />
         <StatusBadge
@@ -225,18 +337,18 @@ function TeamDirectoryCard({
             team.availability === 'Open' ? 'green' : team.availability === 'Full' ? 'red' : 'gold'
           }
         />
-      </Link>
+      </div>
 
       <div className="p-5">
         <div className="flex items-start gap-3">
           <AvatarLabel name={team.name} />
           <div className="min-w-0 flex-1">
-            <h2 className="text-foreground font-kumbh truncate text-xl font-bold">{team.name}</h2>
+            <h2 className="font-kumbh truncate text-xl font-bold">{team.name}</h2>
             <p className="text-muted-foreground mt-1 truncate text-sm">{team.identity}</p>
           </div>
         </div>
 
-        <p className="text-foreground mt-4 line-clamp-2 text-sm leading-6">{team.description}</p>
+        <p className="mt-4 line-clamp-2 text-sm leading-6 text-zinc-200">{team.description}</p>
 
         <div className="mt-4 flex flex-wrap gap-2">
           {team.tags.map((tag) => (
@@ -249,44 +361,64 @@ function TeamDirectoryCard({
         <div className="mt-4 grid grid-cols-3 gap-2">
           <MiniMetric label="Rank" value={`#${team.rank}`} />
           <MiniMetric label="Slots" value={`${team.memberCount}/${team.capacity}`} />
-          <MiniMetric label="Win Rate" value={`${team.winRate}%`} />
+          <MiniMetric label="Wins" value={`${team.winRate}%`} />
         </div>
 
-        <div className="mt-5 grid grid-cols-2 gap-2">
-          <Button asChild variant="outline" className="border-black-2-600">
-            <Link href={`/teams/${team.id}`}>
-              <Eye className="size-4" />
-              Details
-            </Link>
-          </Button>
-
-          <Button
-            disabled={!canRequestJoin || isCurrentTeam || isRequested || isFull}
-            onClick={() => onRequestJoin(team.id)}
-          >
-            {isCurrentTeam ? (
-              <ShieldCheck className="size-4" />
-            ) : isFull || !canRequestJoin ? (
-              <Lock className="size-4" />
-            ) : (
-              <UserPlus className="size-4" />
-            )}
-            {isCurrentTeam
-              ? 'Joined'
-              : !canRequestJoin
-                ? 'Not Eligible'
-                : isFull
-                  ? 'Full'
-                  : isRequested
-                    ? 'Requested'
-                    : 'Join'}
-          </Button>
+        <div className="border-black-2-600 bg-black-2-700 mt-4 rounded-md border p-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-muted-foreground text-xs">Leader</p>
+              <p className="truncate text-sm font-semibold">{team.leader}</p>
+            </div>
+            <Trophy className="text-primary size-4 shrink-0" />
+          </div>
+          <p className="text-muted-foreground mt-3 text-xs">Looking for</p>
+          <p className="mt-1 text-sm leading-5 text-zinc-200">{team.lookingFor}</p>
         </div>
 
-        {isFull && !isCurrentTeam && (
-          <p className="text-red-light mt-3 text-xs">This team has no available member slots.</p>
-        )}
+        <Button className="mt-5 w-full" disabled={!canJoin} onClick={onJoin}>
+          {isFull || hasJoinedTeam || !currentUser.registered ? (
+            <Lock className="size-4" />
+          ) : (
+            <UserPlus className="size-4" />
+          )}
+          {isFull
+            ? 'Team Full'
+            : hasJoinedTeam
+              ? 'Leave Current Team First'
+              : !currentUser.registered
+                ? 'Sign In Required'
+                : 'Join Team'}
+        </Button>
       </div>
     </article>
+  );
+}
+
+function TeamsGridSkeleton() {
+  return (
+    <>
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div key={index} className={`${teamShellClass} overflow-hidden`}>
+          <Skeleton className="h-44 rounded-none bg-black-2-700" />
+          <div className="space-y-4 p-5">
+            <div className="flex items-center gap-3">
+              <Skeleton className="size-10 bg-black-2-700" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-5 w-2/3 bg-black-2-700" />
+                <Skeleton className="h-4 w-1/2 bg-black-2-700" />
+              </div>
+            </div>
+            <Skeleton className="h-16 bg-black-2-700" />
+            <div className="grid grid-cols-3 gap-2">
+              <Skeleton className="h-14 bg-black-2-700" />
+              <Skeleton className="h-14 bg-black-2-700" />
+              <Skeleton className="h-14 bg-black-2-700" />
+            </div>
+            <Skeleton className="h-9 bg-black-2-700" />
+          </div>
+        </div>
+      ))}
+    </>
   );
 }

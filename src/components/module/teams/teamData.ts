@@ -284,7 +284,16 @@ export const challenges: Challenge[] = [
   },
 ];
 
-export const activeMatch: ActiveMatch | null = null;
+export const activeMatch: ActiveMatch | null = {
+  id: 'city-pulse-battle',
+  challengeName: 'City Pulse',
+  theme: 'Street motion',
+  rivalTeam: 'Wild Frame Club',
+  timeRemaining: '7h 42m',
+  teamScore: 849,
+  rivalScore: 792,
+  rewardCoins: 1000,
+};
 
 export const leaderboard: Record<
   LeaderboardPeriod,
