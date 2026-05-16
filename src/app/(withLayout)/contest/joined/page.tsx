@@ -4,6 +4,7 @@ import ReduxProvider from '@/providers/ReduxProvider';
 import { SwapBoostKeyProvider } from '@/providers/SwapBoostKeyProvider';
 import { contestApi } from '@/store/apis/contestApi';
 import { makeStore } from '@/store/makeStore';
+import { Suspense } from 'react';
 
 const JoinedPage = async () => {
   const store = makeStore();
@@ -20,7 +21,9 @@ const JoinedPage = async () => {
         <SwapBoostKeyProvider>
           <SwapBoostKeyModal />
 
-          <JoinedContest />
+          <Suspense fallback={<div>Loading...</div>}>
+            <JoinedContest />
+          </Suspense>
         </SwapBoostKeyProvider>
       </ReduxProvider>
     </main>
