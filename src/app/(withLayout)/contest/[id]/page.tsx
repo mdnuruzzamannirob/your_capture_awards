@@ -2,6 +2,7 @@ import ContestDetails from '@/components/module/contest/ContestDetails';
 import ReduxProvider from '@/providers/ReduxProvider';
 import { contestApi } from '@/store/apis/contestApi';
 import { makeStore } from '@/store/makeStore';
+import { Suspense } from 'react';
 
 const DynamicJoinedPage = async ({ params }: { params: { id: string } }) => {
   const { id } = await params;
@@ -14,7 +15,9 @@ const DynamicJoinedPage = async ({ params }: { params: { id: string } }) => {
   const preloadedState = store.getState();
   return (
     <ReduxProvider preloadedState={preloadedState}>
-      <ContestDetails id={id} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <ContestDetails id={id} />
+      </Suspense>
     </ReduxProvider>
   );
 };
