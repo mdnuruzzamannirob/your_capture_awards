@@ -1,9 +1,9 @@
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
-import { Role, TeamMember } from "@/types/team";
-import { Check, Crown, LogOut, MoreHorizontal, Shield, Users } from "lucide-react";
-import { useState } from "react";
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
+import { Role, TeamMember } from '@/types/team';
+import { Check, Crown, LogOut, MoreHorizontal, Shield, Users } from 'lucide-react';
+import { useState } from 'react';
 
 interface MemberManagePopoverProps {
   member: TeamMember;
@@ -11,6 +11,27 @@ interface MemberManagePopoverProps {
   openUp: boolean; // true → side="top" to prevent bottom clipping
   onChangeRole: (memberRowId: string, role: Role) => void;
   onRemove: (member: TeamMember) => void;
+}
+
+interface RoleOptionProps {
+  role: Role;
+  icon: React.ReactNode;
+  isActive: boolean;
+  onSelect: (role: Role) => void;
+}
+
+function RoleOption({ role, icon, isActive, onSelect }: RoleOptionProps) {
+  return (
+    <button
+      disabled={isActive}
+      onClick={() => onSelect(role)}
+      className="hover:bg-black-2-700 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors disabled:cursor-default disabled:opacity-40"
+    >
+      {icon}
+      <span className="capitalize">{role.toLowerCase()}</span>
+      {isActive && <Check size={12} className="ml-auto" />}
+    </button>
+  );
 }
 
 function MemberManagePopover({
@@ -31,18 +52,6 @@ function MemberManagePopover({
     onRemove(member);
     setOpen(false);
   };
-
-  const RoleOption = ({ role, icon }: { role: Role; icon: React.ReactNode }) => (
-    <button
-      disabled={member.level === role}
-      onClick={() => handleRole(role)}
-      className="hover:bg-muted flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors disabled:cursor-default disabled:opacity-40"
-    >
-      {icon}
-      <span className="capitalize">{role.toLowerCase()}</span>
-      {member.level === role && <Check size={12} className="ml-auto" />}
-    </button>
-  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -65,11 +74,26 @@ function MemberManagePopover({
 
         {isLeader && (
           <>
-            <RoleOption role="LEADER" icon={<Crown size={13} className="text-amber-600" />} />
-            <RoleOption role="MODERATOR" icon={<Shield size={13} className="text-blue-600" />} />
+            <RoleOption
+              role="LEADER"
+              icon={<Crown size={13} className="text-amber-600" />}
+              isActive={member.level === 'LEADER'}
+              onSelect={handleRole}
+            />
+            <RoleOption
+              role="MODERATOR"
+              icon={<Shield size={13} className="text-blue-600" />}
+              isActive={member.level === 'MODERATOR'}
+              onSelect={handleRole}
+            />
           </>
         )}
-        <RoleOption role="MEMBER" icon={<Users size={13} className="text-muted-foreground" />} />
+        <RoleOption
+          role="MEMBER"
+          icon={<Users size={13} className="text-muted-foreground" />}
+          isActive={member.level === 'MEMBER'}
+          onSelect={handleRole}
+        />
 
         <Separator className="my-1" />
 

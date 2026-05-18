@@ -26,7 +26,7 @@ function TransferModal({ open, onClose, members, onTransfer }: TransferModalProp
         </DialogHeader>
 
         <Select onValueChange={setSelected} value={selected}>
-          <SelectTrigger>
+          <SelectTrigger className="w-full!">
             <SelectValue placeholder="Select a member" />
           </SelectTrigger>
           <SelectContent>

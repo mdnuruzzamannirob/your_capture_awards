@@ -1,10 +1,10 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Role, TeamMember } from "@/types/team";
-import { getAvatarClass, getInitials, getMemberName, getRoleChipClass } from "@/utils/team-utils";
-import { LogOut, UserPlus } from "lucide-react";
-import MemberManagePopover from "./MemberManagePopover";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Role, TeamMember } from '@/types/team';
+import { getAvatarClass, getInitials, getMemberName, getRoleChipClass } from '@/utils/team-utils';
+import { LogOut, UserPlus } from 'lucide-react';
+import MemberManagePopover from './MemberManagePopover';
 
 interface MemberListProps {
   members: TeamMember[];
@@ -30,8 +30,8 @@ function MemberList({
   const me = members.find((m) => m.memberId === currentUserId);
 
   return (
-    <div className="bg-card overflow-hidden rounded-xl border">
-      <div className="flex items-center justify-between border-b px-5 py-3.5">
+    <div className=" overflow-hidden rounded-xl border">
+      <div className=" flex items-center justify-between border-b px-5 py-3.5">
         <p className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
           Members ({members.length})
         </p>
