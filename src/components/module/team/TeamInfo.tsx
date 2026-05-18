@@ -1,10 +1,9 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { TeamData } from "@/types/team";
-import { Languages, MapPin, Pencil, Shield, Star, Swords, Trophy } from "lucide-react";
-import Image from "next/image";
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { TeamData } from '@/types/team';
+import { Languages, MapPin, Pencil, Shield, Star, Swords, Trophy } from 'lucide-react';
+import Image from 'next/image';
 
 interface TeamInfoProps {
   team: TeamData;
@@ -17,6 +16,11 @@ interface TeamInfoProps {
 function TeamInfo({ team, winRate, slotPct, isLeader, onEdit }: TeamInfoProps) {
   const stats = [
     { icon: <Trophy size={11} />, label: 'Points', value: team.score.toLocaleString() },
+    {
+      icon: <Swords size={11} />,
+      label: 'Members',
+      value: `${team.member_count}/${team.member_slots}`,
+    },
     { icon: <Swords size={11} />, label: 'Matches', value: team.total_matches },
     { icon: <Star size={11} />, label: 'Wins', value: team.win },
     { icon: <Shield size={11} />, label: 'Win Rate', value: `${winRate}%` },
@@ -27,9 +31,15 @@ function TeamInfo({ team, winRate, slotPct, isLeader, onEdit }: TeamInfoProps) {
       {/* Header row */}
       <div className="flex items-start gap-4">
         {/* Badge */}
-        <div className="flex size-18 shrink-0 items-center justify-center overflow-hidden rounded-xl border  bg-black-2-700">
+        <div className="bg-black-2-700 flex size-18 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
           {team.badge ? (
-            <Image src={team.badge} alt="team badge" width={72} height={72} className="h-full w-full object-cover" />
+            <Image
+              src={team.badge}
+              alt="team badge"
+              width={72}
+              height={72}
+              className="h-full w-full object-cover"
+            />
           ) : (
             <span className="text-muted-foreground text-lg font-bold">
               {team.name.slice(0, 2).toUpperCase()}
@@ -64,10 +74,10 @@ function TeamInfo({ team, winRate, slotPct, isLeader, onEdit }: TeamInfoProps) {
           </p>
 
           <div className="flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-md border  bg-black-2-700 px-2.5 py-1 text-xs text-muted-foreground">
+            <span className="bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
               <Languages size={12} /> {team.language}
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-md border  bg-black-2-700 px-2.5 py-1 text-xs text-muted-foreground">
+            <span className="bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
               <MapPin size={12} /> {team.country}
             </span>
           </div>
@@ -90,7 +100,7 @@ function TeamInfo({ team, winRate, slotPct, isLeader, onEdit }: TeamInfoProps) {
         </p>
         <div className="flex flex-wrap">
           {stats.map((s, i) => (
-            <div key={s.label} className="flex items-stretch">
+            <div key={s.label} className="flex items-stretch pr-4">
               {i > 0 && <div className="bg-border mx-4 w-px self-stretch" />}
               <div>
                 <div className="text-xl font-bold tabular-nums">{s.value}</div>
@@ -101,17 +111,6 @@ function TeamInfo({ team, winRate, slotPct, isLeader, onEdit }: TeamInfoProps) {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Slots */}
-      <div>
-        <div className="mb-1.5 flex justify-between text-xs">
-          <span className="text-muted-foreground">Member slots</span>
-          <span className="font-semibold tabular-nums">
-            {team.member_count} <span className="text-muted-foreground">/ {team.member_slots}</span>
-          </span>
-        </div>
-        <Progress value={slotPct} className="h-1.5" />
       </div>
     </div>
   );
