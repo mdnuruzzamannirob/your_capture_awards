@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { TeamData } from "@/types/team";
-import {  Languages, MapPin, Pencil, Shield, Star, Swords, Trophy } from "lucide-react";
+import { Languages, MapPin, Pencil, Shield, Star, Swords, Trophy } from "lucide-react";
 import Image from "next/image";
 
 interface TeamInfoProps {
@@ -23,11 +23,11 @@ function TeamInfo({ team, winRate, slotPct, isLeader, onEdit }: TeamInfoProps) {
   ];
 
   return (
-    <div className="bg-card space-y-5 rounded-xl border p-5">
+    <div className="space-y-5 rounded-xl border p-5">
       {/* Header row */}
       <div className="flex items-start gap-4">
         {/* Badge */}
-        <div className="bg-muted flex size-18 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
+        <div className="flex size-18 shrink-0 items-center justify-center overflow-hidden rounded-xl border  bg-black-2-700">
           {team.badge ? (
             <Image src={team.badge} alt="team badge" width={72} height={72} className="h-full w-full object-cover" />
           ) : (
@@ -64,10 +64,10 @@ function TeamInfo({ team, winRate, slotPct, isLeader, onEdit }: TeamInfoProps) {
           </p>
 
           <div className="flex flex-wrap gap-2">
-            <span className="bg-muted text-muted-foreground inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs">
+            <span className="inline-flex items-center gap-1.5 rounded-md border  bg-black-2-700 px-2.5 py-1 text-xs text-muted-foreground">
               <Languages size={12} /> {team.language}
             </span>
-            <span className="bg-muted text-muted-foreground inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs">
+            <span className="inline-flex items-center gap-1.5 rounded-md border  bg-black-2-700 px-2.5 py-1 text-xs text-muted-foreground">
               <MapPin size={12} /> {team.country}
             </span>
           </div>

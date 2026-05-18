@@ -1,13 +1,32 @@
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SKILL_LEVELS } from "@/constants/team";
-import { teamSettingsSchema, TeamSettingsValues } from "@/lib/schemas/teamSchema";
-import { TeamData } from "@/types/team";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { SKILL_LEVELS } from '@/constants/team';
+import { teamSettingsSchema, TeamSettingsValues } from '@/lib/schemas/teamSchema';
+import { TeamData } from '@/types/team';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Resolver, useForm } from 'react-hook-form';
 
 interface TeamSettingsModalProps {
   open: boolean;
@@ -17,8 +36,14 @@ interface TeamSettingsModalProps {
 }
 
 function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalProps) {
-  const form = useForm<TeamSettingsValues>({
-    resolver: zodResolver(teamSettingsSchema),
+  const resolver = zodResolver(teamSettingsSchema) as Resolver<
+    TeamSettingsValues,
+    any,
+    TeamSettingsValues
+  >;
+
+  const form = useForm<TeamSettingsValues, any, TeamSettingsValues>({
+    resolver,
     defaultValues: {
       member_slots: team.member_slots,
       skill_level: team.skill_level,
@@ -61,7 +86,7 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
                   </FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full!">
                         <SelectValue />
                       </SelectTrigger>
                     </FormControl>

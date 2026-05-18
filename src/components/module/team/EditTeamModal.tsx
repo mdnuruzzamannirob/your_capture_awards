@@ -1,18 +1,38 @@
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { COUNTRIES, LANGUAGES } from "@/constants/team";
-import { editTeamSchema, EditTeamValues } from "@/lib/schemas/teamSchema";
-import { TeamData } from "@/types/team";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Upload } from "lucide-react";
-import Image from "next/image";
-import { useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { COUNTRIES, LANGUAGES } from '@/constants/team';
+import { editTeamSchema, EditTeamValues } from '@/lib/schemas/teamSchema';
+import { TeamData } from '@/types/team';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Upload } from 'lucide-react';
+import Image from 'next/image';
+import { useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import z from 'zod';
 
 interface EditTeamModalProps {
   open: boolean;
@@ -28,7 +48,7 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
   const [badgePreview, setBadgePreview] = useState<string | null>(team.badge);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm<EditTeamValues>({
+  const form = useForm<z.input<typeof editTeamSchema>, any, z.output<typeof editTeamSchema>>({
     resolver: zodResolver(editTeamSchema),
     defaultValues: {
       name: team.name,
@@ -75,7 +95,7 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
               </p>
               <div className="flex items-center gap-4">
                 {/* Preview box */}
-                <div className="bg-muted flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
+                <div className="border-black-2-600 bg-black-2-700 flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
                   {badgePreview ? (
                     <Image
                       src={badgePreview}
@@ -174,7 +194,7 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
                     </FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full!">
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                       </FormControl>
@@ -201,7 +221,7 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
                     </FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full!">
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                       </FormControl>
