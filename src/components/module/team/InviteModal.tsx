@@ -32,7 +32,7 @@ function InviteModal({ open, onClose, teamId }: InviteModalProps) {
           </p>
           <div className="flex gap-2">
             <Input readOnly value={inviteLink} className="text-xs" />
-            <Button variant="outline" size="sm" onClick={handleCopy}>
+            <Button variant="outline" onClick={handleCopy}>
               <Check size={13} className="mr-1" /> Copy
             </Button>
           </div>

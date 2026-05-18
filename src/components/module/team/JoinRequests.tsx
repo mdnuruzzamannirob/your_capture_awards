@@ -1,9 +1,9 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { JoinRequest } from "@/types/team";
-import { getInitials } from "@/utils/team-utils";
-import { Check, X } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { JoinRequest } from '@/types/team';
+import { getInitials } from '@/utils/team-utils';
+import { Check, X } from 'lucide-react';
 
 interface JoinRequestsProps {
   requests: JoinRequest[];
@@ -13,8 +13,8 @@ interface JoinRequestsProps {
 
 function JoinRequests({ requests, onAccept, onDecline }: JoinRequestsProps) {
   return (
-    <div className="bg-card overflow-hidden rounded-xl border">
-      <div className="flex items-center justify-between border-b px-5 py-3.5">
+    <div className=" overflow-hidden rounded-xl border">
+      <div className=" flex items-center justify-between border-b px-5 py-3.5">
         <p className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
           Join Requests
         </p>
@@ -28,7 +28,7 @@ function JoinRequests({ requests, onAccept, onDecline }: JoinRequestsProps) {
           <div key={req.id} className="flex items-center gap-3 px-5 py-3">
             <Avatar className="size-9 shrink-0">
               {req.member.avatar && <AvatarImage src={req.member.avatar} />}
-              <AvatarFallback className="bg-amber-100 text-[11px] font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+              <AvatarFallback className="border-orange-2-500/40 bg-orange-2-500/10 text-orange-2-100 border text-[11px] font-semibold">
                 {getInitials(req.member.fullName)}
               </AvatarFallback>
             </Avatar>
