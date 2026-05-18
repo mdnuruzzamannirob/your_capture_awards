@@ -6,6 +6,8 @@ import { contestApi } from '@/store/apis/contestApi';
 import { makeStore } from '@/store/makeStore';
 import { Suspense } from 'react';
 
+export const dynamic = 'force-dynamic';
+
 const JoinedPage = async () => {
   const store = makeStore();
 
