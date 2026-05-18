@@ -13,8 +13,7 @@ export default function TeamHomeLayout({
 }>) {
   const pathname = usePathname();
   const teamMenu = [
-    { name: 'Info', path: '/team/home/info', icon: <Info className="size-6" /> },
-    { name: 'Members', path: '/team/home/members', icon: <Users className="size-6" /> },
+    { name: 'My Team', path: '/team/home', icon: <Users className="size-6" /> },
     { name: 'Match', path: '/team/home/match', icon: <Swords className="size-6" /> },
     {
       name: 'Leaderboard',
