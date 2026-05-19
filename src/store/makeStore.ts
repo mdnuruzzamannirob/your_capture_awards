@@ -1,10 +1,11 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { authApi } from '@/store/apis/authApi';
+import { contestApi } from '@/store/apis/contestApi';
+import { profileApi } from '@/store/apis/profileApi';
+import { teamApi } from '@/store/apis/teamApi';
+import { userApi } from '@/store/apis/userApi';
 import authReducer from '@/store/slices/authSlice';
 import profileReducer from '@/store/slices/profileSlice';
-import { authApi } from '@/store/apis/authApi';
-import { userApi } from '@/store/apis/userApi';
-import { profileApi } from '@/store/apis/profileApi';
-import { contestApi } from '@/store/apis/contestApi';
+import { configureStore } from '@reduxjs/toolkit';
 
 export const makeStore = (preloadedState = {}) => {
   return configureStore({
@@ -15,6 +16,7 @@ export const makeStore = (preloadedState = {}) => {
       [userApi.reducerPath]: userApi.reducer,
       [profileApi.reducerPath]: profileApi.reducer,
       [contestApi.reducerPath]: contestApi.reducer,
+      [teamApi.reducerPath]: teamApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
@@ -24,6 +26,7 @@ export const makeStore = (preloadedState = {}) => {
         userApi.middleware,
         profileApi.middleware,
         contestApi.middleware,
+        teamApi.middleware,
       ),
     preloadedState,
     devTools: process.env.NODE_ENV !== 'production',
