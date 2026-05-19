@@ -103,7 +103,7 @@ export const teamApi = createApi({
     // ── Approve Join Request ──────────────────────────────────────────────
     approveJoinRequest: builder.mutation<ApproveRequestResponse, string>({
       query: (joinRequestId) => ({
-        url: `/api/teams/request/approve/${joinRequestId}`,
+        url: `/teams/request/approve/${joinRequestId}`,
         method: 'POST',
       }),
       invalidatesTags: ['JoinRequests', 'TeamMembers', 'Team'],
@@ -112,7 +112,7 @@ export const teamApi = createApi({
     // ── Reject Join Request ───────────────────────────────────────────────
     rejectJoinRequest: builder.mutation<RejectRequestResponse, string>({
       query: (joinRequestId) => ({
-        url: `/api/teams/request/reject/${joinRequestId}`,
+        url: `/teams/request/reject/${joinRequestId}`,
         method: 'POST',
       }),
       invalidatesTags: ['JoinRequests'],
@@ -121,7 +121,7 @@ export const teamApi = createApi({
     // ── Leave Team ────────────────────────────────────────────────────────
     leaveTeam: builder.mutation<LeaveTeamResponse, void>({
       query: () => ({
-        url: '/api/teams/leave',
+        url: '/teams/leave',
         method: 'POST',
       }),
       invalidatesTags: ['Team', 'TeamMembers'],
