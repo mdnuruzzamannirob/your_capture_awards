@@ -67,7 +67,7 @@ export const teamApi = createApi({
       query: ({ teamId, memberId, level }) => ({
         url: `/teams/${teamId}/members/${memberId}/assign-role`,
         method: 'POST',
-        body: { level },
+        body: { role: level },
       }),
       invalidatesTags: ['TeamMembers'],
     }),
@@ -119,10 +119,11 @@ export const teamApi = createApi({
     }),
 
     // ── Leave Team ────────────────────────────────────────────────────────
-    leaveTeam: builder.mutation<LeaveTeamResponse, void>({
-      query: () => ({
+    leaveTeam: builder.mutation<LeaveTeamResponse, { teamId: string }>({
+      query: ({ teamId }) => ({
         url: '/teams/leave',
         method: 'POST',
+        body: { teamId },
       }),
       invalidatesTags: ['Team', 'TeamMembers'],
     }),
