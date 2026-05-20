@@ -136,7 +136,7 @@ export default function TeamPage() {
 
   const handleLeaveTeam = useCallback(async () => {
     try {
-      await leaveTeam().unwrap();
+      await leaveTeam({ teamId: team.id }).unwrap();
       toast.success('You left the team.');
       setLeaveOpen(false);
       router.push('/teams');
