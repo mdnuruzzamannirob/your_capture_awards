@@ -1,25 +1,59 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { TeamData } from '@/types/team';
-import { Languages, MapPin, Pencil, Shield, Star, Swords, Trophy } from 'lucide-react';
+import {
+  Languages,
+  Lock,
+  LogOut,
+  MapPin,
+  MoreHorizontal,
+  Pencil,
+  Shield,
+  Star,
+  Swords,
+  Trash2,
+  Trophy,
+  Unlock,
+} from 'lucide-react';
 import Image from 'next/image';
 
 interface TeamInfoProps {
   team: TeamData;
   winRate: number;
-  slotPct: number;
   isLeader: boolean;
   onEdit: () => void;
+  onTogglePrivacy: () => void;
+  onLeave: () => void;
+  onDisband: () => void;
 }
 
-function TeamInfo({ team, winRate, slotPct, isLeader, onEdit }: TeamInfoProps) {
+function formatSkillLabel(value: string) {
+  return value.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function TeamInfo({
+  team,
+  winRate,
+  isLeader,
+  onEdit,
+  onTogglePrivacy,
+  onLeave,
+  onDisband,
+}: TeamInfoProps) {
   const stats = [
     { icon: <Trophy size={11} />, label: 'Points', value: team.score.toLocaleString() },
     {
       icon: <Swords size={11} />,
       label: 'Members',
-      value: `${team.member_count}/${team.member_slots}`,
+      value: team.member_count,
     },
     { icon: <Swords size={11} />, label: 'Matches', value: team.total_matches },
     { icon: <Star size={11} />, label: 'Wins', value: team.win },
@@ -80,13 +114,51 @@ function TeamInfo({ team, winRate, slotPct, isLeader, onEdit }: TeamInfoProps) {
             <span className="bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
               <MapPin size={12} /> {team.country}
             </span>
+            <span className="bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+              Level requirement:{' '}
+              {team.min_requirement || team.skill_level
+                ? formatSkillLabel(team.min_requirement || team.skill_level)
+                : 'N/A'}
+            </span>
           </div>
         </div>
 
-        {/* Edit — leader only */}
         {isLeader && (
-          <Button variant="outline" size="sm" className="shrink-0" onClick={onEdit}>
-            <Pencil size={13} className="mr-1.5" /> Edit team
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="shrink-0">
+                <MoreHorizontal size={13} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuItem onSelect={onEdit}>
+                <Pencil size={13} /> Edit team
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={onTogglePrivacy}>
+                {team.accessibility === 'PUBLIC' ? (
+                  <>
+                    <Lock size={13} /> Make private
+                  </>
+                ) : (
+                  <>
+                    <Unlock size={13} /> Make public
+                  </>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={onLeave}>
+                <LogOut size={13} /> Leave team
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive" onSelect={onDisband}>
+                <Trash2 size={13} /> Delete team
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+
+        {!isLeader && (
+          <Button variant="outline" size="sm" className="shrink-0" onClick={onLeave}>
+            <LogOut size={13} className="mr-1.5" /> Leave team
           </Button>
         )}
       </div>

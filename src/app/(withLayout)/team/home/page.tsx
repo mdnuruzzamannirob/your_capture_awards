@@ -5,14 +5,13 @@ import EditTeamModal from '@/components/module/team/EditTeamModal';
 import InviteModal from '@/components/module/team/InviteModal';
 import JoinRequests from '@/components/module/team/JoinRequests';
 import LeaveTeamDialog from '@/components/module/team/LeaveTeamDialog';
-import ManageTeam from '@/components/module/team/ManageTeam';
 import MemberList from '@/components/module/team/MemberList';
 import RemoveMemberDialog from '@/components/module/team/RemoveMemberDialog';
 import TeamInfo from '@/components/module/team/TeamInfo';
-import TeamSettingsModal from '@/components/module/team/TeamSettingsModal';
-import TransferModal from '@/components/module/team/TransferModal';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
-import { EditTeamValues, TeamSettingsValues } from '@/lib/schemas/teamSchema';
+import { EditTeamValues } from '@/lib/schemas/teamSchema';
 import {
   useApproveJoinRequestMutation,
   useAssignRoleMutation,
@@ -25,24 +24,39 @@ import {
   useRevokeRoleMutation,
   useUpdateTeamMutation,
 } from '@/store/apis/teamApi';
-import { Accessibility, JoinRequest, Role, TeamMember } from '@/store/types/teamTypes';
+import { Accessibility, Role, TeamMember } from '@/types/team';
 import { getMemberName } from '@/utils/team-utils';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+
+type JoinRequestViewModel = {
+  id: string;
+  requesterId?: string;
+  requester?: {
+    fullName: string | null;
+    firstName?: string | null;
+    lastName?: string | null;
+    avatar?: string | null;
+  };
+  createdAt?: string;
+};
 
 export default function TeamPage() {
   const router = useRouter();
   const { user } = useAuth();
   const currentUserId = user?.id || '';
 
-  // ── API Calls ────────────────────────────────────────────────────────
-  const { data: teamData, isLoading: isTeamLoading } = useGetMyTeamQuery();
+  const {
+    data: teamData,
+    isLoading: isTeamLoading,
+    isError: isTeamError,
+    refetch,
+  } = useGetMyTeamQuery();
   const { data: requestsData } = useGetPendingRequestsQuery(teamData?.data?.team?.id || '', {
     skip: !teamData?.data?.team?.id,
   });
 
-  // ── Mutations ────────────────────────────────────────────────────────
   const [approveRequest] = useApproveJoinRequestMutation();
   const [rejectRequest] = useRejectJoinRequestMutation();
   const [assignRole] = useAssignRoleMutation();
@@ -52,33 +66,29 @@ export default function TeamPage() {
   const [updateTeam] = useUpdateTeamMutation();
   const [deleteTeam] = useDeleteTeamMutation();
 
-  // ── Local State ──────────────────────────────────────────────────────
   const [removeTarget, setRemoveTarget] = useState<TeamMember | null>(null);
-
-  // Modal open states
   const [editOpen, setEditOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [transferOpen, setTransferOpen] = useState(false);
   const [disbandOpen, setDisbandOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
 
-  // ── Derived Data ─────────────────────────────────────────────────────
   const team = teamData?.data?.team;
-  const members = teamData?.data?.members || [];
-  const requests = requestsData?.data || [];
+  const members: TeamMember[] = teamData?.data?.members || [];
+  const requests = (requestsData?.data || []) as JoinRequestViewModel[];
 
   const me = useMemo(
-    () => members.find((m) => m.memberId === currentUserId),
+    () => members.find((m: TeamMember) => m.memberId === currentUserId),
     [members, currentUserId],
   );
   const isLeader = me?.level === 'LEADER';
   const isMod = me?.level === 'LEADER' || me?.level === 'MODERATOR';
-
-  // ── Handlers ─────────────────────────────────────────────────────────
+  const leaveCandidates = useMemo(
+    () => members.filter((member: TeamMember) => member.memberId !== currentUserId),
+    [members, currentUserId],
+  );
 
   const handleAcceptRequest = useCallback(
-    async (req: JoinRequest) => {
+    async (req: { id: string }) => {
       try {
         await approveRequest(req.id).unwrap();
         toast.success('Request approved!');
@@ -91,7 +101,7 @@ export default function TeamPage() {
   );
 
   const handleDeclineRequest = useCallback(
-    async (req: JoinRequest) => {
+    async (req: { id: string }) => {
       try {
         await rejectRequest(req.id).unwrap();
         toast.error('Request declined');
@@ -107,8 +117,12 @@ export default function TeamPage() {
     async (memberId: string, newRole: Role) => {
       if (!team) return;
       try {
-        await assignRole({ teamId: team.id, memberId, level: newRole }).unwrap();
-        const target = members.find((m) => m.id === memberId);
+        if (newRole === 'MEMBER') {
+          await revokeRole({ teamId: team.id, memberId }).unwrap();
+        } else {
+          await assignRole({ teamId: team.id, memberId, level: newRole }).unwrap();
+        }
+        const target = members.find((m: TeamMember) => m.id === memberId);
         if (target)
           toast.success(`${getMemberName(target.member)} is now ${newRole.toLowerCase()}.`);
       } catch (error) {
@@ -116,7 +130,7 @@ export default function TeamPage() {
         toast.error('Failed to assign role');
       }
     },
-    [team, members, assignRole],
+    [team, members, assignRole, revokeRole],
   );
 
   const handleRemoveMember = useCallback(
@@ -134,18 +148,6 @@ export default function TeamPage() {
     [team, removeMember],
   );
 
-  const handleLeaveTeam = useCallback(async () => {
-    try {
-      await leaveTeam({ teamId: team.id }).unwrap();
-      toast.success('You left the team.');
-      setLeaveOpen(false);
-      router.push('/teams');
-    } catch (error) {
-      console.error('Failed to leave team:', error);
-      toast.error('Failed to leave team');
-    }
-  }, [leaveTeam, router]);
-
   const handleTogglePrivacy = useCallback(async () => {
     if (!team) return;
     try {
@@ -162,25 +164,25 @@ export default function TeamPage() {
     }
   }, [team, updateTeam]);
 
-  const handleTransfer = useCallback(
-    async (targetMemberId: string) => {
+  const handleLeaveTeamWithTransfer = useCallback(
+    async (memberId?: string) => {
       if (!team) return;
+      if (isLeader && !memberId) {
+        toast.error('Select a member to transfer leadership before leaving.');
+        return;
+      }
+
       try {
-        // First assign leader role to new leader
-        await assignRole({ teamId: team.id, memberId: targetMemberId, level: 'LEADER' }).unwrap();
-        // Then revoke leader role from current user
-        if (me) {
-          await revokeRole({ teamId: team.id, memberId: me.memberId }).unwrap();
-        }
-        const target = members.find((m) => m.id === targetMemberId);
-        if (target) toast.success(`${getMemberName(target.member)} is now the leader!`);
-        setTransferOpen(false);
+        await leaveTeam({ teamId: team.id, memberId }).unwrap();
+        toast.success('You left the team.');
+        setLeaveOpen(false);
+        router.push('/teams');
       } catch (error) {
-        console.error('Failed to transfer leadership:', error);
-        toast.error('Failed to transfer leadership');
+        console.error('Failed to leave team:', error);
+        toast.error('Failed to leave team');
       }
     },
-    [team, me, members, assignRole, revokeRole],
+    [isLeader, leaveTeam, router, team],
   );
 
   const handleEditTeam = useCallback(
@@ -189,46 +191,24 @@ export default function TeamPage() {
       try {
         await updateTeam({
           teamId: team.id,
-          data: {
-            name: values.name,
-            description: values.description,
-            language: values.language,
-            country: values.country,
-            // Note: Badge upload would require multipart/form-data handling
-            // For now, only basic fields are updated
-          },
+          data: (() => {
+            const payload = new FormData();
+            payload.append('name', values.name);
+            payload.append('description', values.description || '');
+            payload.append('language', values.language);
+            payload.append('country', values.country);
+            payload.append('min_requirement', values.min_requirement);
+            if (values.badgeFile) {
+              payload.append('badge', values.badgeFile);
+            }
+            return payload;
+          })(),
         }).unwrap();
         toast.success('Team info updated!');
         setEditOpen(false);
       } catch (error) {
         console.error('Failed to update team:', error);
         toast.error('Failed to update team');
-      }
-    },
-    [team, updateTeam],
-  );
-
-  const handleSaveSettings = useCallback(
-    async (values: TeamSettingsValues) => {
-      if (!team) return;
-      try {
-        if (values.member_slots < team.member_count) {
-          toast.error("Slots can't be less than current member count.");
-          return;
-        }
-        await updateTeam({
-          teamId: team.id,
-          data: {
-            member_slots: values.member_slots,
-            min_requirement: values.min_requirement,
-            skill_level: values.skill_level,
-          },
-        }).unwrap();
-        toast.success('Team settings saved!');
-        setSettingsOpen(false);
-      } catch (error) {
-        console.error('Failed to save settings:', error);
-        toast.error('Failed to save settings');
       }
     },
     [team, updateTeam],
@@ -247,14 +227,68 @@ export default function TeamPage() {
     }
   }, [team, deleteTeam, router]);
 
-  // ── Derived Stats ────────────────────────────────────────────────────
   const winRate = team?.total_matches ? Math.round((team.win / team.total_matches) * 100) : 0;
-  const slotPct = team ? Math.round((team.member_count / team.member_slots) * 100) : 0;
-
   if (isTeamLoading) {
     return (
-      <div className="flex h-96 items-center justify-center">
-        <p className="text-muted-foreground">Loading team data...</p>
+      <div className="space-y-6">
+        <div className="rounded-xl border p-5">
+          <div className="flex items-start gap-4">
+            <Skeleton className="size-18 rounded-xl" />
+            <div className="min-w-0 flex-1 space-y-3">
+              <Skeleton className="h-6 w-40" />
+              <div className="flex flex-wrap gap-2">
+                <Skeleton className="h-7 w-24" />
+                <Skeleton className="h-7 w-24" />
+                <Skeleton className="h-7 w-36" />
+                <Skeleton className="h-7 w-28" />
+              </div>
+              <Skeleton className="h-4 w-4/5" />
+              <Skeleton className="h-4 w-3/5" />
+            </div>
+            <Skeleton className="h-9 w-10 rounded-md" />
+          </div>
+          <div className="my-5">
+            <Skeleton className="h-px w-full" />
+          </div>
+          <Skeleton className="mb-3 h-4 w-28" />
+          <div className="flex flex-wrap gap-4">
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-24" />
+          </div>
+        </div>
+
+        <div className="rounded-xl border p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-7 w-16" />
+          </div>
+          <div className="space-y-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <Skeleton className="size-9 rounded-full" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Skeleton className="h-4 w-40" />
+                  <Skeleton className="h-3 w-48" />
+                </div>
+                <Skeleton className="h-7 w-16" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isTeamError) {
+    return (
+      <div className="rounded-xl border p-6 text-center">
+        <p className="font-semibold">Failed to load team data</p>
+        <p className="text-muted-foreground mt-1 text-sm">Try again to refresh the team view.</p>
+        <Button className="mt-4" onClick={() => refetch()}>
+          Retry
+        </Button>
       </div>
     );
   }
@@ -269,35 +303,34 @@ export default function TeamPage() {
 
   return (
     <div className="space-y-6">
-      {/* ── Team Info ────────────────────────────────────────────────────── */}
       <TeamInfo
         team={team}
         winRate={winRate}
-        slotPct={slotPct}
         isLeader={isLeader}
         onEdit={() => setEditOpen(true)}
+        onTogglePrivacy={handleTogglePrivacy}
+        onLeave={() => setLeaveOpen(true)}
+        onDisband={() => setDisbandOpen(true)}
       />
 
-      {/* ── Join Requests (moderator / leader only) ───────────────────── */}
       {isMod && requests.length > 0 && (
         <JoinRequests
-          requests={requests.map((req) => ({
+          requests={requests.map((req: (typeof requests)[number]) => ({
             id: req.id,
-            memberId: req.requesterId,
+            memberId: req.requesterId ?? req.id,
             member: {
               fullName:
-                req.requester.fullName ||
-                `${req.requester.firstName} ${req.requester.lastName}`.trim(),
-              avatar: req.requester.avatar,
+                req.requester?.fullName ||
+                `${req.requester?.firstName ?? ''} ${req.requester?.lastName ?? ''}`.trim(),
+              avatar: req.requester?.avatar ?? null,
             },
-            requestedAt: req.createdAt,
+            requestedAt: req.createdAt ?? new Date().toISOString(),
           }))}
           onAccept={handleAcceptRequest}
           onDecline={handleDeclineRequest}
         />
       )}
 
-      {/* ── Member List ───────────────────────────────────────────────── */}
       <MemberList
         members={members}
         currentUserId={currentUserId}
@@ -305,22 +338,9 @@ export default function TeamPage() {
         isMod={isMod}
         onChangeRole={handleChangeRole}
         onRemove={setRemoveTarget}
-        onLeave={() => setLeaveOpen(true)}
         onInvite={() => setInviteOpen(true)}
       />
 
-      {/* ── Manage Team (leader only) ─────────────────────────────────── */}
-      {isLeader && (
-        <ManageTeam
-          team={team}
-          onSettings={() => setSettingsOpen(true)}
-          onTransfer={() => setTransferOpen(true)}
-          onTogglePrivacy={handleTogglePrivacy}
-          onDisband={() => setDisbandOpen(true)}
-        />
-      )}
-
-      {/* ── Modals ───────────────────────────────────────────────────── */}
       <EditTeamModal
         open={editOpen}
         onClose={() => setEditOpen(false)}
@@ -328,21 +348,7 @@ export default function TeamPage() {
         onSave={handleEditTeam}
       />
 
-      <TeamSettingsModal
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        team={team}
-        onSave={handleSaveSettings}
-      />
-
       <InviteModal open={inviteOpen} onClose={() => setInviteOpen(false)} teamId={team.id} />
-
-      <TransferModal
-        open={transferOpen}
-        onClose={() => setTransferOpen(false)}
-        members={members.filter((m) => m.memberId !== currentUserId)}
-        onTransfer={handleTransfer}
-      />
 
       <DisbandModal
         open={disbandOpen}
@@ -355,7 +361,10 @@ export default function TeamPage() {
         open={leaveOpen}
         onClose={() => setLeaveOpen(false)}
         teamName={team.name}
-        onLeave={handleLeaveTeam}
+        currentUserId={currentUserId}
+        members={leaveCandidates}
+        isLeader={isLeader}
+        onLeave={handleLeaveTeamWithTransfer}
       />
 
       <RemoveMemberDialog

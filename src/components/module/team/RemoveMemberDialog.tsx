@@ -1,8 +1,15 @@
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { TeamMember } from "@/types/team";
-import { getMemberName } from "@/utils/team-utils";
-import { X } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { TeamMember } from '@/types/team';
+import { getMemberName } from '@/utils/team-utils';
+import { X } from 'lucide-react';
 
 interface RemoveMemberDialogProps {
   target: TeamMember | null;

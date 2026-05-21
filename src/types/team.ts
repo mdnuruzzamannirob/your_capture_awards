@@ -71,8 +71,7 @@ export interface TeamData {
   creatorId: string;
   createdAt: string;
   updatedAt?: string;
-  min_requirement?: number;
-  min_requirement_str?: string;
+  min_requirement?: SkillLevel;
   active_match_id?: string | null;
   leaderboard_rank?: number | null;
 }
