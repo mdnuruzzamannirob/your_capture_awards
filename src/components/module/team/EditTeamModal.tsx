@@ -25,7 +25,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { COUNTRIES, LANGUAGES, SKILL_LEVELS } from '@/constants/team';
 import { editTeamSchema, EditTeamValues } from '@/lib/schemas/teamSchema';
-import { SkillLevel, TeamData } from '@/types/team';
+import { TeamData } from '@/types/team';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Upload } from 'lucide-react';
 import Image from 'next/image';
@@ -294,7 +294,5 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
     </Dialog>
   );
 }
-
-
 
 export default EditTeamModal;
