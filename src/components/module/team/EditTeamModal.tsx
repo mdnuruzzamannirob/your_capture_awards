@@ -23,13 +23,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { COUNTRIES, LANGUAGES } from '@/constants/team';
+import { COUNTRIES, LANGUAGES, SKILL_LEVELS } from '@/constants/team';
 import { editTeamSchema, EditTeamValues } from '@/lib/schemas/teamSchema';
-import { TeamData } from '@/types/team';
+import { SkillLevel, TeamData } from '@/types/team';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Upload } from 'lucide-react';
 import Image from 'next/image';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
@@ -47,6 +47,7 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
   const [badgeFile, setBadgeFile] = useState<File | null>(null);
   const [badgePreview, setBadgePreview] = useState<string | null>(team.badge);
   const fileRef = useRef<HTMLInputElement>(null);
+  const defaultRequirement = team.min_requirement ?? team.skill_level;
 
   const form = useForm<z.input<typeof editTeamSchema>, any, z.output<typeof editTeamSchema>>({
     resolver: zodResolver(editTeamSchema),
@@ -55,8 +56,23 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
       description: team.description,
       language: team.language,
       country: team.country,
+      min_requirement: defaultRequirement,
     },
   });
+
+  useEffect(() => {
+    if (!open) return;
+
+    form.reset({
+      name: team.name,
+      description: team.description,
+      language: team.language,
+      country: team.country,
+      min_requirement: team.min_requirement ?? team.skill_level,
+    });
+    setBadgePreview(team.badge);
+    setBadgeFile(null);
+  }, [form, open, team]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -239,6 +255,33 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
               />
             </div>
 
+            <FormField
+              control={form.control}
+              name="min_requirement"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-muted-foreground text-xs tracking-wider uppercase">
+                    Level Requirement
+                  </FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full!">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {SKILL_LEVELS.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <DialogFooter>
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
@@ -251,5 +294,7 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
     </Dialog>
   );
 }
+
+
 
 export default EditTeamModal;

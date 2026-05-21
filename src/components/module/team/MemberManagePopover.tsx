@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { Role, TeamMember } from '@/types/team';
-import { Check, Crown, LogOut, MoreHorizontal, Shield, Users } from 'lucide-react';
+import { Check, LogOut, MoreHorizontal, Shield, Users } from 'lucide-react';
 import { useState } from 'react';
 
 interface MemberManagePopoverProps {
@@ -57,7 +57,12 @@ function MemberManagePopover({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="h-7 text-xs">
-          <MoreHorizontal size={13} className="mr-1" /> Manage
+          {isLeader ? (
+            <MoreHorizontal size={13} className="mr-1" />
+          ) : (
+            <LogOut size={13} className="mr-1" />
+          )}
+          {isLeader ? 'Manage' : 'Remove'}
         </Button>
       </PopoverTrigger>
 
@@ -68,34 +73,27 @@ function MemberManagePopover({
         side={openUp ? 'top' : 'bottom'}
         sideOffset={6}
       >
-        <p className="text-muted-foreground px-2 py-1.5 text-[10px] font-semibold tracking-wider uppercase">
-          Change Role
-        </p>
-
         {isLeader && (
           <>
-            <RoleOption
-              role="LEADER"
-              icon={<Crown size={13} className="text-amber-600" />}
-              isActive={member.level === 'LEADER'}
-              onSelect={handleRole}
-            />
+            <p className="text-muted-foreground px-2 py-1.5 text-[10px] font-semibold tracking-wider uppercase">
+              Change Role
+            </p>
             <RoleOption
               role="MODERATOR"
               icon={<Shield size={13} className="text-blue-600" />}
               isActive={member.level === 'MODERATOR'}
               onSelect={handleRole}
             />
+            <RoleOption
+              role="MEMBER"
+              icon={<Users size={13} className="text-muted-foreground" />}
+              isActive={member.level === 'MEMBER'}
+              onSelect={handleRole}
+            />
+
+            <Separator className="my-1" />
           </>
         )}
-        <RoleOption
-          role="MEMBER"
-          icon={<Users size={13} className="text-muted-foreground" />}
-          isActive={member.level === 'MEMBER'}
-          onSelect={handleRole}
-        />
-
-        <Separator className="my-1" />
 
         <button
           onClick={handleRemove}
