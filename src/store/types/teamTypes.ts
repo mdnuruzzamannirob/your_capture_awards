@@ -44,8 +44,7 @@ export interface TeamData {
   lost: number;
   draw: number;
   badge: string | null;
-  min_requirement: number;
-  min_requirement_str: string;
+  min_requirement?: SkillLevel;
   active_match_id: string | null;
   leaderboard_rank: number | null;
   total_matches: number;
@@ -138,7 +137,7 @@ export interface UpdateTeamRequest {
   description?: string;
   accessibility?: Accessibility;
   member_slots?: number;
-  min_requirement?: number;
+  min_requirement?: SkillLevel;
   skill_level?: SkillLevel;
 }
 

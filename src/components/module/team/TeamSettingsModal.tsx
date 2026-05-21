@@ -26,6 +26,7 @@ import { SKILL_LEVELS } from '@/constants/team';
 import { teamSettingsSchema, TeamSettingsValues } from '@/lib/schemas/teamSchema';
 import { TeamData } from '@/types/team';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
 import { Resolver, useForm } from 'react-hook-form';
 
 interface TeamSettingsModalProps {
@@ -42,14 +43,24 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
     TeamSettingsValues
   >;
 
+  const defaultRequirement = team.min_requirement ?? team.skill_level;
+
   const form = useForm<TeamSettingsValues, any, TeamSettingsValues>({
     resolver,
     defaultValues: {
       member_slots: team.member_slots,
-      skill_level: team.skill_level,
-      min_requirement: 0,
+      min_requirement: defaultRequirement,
     },
   });
+
+  useEffect(() => {
+    if (!open) return;
+
+    form.reset({
+      member_slots: team.member_slots,
+      min_requirement: team.min_requirement ?? team.skill_level,
+    });
+  }, [form, open, team]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -78,11 +89,11 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
 
             <FormField
               control={form.control}
-              name="skill_level"
+              name="min_requirement"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-muted-foreground text-xs tracking-wider uppercase">
-                    Skill Level
+                    Level Requirement
                   </FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
@@ -109,11 +120,22 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-muted-foreground text-xs tracking-wider uppercase">
-                    Min. Score Requirement
+                    Level Requirement
                   </FormLabel>
-                  <FormControl>
-                    <Input type="number" min={0} {...field} />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full!">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {SKILL_LEVELS.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

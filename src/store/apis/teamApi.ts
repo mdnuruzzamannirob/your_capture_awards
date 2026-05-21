@@ -82,7 +82,10 @@ export const teamApi = createApi({
     }),
 
     // ── Update Team ───────────────────────────────────────────────────────
-    updateTeam: builder.mutation<UpdateTeamResponse, { teamId: string; data: UpdateTeamRequest }>({
+    updateTeam: builder.mutation<
+      UpdateTeamResponse,
+      { teamId: string; data: UpdateTeamRequest | FormData }
+    >({
       query: ({ teamId, data }) => ({
         url: `/teams/${teamId}`,
         method: 'PUT',
@@ -119,11 +122,11 @@ export const teamApi = createApi({
     }),
 
     // ── Leave Team ────────────────────────────────────────────────────────
-    leaveTeam: builder.mutation<LeaveTeamResponse, { teamId: string }>({
-      query: ({ teamId }) => ({
+    leaveTeam: builder.mutation<LeaveTeamResponse, { teamId: string; memberId?: string }>({
+      query: ({ teamId, memberId }) => ({
         url: '/teams/leave',
         method: 'POST',
-        body: { teamId },
+        body: memberId ? { teamId, memberId } : { teamId },
       }),
       invalidatesTags: ['Team', 'TeamMembers'],
     }),
