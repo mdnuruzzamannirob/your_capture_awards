@@ -1,8 +1,8 @@
-import { MatchPhoto, MatchTeam } from "@/types/match";
-import { cn } from "@/utils/cn";
-import { getInitials } from "@/utils/match-utils";
-import { Vote } from "lucide-react";
-import Image from "next/image";
+import { MatchPhoto, MatchTeam } from '@/types/match';
+import { cn } from '@/utils/cn';
+import { getInitials } from '@/utils/match-utils';
+import { Vote } from 'lucide-react';
+import Image from 'next/image';
 
 interface PhotoListPanelProps {
   team: MatchTeam;

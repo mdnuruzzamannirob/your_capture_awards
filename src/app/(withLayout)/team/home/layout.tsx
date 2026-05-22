@@ -117,7 +117,7 @@ export default function TeamHomeLayout({
           <div className="flex -space-x-3">
             {chatMembers.map((member) => (
               <Avatar key={member} className="border-black-2-800 size-8 border-2">
-                <AvatarFallback className="bg-primary text-white text-xs font-semibold">
+                <AvatarFallback className="bg-primary text-xs font-semibold text-white">
                   {member}
                 </AvatarFallback>
               </Avatar>
@@ -190,11 +190,11 @@ export default function TeamHomeLayout({
           </div>
         </div>
 
-        <div className="relative border-black-2-600 flex items-center gap-2 border-t p-4">
+        <div className="border-black-2-600 relative flex items-center gap-2 border-t p-4">
           <button
             type="button"
             onClick={scrollToLatest}
-            className="border-primary/25 absolute -top-10 left-1/2 -translate-x-1/2 bg-primary/10 hover:bg-primary/15 text-primary inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium transition-colors"
+            className="border-primary/25 bg-primary/10 hover:bg-primary/15 text-primary absolute -top-10 left-1/2 inline-flex -translate-x-1/2 items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium transition-colors"
           >
             <ArrowDown className="size-3.5" />
             Jump to latest
