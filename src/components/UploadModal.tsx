@@ -268,7 +268,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               ) : (
                 uploadSource === 'profile' && (
                   <div className="space-y-5">
-                    <div className="scrollbar-thin grid max-h-64 grid-cols-3 gap-1 overflow-y-auto">
+                    <div className="grid max-h-64 scrollbar-thin grid-cols-3 gap-1 overflow-y-auto">
                       {isPhotosLoading
                         ? [1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
                             <Skeleton className="bg-black-2-600 h-28 w-full" key={item} />

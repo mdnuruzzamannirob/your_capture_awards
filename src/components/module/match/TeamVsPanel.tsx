@@ -1,8 +1,8 @@
-import { MatchTeam } from "@/types/match";
-import { cn } from "@/utils/cn";
-import { getInitials } from "@/utils/match-utils";
-import { Trophy, Vote } from "lucide-react";
-import Image from "next/image";
+import { MatchTeam } from '@/types/match';
+import { cn } from '@/utils/cn';
+import { getInitials } from '@/utils/match-utils';
+import { Trophy, Vote } from 'lucide-react';
+import Image from 'next/image';
 
 interface TeamVsPanelProps {
   teamA: MatchTeam;
@@ -62,7 +62,13 @@ function TeamVoteCard({
       <div className="relative">
         <div className="border-border flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 bg-zinc-700">
           {team.badge ? (
-            <Image src={team.badge} alt={team.name} width={64} height={64} className="h-full w-full object-cover" />
+            <Image
+              src={team.badge}
+              alt={team.name}
+              width={64}
+              height={64}
+              className="h-full w-full object-cover"
+            />
           ) : (
             <span className="text-xl font-bold text-zinc-400">{getInitials(team.name)}</span>
           )}
@@ -93,4 +99,4 @@ function TeamVoteCard({
   );
 }
 
-export default TeamVsPanel
+export default TeamVsPanel;

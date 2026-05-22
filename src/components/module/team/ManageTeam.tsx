@@ -12,7 +12,7 @@ interface ManageTeamProps {
 
 function ManageTeam({ team, onSettings, onTransfer, onTogglePrivacy, onDisband }: ManageTeamProps) {
   return (
-    <div className=" rounded-xl border p-5">
+    <div className="rounded-xl border p-5">
       <p className="text-muted-foreground mb-4 text-[11px] font-semibold tracking-wider uppercase">
         Manage Team
       </p>
