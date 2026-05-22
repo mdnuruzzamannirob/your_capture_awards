@@ -97,7 +97,6 @@ export default function TeamsPage() {
                   Search by style, leader, contest focus, or team name.
                 </p>
               </div>
-             
             </div>
 
             <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_190px]">

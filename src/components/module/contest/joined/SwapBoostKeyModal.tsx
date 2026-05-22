@@ -279,7 +279,7 @@ export default function SwapBoostKeyModal() {
                 <p className="text-center text-lg font-medium">The Science of Swapping</p>
               </div>
 
-              <div className="scrollbar-thin h-[78.5vh] overflow-y-auto sm:h-[61.5vh] lg:col-span-3">
+              <div className="h-[78.5vh] scrollbar-thin overflow-y-auto sm:h-[61.5vh] lg:col-span-3">
                 <div className="grid grid-cols-2 gap-5 xl:grid-cols-3">
                   {swapPackage.map((swap, index) => (
                     <div
@@ -312,7 +312,7 @@ export default function SwapBoostKeyModal() {
                 <p className="text-center text-lg font-medium">Skip a voting session</p>
               </div>
 
-              <div className="scrollbar-thin h-[78.5vh] overflow-y-auto sm:h-[61.5vh] lg:col-span-3">
+              <div className="h-[78.5vh] scrollbar-thin overflow-y-auto sm:h-[61.5vh] lg:col-span-3">
                 <div className="grid grid-cols-2 gap-5 xl:grid-cols-3">
                   {boostPackage.map((boost, index) => (
                     <div
@@ -342,7 +342,7 @@ export default function SwapBoostKeyModal() {
                 <p className="text-center text-lg font-medium">Unlock Boosts Early</p>
               </div>
 
-              <div className="scrollbar-thin h-[78.5vh] overflow-y-auto sm:h-[61.5vh] lg:col-span-3">
+              <div className="h-[78.5vh] scrollbar-thin overflow-y-auto sm:h-[61.5vh] lg:col-span-3">
                 <div className="grid grid-cols-2 gap-5 xl:grid-cols-3">
                   {keyPackage.map((key, index) => (
                     <div

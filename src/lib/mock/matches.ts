@@ -1,4 +1,4 @@
-import { Match, MatchPhoto } from "@/types/match";
+import { Match, MatchPhoto } from '@/types/match';
 
 const makeFutureDate = (h: number, m: number, s: number) =>
   new Date(Date.now() + h * 3_600_000 + m * 60_000 + s * 1_000);
@@ -27,7 +27,6 @@ const makePhotos = (count: number, startVotes: number): MatchPhoto[] =>
     votes: Math.max(0, startVotes - i * Math.floor(startVotes / (count + 1))),
     imageUrl: `https://picsum.photos/seed/${i + 10}/64/64`,
   }));
-
 
 export const OPEN_MATCHES: Match[] = [
   {

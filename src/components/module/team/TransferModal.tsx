@@ -1,9 +1,22 @@
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TeamMember } from "@/types/team";
-import { getMemberName } from "@/utils/team-utils";
-import { useState } from "react";
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { TeamMember } from '@/types/team';
+import { getMemberName } from '@/utils/team-utils';
+import { useState } from 'react';
 
 interface TransferModalProps {
   open: boolean;
@@ -56,4 +69,4 @@ function TransferModal({ open, onClose, members, onTransfer }: TransferModalProp
   );
 }
 
-export default TransferModal
+export default TransferModal;
