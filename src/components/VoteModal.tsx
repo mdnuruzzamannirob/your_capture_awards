@@ -64,7 +64,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
         </VisuallyHidden>
 
         {/* Image / Grid Section */}
-        <div className="scrollbar-thin relative size-full flex-1 overflow-y-auto">
+        <div className="relative size-full flex-1 scrollbar-thin overflow-y-auto">
           {isLoading ? (
             <div className="columns-2 gap-0.5 sm:columns-3 lg:columns-4">
               {[...Array(16)].map((_, i) => (

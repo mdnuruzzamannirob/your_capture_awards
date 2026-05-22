@@ -1,13 +1,13 @@
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import useCountdown from "@/hooks/useCountdown";
-import { Match } from "@/types/match";
-import { cn } from "@/utils/cn";
-import { formatCountdown } from "@/utils/match-utils";
-import { Camera, LogOut } from "lucide-react";
-import { toast } from "sonner";
-import TeamVsPanel from "./TeamVsPanel";
-import PhotoListPanel from "./PhotoListPanel";
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import useCountdown from '@/hooks/useCountdown';
+import { Match } from '@/types/match';
+import { cn } from '@/utils/cn';
+import { formatCountdown } from '@/utils/match-utils';
+import { Camera, LogOut } from 'lucide-react';
+import { toast } from 'sonner';
+import TeamVsPanel from './TeamVsPanel';
+import PhotoListPanel from './PhotoListPanel';
 
 interface ActiveMatchProps {
   match: Match;
