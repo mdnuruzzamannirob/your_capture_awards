@@ -53,14 +53,14 @@ export default function TeamHomeLayout({
   const latestMessageRef = useRef<HTMLDivElement | null>(null);
 
   const teamMenu = [
-    { name: 'My Team', path: '/team/home', icon: <Users className="size-6" /> },
-    { name: 'Match', path: '/team/home/match', icon: <Swords className="size-6" /> },
+    { name: 'My Team', path: '/teams/home', icon: <Users className="size-6" /> },
+    { name: 'Match', path: '/teams/home/match', icon: <Swords className="size-6" /> },
     {
       name: 'Leaderboard',
-      path: '/team/home/leaderboard',
+      path: '/teams/home/leaderboard',
       icon: <MdLeaderboard className="size-6" />,
     },
-    { name: 'History', path: '/team/home/history', icon: <History className="size-6" /> },
+    { name: 'History', path: '/teams/home/history', icon: <History className="size-6" /> },
   ];
 
   const scrollToLatest = () => {
