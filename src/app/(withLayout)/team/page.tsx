@@ -178,7 +178,7 @@ export default function Team() {
             </div>
 
             <Button asChild variant="outline" className="border-black-2-600 bg-black-2-700/80">
-              <Link href="/teams/create">
+              <Link href="/team/create">
                 Create Team
                 <ExternalLink className="size-4" />
               </Link>
@@ -303,7 +303,7 @@ function FeaturedTeamCard({ team }: { team: DiscoverTeam }) {
           asChild
           className="bg-primary text-primary-foreground hover:bg-orange-2-400 h-10 flex-1"
         >
-          <Link href="/teams/create">Join Team</Link>
+          <Link href={`/team/${team.id}`}>Join Team</Link>
         </Button>
       </div>
     </article>
