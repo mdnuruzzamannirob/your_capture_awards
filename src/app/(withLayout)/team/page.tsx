@@ -297,7 +297,7 @@ function FeaturedTeamCard({ team }: { team: DiscoverTeam }) {
           variant="outline"
           className="border-black-2-600 bg-black-2-800/70 text-primary h-10 flex-1"
         >
-          <Link href="/team/home">View Team</Link>
+          <Link href={`/team/${team.id}`}>View Team</Link>
         </Button>
         <Button
           asChild
@@ -357,7 +357,7 @@ function TeamRow({ team, rank }: { team: DiscoverTeam; rank: number }) {
           variant="ghost"
           className="text-primary hover:text-primary hover:bg-primary/10 px-3"
         >
-          <Link href="/team/home">View</Link>
+          <Link href={`/team/${team.id}`}>View</Link>
         </Button>
       </div>
     </div>
