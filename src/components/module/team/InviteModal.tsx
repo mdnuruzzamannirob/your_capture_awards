@@ -18,7 +18,7 @@ interface InviteModalProps {
 }
 
 function InviteModal({ open, onClose, teamId }: InviteModalProps) {
-  const inviteLink = `https://captureaward.io/team/${teamId}/join`;
+  const inviteLink = `https://captureaward.io/teams/${teamId}/join`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteLink).catch(() => {});

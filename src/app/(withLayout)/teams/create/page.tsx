@@ -4,7 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Upload } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { useRef, useState, type ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
@@ -27,32 +28,40 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { COUNTRIES, LANGUAGES, SKILL_LEVELS } from '@/constants/team';
+import { COUNTRIES, LANGUAGES } from '@/constants/team';
+import { useCreateTeamMutation } from '@/store/apis/teamApi';
+
+const TEAM_REQUIREMENTS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'] as const;
 
 const createTeamSchema = z.object({
   name: z.string().min(3, 'Team name should be at least 3 characters').max(50, 'Too long'),
+  level: z.string(),
+  min_requirement: z.enum(TEAM_REQUIREMENTS),
   language: z.string().min(1, 'Select a language'),
   country: z.string().min(1, 'Select a country'),
   description: z.string().min(20, 'Add a stronger description').max(300, 'Max 300 characters'),
   accessibility: z.enum(['PUBLIC', 'PRIVATE']),
-  min_requirement: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT']),
 });
 
 type CreateTeamValues = z.infer<typeof createTeamSchema>;
 
 const defaultValues: CreateTeamValues = {
   name: '',
+  level: 'Beginner',
+  min_requirement: 'BEGINNER',
   language: 'English',
   country: 'United States',
   description: '',
   accessibility: 'PUBLIC',
-  min_requirement: 'BEGINNER',
 };
 
 function TeamCreatePage() {
+  const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [badgePreview, setBadgePreview] = useState<string | null>(null);
   const [badgeFileName, setBadgeFileName] = useState('No badge selected');
+  const [badgeFile, setBadgeFile] = useState<File | null>(null);
+  const [createTeam, { isLoading: isCreating }] = useCreateTeamMutation();
 
   const form = useForm<CreateTeamValues, any, CreateTeamValues>({
     resolver: zodResolver(createTeamSchema),
@@ -76,6 +85,7 @@ function TeamCreatePage() {
       return;
     }
 
+    setBadgeFile(file);
     setBadgeFileName(file.name);
 
     const reader = new FileReader();
@@ -86,32 +96,44 @@ function TeamCreatePage() {
   const clearBadge = () => {
     setBadgePreview(null);
     setBadgeFileName('No badge selected');
+    setBadgeFile(null);
 
     if (fileRef.current) {
       fileRef.current.value = '';
     }
   };
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const onSubmit = async (values: CreateTeamValues) => {
+    try {
+      const payload = new FormData();
 
-    const isValid = await form.trigger();
-    if (!isValid) return;
+      payload.append('name', values.name);
+      payload.append('level', values.level || 'Beginner');
+      payload.append('language', values.language);
+      payload.append('country', values.country);
+      payload.append('description', values.description);
+      payload.append('accessibility', values.accessibility);
+      payload.append('min_requirement', values.min_requirement);
 
-    const data = form.getValues();
+      if (badgeFile) {
+        payload.append('badge', badgeFile);
+      }
 
-    toast.success('Team draft ready', {
-      description: `${data.name} is ready to be submitted when the create endpoint is connected.`,
-    });
-
-    form.reset(defaultValues);
-    clearBadge();
+      await createTeam(payload).unwrap();
+      toast.success('Team created successfully.');
+      form.reset(defaultValues);
+      clearBadge();
+      router.push('/teams');
+    } catch (error) {
+      console.error('Failed to create team:', error);
+      toast.error('Failed to create team');
+    }
   };
 
   return (
     <main className="margin container py-8 lg:py-10">
       <div className="space-y-5">
-        <Link href="/team" className="text-primary hover:text-orange-2-400 text-sm font-medium">
+        <Link href="/teams" className="text-primary hover:text-orange-2-400 text-sm font-medium">
           &lt; View Teams List
         </Link>
 
@@ -126,7 +148,7 @@ function TeamCreatePage() {
         </div>
 
         <Form {...form}>
-          <form onSubmit={onSubmit} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <span className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-full">
@@ -223,18 +245,18 @@ function TeamCreatePage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
-                      Level requirement
+                      Minimum requirement
                     </FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger className="border-black-2-600 bg-black-2-700/90 w-full!">
-                          <SelectValue placeholder="Select level" />
+                          <SelectValue placeholder="Select minimum requirement" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {SKILL_LEVELS.map((level) => (
-                          <SelectItem key={level} value={level}>
-                            {level}
+                        {TEAM_REQUIREMENTS.map((requirement) => (
+                          <SelectItem key={requirement} value={requirement}>
+                            {requirement}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -347,13 +369,14 @@ function TeamCreatePage() {
 
             <div className="flex gap-3 sm:justify-end">
               <Button asChild variant="outline" className="border-black-2-600 bg-black-2-700/80">
-                <Link href="/team">Cancel</Link>
+                <Link href="/teams">Cancel</Link>
               </Button>
               <Button
                 type="submit"
                 className="bg-primary text-primary-foreground hover:bg-orange-2-400"
+                disabled={isCreating}
               >
-                Create team
+                {isCreating ? 'Creating...' : 'Create team'}
               </Button>
             </div>
           </form>

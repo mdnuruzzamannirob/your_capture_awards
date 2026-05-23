@@ -60,7 +60,7 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ tea
   return (
     <main className="margin container py-8 lg:py-10">
       <div className="space-y-5">
-        <Link href="/team" className="text-primary hover:text-orange-2-400 text-sm font-medium">
+        <Link href="/teams" className="text-primary hover:text-orange-2-400 text-sm font-medium">
           &lt; View Teams List
         </Link>
 
