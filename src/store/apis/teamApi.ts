@@ -27,29 +27,37 @@ export const teamApi = createApi({
   endpoints: (builder) => ({
     // ── Get Teams List ───────────────────────────────────────────────────
     getTeams: builder.query<GetTeamsResponse, GetTeamsParams | void>({
-      query: (params = {}) => ({
-        url: '/teams',
-        method: 'GET',
-        params: {
-          page: params.page ?? 1,
-          limit: params.limit ?? 10,
-          ...(params.search ? { search: params.search } : {}),
-        },
-      }),
+      query: (params) => {
+        const { page = 1, limit = 10, search } = params ?? {};
+
+        return {
+          url: '/teams',
+          method: 'GET',
+          params: {
+            page,
+            limit,
+            ...(search ? { search } : {}),
+          },
+        };
+      },
       providesTags: ['Teams'],
     }),
 
     // ── Get Suggested Teams ─────────────────────────────────────────────
     getSuggestedTeams: builder.query<GetSuggestedTeamsResponse, GetTeamsParams | void>({
-      query: (params = {}) => ({
-        url: '/teams/suggests',
-        method: 'GET',
-        params: {
-          page: params.page ?? 1,
-          limit: params.limit ?? 10,
-          ...(params.search ? { search: params.search } : {}),
-        },
-      }),
+      query: (params) => {
+        const { page = 1, limit = 10, search } = params ?? {};
+
+        return {
+          url: '/teams/suggests',
+          method: 'GET',
+          params: {
+            page,
+            limit,
+            ...(search ? { search } : {}),
+          },
+        };
+      },
       providesTags: ['SuggestedTeams'],
     }),
 
