@@ -5,7 +5,7 @@ import { Upload } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
@@ -67,6 +67,10 @@ function TeamCreatePage() {
     resolver: zodResolver(createTeamSchema),
     defaultValues,
   });
+
+  const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+    void form.handleSubmit(onSubmit)(event);
+  };
 
   const handleBadgeChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -148,7 +152,7 @@ function TeamCreatePage() {
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={onFormSubmit} className="space-y-6">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <span className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-full">
