@@ -2,10 +2,14 @@ import { baseQuery } from '@/store/baseQuery';
 import {
   ApproveRequestResponse,
   AssignRoleResponse,
+  CreateTeamResponse,
   DeleteTeamResponse,
   GetMyTeamResponse,
   GetPendingRequestsResponse,
+  GetSuggestedTeamsResponse,
   GetTeamMembersResponse,
+  GetTeamsParams,
+  GetTeamsResponse,
   InviteMemberResponse,
   LeaveTeamResponse,
   RejectRequestResponse,
@@ -19,8 +23,46 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 export const teamApi = createApi({
   reducerPath: 'teamApi',
   baseQuery: baseQuery(typeof window === 'undefined'),
-  tagTypes: ['Team', 'TeamMembers', 'JoinRequests', 'TeamInvitations'],
+  tagTypes: ['Team', 'Teams', 'SuggestedTeams', 'TeamMembers', 'JoinRequests', 'TeamInvitations'],
   endpoints: (builder) => ({
+    // ── Get Teams List ───────────────────────────────────────────────────
+    getTeams: builder.query<GetTeamsResponse, GetTeamsParams | void>({
+      query: (params = {}) => ({
+        url: '/teams',
+        method: 'GET',
+        params: {
+          page: params.page ?? 1,
+          limit: params.limit ?? 10,
+          ...(params.search ? { search: params.search } : {}),
+        },
+      }),
+      providesTags: ['Teams'],
+    }),
+
+    // ── Get Suggested Teams ─────────────────────────────────────────────
+    getSuggestedTeams: builder.query<GetSuggestedTeamsResponse, GetTeamsParams | void>({
+      query: (params = {}) => ({
+        url: '/teams/suggests',
+        method: 'GET',
+        params: {
+          page: params.page ?? 1,
+          limit: params.limit ?? 10,
+          ...(params.search ? { search: params.search } : {}),
+        },
+      }),
+      providesTags: ['SuggestedTeams'],
+    }),
+
+    // ── Create Team ──────────────────────────────────────────────────────
+    createTeam: builder.mutation<CreateTeamResponse, FormData>({
+      query: (data) => ({
+        url: '/teams',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Teams', 'SuggestedTeams', 'Team'],
+    }),
+
     // ── Get Team Data ─────────────────────────────────────────────────────
     getMyTeam: builder.query<GetMyTeamResponse, void>({
       query: () => ({
@@ -144,6 +186,9 @@ export const teamApi = createApi({
 
 // Export hooks for usage in components
 export const {
+  useGetTeamsQuery,
+  useGetSuggestedTeamsQuery,
+  useCreateTeamMutation,
   useGetMyTeamQuery,
   useGetTeamMembersQuery,
   useInviteMemberMutation,

@@ -54,6 +54,34 @@ export interface TeamData {
   updatedAt: string;
 }
 
+export interface TeamUserSummary {
+  id: string;
+  fullName: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  avatar: string | null;
+  country?: string | null;
+  email?: string | null;
+  username?: string | null;
+}
+
+export interface TeamListMember {
+  id: string;
+  status: MemberStatus;
+  level: Role;
+  teamId: string;
+  memberId: string;
+  createdAt: string;
+  updatedAt: string;
+  member: TeamUserSummary;
+}
+
+export interface TeamListItem extends TeamData {
+  creator?: TeamUserSummary;
+  members?: TeamListMember[];
+  min_requirement_str?: string | null;
+}
+
 export interface JoinRequest {
   id: string;
   teamId: string;
@@ -73,6 +101,31 @@ export interface TeamInvitation {
   expiredAt: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface GetTeamsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
+export interface CreateTeamRequest {
+  name: string;
+  level: string;
+  language: string;
+  country: string;
+  description: string;
+  accessibility: Accessibility;
+  min_requirement: number | string;
 }
 
 // ── Request/Response Types ────────────────────────────────────────────
@@ -150,15 +203,23 @@ export interface UpdateTeamResponse {
 export interface GetPendingRequestsResponse {
   success: boolean;
   message: string;
-  meta: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPage: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
+  meta: PaginationMeta;
   data: JoinRequest[];
+}
+
+export interface GetTeamsResponse {
+  success: boolean;
+  message: string;
+  meta: PaginationMeta;
+  data: TeamListItem[];
+}
+
+export interface GetSuggestedTeamsResponse extends GetTeamsResponse {}
+
+export interface CreateTeamResponse {
+  success: boolean;
+  message: string;
+  data: TeamListItem;
 }
 
 export interface ApproveRequestResponse {
