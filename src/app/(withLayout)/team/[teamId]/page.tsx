@@ -15,6 +15,17 @@ function formatSkillLabel(value: string) {
   return value.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function getRoleBadgeClass(level: string) {
+  switch (level) {
+    case 'LEADER':
+      return 'border-orange-2-500/40 bg-orange-2-500/15 text-orange-2-100';
+    case 'MODERATOR':
+      return 'border-sky-500/40 bg-sky-500/15 text-sky-100';
+    default:
+      return 'border-black-2-500 bg-black-2-700 text-muted-foreground';
+  }
+}
+
 export default async function TeamDetailPage({ params }: { params: Promise<{ teamId: string }> }) {
   const { teamId } = await params;
 
@@ -185,17 +196,17 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ tea
                     </Avatar>
 
                     <div className="min-w-0">
-                      <p className="text-foreground truncate text-sm font-semibold sm:text-base">
-                        {name}
-                      </p>
-                      <p className="text-muted-foreground mt-1 text-xs sm:text-sm">
+                      <p className="truncate font-semibold max-sm:text-sm">{name}</p>
+                      <p className="text-muted-foreground text-xs sm:text-sm">
                         {member.member.location ?? 'Unknown location'}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-end">
-                    <span className="border-black-2-600 bg-black-2-700 text-primary inline-flex rounded-sm border px-2 py-1 text-xs font-semibold tracking-[0.24em] uppercase">
+                    <span
+                      className={`inline-flex rounded-sm border px-2 py-1 text-xs font-semibold tracking-[0.24em] uppercase ${getRoleBadgeClass(member.level)}`}
+                    >
                       {member.level.replace('_', ' ')}
                     </span>
                   </div>
