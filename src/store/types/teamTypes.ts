@@ -214,7 +214,7 @@ export interface GetTeamsResponse {
   data: TeamListItem[];
 }
 
-export interface GetSuggestedTeamsResponse extends GetTeamsResponse {}
+export type GetSuggestedTeamsResponse = GetTeamsResponse;
 
 export interface CreateTeamResponse {
   success: boolean;
