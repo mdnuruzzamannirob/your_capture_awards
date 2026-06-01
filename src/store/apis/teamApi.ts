@@ -10,14 +10,17 @@ import {
   GetPendingRequestsResponse,
   GetSuggestedTeamsResponse,
   GetTeamMembersResponse,
+  GetTeamLeaderboardParams,
   GetTeamsParams,
   GetTeamsResponse,
   InviteMemberResponse,
   JoinTeamResponse,
   LeaveTeamResponse,
+  GetTeamLeaderboardResponse,
   RejectRequestResponse,
   RemoveMemberResponse,
   RevokeRoleResponse,
+  LeaderboardPeriod,
   StartMatchAutoRequest,
   StartMatchAutoResponse,
   UpdateTeamRequest,
@@ -134,6 +137,16 @@ export const teamApi = createApi({
       }),
       providesTags: (result, error, { teamId }) =>
         result ? [{ type: 'TeamContests', id: teamId }] : ['TeamContests'],
+    }),
+
+    // ── Get Team Leaderboard ────────────────────────────────────────────
+    getTeamLeaderboard: builder.query<GetTeamLeaderboardResponse, GetTeamLeaderboardParams>({
+      query: ({ period, page = 1, limit = 10 }) => ({
+        url: '/teams/leaderboard/all',
+        method: 'GET',
+        params: { period, page, limit },
+      }),
+      providesTags: ['Teams'],
     }),
 
     // ── Start Match Auto ────────────────────────────────────────────────
@@ -273,6 +286,7 @@ export const {
   useGetTeamQuery,
   useGetActiveTeamMatchQuery,
   useGetAvailableTeamContestsQuery,
+  useGetTeamLeaderboardQuery,
   useStartMatchAutoMutation,
   useJoinTeamMutation,
   useCreateTeamMutation,
