@@ -1,10 +1,10 @@
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
 import useCountdown from '@/hooks/useCountdown';
 import { Match } from '@/types/match';
+import CornerCount from '@/components/CornerCount';
 import { formatShortTime } from '@/utils/match-utils';
-import { ChevronRight, Clock, Play, Target, Users } from 'lucide-react';
+import { Clock, Play } from 'lucide-react';
 
 interface MatchCardProps {
   match: Match;
@@ -14,72 +14,52 @@ interface MatchCardProps {
 
 function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardProps) {
   const remaining = useCountdown(match.endsAt);
-  const fillPct = Math.round((match.teamsJoined / match.maxTeams) * 100);
-  const isFull = match.teamsJoined >= match.maxTeams;
+  const teamMembersLabel =
+    match.teamsJoined <= 0
+      ? 'No Team members in the Challenge'
+      : `${match.teamsJoined} Team members in the Challenge`;
+  const banner = match.teamA.badge || '/images/TeamPhoto.png';
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-md border transition-shadow hover:shadow-md">
-      {/* Photo count ribbon — top-right */}
-      <div
-        className="bg-primary absolute top-0 right-0 size-14"
-        style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%)' }}
-      >
-        <div className="text-primary-foreground absolute top-1 right-0.5 w-9 rotate-45 text-center">
-          <p className="text-sm leading-none font-bold">{match.photosRequired}</p>
-          <p className="mt-0.5 text-[7px] tracking-wide uppercase">Photos</p>
+    <article className="group border-black-2-600 bg-black-2-800/80 overflow-hidden rounded-xl border">
+      <div className="relative overflow-hidden">
+        <Image
+          src={banner}
+          alt={match.theme}
+          width={960}
+          height={560}
+          className="h-72 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+        />
+        <div className="absolute inset-0 bg-black/35" />
+        <CornerCount count={match.photosRequired} className="bg-black/85 text-white" />
+
+        <div className="absolute inset-0 flex flex-col justify-between p-4 sm:p-5">
+          <div className="space-y-2 text-center text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.75)]">
+            <h3 className="text-[22px] leading-tight font-extrabold sm:text-[26px]">
+              {match.theme}
+            </h3>
+            <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-black/55 px-3 py-1 text-sm font-medium">
+              <Clock className="size-4" />
+              <span>{formatShortTime(remaining)}</span>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            <Button
+              className="min-w-36 rounded-md bg-white px-6 py-2 text-sm font-bold text-black hover:bg-zinc-200"
+              onClick={() => onStart(match)}
+            >
+              <Play className="mr-2 size-4" />
+              {actionLabel}
+            </Button>
+          </div>
+
+          <div className="rounded-md bg-black/55 px-3 py-3 text-center text-white">
+            <p className="text-sm font-semibold sm:text-base">{teamMembersLabel}</p>
+          </div>
         </div>
       </div>
-
-      {/* Card body */}
-      <div className="flex flex-1 flex-col gap-3 p-4 pr-10">
-        {/* Theme */}
-        <div>
-          <p className="text-muted-foreground mb-1 text-[10px] font-semibold tracking-wider uppercase">
-            Match Theme
-          </p>
-          <h3 className="leading-snug font-semibold">{match.theme}</h3>
-        </div>
-
-        {/* Stats row */}
-        <div className="text-muted-foreground flex flex-wrap gap-3 text-xs">
-          <span className="flex items-center gap-1">
-            <Clock size={11} />
-            {formatShortTime(remaining)}
-          </span>
-          <span className="flex items-center gap-1">
-            <Users size={11} />
-            {match.teamsJoined}/{match.maxTeams} teams
-          </span>
-          <span className="flex items-center gap-1">
-            <Target size={11} />
-            {match.minRequirement}+
-          </span>
-        </div>
-
-        {/* Slots fill */}
-        <div>
-          <Progress value={fillPct} className="h-1" />
-          <p className="text-muted-foreground mt-1 text-[10px]">
-            {isFull ? 'Match full' : `${match.maxTeams - match.teamsJoined} slots remaining`}
-          </p>
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Action */}
-      <div className="p-3">
-        <Button
-          className="h-8 w-full gap-1.5 text-xs"
-          disabled={isFull}
-          onClick={() => onStart(match)}
-        >
-          <Play size={13} />
-          {actionLabel}
-          <ChevronRight size={13} />
-        </Button>
-      </div>
-    </div>
+    </article>
   );
 }
 
