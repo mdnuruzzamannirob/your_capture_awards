@@ -1,13 +1,17 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 import { teamCardClass, teamShellClass } from '@/components/module/teams/teamUi';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { getTeamDetailById } from '@/lib/mock/teamDetails';
+import { Skeleton } from '@/components/ui/skeleton';
+import type { TeamDetail } from '@/lib/mock/teamDetails';
+import { useGetTeamQuery, useJoinTeamMutation } from '@/store/apis/teamApi';
 import { getAvatarClass, getInitials, getMemberName } from '@/utils/team-utils';
 import { BadgeCheck, Languages, MapPin, Medal, Trophy, Users } from 'lucide-react';
 
@@ -26,35 +30,155 @@ function getRoleBadgeClass(level: string) {
   }
 }
 
-export default async function TeamDetailPage({ params }: { params: Promise<{ teamId: string }> }) {
-  const { teamId } = await params;
+function TeamDetailSkeleton() {
+  return (
+    <main className="margin container py-8 lg:py-10">
+      <div className="space-y-5">
+        <Skeleton className="h-4 w-32" />
 
-  if (!teamId) {
-    notFound();
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-full max-w-2xl" />
+          <Skeleton className="h-4 w-4/5 max-w-xl" />
+        </div>
+
+        <section className={`${teamShellClass} overflow-hidden`}>
+          <div className="border-black-2-600 border-b p-5 sm:p-6 lg:p-8">
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div className="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:items-start">
+                <Skeleton className="size-28 shrink-0 rounded-full sm:size-32 lg:size-36" />
+
+                <div className="min-w-0 space-y-3 pt-1 sm:pt-2">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Skeleton className="h-8 w-56" />
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </div>
+
+                  <Skeleton className="h-4 w-full max-w-4xl" />
+                  <Skeleton className="h-4 w-11/12 max-w-3xl" />
+
+                  <div className="flex flex-wrap gap-2">
+                    <Skeleton className="h-7 w-24 rounded-md" />
+                    <Skeleton className="h-7 w-24 rounded-md" />
+                    <Skeleton className="h-7 w-40 rounded-md" />
+                  </div>
+                </div>
+              </div>
+
+              <Skeleton className="h-12 w-32 rounded-md" />
+            </div>
+
+            <div className={`${teamCardClass} relative mt-8 px-4 py-4 sm:px-5`}>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <Skeleton className="size-10 shrink-0 rounded-full" />
+                    <div className="min-w-0 space-y-2">
+                      <Skeleton className="h-5 w-16" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <Separator className="bg-black-2-600" />
+
+          <div className="divide-black-2-600 divide-y">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-1 items-center gap-4 px-5 py-4 sm:grid-cols-[56px_minmax(0,1fr)_240px] sm:px-6 lg:grid-cols-[64px_minmax(0,1fr)_280px]"
+              >
+                <Skeleton className="mx-auto h-6 w-6 rounded-full" />
+
+                <div className="flex min-w-0 items-center gap-3">
+                  <Skeleton className="size-12 shrink-0 rounded-full" />
+                  <div className="min-w-0 space-y-2">
+                    <Skeleton className="h-4 w-36" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end">
+                  <Skeleton className="h-6 w-24 rounded-sm" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+export default function TeamDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const teamId = params?.teamId as string | undefined;
+
+  const {
+    data: apiResp,
+    isLoading,
+    isError,
+  } = useGetTeamQuery(teamId ?? '', {
+    skip: !teamId,
+  });
+
+  const [joinTeam, { isLoading: isJoining }] = useJoinTeamMutation();
+
+  const apiTeam = ((apiResp as any)?.data ?? apiResp) as TeamDetail | undefined;
+  const resolvedTeam = apiTeam;
+
+  const members = resolvedTeam?.members ?? [];
+
+  const metrics = resolvedTeam
+    ? [
+        { icon: Trophy, label: 'Team Score', value: resolvedTeam.score.toLocaleString() },
+        { icon: Medal, label: 'Team Wins', value: resolvedTeam.win.toLocaleString() },
+        {
+          icon: BadgeCheck,
+          label: 'Win Rate',
+          value: `${Math.round((resolvedTeam.win / Math.max(resolvedTeam.total_matches, 1)) * 100)}%`,
+        },
+        {
+          icon: Users,
+          label: 'Team Members',
+          value: `${resolvedTeam.member_count}/${resolvedTeam.member_slots}`,
+        },
+        { icon: Languages, label: 'Language', value: resolvedTeam.language },
+        { icon: MapPin, label: 'Country', value: resolvedTeam.country },
+      ]
+    : [];
+
+  if (isLoading) {
+    return <TeamDetailSkeleton />;
   }
 
-  const team = getTeamDetailById(teamId);
-
-  if (!team) {
-    notFound();
+  if (isError || !resolvedTeam) {
+    return (
+      <main className="margin container py-8 lg:py-10">
+        <div className="text-muted-foreground py-10 text-sm">Team details could not be loaded.</div>
+      </main>
+    );
   }
 
-  const metrics = [
-    { icon: Trophy, label: 'Team Score', value: team.score.toLocaleString() },
-    { icon: Medal, label: 'Team Wins', value: team.win.toLocaleString() },
-    {
-      icon: BadgeCheck,
-      label: 'Win Rate',
-      value: `${Math.round((team.win / team.total_matches) * 100)}%`,
-    },
-    { icon: Users, label: 'Team Members', value: `${team.member_count}/${team.member_slots}` },
-    { icon: Languages, label: 'Language', value: team.language },
-    { icon: MapPin, label: 'Country', value: team.country },
-  ];
+  const handleJoinTeam = async () => {
+    if (!teamId || isJoining) return;
 
-  const members = team.members.map((member, index) => ({
+    try {
+      await joinTeam(teamId).unwrap();
+      router.push('/teams/home');
+    } catch (error) {
+      console.error('Failed to join team:', error);
+    }
+  };
+
+  const rankedMembers = members.map((member, index) => ({
     ...member,
-    points: team.score - index * 123456,
+    points: resolvedTeam.score - index * 123456,
   }));
 
   return (
@@ -77,17 +201,17 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ tea
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
               <div className="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:items-start">
                 <div className="border-black-2-600 bg-black-2-700 relative size-28 shrink-0 overflow-hidden rounded-full border-4 sm:size-32 lg:size-36">
-                  {team.badge ? (
+                  {resolvedTeam.badge ? (
                     <Image
-                      src={team.badge}
-                      alt={team.name}
+                      src={resolvedTeam.badge}
+                      alt={resolvedTeam.name}
                       fill
                       className="object-cover"
                       sizes="144px"
                     />
                   ) : (
                     <div className="bg-primary text-primary-foreground flex size-full items-center justify-center text-2xl font-bold">
-                      {team.name.slice(0, 2).toUpperCase()}
+                      {resolvedTeam.name.slice(0, 2).toUpperCase()}
                     </div>
                   )}
                 </div>
@@ -95,48 +219,53 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ tea
                 <div className="min-w-0 space-y-3 pt-1 sm:pt-2">
                   <div className="flex flex-wrap items-center gap-3">
                     <h2 className="font-kumbh text-foreground text-2xl font-bold sm:text-[28px]">
-                      {team.name}
+                      {resolvedTeam.name}
                     </h2>
                     <Badge
                       variant="outline"
                       className="border-orange-2-500/40 bg-orange-2-500/10 text-orange-2-100"
                     >
-                      {team.level}
+                      {resolvedTeam.level}
                     </Badge>
                     <Badge
                       variant="outline"
                       className={
-                        team.accessibility === 'PUBLIC'
+                        resolvedTeam.accessibility === 'PUBLIC'
                           ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200'
                           : 'border-black-2-600 bg-black-2-700 text-muted-foreground'
                       }
                     >
-                      {team.accessibility === 'PUBLIC' ? 'Public' : 'Private'}
+                      {resolvedTeam.accessibility === 'PUBLIC' ? 'Public' : 'Private'}
                     </Badge>
                   </div>
 
                   <p className="text-muted-foreground max-w-4xl text-sm leading-7 sm:text-[15px]">
-                    {team.description}
+                    {resolvedTeam.description}
                   </p>
 
                   <div className="flex flex-wrap gap-2">
                     <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
-                      <Languages size={12} /> {team.language}
+                      <Languages size={12} /> {resolvedTeam.language}
                     </span>
                     <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
-                      <MapPin size={12} /> {team.country}
+                      <MapPin size={12} /> {resolvedTeam.country}
                     </span>
                     <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
                       Level Requirement:{' '}
-                      {formatSkillLabel(team.min_requirement || team.skill_level)}
+                      {formatSkillLabel(resolvedTeam.min_requirement || resolvedTeam.skill_level)}
                     </span>
                   </div>
                 </div>
               </div>
 
               <div className="flex shrink-0 justify-end">
-                <Button className="bg-primary text-primary-foreground hover:bg-orange-2-400 h-12 rounded-md px-8 font-semibold">
-                  Join Team
+                <Button
+                  type="button"
+                  onClick={handleJoinTeam}
+                  disabled={isJoining}
+                  className="bg-primary text-primary-foreground hover:bg-orange-2-400 h-12 rounded-md px-8 font-semibold disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isJoining ? 'Joining...' : 'Join Team'}
                 </Button>
               </div>
             </div>
@@ -169,50 +298,56 @@ export default async function TeamDetailPage({ params }: { params: Promise<{ tea
           <Separator className="bg-black-2-600" />
 
           <div className="divide-black-2-600 divide-y">
-            {members.map((member, index) => {
-              const name = getMemberName(member.member);
+            {rankedMembers.length > 0 ? (
+              rankedMembers.map((member, index) => {
+                const name = getMemberName(member.member);
 
-              return (
-                <div
-                  key={member.id}
-                  className="hover:bg-black-2-700/40 grid grid-cols-1 items-center gap-4 px-5 py-4 transition-colors sm:grid-cols-[56px_minmax(0,1fr)_240px] sm:px-6 lg:grid-cols-[64px_minmax(0,1fr)_280px]"
-                >
-                  <div className="text-muted-foreground text-center text-lg font-medium">
-                    {index + 1}
-                  </div>
+                return (
+                  <div
+                    key={member.id}
+                    className="hover:bg-black-2-700/40 grid grid-cols-1 items-center gap-4 px-5 py-4 transition-colors sm:grid-cols-[56px_minmax(0,1fr)_240px] sm:px-6 lg:grid-cols-[64px_minmax(0,1fr)_280px]"
+                  >
+                    <div className="text-muted-foreground text-center text-lg font-medium">
+                      {index + 1}
+                    </div>
 
-                  <div className="flex min-w-0 items-center gap-3">
-                    <Avatar className="size-12 shrink-0">
-                      {member.member.avatar && <AvatarImage src={member.member.avatar} />}
-                      <AvatarFallback
-                        className={`text-sm font-semibold ${getAvatarClass(member.level)}`}
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Avatar className="size-12 shrink-0">
+                        {member.member.avatar && <AvatarImage src={member.member.avatar} />}
+                        <AvatarFallback
+                          className={`text-sm font-semibold ${getAvatarClass(member.level)}`}
+                        >
+                          {getInitials(
+                            member.member.fullName,
+                            member.member.firstName ?? undefined,
+                            member.member.lastName ?? undefined,
+                          )}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold max-sm:text-sm">{name}</p>
+                        <p className="text-muted-foreground text-xs sm:text-sm">
+                          {member.member.location ?? 'Unknown location'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end">
+                      <span
+                        className={`inline-flex rounded-sm border px-2 py-1 text-xs font-semibold tracking-[0.24em] uppercase ${getRoleBadgeClass(member.level)}`}
                       >
-                        {getInitials(
-                          member.member.fullName,
-                          member.member.firstName ?? undefined,
-                          member.member.lastName ?? undefined,
-                        )}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div className="min-w-0">
-                      <p className="truncate font-semibold max-sm:text-sm">{name}</p>
-                      <p className="text-muted-foreground text-xs sm:text-sm">
-                        {member.member.location ?? 'Unknown location'}
-                      </p>
+                        {member.level.replace('_', ' ')}
+                      </span>
                     </div>
                   </div>
-
-                  <div className="flex items-center justify-end">
-                    <span
-                      className={`inline-flex rounded-sm border px-2 py-1 text-xs font-semibold tracking-[0.24em] uppercase ${getRoleBadgeClass(member.level)}`}
-                    >
-                      {member.level.replace('_', ' ')}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })
+            ) : (
+              <div className="text-muted-foreground px-5 py-8 text-sm sm:px-6">
+                Team members are not available for this team yet.
+              </div>
+            )}
           </div>
         </section>
       </div>

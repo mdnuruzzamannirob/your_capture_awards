@@ -11,6 +11,7 @@ import {
   GetTeamsParams,
   GetTeamsResponse,
   InviteMemberResponse,
+  JoinTeamResponse,
   LeaveTeamResponse,
   RejectRequestResponse,
   RemoveMemberResponse,
@@ -80,6 +81,15 @@ export const teamApi = createApi({
       providesTags: ['Team', 'TeamMembers'],
     }),
 
+    // ── Get Single Team ───────────────────────────────────────────────────
+    getTeam: builder.query<unknown, string>({
+      query: (teamId) => ({
+        url: `/teams/${teamId}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, teamId) => (result ? [{ type: 'Team', id: teamId }] : []),
+    }),
+
     // ── Get Team Members ──────────────────────────────────────────────────
     getTeamMembers: builder.query<GetTeamMembersResponse, string>({
       query: (teamId) => ({
@@ -87,6 +97,15 @@ export const teamApi = createApi({
         method: 'GET',
       }),
       providesTags: ['TeamMembers'],
+    }),
+
+    // ── Join Team ────────────────────────────────────────────────────────
+    joinTeam: builder.mutation<JoinTeamResponse, string>({
+      query: (teamId) => ({
+        url: `/teams/join/${teamId}`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Team', 'TeamMembers', 'Teams'],
     }),
 
     // ── Invite Member ─────────────────────────────────────────────────────
@@ -196,6 +215,8 @@ export const teamApi = createApi({
 export const {
   useGetTeamsQuery,
   useGetSuggestedTeamsQuery,
+  useGetTeamQuery,
+  useJoinTeamMutation,
   useCreateTeamMutation,
   useGetMyTeamQuery,
   useGetTeamMembersQuery,

@@ -1,9 +1,10 @@
 'use client';
 
-import { ExternalLink, MapPin, Search, Trophy, Users, X } from 'lucide-react';
+import { MapPin, Search, Trophy, Users, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useDeferredValue, useEffect, useState } from 'react';
 import 'swiper/css';
 import 'swiper/css/free-mode';
 import 'swiper/css/scrollbar';
@@ -13,7 +14,12 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Avatar, AvatarFallback, AvatarGroup, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useGetSuggestedTeamsQuery, useGetTeamsQuery } from '@/store/apis/teamApi';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import {
+  useGetSuggestedTeamsQuery,
+  useGetTeamsQuery,
+  useJoinTeamMutation,
+} from '@/store/apis/teamApi';
 import type { PaginationMeta, TeamListItem, TeamUserSummary } from '@/store/types/teamTypes';
 
 const PAGE_SIZE = 8;
@@ -64,80 +70,52 @@ function getTeamAvatars(team: TeamListItem) {
   return team.creator ? [team.creator] : [];
 }
 
-function TeamCardSkeleton() {
+function JoinTeamButton({ teamId, className }: { teamId: string; className?: string }) {
+  const router = useRouter();
+  const [joinTeam, { isLoading }] = useJoinTeamMutation();
+
+  const handleJoin = async () => {
+    if (isLoading) return;
+
+    try {
+      await joinTeam(teamId).unwrap();
+      router.push('/teams/home');
+    } catch (error) {
+      console.error('Failed to join team:', error);
+    }
+  };
+
   return (
-    <article className="border-black-2-600 h-full overflow-hidden rounded-md border bg-transparent p-3">
-      <div className="border-black-2-600 flex items-start justify-between gap-3 border-b pb-3">
-        <div className="flex min-w-0 items-start gap-3">
-          <div className="bg-black-2-700 relative size-11 shrink-0 overflow-hidden rounded-full" />
-          <div className="min-w-0 space-y-2 pt-0.5">
-            <div className="bg-black-2-700 h-4 w-32 rounded" />
-            <div className="bg-black-2-700 h-3 w-24 rounded" />
-          </div>
-        </div>
-        <div className="bg-black-2-700 size-4 rounded-full" />
-      </div>
-
-      <div className="relative px-1 py-3">
-        <div className="flex items-center justify-center gap-2">
-          <div className="flex -space-x-2">
-            <div className="border-black-2-700 bg-black-2-700 size-6 rounded-full border" />
-            <div className="border-black-2-700 bg-black-2-700 size-6 rounded-full border" />
-            <div className="border-black-2-700 bg-black-2-700 size-6 rounded-full border" />
-            <div className="border-black-2-700 bg-black-2-700 size-6 rounded-full border" />
-          </div>
-          <div className="bg-black-2-700 h-3 w-8 rounded" />
-        </div>
-      </div>
-
-      <div className="border-black-2-600 min-h-22 border-t pt-3">
-        <div className="bg-black-2-700 h-3 w-full rounded" />
-        <div className="bg-black-2-700 mt-2 h-3 w-5/6 rounded" />
-        <div className="bg-black-2-700 mt-2 h-3 w-2/3 rounded" />
-      </div>
-
-      <div className="mt-3 flex gap-2">
-        <div className="border-black-2-600 bg-black-2-800/70 h-10 flex-1 rounded-md border" />
-        <div className="bg-black-2-700 h-10 flex-1 rounded-md" />
-      </div>
-    </article>
+    <Button type="button" onClick={handleJoin} disabled={isLoading} className={className}>
+      {isLoading ? 'Joining...' : 'Join'}
+    </Button>
   );
 }
 
-function TeamRowSkeleton() {
+function TeamCardSkeleton() {
   return (
-    <div className="grid gap-4 px-5 py-4 md:grid-cols-[1.8fr_0.7fr_0.7fr_0.8fr_0.7fr_0.7fr] md:items-center md:gap-4">
-      <div className="flex items-center gap-3">
-        <div className="bg-black-2-700 flex size-8 shrink-0 items-center justify-center rounded-full" />
+    <article className="border-black-2-600 rounded-xl border bg-transparent p-4">
+      <div className="flex items-start gap-3">
         <div className="bg-black-2-700 relative size-12 shrink-0 rounded-full" />
         <div className="min-w-0 flex-1 space-y-2">
           <div className="bg-black-2-700 h-4 w-36 rounded" />
-          <div className="bg-black-2-700 hidden h-3 w-52 rounded md:block" />
+          <div className="bg-black-2-700 h-3 w-full rounded" />
+          <div className="bg-black-2-700 h-3 w-4/5 rounded" />
         </div>
       </div>
 
-      <div className="hidden md:block">
-        <div className="bg-black-2-700 h-7 w-24 rounded-sm" />
+      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="bg-black-2-700 h-8 rounded" />
+        <div className="bg-black-2-700 h-8 rounded" />
+        <div className="bg-black-2-700 h-8 rounded" />
+        <div className="bg-black-2-700 h-8 rounded" />
       </div>
 
-      <div className="flex items-center gap-2 text-sm font-semibold">
-        <div className="bg-black-2-700 size-4 rounded-full" />
-        <div className="bg-black-2-700 h-4 w-10 rounded" />
+      <div className="mt-4 flex items-center justify-end gap-2">
+        <div className="bg-black-2-700 h-9 w-20 rounded-md" />
+        <div className="bg-black-2-700 h-9 w-20 rounded-md" />
       </div>
-
-      <div className="flex items-center gap-2 text-sm font-semibold">
-        <div className="bg-black-2-700 size-4 rounded-full" />
-        <div className="bg-black-2-700 h-4 w-12 rounded" />
-      </div>
-
-      <div className="hidden md:flex">
-        <div className="bg-black-2-700 h-7 w-20 rounded-sm" />
-      </div>
-
-      <div className="flex items-center justify-end gap-2">
-        <div className="bg-black-2-700 h-8 w-14 rounded-md" />
-      </div>
-    </div>
+    </article>
   );
 }
 
@@ -222,24 +200,19 @@ function FeaturedTeamCard({ team }: { team: TeamListItem }) {
         >
           <Link href={`/teams/${team.id}`}>View Team</Link>
         </Button>
-        <Button
-          asChild
+        <JoinTeamButton
+          teamId={team.id}
           className="bg-primary text-primary-foreground hover:bg-orange-2-400 h-10 flex-1"
-        >
-          <Link href={`/teams/${team.id}`}>Join Team</Link>
-        </Button>
+        />
       </div>
     </article>
   );
 }
 
-function TeamRow({ team, rank }: { team: TeamListItem; rank: number }) {
+function MoreTeamCard({ team }: { team: TeamListItem }) {
   return (
-    <div className="grid gap-4 px-5 py-4 md:grid-cols-[1.8fr_0.7fr_0.7fr_0.8fr_0.7fr_0.7fr] md:items-center md:gap-4">
-      <div className="flex items-center gap-3">
-        <div className="text-primary bg-primary/10 flex size-8 shrink-0 items-center justify-center rounded-full border border-white/10 text-xs font-bold">
-          {rank}
-        </div>
+    <article className="border-black-2-600 hover:border-orange-2-500/40 rounded-xl border bg-transparent p-4 transition duration-200">
+      <div className="flex items-start gap-3">
         <div className="border-black-2-600 bg-black-2-800 relative size-12 shrink-0 overflow-hidden rounded-full border">
           <Image
             src={getTeamBanner(team)}
@@ -250,55 +223,55 @@ function TeamRow({ team, rank }: { team: TeamListItem; rank: number }) {
           />
         </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h3 className="truncate font-semibold text-balance">{team.name}</h3>
-          <p className="text-muted-foreground mt-1 text-xs md:hidden">{team.country}</p>
-          <p className="text-muted-foreground mt-1 hidden text-xs md:block">{team.description}</p>
+          <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">{team.description}</p>
         </div>
       </div>
 
-      <div className="hidden md:block">
-        <span className="border-black-2-600 bg-black-2-800 text-muted-foreground rounded-sm border px-2 py-1 text-xs">
+      <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+        <span className="border-black-2-600 bg-black-2-800 text-muted-foreground rounded-sm border px-2 py-1">
           {team.country}
         </span>
-      </div>
-
-      <div className="flex items-center gap-2 text-sm font-semibold">
-        <Users className="text-muted-foreground size-4" />
-        {team.member_count}
-      </div>
-
-      <div className="flex items-center gap-2 text-sm font-semibold">
-        <Trophy className="text-orange-2-200 size-4" />
-        {team.score.toLocaleString()}
-      </div>
-
-      <div className="hidden md:flex">
-        <span className="border-black-2-600 bg-black-2-800 text-foreground rounded-sm border px-2 py-1 text-xs tracking-[0.24em] uppercase">
+        <span className="border-black-2-600 bg-black-2-800 text-foreground inline-flex items-center gap-1.5 rounded-sm border px-2 py-1">
+          <Users className="text-muted-foreground size-3.5" />
+          {team.member_count}
+        </span>
+        <span className="border-black-2-600 bg-black-2-800 text-foreground inline-flex items-center gap-1.5 rounded-sm border px-2 py-1">
+          <Trophy className="text-orange-2-200 size-3.5" />
+          {team.score.toLocaleString()}
+        </span>
+        <span className="border-black-2-600 bg-black-2-800 text-foreground rounded-sm border px-2 py-1 tracking-[0.2em] uppercase">
           {team.accessibility}
         </span>
       </div>
 
-      <div className="flex items-center justify-end gap-2">
+      <div className="mt-4 flex gap-2">
         <Button
           asChild
-          variant="ghost"
-          className="text-primary hover:text-primary hover:bg-primary/10 px-3"
+          variant="secondary"
+          className="text-primary hover:text-primary hover:bg-primary/10 flex-1 px-3"
         >
           <Link href={`/teams/${team.id}`}>View</Link>
         </Button>
+        <JoinTeamButton
+          teamId={team.id}
+          className="bg-primary text-primary-foreground hover:bg-orange-2-400 flex-1 px-3"
+        />
       </div>
-    </div>
+    </article>
   );
 }
 
 export default function Team() {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
+  const [allTeams, setAllTeams] = useState<TeamListItem[]>([]);
   const deferredSearch = useDeferredValue(searchQuery.trim());
 
   useEffect(() => {
     setPage(1);
+    setAllTeams([]);
   }, [deferredSearch]);
 
   const teamsQuery = useGetTeamsQuery({
@@ -318,13 +291,33 @@ export default function Team() {
   const featuredTeams = suggestedTeams.slice(0, 4);
 
   const isSearching = deferredSearch.length > 0;
-  const hasResults = teams.length > 0;
+  const hasResults = allTeams.length > 0;
 
-  const summary = useMemo(() => {
-    if (!meta.total) return 'No teams loaded yet.';
+  useEffect(() => {
+    if (!teamsQuery.data) return;
 
-    return `${meta.total.toLocaleString()} teams available`;
-  }, [meta.total]);
+    setAllTeams((prevTeams) => {
+      if (meta.page <= 1) {
+        return teams;
+      }
+
+      const seenIds = new Set(prevTeams.map((team) => team.id));
+      const nextTeams = teams.filter((team) => !seenIds.has(team.id));
+      return [...prevTeams, ...nextTeams];
+    });
+  }, [teamsQuery.data, teams, meta.page]);
+
+  const loadMore = useCallback(() => {
+    if (meta.hasNextPage && !teamsQuery.isFetching) {
+      setPage((currentPage) => currentPage + 1);
+    }
+  }, [meta.hasNextPage, teamsQuery.isFetching]);
+
+  const { loadMoreRef } = useInfiniteScroll({
+    hasMore: meta.hasNextPage,
+    isLoading: teamsQuery.isFetching,
+    onLoadMore: loadMore,
+  });
 
   return (
     <main className="margin relative isolate container overflow-hidden py-8 lg:py-10">
@@ -332,43 +325,28 @@ export default function Team() {
       <div className="pointer-events-none absolute top-32 right-0 h-80 w-80 rounded-full bg-white/5 blur-3xl" />
 
       <div className="relative space-y-8">
-        <section className="space-y-4">
-          <div className="text-foreground text-xs font-medium tracking-[0.12em] uppercase">
-            Suggested Teams
-          </div>
+        {featuredTeams.length > 0 ? (
+          <section className="space-y-4">
+            <div className="text-foreground text-xs font-medium tracking-[0.12em] uppercase">
+              Suggested Teams
+            </div>
 
-          <Swiper
-            modules={[FreeMode, Scrollbar]}
-            slidesPerView="auto"
-            spaceBetween={16}
-            freeMode
-            scrollbar={{ draggable: true, hide: false }}
-            className="team-swiper pb-6"
-          >
-            {suggestedQuery.isLoading ? (
-              Array.from({ length: 4 }).map((_, index) => (
-                <SwiperSlide key={index} className="h-auto! w-71.5! md:w-76.25!">
-                  <TeamCardSkeleton />
-                </SwiperSlide>
-              ))
-            ) : featuredTeams.length ? (
-              featuredTeams.map((team) => (
+            <Swiper
+              modules={[FreeMode, Scrollbar]}
+              slidesPerView="auto"
+              spaceBetween={16}
+              freeMode
+              scrollbar={{ draggable: true, hide: false }}
+              className="team-swiper pb-6"
+            >
+              {featuredTeams.map((team) => (
                 <SwiperSlide key={team.id} className="h-auto! w-71.5! md:w-76.25!">
                   <FeaturedTeamCard team={team} />
                 </SwiperSlide>
-              ))
-            ) : (
-              <SwiperSlide className="w-full!">
-                <div className="border-black-2-600 rounded-md border bg-transparent p-4 text-center">
-                  <p className="text-foreground font-semibold">No suggested teams yet</p>
-                  <p className="text-muted-foreground mt-2 text-sm">
-                    The suggestion endpoint returned an empty list.
-                  </p>
-                </div>
-              </SwiperSlide>
-            )}
-          </Swiper>
-        </section>
+              ))}
+            </Swiper>
+          </section>
+        ) : null}
 
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-4">
@@ -376,11 +354,8 @@ export default function Team() {
               More Teams
             </div>
 
-            <Button asChild variant="outline" className="border-black-2-600 bg-black-2-700/80">
-              <Link href="/teams/create">
-                Create Team
-                <ExternalLink className="size-4" />
-              </Link>
+            <Button asChild>
+              <Link href="/teams/create">Create Team</Link>
             </Button>
           </div>
 
@@ -394,83 +369,48 @@ export default function Team() {
             />
           </div>
 
-          <div className="border-black-2-600 mt-6 overflow-hidden rounded-xl border">
-            <div className="text-muted-foreground border-black-2-600 hidden grid-cols-[1.8fr_0.7fr_0.7fr_0.8fr_0.7fr_0.7fr] gap-4 border-b px-5 py-4 text-xs font-semibold tracking-[0.24em] uppercase md:grid">
-              <div>Team Name</div>
-              <div>Country</div>
-              <div>Members</div>
-              <div>Team Score</div>
-              <div>Visibility</div>
-              <div className="text-right">Action</div>
+          {teamsQuery.isLoading ? (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <TeamCardSkeleton key={index} />
+              ))}
             </div>
-
-            <div className="divide-black-2-600 divide-y">
-              {teamsQuery.isLoading ? (
-                Array.from({ length: 6 }).map((_, index) => <TeamRowSkeleton key={index} />)
-              ) : teamsQuery.isError ? (
-                <div className="px-5 py-10 text-center md:px-8">
-                  <div className="bg-primary/10 border-primary/20 text-primary mx-auto flex size-12 items-center justify-center rounded-full border">
-                    <Search className="size-5" />
-                  </div>
-                  <h3 className="font-kumbh mt-4 text-2xl font-bold">Unable to load teams</h3>
-                  <p className="text-muted-foreground mx-auto mt-2 max-w-md text-sm leading-6">
-                    Refresh the page or try again in a moment.
-                  </p>
-                </div>
-              ) : hasResults ? (
-                teams.map((team, index) => (
-                  <TeamRow
-                    key={team.id}
-                    team={team}
-                    rank={(meta.page - 1) * meta.limit + index + 1}
-                  />
-                ))
-              ) : (
-                <div className="px-5 py-10 text-center md:px-8">
-                  <div className="bg-primary/10 border-primary/20 text-primary mx-auto flex size-12 items-center justify-center rounded-full border">
-                    <Search className="size-5" />
-                  </div>
-                  <h3 className="font-kumbh mt-4 text-2xl font-bold">
-                    {isSearching ? 'No matching teams found' : 'No teams found'}
-                  </h3>
-                  <p className="text-muted-foreground mx-auto mt-2 max-w-md text-sm leading-6">
-                    {isSearching
-                      ? 'Try another keyword or clear the search to see every available team.'
-                      : 'The teams list endpoint returned no data.'}
-                  </p>
-                </div>
-              )}
+          ) : teamsQuery.isError ? (
+            <div className="px-1 py-8 text-center md:px-8">
+              <div className="bg-primary/10 border-primary/20 text-primary mx-auto flex size-12 items-center justify-center rounded-full border">
+                <Search className="size-5" />
+              </div>
+              <h3 className="font-kumbh mt-4 text-2xl font-bold">Unable to load teams</h3>
+              <p className="text-muted-foreground mx-auto mt-2 max-w-md text-sm leading-6">
+                Refresh the page or try again in a moment.
+              </p>
             </div>
-          </div>
-
-          <div className="border-black-2-600 bg-black-2-800/60 flex flex-col gap-4 rounded-xl border px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-muted-foreground text-sm">
-              Page {meta.page} of {meta.totalPage} · {teams.length.toLocaleString()} shown
-              {meta.total ? ` · ${meta.total.toLocaleString()} total` : ''}
-            </p>
-
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                className="border-black-2-600 bg-black-2-700/80"
-                disabled={!meta.hasPreviousPage || teamsQuery.isFetching}
-                onClick={() => setPage((currentPage) => Math.max(1, currentPage - 1))}
-              >
-                Previous
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="border-black-2-600 bg-black-2-700/80"
-                disabled={!meta.hasNextPage || teamsQuery.isFetching}
-                onClick={() => setPage((currentPage) => currentPage + 1)}
-              >
-                Next
-              </Button>
+          ) : hasResults ? (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {allTeams.map((team) => (
+                <MoreTeamCard key={team.id} team={team} />
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="px-1 py-8 text-center md:px-8">
+              <div className="bg-primary/10 border-primary/20 text-primary mx-auto flex size-12 items-center justify-center rounded-full border">
+                <Search className="size-5" />
+              </div>
+              <h3 className="font-kumbh mt-4 text-2xl font-bold">
+                {isSearching ? 'No matching teams found' : 'No teams found'}
+              </h3>
+              <p className="text-muted-foreground mx-auto mt-2 max-w-md text-sm leading-6">
+                {isSearching
+                  ? 'Try another keyword or clear the search to see every available team.'
+                  : 'The teams list endpoint returned no data.'}
+              </p>
+            </div>
+          )}
+          {hasResults ? (
+            <div className="mt-4">
+              <div ref={loadMoreRef} className="h-1 w-full" aria-hidden="true" />
+            </div>
+          ) : null}
         </section>
       </div>
     </main>

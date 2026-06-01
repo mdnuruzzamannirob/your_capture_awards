@@ -240,6 +240,12 @@ export interface LeaveTeamResponse {
   data?: unknown;
 }
 
+export interface JoinTeamResponse {
+  success: boolean;
+  message: string;
+  data?: unknown;
+}
+
 export interface DeleteTeamResponse {
   success: boolean;
   message: string;
