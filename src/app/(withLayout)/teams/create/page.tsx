@@ -127,7 +127,7 @@ function TeamCreatePage() {
       toast.success('Team created successfully.');
       form.reset(defaultValues);
       clearBadge();
-      router.push('/teams');
+      router.push('/teams/home');
     } catch (error) {
       console.error('Failed to create team:', error);
       toast.error('Failed to create team');
