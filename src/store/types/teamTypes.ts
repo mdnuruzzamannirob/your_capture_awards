@@ -283,6 +283,34 @@ export interface StartMatchAutoResponse {
   data?: unknown;
 }
 
+export type LeaderboardPeriod = 'weekly' | 'monthly' | 'yearly';
+
+export interface TeamLeaderboardRow {
+  id: string;
+  name: string;
+  badge: string | null;
+  skill_level: string;
+  wins: number;
+  losses: number;
+  draws: number;
+  matches: number;
+  score: number;
+  rank: number;
+}
+
+export interface GetTeamLeaderboardResponse {
+  success: boolean;
+  message: string;
+  meta: PaginationMeta;
+  data: TeamLeaderboardRow[];
+}
+
+export interface GetTeamLeaderboardParams {
+  period: LeaderboardPeriod;
+  page?: number;
+  limit?: number;
+}
+
 export type GetSuggestedTeamsResponse = GetTeamsResponse;
 
 export interface CreateTeamResponse {
