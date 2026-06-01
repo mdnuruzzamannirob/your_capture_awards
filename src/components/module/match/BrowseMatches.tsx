@@ -9,7 +9,7 @@ interface BrowseMatchesProps {
 
 function BrowseMatches({ matches, onStart, actionLabel }: BrowseMatchesProps) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
       {matches.map((match) => (
         <MatchCard key={match.id} match={match} onStart={onStart} actionLabel={actionLabel} />
       ))}

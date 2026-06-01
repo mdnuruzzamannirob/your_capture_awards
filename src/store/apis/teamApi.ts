@@ -18,6 +18,8 @@ import {
   RejectRequestResponse,
   RemoveMemberResponse,
   RevokeRoleResponse,
+  StartMatchAutoRequest,
+  StartMatchAutoResponse,
   UpdateTeamRequest,
   UpdateTeamResponse,
 } from '@/store/types/teamTypes';
@@ -132,6 +134,24 @@ export const teamApi = createApi({
       }),
       providesTags: (result, error, { teamId }) =>
         result ? [{ type: 'TeamContests', id: teamId }] : ['TeamContests'],
+    }),
+
+    // ── Start Match Auto ────────────────────────────────────────────────
+    startMatchAuto: builder.mutation<StartMatchAutoResponse, StartMatchAutoRequest>({
+      query: ({ teamId, contestId, files }) => {
+        const formData = new FormData();
+        formData.append('contestId', contestId);
+        files.forEach((file) => {
+          formData.append('files', file);
+        });
+
+        return {
+          url: `/teams/${teamId}/start-match-auto`,
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: ['TeamMatch', 'TeamContests', 'Team'],
     }),
 
     // ── Join Team ────────────────────────────────────────────────────────
@@ -253,6 +273,7 @@ export const {
   useGetTeamQuery,
   useGetActiveTeamMatchQuery,
   useGetAvailableTeamContestsQuery,
+  useStartMatchAutoMutation,
   useJoinTeamMutation,
   useCreateTeamMutation,
   useGetMyTeamQuery,

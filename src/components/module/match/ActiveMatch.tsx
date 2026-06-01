@@ -1,11 +1,14 @@
+import Image from 'next/image';
+
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import useCountdown from '@/hooks/useCountdown';
 import { Match } from '@/types/match';
 import { cn } from '@/utils/cn';
 import { formatCountdown } from '@/utils/match-utils';
-import { Camera, LogOut } from 'lucide-react';
+import { Camera, Clock, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
+
 import TeamVsPanel from './TeamVsPanel';
 import PhotoListPanel from './PhotoListPanel';
 
@@ -17,8 +20,8 @@ interface ActiveMatchProps {
 function ActiveMatch({ match, onLeave }: ActiveMatchProps) {
   const remaining = useCountdown(match.endsAt);
   const isEnded = remaining <= 0;
+  const isActive = !isEnded;
 
-  // Determine leader
   const aWinning = match.teamA.totalVotes >= match.teamB.totalVotes;
   const totalVotes = match.teamA.totalVotes + match.teamB.totalVotes;
   const aPct = totalVotes > 0 ? Math.round((match.teamA.totalVotes / totalVotes) * 100) : 50;
@@ -26,9 +29,7 @@ function ActiveMatch({ match, onLeave }: ActiveMatchProps) {
 
   return (
     <div className="space-y-4">
-      {/* ── Top row: timer + theme card ── */}
-      <div className="grid grid-cols-2 gap-4">
-        {/* Timer card */}
+      <div className="grid gap-4 md:grid-cols-2">
         <div className="flex flex-col items-center justify-center gap-2 rounded-md border p-5">
           <div className="flex items-center gap-2">
             <span
@@ -49,37 +50,52 @@ function ActiveMatch({ match, onLeave }: ActiveMatchProps) {
           >
             {formatCountdown(remaining)}
           </p>
+          <p className="text-muted-foreground text-xs">Ends at {match.endsAt.toLocaleString()}</p>
         </div>
 
-        {/* Theme card */}
-        <div className="relative flex min-h-28 flex-col items-center justify-center gap-3 overflow-hidden rounded-md bg-zinc-900 p-4">
-          <p className="text-[10px] font-semibold tracking-wider text-zinc-500 uppercase">Theme</p>
-          <h1 className="text-center leading-tight font-semibold text-white">{match.theme}</h1>
-          <Button
-            size="sm"
-            className="h-7 rounded-sm bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200"
-            onClick={() => toast.info('Photo upload coming soon!')}
-          >
-            <Camera size={12} className="mr-1.5" />
-            Submit Photo
-          </Button>
-
-          {/* Ribbon */}
-          <div
-            className="bg-primary absolute top-0 right-0 size-14"
-            style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%)' }}
-          >
-            <div className="text-primary-foreground absolute top-1 right-0.5 w-9 rotate-45 text-center">
-              <p className="text-sm leading-none font-bold">{match.photosRequired}</p>
-              <p className="mt-0.5 text-[7px] tracking-wide uppercase">Photos</p>
+        <div className="relative min-h-28 overflow-hidden rounded-md border bg-zinc-900">
+          {match.banner ? (
+            <Image
+              src={match.banner}
+              alt={match.theme}
+              fill
+              className="object-cover opacity-55"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          ) : null}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+          <div className="relative z-10 flex h-full flex-col items-center justify-center gap-3 p-4 text-center">
+            <p className="text-[10px] font-semibold tracking-wider text-zinc-300 uppercase">
+              {match.status}
+            </p>
+            <h1 className="text-center text-xl leading-tight font-semibold text-white">
+              {match.theme}
+            </h1>
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-white">
+              <span className="inline-flex items-center gap-1 rounded-full bg-black/55 px-3 py-1">
+                <Clock size={12} />
+                {formatCountdown(remaining)}
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-black/55 px-3 py-1">
+                <Camera size={12} />
+                {match.photosRequired} photos
+              </span>
             </div>
+            {isActive ? (
+              <Button
+                size="sm"
+                className="h-7 rounded-sm bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200"
+                onClick={() => toast.info('Photo upload flow will open here.')}
+              >
+                <Camera size={12} className="mr-1.5" />
+                Submit Photo
+              </Button>
+            ) : null}
           </div>
         </div>
       </div>
 
-      {/* ── Scoreboard ── */}
       <div className="overflow-hidden rounded-md border">
-        {/* VS Header */}
         <TeamVsPanel
           teamA={match.teamA}
           teamB={match.teamB}
@@ -90,15 +106,27 @@ function ActiveMatch({ match, onLeave }: ActiveMatchProps) {
 
         <Separator />
 
-        {/* Photo lists */}
         <div className="flex gap-0">
           <PhotoListPanel team={match.teamA} side="left" />
           <div className="bg-border w-px shrink-0" />
           <PhotoListPanel team={match.teamB} side="right" />
         </div>
 
-       
+        <Separator />
 
+        <div className="flex items-center justify-between gap-3 px-4 py-3">
+          <div className="text-muted-foreground text-xs">
+            Contest `#{match.id}` is synced to the live end time.
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 text-xs"
+            onClick={onLeave}
+          >
+            <LogOut size={12} className="mr-1.5" /> Leave Match
+          </Button>
+        </div>
       </div>
     </div>
   );
