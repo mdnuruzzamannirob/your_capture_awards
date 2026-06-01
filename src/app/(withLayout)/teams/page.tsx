@@ -14,8 +14,10 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Avatar, AvatarFallback, AvatarGroup, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/hooks/useAuth';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import {
+  useGetMyTeamQuery,
   useGetSuggestedTeamsQuery,
   useGetTeamsQuery,
   useJoinTeamMutation,
@@ -268,11 +270,26 @@ export default function Team() {
   const [page, setPage] = useState(1);
   const [allTeams, setAllTeams] = useState<TeamListItem[]>([]);
   const deferredSearch = useDeferredValue(searchQuery.trim());
+  const router = useRouter();
+  const { token } = useAuth();
 
   useEffect(() => {
     setPage(1);
     setAllTeams([]);
   }, [deferredSearch]);
+
+  const { data: myTeamData, isLoading: isMyTeamLoading } = useGetMyTeamQuery(undefined, {
+    skip: !token,
+  });
+
+  useEffect(() => {
+    if (isMyTeamLoading) return;
+
+    const teamId = myTeamData?.data?.team?.id;
+    if (teamId) {
+      router.replace('/teams/home');
+    }
+  }, [isMyTeamLoading, myTeamData?.data?.team?.id, router]);
 
   const teamsQuery = useGetTeamsQuery({
     page,
@@ -318,6 +335,18 @@ export default function Team() {
     isLoading: teamsQuery.isFetching,
     onLoadMore: loadMore,
   });
+
+  if (token && isMyTeamLoading) {
+    return (
+      <main className="margin relative isolate container overflow-hidden py-8 lg:py-10">
+        <div className="space-y-6">
+          <TeamCardSkeleton />
+          <TeamCardSkeleton />
+          <TeamCardSkeleton />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="margin relative isolate container overflow-hidden py-8 lg:py-10">

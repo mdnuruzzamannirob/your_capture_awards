@@ -82,6 +82,34 @@ export interface TeamListItem extends TeamData {
   min_requirement_str?: string | null;
 }
 
+export interface AvailableTeamContest {
+  id: string;
+  title: string;
+  description: string;
+  banner: string | null;
+  startDate: string;
+  endDate: string;
+  maxUploads: number;
+  hoursRemaining: number;
+  totalParticipants: number;
+  participantDetails: unknown[];
+}
+
+export interface ActiveTeamMatch {
+  own: TeamMatchSide;
+  opposition: TeamMatchSide;
+  own_team_id: string;
+  opposition_team_id: string;
+}
+
+export interface TeamMatchSide {
+  details: TeamData & {
+    min_requirement_str?: string | null;
+  };
+  totalVote: number;
+  members: TeamMember[];
+}
+
 export interface JoinRequest {
   id: string;
   teamId: string;
@@ -212,6 +240,19 @@ export interface GetTeamsResponse {
   message: string;
   meta: PaginationMeta;
   data: TeamListItem[];
+}
+
+export interface GetAvailableTeamContestsResponse {
+  success: boolean;
+  message: string;
+  meta: PaginationMeta;
+  data: AvailableTeamContest[];
+}
+
+export interface GetActiveTeamMatchResponse {
+  success: boolean;
+  message: string;
+  data: ActiveTeamMatch | null;
 }
 
 export type GetSuggestedTeamsResponse = GetTeamsResponse;
