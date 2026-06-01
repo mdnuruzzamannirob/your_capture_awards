@@ -4,6 +4,8 @@ import {
   AssignRoleResponse,
   CreateTeamResponse,
   DeleteTeamResponse,
+  GetActiveTeamMatchResponse,
+  GetAvailableTeamContestsResponse,
   GetMyTeamResponse,
   GetPendingRequestsResponse,
   GetSuggestedTeamsResponse,
@@ -24,7 +26,16 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 export const teamApi = createApi({
   reducerPath: 'teamApi',
   baseQuery: baseQuery(typeof window === 'undefined'),
-  tagTypes: ['Team', 'Teams', 'SuggestedTeams', 'TeamMembers', 'JoinRequests', 'TeamInvitations'],
+  tagTypes: [
+    'Team',
+    'Teams',
+    'SuggestedTeams',
+    'TeamMembers',
+    'JoinRequests',
+    'TeamInvitations',
+    'TeamMatch',
+    'TeamContests',
+  ],
   endpoints: (builder) => ({
     // ── Get Teams List ───────────────────────────────────────────────────
     getTeams: builder.query<GetTeamsResponse, GetTeamsParams | void>({
@@ -97,6 +108,30 @@ export const teamApi = createApi({
         method: 'GET',
       }),
       providesTags: ['TeamMembers'],
+    }),
+
+    // ── Get Active Team Match ───────────────────────────────────────────
+    getActiveTeamMatch: builder.query<GetActiveTeamMatchResponse, string>({
+      query: (teamId) => ({
+        url: `/teams/active-match/${teamId}`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, teamId) =>
+        result ? [{ type: 'TeamMatch', id: teamId }] : ['TeamMatch'],
+    }),
+
+    // ── Get Team Available Contests ─────────────────────────────────────
+    getAvailableTeamContests: builder.query<
+      GetAvailableTeamContestsResponse,
+      { teamId: string; page?: number; limit?: number }
+    >({
+      query: ({ teamId, page = 1, limit = 10 }) => ({
+        url: `/teams/${teamId}/available-contests`,
+        method: 'GET',
+        params: { page, limit },
+      }),
+      providesTags: (result, error, { teamId }) =>
+        result ? [{ type: 'TeamContests', id: teamId }] : ['TeamContests'],
     }),
 
     // ── Join Team ────────────────────────────────────────────────────────
@@ -216,6 +251,8 @@ export const {
   useGetTeamsQuery,
   useGetSuggestedTeamsQuery,
   useGetTeamQuery,
+  useGetActiveTeamMatchQuery,
+  useGetAvailableTeamContestsQuery,
   useJoinTeamMutation,
   useCreateTeamMutation,
   useGetMyTeamQuery,

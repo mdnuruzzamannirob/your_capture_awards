@@ -9,9 +9,10 @@ import { ChevronRight, Clock, Play, Target, Users } from 'lucide-react';
 interface MatchCardProps {
   match: Match;
   onStart: (match: Match) => void;
+  actionLabel?: string;
 }
 
-function MatchCard({ match, onStart }: MatchCardProps) {
+function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardProps) {
   const remaining = useCountdown(match.endsAt);
   const fillPct = Math.round((match.teamsJoined / match.maxTeams) * 100);
   const isFull = match.teamsJoined >= match.maxTeams;
@@ -74,7 +75,7 @@ function MatchCard({ match, onStart }: MatchCardProps) {
           onClick={() => onStart(match)}
         >
           <Play size={13} />
-          Start Match
+          {actionLabel}
           <ChevronRight size={13} />
         </Button>
       </div>
