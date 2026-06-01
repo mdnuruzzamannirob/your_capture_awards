@@ -20,6 +20,7 @@ export interface Match {
   photosRequired: number;
   status: 'OPEN' | 'IN_PROGRESS' | 'COMPLETED';
   endsAt: Date;
+  banner?: string | null;
   teamA: MatchTeam;
   teamB: MatchTeam;
   teamsJoined: number;

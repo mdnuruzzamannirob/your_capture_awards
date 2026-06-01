@@ -96,6 +96,22 @@ export interface AvailableTeamContest {
 }
 
 export interface ActiveTeamMatch {
+  id: string;
+  contestId: string;
+  contest?: {
+    id: string;
+    title: string;
+    banner: string | null;
+    maxUploads: number;
+  };
+  status: string;
+  createdAt: string;
+  endedAt: string;
+  team1_score: number;
+  team2_score: number;
+  result: string;
+  team1: TeamMatchSide;
+  team2: TeamMatchSide;
   own: TeamMatchSide;
   opposition: TeamMatchSide;
   own_team_id: string;
@@ -253,6 +269,18 @@ export interface GetActiveTeamMatchResponse {
   success: boolean;
   message: string;
   data: ActiveTeamMatch | null;
+}
+
+export interface StartMatchAutoRequest {
+  teamId: string;
+  contestId: string;
+  files: File[];
+}
+
+export interface StartMatchAutoResponse {
+  success: boolean;
+  message: string;
+  data?: unknown;
 }
 
 export type GetSuggestedTeamsResponse = GetTeamsResponse;

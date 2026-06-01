@@ -2,21 +2,20 @@
 
 import ActiveMatch from '@/components/module/match/ActiveMatch';
 import BrowseMatches from '@/components/module/match/BrowseMatches';
+import StartMatchModal from '@/components/module/match/StartMatchModal';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from '@/hooks/useAuth';
 import {
   useGetActiveTeamMatchQuery,
   useGetAvailableTeamContestsQuery,
   useGetMyTeamQuery,
 } from '@/store/apis/teamApi';
-import type { ActiveTeamMatch, AvailableTeamContest, TeamMember } from '@/store/types/teamTypes';
+import type { ActiveTeamMatch, AvailableTeamContest } from '@/store/types/teamTypes';
 import { Match, MatchPhoto, MatchTeam } from '@/types/match';
-import { useCallback } from 'react';
-import { toast } from 'sonner';
+import { TeamMember } from '@/types/team';
+import { useCallback, useMemo, useState } from 'react';
 
 const PAGE_SIZE = 10;
-const FALLBACK_MATCH_END = 24 * 60 * 60 * 1000;
 
 function getImageUrl(value?: string | null) {
   if (!value || value.includes('](') || !value.startsWith('http')) return null;
@@ -58,24 +57,23 @@ function mapMatchSideToTeam(side: ActiveTeamMatch['own']): MatchTeam {
 function mapActiveMatchToMatch(activeMatch: ActiveTeamMatch): Match {
   const ownPhotos = activeMatch.own.members.length;
   const oppositionPhotos = activeMatch.opposition.members.length;
+  const contest = activeMatch.contest;
 
   return {
-    id:
-      activeMatch.own.details.active_match_id ||
-      activeMatch.opposition.details.active_match_id ||
-      `${activeMatch.own_team_id}-${activeMatch.opposition_team_id}`,
-    theme: 'Active Team Battle',
-    photosRequired: Math.max(ownPhotos, oppositionPhotos, 1),
-    status: 'IN_PROGRESS',
-    endsAt: new Date(Date.now() + FALLBACK_MATCH_END),
+    id: activeMatch.id,
+    theme: contest?.title || 'Active Team Battle',
+    photosRequired: contest?.maxUploads || Math.max(ownPhotos, oppositionPhotos, 1),
+    status: activeMatch.status === 'ACTIVE' ? 'IN_PROGRESS' : 'COMPLETED',
+    endsAt: new Date(activeMatch.endedAt),
+    banner: contest?.banner || activeMatch.own.details.badge || activeMatch.team1.details.badge,
     teamsJoined: 2,
     maxTeams: 2,
     minRequirement:
       activeMatch.own.details.min_requirement_str ||
       activeMatch.own.details.min_requirement ||
       activeMatch.own.details.skill_level,
-    teamA: mapMatchSideToTeam(activeMatch.own),
-    teamB: mapMatchSideToTeam(activeMatch.opposition),
+    teamA: mapMatchSideToTeam(activeMatch.own || activeMatch.team1),
+    teamB: mapMatchSideToTeam(activeMatch.opposition || activeMatch.team2),
   };
 }
 
@@ -134,8 +132,8 @@ function MatchPageSkeleton() {
 }
 
 export default function TeamMatchPage() {
-  const { user } = useAuth();
-  const currentUserId = user?.id || '';
+  const [startModalOpen, setStartModalOpen] = useState(false);
+  const [selectedContestId, setSelectedContestId] = useState<string | null>(null);
 
   const {
     data: teamData,
@@ -145,10 +143,7 @@ export default function TeamMatchPage() {
   } = useGetMyTeamQuery();
 
   const teamId = teamData?.data?.team?.id;
-  const members = (teamData?.data?.members ?? []) as TeamMember[];
-  const currentMember = members.find((member) => member.memberId === currentUserId);
-  const canStartMatch = currentMember?.level === 'LEADER' || currentMember?.level === 'MODERATOR';
-  const actionLabel = canStartMatch ? 'Start Match' : 'Join';
+  const actionLabel = 'Start Match';
 
   const activeMatchQuery = useGetActiveTeamMatchQuery(teamId ?? '', {
     skip: !teamId,
@@ -165,16 +160,18 @@ export default function TeamMatchPage() {
 
   const activeMatchView = activeMatch ? mapActiveMatchToMatch(activeMatch) : null;
   const matches = (contestsQuery.data?.data ?? []).map(mapContestToMatch);
-
-  const handleStartMatch = useCallback(
-    (match: Match) => {
-      toast.info(`${actionLabel} API endpoint is not provided yet for "${match.theme}".`);
-    },
-    [actionLabel],
+  const selectedContest = useMemo(
+    () => contestsQuery.data?.data?.find((contest) => contest.id === selectedContestId) ?? null,
+    [contestsQuery.data?.data, selectedContestId],
   );
 
+  const handleStartMatch = useCallback((match: Match) => {
+    setSelectedContestId(match.id);
+    setStartModalOpen(true);
+  }, []);
+
   const handleLeaveMatch = useCallback(() => {
-    toast.info('Leave match API endpoint is not provided yet.');
+    return;
   }, []);
 
   const isInitialLoading =
@@ -226,6 +223,16 @@ export default function TeamMatchPage() {
           </p>
         </div>
       )}
+
+      <StartMatchModal
+        open={startModalOpen}
+        onOpenChange={(open) => {
+          setStartModalOpen(open);
+          if (!open) setSelectedContestId(null);
+        }}
+        teamId={teamId}
+        contest={selectedContest}
+      />
     </div>
   );
 }
