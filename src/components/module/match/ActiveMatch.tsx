@@ -97,19 +97,8 @@ function ActiveMatch({ match, onLeave }: ActiveMatchProps) {
           <PhotoListPanel team={match.teamB} side="right" />
         </div>
 
-        <Separator />
+       
 
-        {/* Leave */}
-        <div className="flex justify-end px-4 py-3">
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 text-xs"
-            onClick={onLeave}
-          >
-            <LogOut size={12} className="mr-1.5" /> Leave Match
-          </Button>
-        </div>
       </div>
     </div>
   );
