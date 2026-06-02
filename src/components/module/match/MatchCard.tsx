@@ -1,10 +1,10 @@
-import Image from 'next/image';
+import CornerCount from '@/components/CornerCount';
 import { Button } from '@/components/ui/button';
 import useCountdown from '@/hooks/useCountdown';
 import { Match } from '@/types/match';
-import CornerCount from '@/components/CornerCount';
 import { formatShortTime } from '@/utils/match-utils';
 import { Clock, Play } from 'lucide-react';
+import Image from 'next/image';
 
 interface MatchCardProps {
   match: Match;
@@ -55,7 +55,7 @@ function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardPro
           </div>
 
           <div className="rounded-md bg-black/55 px-3 py-3 text-center text-white">
-            <p className="text-sm font-semibold sm:text-base">{teamMembersLabel}</p>
+            <p className="font-semibold max-sm:text-sm">{teamMembersLabel}</p>
           </div>
         </div>
       </div>
