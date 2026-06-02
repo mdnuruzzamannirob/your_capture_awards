@@ -7,7 +7,6 @@ import { Match } from '@/types/match';
 import { cn } from '@/utils/cn';
 import { formatCountdown } from '@/utils/match-utils';
 import { Camera, Clock, LogOut } from 'lucide-react';
-import { toast } from 'sonner';
 
 import TeamVsPanel from './TeamVsPanel';
 import PhotoListPanel from './PhotoListPanel';
@@ -15,9 +14,20 @@ import PhotoListPanel from './PhotoListPanel';
 interface ActiveMatchProps {
   match: Match;
   onLeave: () => void;
+  actionLabel: string;
+  actionDisabled?: boolean;
+  actionDisabledReason?: string;
+  onAction: () => void;
 }
 
-function ActiveMatch({ match, onLeave }: ActiveMatchProps) {
+function ActiveMatch({
+  match,
+  onLeave,
+  actionLabel,
+  actionDisabled,
+  actionDisabledReason,
+  onAction,
+}: ActiveMatchProps) {
   const remaining = useCountdown(match.endsAt);
   const isEnded = remaining <= 0;
   const isActive = !isEnded;
@@ -63,7 +73,7 @@ function ActiveMatch({ match, onLeave }: ActiveMatchProps) {
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           ) : null}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-black/10" />
           <div className="relative z-10 flex h-full flex-col items-center justify-center gap-3 p-4 text-center">
             <p className="text-[10px] font-semibold tracking-wider text-zinc-300 uppercase">
               {match.status}
@@ -82,14 +92,20 @@ function ActiveMatch({ match, onLeave }: ActiveMatchProps) {
               </span>
             </div>
             {isActive ? (
-              <Button
-                size="sm"
-                className="h-7 rounded-sm bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200"
-                onClick={() => toast.info('Photo upload flow will open here.')}
-              >
-                <Camera size={12} className="mr-1.5" />
-                Submit Photo
-              </Button>
+              <div className="space-y-1.5">
+                <Button
+                  size="sm"
+                  disabled={actionDisabled}
+                  className="h-7 rounded-sm bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200 disabled:bg-zinc-300"
+                  onClick={onAction}
+                >
+                  <Camera size={12} className="mr-1.5" />
+                  {actionLabel}
+                </Button>
+                {actionDisabledReason ? (
+                  <p className="text-[10px] font-medium text-white/80">{actionDisabledReason}</p>
+                ) : null}
+              </div>
             ) : null}
           </div>
         </div>

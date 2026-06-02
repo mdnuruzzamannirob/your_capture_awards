@@ -25,6 +25,7 @@ export interface TeamMember {
   memberId: string;
   member: TeamMemberUser;
   totalVote?: number;
+  totalPhotoUploads?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -44,7 +45,7 @@ export interface TeamData {
   lost: number;
   draw: number;
   badge: string | null;
-  min_requirement?: SkillLevel;
+  min_requirement?: string | null;
   active_match_id: string | null;
   leaderboard_rank: number | null;
   total_matches: number;
@@ -92,13 +93,13 @@ export interface AvailableTeamContest {
   maxUploads: number;
   hoursRemaining: number;
   totalParticipants: number;
-  participantDetails: unknown[];
+  participantDetails: { userId?: string; id?: string }[];
 }
 
 export interface ActiveTeamMatch {
   id: string;
   contestId: string;
-  contest?: {
+  contest: {
     id: string;
     title: string;
     banner: string | null;
@@ -112,6 +113,7 @@ export interface ActiveTeamMatch {
   result: string;
   team1: TeamMatchSide;
   team2: TeamMatchSide;
+  has_active_team_match?: boolean;
   own: TeamMatchSide;
   opposition: TeamMatchSide;
   own_team_id: string;
@@ -274,7 +276,8 @@ export interface GetActiveTeamMatchResponse {
 export interface StartMatchAutoRequest {
   teamId: string;
   contestId: string;
-  files: File[];
+  files?: File[];
+  photoIds?: string[];
 }
 
 export interface StartMatchAutoResponse {
@@ -285,17 +288,50 @@ export interface StartMatchAutoResponse {
 
 export type LeaderboardPeriod = 'weekly' | 'monthly' | 'yearly';
 
+export interface TeamMatchHistoryRow {
+  id: string;
+  teamId: string;
+  matchId: string;
+  opponent_team_id: string;
+  team_score: number;
+  opponent_score: number;
+  result: 'WIN' | 'LOSS' | 'DRAW' | string;
+  match_date: string;
+  contest_id: string;
+  createdAt: string;
+  updatedAt: string;
+  team: {
+    id: string;
+    name: string;
+    badge: string | null;
+  };
+  opponent_team: {
+    id: string;
+    name: string;
+    badge: string | null;
+  };
+  contest: {
+    id: string;
+    title: string;
+    banner: string | null;
+    endDate: string;
+  };
+}
+
 export interface TeamLeaderboardRow {
   id: string;
   name: string;
   badge: string | null;
   skill_level: string;
+  country: string;
+  accessibility: string;
   wins: number;
   losses: number;
   draws: number;
   matches: number;
   score: number;
   rank: number;
+  member_count: number;
 }
 
 export interface GetTeamLeaderboardResponse {
@@ -309,6 +345,19 @@ export interface GetTeamLeaderboardParams {
   period: LeaderboardPeriod;
   page?: number;
   limit?: number;
+}
+
+export interface GetTeamMatchHistoryParams {
+  teamId: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface GetTeamMatchHistoryResponse {
+  success: boolean;
+  message: string;
+  meta: PaginationMeta;
+  data: TeamMatchHistoryRow[];
 }
 
 export type GetSuggestedTeamsResponse = GetTeamsResponse;
