@@ -6,10 +6,10 @@ import useCountdown from '@/hooks/useCountdown';
 import { Match } from '@/types/match';
 import { cn } from '@/utils/cn';
 import { formatCountdown } from '@/utils/match-utils';
-import { Camera, Clock, LogOut } from 'lucide-react';
+import { Camera, Clock } from 'lucide-react';
 
-import TeamVsPanel from './TeamVsPanel';
 import PhotoListPanel from './PhotoListPanel';
+import TeamVsPanel from './TeamVsPanel';
 
 interface ActiveMatchProps {
   match: Match;
@@ -126,22 +126,6 @@ function ActiveMatch({
           <PhotoListPanel team={match.teamA} side="left" />
           <div className="bg-border w-px shrink-0" />
           <PhotoListPanel team={match.teamB} side="right" />
-        </div>
-
-        <Separator />
-
-        <div className="flex items-center justify-between gap-3 px-4 py-3">
-          <div className="text-muted-foreground text-xs">
-            Contest `#{match.id}` is synced to the live end time.
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30 text-xs"
-            onClick={onLeave}
-          >
-            <LogOut size={12} className="mr-1.5" /> Leave Match
-          </Button>
         </div>
       </div>
     </div>

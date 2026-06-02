@@ -115,10 +115,8 @@ function TeamInfo({
               <MapPin size={12} /> {team.country}
             </span>
             <span className="bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
-              Level requirement:{' '}
-              {team.min_requirement || team.skill_level
-                ? formatSkillLabel(team.min_requirement || team.skill_level)
-                : 'N/A'}
+              Min Requirement:{' '}
+              {team.min_requirement ? formatSkillLabel(team.min_requirement) : 'N/A'}
             </span>
           </div>
         </div>
