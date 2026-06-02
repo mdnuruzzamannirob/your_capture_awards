@@ -109,46 +109,50 @@ const TeamLeaderboard = () => {
         </div>
       ) : (
         <div className="border-black-2-700 mt-5 overflow-hidden rounded-md border">
-          {rows.map((row) => (
-            <div
-              key={row.id}
-              className={cn(
-                'border-black-2-700 grid gap-3 border-b p-4 last:border-b-0 sm:grid-cols-[56px_minmax(0,1fr)_96px]',
-                row.id === highlightId && 'bg-primary/10',
-              )}
-            >
-              <div className="bg-primary/10 text-primary flex size-8 items-center justify-center rounded-full text-sm font-bold">
-                {row.rank}
-              </div>
+          {rows.map((row) => {
+            const badgeUrl = getImageUrl(row.badge);
 
-              <div className="flex min-w-0 items-center gap-3">
-                <div className="border-black-2-600 bg-black-2-800 relative size-11 shrink-0 overflow-hidden rounded-full border">
-                  {getImageUrl(row.badge) ? (
-                    <Image
-                      src={row.badge}
-                      alt={row.name}
-                      fill
-                      sizes="44px"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="bg-primary text-primary-foreground flex size-full items-center justify-center text-xs font-bold">
-                      {row.name.slice(0, 2).toUpperCase()}
-                    </div>
-                  )}
+            return (
+              <div
+                key={row.id}
+                className={cn(
+                  'border-black-2-700 grid gap-3 border-b p-4 last:border-b-0 sm:grid-cols-[56px_minmax(0,1fr)_96px]',
+                  row.id === highlightId && 'bg-primary/10',
+                )}
+              >
+                <div className="bg-primary/10 text-primary flex size-8 items-center justify-center rounded-full text-sm font-bold">
+                  {row.rank}
                 </div>
 
-                <div className="min-w-0">
-                  <p className="truncate font-semibold">{getTeamName(row)}</p>
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="border-black-2-600 bg-black-2-800 relative size-11 shrink-0 overflow-hidden rounded-full border">
+                    {badgeUrl ? (
+                      <Image
+                        src={badgeUrl}
+                        alt={row.name}
+                        fill
+                        sizes="44px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="bg-primary text-primary-foreground flex size-full items-center justify-center text-xs font-bold">
+                        {row.name.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold">{getTeamName(row)}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="font-semibold">{row.score}</p>
+                  <p className="text-xs text-zinc-500">Score</p>
                 </div>
               </div>
-
-              <div>
-                <p className="font-semibold">{row.score}</p>
-                <p className="text-xs text-zinc-500">Score</p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

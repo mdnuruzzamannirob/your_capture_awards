@@ -23,6 +23,7 @@ export interface TeamMember {
   createdAt: string;
   updatedAt?: string;
   totalVote?: number;
+  totalPhotoUploads?: number;
 }
 
 export interface JoinRequest {
