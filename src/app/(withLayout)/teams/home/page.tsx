@@ -73,7 +73,8 @@ export default function TeamPage() {
   const [leaveOpen, setLeaveOpen] = useState(false);
 
   const team = teamData?.data?.team;
-  const members: TeamMember[] = teamData?.data?.members || [];
+  console.log(team);
+  const members: TeamMember[] = team?.members || [];
   const requests = (requestsData?.data || []) as JoinRequestViewModel[];
 
   const me = useMemo(

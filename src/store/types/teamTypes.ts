@@ -53,6 +53,7 @@ export interface TeamData {
   creatorId: string;
   createdAt: string;
   updatedAt: string;
+  members?: TeamMember[];
 }
 
 export interface TeamUserSummary {
