@@ -2,9 +2,9 @@
 
 import ActiveMatch from '@/components/module/match/ActiveMatch';
 import BrowseMatches from '@/components/module/match/BrowseMatches';
-import UploadModal, { UploadModalPayload, UploadModalRef } from '@/components/UploadModal';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import UploadModal, { UploadModalPayload, UploadModalRef } from '@/components/UploadModal';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useGetActiveTeamMatchQuery,
@@ -41,7 +41,9 @@ function isMemberUser(member: TeamMember, userId?: string) {
 function hasLiveMatch(
   value: ActiveTeamMatch | { has_active_team_match: false } | null,
 ): value is ActiveTeamMatch {
-  return Boolean(value && !('has_active_team_match' in value && value.has_active_team_match === false));
+  return Boolean(
+    value && !('has_active_team_match' in value && value.has_active_team_match === false),
+  );
 }
 
 function mapMembersToPhotos(members: TeamMember[]): MatchPhoto[] {
@@ -159,14 +161,23 @@ export default function TeamMatchPage() {
     isError: isTeamError,
     refetch: refetchTeam,
   } = useGetMyTeamQuery();
+  console.log('teamData', teamData);
 
   const teamId = teamData?.data?.team?.id;
   const currentUserId = user?.id;
-  const teamMembers = useMemo(() => teamData?.data?.members ?? [], [teamData?.data?.members]);
+  const teamMembers = useMemo(
+    () => teamData?.data?.team?.members ?? [],
+    [teamData?.data?.team?.members],
+  );
   const currentMember = useMemo(
-    () => teamMembers.find((member) => member.memberId === currentUserId),
+    () =>
+      teamMembers.find((member) => {
+        console.log({ member: member.memberId, currentUserId });
+        return member.memberId === currentUserId;
+      }),
     [currentUserId, teamMembers],
   );
+  console.log({ currentMember });
   const canManageMatch = currentMember?.level === 'LEADER' || currentMember?.level === 'MODERATOR';
   const availableActionLabel = canManageMatch ? 'Start Match' : 'Join Match';
 
@@ -190,13 +201,14 @@ export default function TeamMatchPage() {
   const activeContest = useMemo(
     () =>
       activeMatch
-      ? {
+        ? {
             id: activeMatch.contestId,
             title: activeMatch.contest.title,
             description: '',
             banner: activeMatch.contest.banner,
             maxUploads: activeMatch.contest.maxUploads || activeMatchView?.photosRequired || 1,
-            totalParticipants: activeMatch.own.members.length + activeMatch.opposition.members.length,
+            totalParticipants:
+              activeMatch.own.members.length + activeMatch.opposition.members.length,
           }
         : null,
     [activeMatch, activeMatchView?.photosRequired],
