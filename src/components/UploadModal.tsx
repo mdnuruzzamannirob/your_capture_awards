@@ -21,6 +21,14 @@ import {
 
 export type ModalContentType = 'preview' | 'choose' | 'select';
 export type UploadSource = 'computer' | 'profile';
+export type UploadModalPayload = {
+  source: UploadSource;
+  contestId: string;
+  file?: File;
+  photoIds?: string[];
+  selectedImages?: { id: string; url: string }[];
+  preview?: string;
+};
 
 export interface UploadModalRef {
   open: () => void; // call this to open modal
@@ -33,6 +41,11 @@ interface UploadModalProps {
   description: string;
   maxUploads: number;
   remaining: number;
+  submitLabel?: string;
+  loadingLabel?: string;
+  successMessage?: string;
+  redirectOnJoinSuccess?: boolean;
+  onSubmit?: (payload: UploadModalPayload) => Promise<void>;
   onUpload?: (data: {
     source: UploadSource;
     file?: File;
@@ -41,7 +54,23 @@ interface UploadModalProps {
 }
 
 const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
-  ({ contestId, type = 'join', description, title, maxUploads, remaining, onUpload }, ref) => {
+  (
+    {
+      contestId,
+      type = 'join',
+      description,
+      title,
+      maxUploads,
+      remaining,
+      submitLabel,
+      loadingLabel,
+      successMessage,
+      redirectOnJoinSuccess = true,
+      onSubmit,
+      onUpload,
+    },
+    ref,
+  ) => {
     const [modalContentType, setModalContentType] = useState<ModalContentType>(
       type === 'join' ? 'preview' : 'choose',
     );
@@ -55,8 +84,22 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const { isAuthenticated } = useAuth();
     const [createPhotoToContest, { isLoading }] = useCreatePhotoToContestMutation();
+    const [isCustomSubmitting, setIsCustomSubmitting] = useState(false);
     const [trigger, { data, isLoading: isPhotosLoading }] = useLazyGetUserPhotosQuery();
     const photos = (data?.data ?? []) as { id: string; url: string }[];
+    const isSubmitting = isLoading || isCustomSubmitting;
+    const resolvedSubmitLabel =
+      submitLabel ?? (type === 'join' ? 'Join' : type === 'upload' ? 'Upload' : 'Submit');
+    const resolvedLoadingLabel = loadingLabel ?? 'Uploading...';
+
+    const resetModal = () => {
+      setUploadModal(false);
+      setModalContentType(type === 'join' ? 'preview' : 'choose');
+      setFile(null);
+      setPreview('');
+      setSelectedImages([]);
+      setUploadSource(null);
+    };
 
     // expose `open` method to parent
     useImperativeHandle(ref, () => ({
@@ -115,8 +158,19 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
 
         if (!payload) throw new Error('Invalid upload source');
 
-        // upload to backend
-        await createPhotoToContest(payload).unwrap();
+        if (onSubmit) {
+          setIsCustomSubmitting(true);
+          await onSubmit({
+            source: uploadSource!,
+            contestId,
+            file: payload.photo,
+            photoIds: payload.photoIds,
+            selectedImages,
+            preview,
+          });
+        } else {
+          await createPhotoToContest(payload).unwrap();
+        }
 
         // Pass preview URL if type is "upload" and source is computer
         if (onUpload) {
@@ -130,23 +184,21 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
           });
         }
 
-        if (type === 'join') {
+        if (successMessage) {
+          toast.success(successMessage);
+        }
+
+        if (type === 'join' && redirectOnJoinSuccess) {
           router.push(
             `/contest/joined?modal=joinSuccess&contestId=${contestId}&contestTitle=${title}`,
           );
-          setUploadModal(false);
-          setModalContentType('preview');
-        } else {
-          setUploadModal(false);
-          setModalContentType('preview');
         }
 
-        setFile(null);
-        setPreview('');
-        setSelectedImages([]);
-        setUploadSource(null);
+        resetModal();
       } catch (err: any) {
         toast.error(err.message || err.data?.message || 'Something went wrong!');
+      } finally {
+        setIsCustomSubmitting(false);
       }
     };
 
@@ -344,11 +396,12 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                 <button
                   onClick={handleSubmit}
                   disabled={
-                    isLoading || (uploadSource === 'computer' ? !file : selectedImages.length === 0)
+                    isSubmitting ||
+                    (uploadSource === 'computer' ? !file : selectedImages.length === 0)
                   }
                   className="bg-primary text-background rounded-sm px-5 py-2 text-sm"
                 >
-                  {isLoading ? 'Uploading...' : 'Upload'}
+                  {isSubmitting ? resolvedLoadingLabel : resolvedSubmitLabel}
                 </button>
               </div>
             </div>
