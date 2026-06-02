@@ -251,8 +251,10 @@ export default function TeamDetailPage() {
                       <MapPin size={12} /> {resolvedTeam.country}
                     </span>
                     <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
-                      Level Requirement:{' '}
-                      {formatSkillLabel(resolvedTeam.min_requirement || resolvedTeam.skill_level)}
+                      Min Requirement:{' '}
+                      {resolvedTeam.min_requirement
+                        ? formatSkillLabel(resolvedTeam.min_requirement)
+                        : 'N/A'}
                     </span>
                   </div>
                 </div>
