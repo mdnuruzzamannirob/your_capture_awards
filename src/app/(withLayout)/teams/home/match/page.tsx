@@ -38,6 +38,12 @@ function isMemberUser(member: TeamMember, userId?: string) {
   return member.memberId === userId || member.member?.id === userId;
 }
 
+function hasLiveMatch(
+  value: ActiveTeamMatch | { has_active_team_match: false } | null,
+): value is ActiveTeamMatch {
+  return Boolean(value && !('has_active_team_match' in value && value.has_active_team_match === false));
+}
+
 function mapMembersToPhotos(members: TeamMember[]): MatchPhoto[] {
   return members.map((member, index) => ({
     id: member.id,
@@ -168,7 +174,8 @@ export default function TeamMatchPage() {
     skip: !teamId,
   });
 
-  const activeMatch = activeMatchQuery.data?.data ?? null;
+  const activeMatchResponse = activeMatchQuery.data?.data ?? null;
+  const activeMatch = hasLiveMatch(activeMatchResponse) ? activeMatchResponse : null;
   const shouldFetchAvailableContests =
     Boolean(teamId) && !activeMatchQuery.isLoading && !activeMatch;
 
@@ -183,14 +190,13 @@ export default function TeamMatchPage() {
   const activeContest = useMemo(
     () =>
       activeMatch
-        ? {
+      ? {
             id: activeMatch.contestId,
             title: activeMatch.contest.title,
             description: '',
             banner: activeMatch.contest.banner,
             maxUploads: activeMatch.contest.maxUploads || activeMatchView?.photosRequired || 1,
-            totalParticipants:
-              activeMatch.own.members.length + activeMatch.opposition.members.length,
+            totalParticipants: activeMatch.own.members.length + activeMatch.opposition.members.length,
           }
         : null,
     [activeMatch, activeMatchView?.photosRequired],
