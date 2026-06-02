@@ -269,7 +269,7 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-muted-foreground text-xs tracking-wider uppercase">
-                    Level Requirement
+                    Min Requirement
                   </FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
