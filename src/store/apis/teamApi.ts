@@ -9,6 +9,8 @@ import {
   GetMyTeamResponse,
   GetPendingRequestsResponse,
   GetSuggestedTeamsResponse,
+  GetTeamMatchHistoryParams,
+  GetTeamMatchHistoryResponse,
   GetTeamMembersResponse,
   GetTeamLeaderboardParams,
   GetTeamsParams,
@@ -149,12 +151,31 @@ export const teamApi = createApi({
       providesTags: ['Teams'],
     }),
 
+    // ── Get Team Match History ─────────────────────────────────────────
+    getTeamMatchHistory: builder.query<GetTeamMatchHistoryResponse, GetTeamMatchHistoryParams>({
+      query: ({ teamId, page = 1, limit = 10 }) => ({
+        url: `/teams/history/${teamId}`,
+        method: 'GET',
+        params: { page, limit },
+      }),
+      providesTags: (result, error, { teamId }) =>
+        result ? [{ type: 'TeamMatch', id: `${teamId}-history` }] : ['TeamMatch'],
+    }),
+
     // ── Start Match Auto ────────────────────────────────────────────────
     startMatchAuto: builder.mutation<StartMatchAutoResponse, StartMatchAutoRequest>({
-      query: ({ teamId, contestId, files }) => {
+      query: ({ teamId, contestId, files, photoIds }) => {
+        if (photoIds?.length) {
+          return {
+            url: `/teams/${teamId}/start-match-auto`,
+            method: 'POST',
+            body: { contestId, photoIds },
+          };
+        }
+
         const formData = new FormData();
         formData.append('contestId', contestId);
-        files.forEach((file) => {
+        files?.forEach((file) => {
           formData.append('files', file);
         });
 
@@ -287,6 +308,7 @@ export const {
   useGetActiveTeamMatchQuery,
   useGetAvailableTeamContestsQuery,
   useGetTeamLeaderboardQuery,
+  useGetTeamMatchHistoryQuery,
   useStartMatchAutoMutation,
   useJoinTeamMutation,
   useCreateTeamMutation,

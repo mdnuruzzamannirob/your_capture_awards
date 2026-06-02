@@ -2,20 +2,23 @@
 
 import ActiveMatch from '@/components/module/match/ActiveMatch';
 import BrowseMatches from '@/components/module/match/BrowseMatches';
-import StartMatchModal from '@/components/module/match/StartMatchModal';
+import UploadModal, { UploadModalPayload, UploadModalRef } from '@/components/UploadModal';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/hooks/useAuth';
 import {
   useGetActiveTeamMatchQuery,
   useGetAvailableTeamContestsQuery,
   useGetMyTeamQuery,
+  useStartMatchAutoMutation,
 } from '@/store/apis/teamApi';
-import type { ActiveTeamMatch, AvailableTeamContest } from '@/store/types/teamTypes';
+import type { ActiveTeamMatch, AvailableTeamContest, TeamMember } from '@/store/types/teamTypes';
 import { Match, MatchPhoto, MatchTeam } from '@/types/match';
-import { TeamMember } from '@/types/team';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 const PAGE_SIZE = 10;
+type MatchModalAction = 'start' | 'join' | 'submit';
 
 function getImageUrl(value?: string | null) {
   if (!value || value.includes('](') || !value.startsWith('http')) return null;
@@ -28,6 +31,11 @@ function getMemberName(member: TeamMember['member']) {
     [member.firstName, member.lastName].filter(Boolean).join(' ') ||
     'Team member'
   );
+}
+
+function isMemberUser(member: TeamMember, userId?: string) {
+  if (!userId) return false;
+  return member.memberId === userId || member.member?.id === userId;
 }
 
 function mapMembersToPhotos(members: TeamMember[]): MatchPhoto[] {
@@ -62,10 +70,10 @@ function mapActiveMatchToMatch(activeMatch: ActiveTeamMatch): Match {
   return {
     id: activeMatch.id,
     theme: contest?.title || 'Active Team Battle',
-    photosRequired: contest?.maxUploads || Math.max(ownPhotos, oppositionPhotos, 1),
+    photosRequired: contest.maxUploads || Math.max(ownPhotos, oppositionPhotos, 1),
     status: activeMatch.status === 'ACTIVE' ? 'IN_PROGRESS' : 'COMPLETED',
     endsAt: new Date(activeMatch.endedAt),
-    banner: contest?.banner || activeMatch.own.details.badge || activeMatch.team1.details.badge,
+    banner: contest.banner || activeMatch.own.details.badge || activeMatch.team1.details.badge,
     teamsJoined: 2,
     maxTeams: 2,
     minRequirement:
@@ -132,8 +140,12 @@ function MatchPageSkeleton() {
 }
 
 export default function TeamMatchPage() {
-  const [startModalOpen, setStartModalOpen] = useState(false);
+  const uploadModalRef = useRef<UploadModalRef>(null);
   const [selectedContestId, setSelectedContestId] = useState<string | null>(null);
+  const [selectedAction, setSelectedAction] = useState<MatchModalAction>('start');
+  const [selectedRemainingUploads, setSelectedRemainingUploads] = useState<number | undefined>();
+  const { user } = useAuth();
+  const [startMatchAuto] = useStartMatchAutoMutation();
 
   const {
     data: teamData,
@@ -143,7 +155,14 @@ export default function TeamMatchPage() {
   } = useGetMyTeamQuery();
 
   const teamId = teamData?.data?.team?.id;
-  const actionLabel = 'Start Match';
+  const currentUserId = user?.id;
+  const teamMembers = useMemo(() => teamData?.data?.members ?? [], [teamData?.data?.members]);
+  const currentMember = useMemo(
+    () => teamMembers.find((member) => member.memberId === currentUserId),
+    [currentUserId, teamMembers],
+  );
+  const canManageMatch = currentMember?.level === 'LEADER' || currentMember?.level === 'MODERATOR';
+  const availableActionLabel = canManageMatch ? 'Start Match' : 'Join Match';
 
   const activeMatchQuery = useGetActiveTeamMatchQuery(teamId ?? '', {
     skip: !teamId,
@@ -159,16 +178,96 @@ export default function TeamMatchPage() {
   );
 
   const activeMatchView = activeMatch ? mapActiveMatchToMatch(activeMatch) : null;
-  const matches = (contestsQuery.data?.data ?? []).map(mapContestToMatch);
-  const selectedContest = useMemo(
-    () => contestsQuery.data?.data?.find((contest) => contest.id === selectedContestId) ?? null,
-    [contestsQuery.data?.data, selectedContestId],
+  const availableContests = useMemo(() => contestsQuery.data?.data ?? [], [contestsQuery.data]);
+  const matches = useMemo(() => availableContests.map(mapContestToMatch), [availableContests]);
+  const activeContest = useMemo(
+    () =>
+      activeMatch
+        ? {
+            id: activeMatch.contestId,
+            title: activeMatch.contest.title,
+            description: '',
+            banner: activeMatch.contest.banner,
+            maxUploads: activeMatch.contest.maxUploads || activeMatchView?.photosRequired || 1,
+            totalParticipants:
+              activeMatch.own.members.length + activeMatch.opposition.members.length,
+          }
+        : null,
+    [activeMatch, activeMatchView?.photosRequired],
+  );
+  const selectedContest = useMemo(() => {
+    if (activeContest?.id === selectedContestId) return activeContest;
+
+    return availableContests.find((contest) => contest.id === selectedContestId) ?? null;
+  }, [activeContest, availableContests, selectedContestId]);
+
+  const activeMatchMember = useMemo(
+    () => activeMatch?.own.members.find((member) => isMemberUser(member, currentUserId)) ?? null,
+    [activeMatch, currentUserId],
+  );
+  const hasJoinedActiveMatch = Boolean(activeMatchMember);
+  const activeUploadCount = activeMatchMember?.totalPhotoUploads ?? 0;
+  const activeMaxUploads = activeContest?.maxUploads ?? 0;
+  const activeRemainingUploads = Math.max(activeMaxUploads - activeUploadCount, 0);
+  const activeActionLabel = hasJoinedActiveMatch ? 'Submit Photo' : 'Join Match';
+  const activeActionDisabled = hasJoinedActiveMatch && activeRemainingUploads <= 0;
+  const activeActionDisabledReason = activeActionDisabled
+    ? `Maximum ${activeMaxUploads} photos uploaded`
+    : undefined;
+
+  const refetchMatchFlow = useCallback(() => {
+    refetchTeam();
+    activeMatchQuery.refetch();
+
+    if (shouldFetchAvailableContests) {
+      contestsQuery.refetch();
+    }
+  }, [activeMatchQuery, contestsQuery, refetchTeam, shouldFetchAvailableContests]);
+
+  const handleAvailableMatchAction = useCallback(
+    (match: Match) => {
+      const contest = availableContests.find((item) => item.id === match.id);
+      if (!contest) return;
+
+      setSelectedContestId(contest.id);
+      setSelectedAction(canManageMatch ? 'start' : 'join');
+      setSelectedRemainingUploads(contest.maxUploads);
+      requestAnimationFrame(() => uploadModalRef.current?.open());
+    },
+    [availableContests, canManageMatch],
   );
 
-  const handleStartMatch = useCallback((match: Match) => {
-    setSelectedContestId(match.id);
-    setStartModalOpen(true);
-  }, []);
+  const handleActiveMatchAction = useCallback(() => {
+    if (!activeContest || activeActionDisabled) return;
+
+    setSelectedContestId(activeContest.id);
+    setSelectedAction(hasJoinedActiveMatch ? 'submit' : 'join');
+    setSelectedRemainingUploads(
+      hasJoinedActiveMatch ? activeRemainingUploads : activeContest.maxUploads,
+    );
+    requestAnimationFrame(() => uploadModalRef.current?.open());
+  }, [activeActionDisabled, activeContest, activeRemainingUploads, hasJoinedActiveMatch]);
+
+  const handleMatchUploadSubmit = useCallback(
+    async (payload: UploadModalPayload) => {
+      if (!selectedContest || !teamId) return;
+
+      if (selectedAction !== 'start') {
+        return;
+      }
+
+      await startMatchAuto({
+        teamId,
+        contestId: selectedContest.id,
+        files: payload.file ? [payload.file] : undefined,
+        photoIds: payload.photoIds,
+      }).unwrap();
+
+      toast.success('Match started successfully.');
+      refetchMatchFlow();
+    },
+    [refetchMatchFlow, selectedAction, selectedContest, startMatchAuto, teamId],
+  );
 
   const handleLeaveMatch = useCallback(() => {
     return;
@@ -207,14 +306,25 @@ export default function TeamMatchPage() {
       </div>
 
       {activeMatchView ? (
-        <ActiveMatch match={activeMatchView} onLeave={handleLeaveMatch} />
+        <ActiveMatch
+          match={activeMatchView}
+          onLeave={handleLeaveMatch}
+          actionLabel={activeActionLabel}
+          actionDisabled={activeActionDisabled}
+          actionDisabledReason={activeActionDisabledReason}
+          onAction={handleActiveMatchAction}
+        />
       ) : contestsQuery.isError ? (
         <div className="rounded-xl border p-6 text-center">
           <p className="font-semibold">Unable to load available contests</p>
           <p className="text-muted-foreground mt-1 text-sm">Refresh the page or try again later.</p>
         </div>
       ) : matches.length > 0 ? (
-        <BrowseMatches matches={matches} onStart={handleStartMatch} actionLabel={actionLabel} />
+        <BrowseMatches
+          matches={matches}
+          onStart={handleAvailableMatchAction}
+          actionLabel={availableActionLabel}
+        />
       ) : (
         <div className="rounded-xl border p-6 text-center">
           <p className="font-semibold">No available matches</p>
@@ -224,15 +334,43 @@ export default function TeamMatchPage() {
         </div>
       )}
 
-      <StartMatchModal
-        open={startModalOpen}
-        onOpenChange={(open) => {
-          setStartModalOpen(open);
-          if (!open) setSelectedContestId(null);
-        }}
-        teamId={teamId}
-        contest={selectedContest}
-      />
+      {selectedContest ? (
+        <UploadModal
+          ref={uploadModalRef}
+          type={selectedAction === 'submit' ? 'upload' : 'join'}
+          title={selectedContest.title}
+          description={selectedContest.description ?? ''}
+          remaining={selectedRemainingUploads ?? selectedContest.maxUploads}
+          maxUploads={selectedContest.maxUploads}
+          contestId={selectedContest.id}
+          submitLabel={
+            selectedAction === 'start'
+              ? 'Start Match'
+              : selectedAction === 'join'
+                ? 'Join Match'
+                : 'Submit Photo'
+          }
+          loadingLabel={
+            selectedAction === 'start'
+              ? 'Starting...'
+              : selectedAction === 'join'
+                ? 'Joining...'
+                : 'Submitting...'
+          }
+          successMessage={
+            selectedAction === 'join'
+              ? 'Joined match successfully.'
+              : selectedAction === 'submit'
+                ? 'Photo submitted successfully.'
+                : undefined
+          }
+          redirectOnJoinSuccess={false}
+          onSubmit={selectedAction === 'start' ? handleMatchUploadSubmit : undefined}
+          onUpload={async () => {
+            refetchMatchFlow();
+          }}
+        />
+      ) : null}
     </div>
   );
 }
