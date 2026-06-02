@@ -34,6 +34,14 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
 
+const SKILL_LEVEL_SET = new Set(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT']);
+
+function resolveSkillLevel(value?: string | null): EditTeamValues['min_requirement'] {
+  return SKILL_LEVEL_SET.has(value ?? '')
+    ? (value as EditTeamValues['min_requirement'])
+    : 'BEGINNER';
+}
+
 interface EditTeamModalProps {
   open: boolean;
   onClose: () => void;
@@ -47,7 +55,7 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
   const [badgeFile, setBadgeFile] = useState<File | null>(null);
   const [badgePreview, setBadgePreview] = useState<string | null>(team.badge);
   const fileRef = useRef<HTMLInputElement>(null);
-  const defaultRequirement = team.min_requirement ?? team.skill_level;
+  const defaultRequirement = resolveSkillLevel(team.min_requirement ?? team.skill_level);
 
   const form = useForm<z.input<typeof editTeamSchema>, any, z.output<typeof editTeamSchema>>({
     resolver: zodResolver(editTeamSchema),
@@ -68,7 +76,7 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
       description: team.description,
       language: team.language,
       country: team.country,
-      min_requirement: team.min_requirement ?? team.skill_level,
+      min_requirement: resolveSkillLevel(team.min_requirement ?? team.skill_level),
     });
     setBadgePreview(team.badge);
     setBadgeFile(null);

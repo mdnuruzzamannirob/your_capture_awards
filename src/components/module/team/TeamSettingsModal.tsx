@@ -43,7 +43,7 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
     TeamSettingsValues
   >;
 
-  const defaultRequirement = team.min_requirement ?? team.skill_level;
+  const defaultRequirement = resolveSkillLevel(team.min_requirement ?? team.skill_level);
 
   const form = useForm<TeamSettingsValues, any, TeamSettingsValues>({
     resolver,
@@ -58,7 +58,7 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
 
     form.reset({
       member_slots: team.member_slots,
-      min_requirement: team.min_requirement ?? team.skill_level,
+      min_requirement: resolveSkillLevel(team.min_requirement ?? team.skill_level),
     });
   }, [form, open, team]);
 
@@ -155,3 +155,10 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
 }
 
 export default TeamSettingsModal;
+const SKILL_LEVEL_SET = new Set(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT']);
+
+function resolveSkillLevel(value?: string | null): 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT' {
+  return SKILL_LEVEL_SET.has(value ?? '')
+    ? (value as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT')
+    : 'BEGINNER';
+}
