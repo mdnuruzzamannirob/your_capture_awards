@@ -17,17 +17,17 @@ function PhotoListPanel({ team, side }: PhotoListPanelProps) {
   return (
     <div className="min-w-0 flex-1">
       {/* Header */}
-      <div className="border-b px-3 py-2.5">
+      {/* <div className=" px-3 py-2.5">
         <p className="text-muted-foreground truncate text-[10px] font-semibold tracking-wider uppercase">
           {team.name}
         </p>
-      </div>
+      </div> */}
 
       {/* Scrollable list */}
       <div className="h-72 scrollbar-none space-y-1.5 overflow-y-auto p-2">
         {sorted.length === 0 ? (
           <div className="text-muted-foreground flex h-full items-center justify-center text-xs">
-            No photos yet
+            No members joined yet
           </div>
         ) : (
           sorted.map((photo, i) => (

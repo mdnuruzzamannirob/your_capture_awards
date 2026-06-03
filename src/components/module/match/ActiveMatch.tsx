@@ -5,9 +5,9 @@ import { Separator } from '@/components/ui/separator';
 import useCountdown from '@/hooks/useCountdown';
 import { Match } from '@/types/match';
 import { cn } from '@/utils/cn';
-import { formatCountdown } from '@/utils/match-utils';
-import { Camera, Clock } from 'lucide-react';
+import { Camera } from 'lucide-react';
 
+import CountDown from './CountDown';
 import PhotoListPanel from './PhotoListPanel';
 import TeamVsPanel from './TeamVsPanel';
 
@@ -58,9 +58,8 @@ function ActiveMatch({
               remaining < 60_000 && !isEnded && 'text-destructive',
             )}
           >
-            {formatCountdown(remaining)}
+            <CountDown endDate={match.endsAt} />
           </p>
-          <p className="text-muted-foreground text-xs">Ends at {match.endsAt.toLocaleString()}</p>
         </div>
 
         <div className="relative min-h-28 overflow-hidden rounded-md border bg-zinc-900">
@@ -75,17 +74,10 @@ function ActiveMatch({
           ) : null}
           <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-black/10" />
           <div className="relative z-10 flex h-full flex-col items-center justify-center gap-3 p-4 text-center">
-            <p className="text-[10px] font-semibold tracking-wider text-zinc-300 uppercase">
-              {match.status}
-            </p>
             <h1 className="text-center text-xl leading-tight font-semibold text-white">
               {match.theme}
             </h1>
             <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-white">
-              <span className="inline-flex items-center gap-1 rounded-full bg-black/55 px-3 py-1">
-                <Clock size={12} />
-                {formatCountdown(remaining)}
-              </span>
               <span className="inline-flex items-center gap-1 rounded-full bg-black/55 px-3 py-1">
                 <Camera size={12} />
                 {match.photosRequired} photos
