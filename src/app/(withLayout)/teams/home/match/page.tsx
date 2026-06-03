@@ -161,7 +161,6 @@ export default function TeamMatchPage() {
     isError: isTeamError,
     refetch: refetchTeam,
   } = useGetMyTeamQuery();
-  console.log('teamData', teamData);
 
   const teamId = teamData?.data?.team?.id;
   const currentUserId = user?.id;
@@ -172,12 +171,10 @@ export default function TeamMatchPage() {
   const currentMember = useMemo(
     () =>
       teamMembers.find((member) => {
-        console.log({ member: member.memberId, currentUserId });
         return member.memberId === currentUserId;
       }),
     [currentUserId, teamMembers],
   );
-  console.log({ currentMember });
   const canManageMatch = currentMember?.level === 'LEADER' || currentMember?.level === 'MODERATOR';
   const availableActionLabel = canManageMatch ? 'Start Match' : 'Join Match';
 
