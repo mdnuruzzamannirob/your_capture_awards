@@ -17,7 +17,7 @@ interface InviteModalProps {
 }
 
 function InviteModal({ open, onClose, teamId }: InviteModalProps) {
-  const inviteLink = `http://localhost:3001/teams/${teamId}`;
+  const inviteLink = `http://localhost:3000/teams/${teamId}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteLink).catch(() => {});

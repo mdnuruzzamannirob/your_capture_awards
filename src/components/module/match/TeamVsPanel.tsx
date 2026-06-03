@@ -56,7 +56,6 @@ function TeamVoteCard({
   isWinning: boolean;
   align: 'left' | 'right';
 }) {
-  console.log({ aaaaaaaaaaaaaaaaa: team.badge });
   return (
     <div className={cn('flex flex-1 flex-col items-center gap-2', align === 'right' && 'flex-col')}>
       {/* Avatar */}
@@ -84,7 +83,7 @@ function TeamVoteCard({
       {/* Vote count */}
       <div
         className={cn(
-          'flex items-center gap-1 rounded-full px-8 -mt-6 z-10 py-1 text-sm font-bold',
+          'z-10 -mt-6 flex items-center gap-1 rounded-full px-8 py-1 text-sm font-bold',
           isWinning ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
         )}
       >
@@ -93,7 +92,7 @@ function TeamVoteCard({
       </div>
 
       {/* Name */}
-      <p className="truncate text-center max-sm:text-sm  leading-tight font-semibold">{team.name}</p>
+      <p className="truncate text-center leading-tight font-semibold max-sm:text-sm">{team.name}</p>
     </div>
   );
 }

@@ -43,6 +43,19 @@ function MemberManagePopover({
 }: MemberManagePopoverProps) {
   const [open, setOpen] = useState(false);
 
+  const isTargetLeader = member.level === 'LEADER';
+  const isTargetModerator = member.level === 'MODERATOR';
+
+  // Leader can manage everyone except another leader
+  const leaderCanManage = isLeader && !isTargetLeader;
+
+  // Moderator can manage only members
+  const moderatorCanManage = !isLeader && member.level === 'MEMBER';
+
+  const canManage = leaderCanManage || moderatorCanManage;
+
+  if (!canManage) return null;
+
   const handleRole = (role: Role) => {
     onChangeRole(member.id, role);
     setOpen(false);
@@ -66,7 +79,6 @@ function MemberManagePopover({
         </Button>
       </PopoverTrigger>
 
-      {/* side="top" for last rows prevents popover from hiding behind bottom of viewport */}
       <PopoverContent
         className="w-48 p-1"
         align="end"
@@ -78,12 +90,14 @@ function MemberManagePopover({
             <p className="text-muted-foreground px-2 py-1.5 text-[10px] font-semibold tracking-wider uppercase">
               Change Role
             </p>
+
             <RoleOption
               role="MODERATOR"
               icon={<Shield size={13} className="text-blue-600" />}
               isActive={member.level === 'MODERATOR'}
               onSelect={handleRole}
             />
+
             <RoleOption
               role="MEMBER"
               icon={<Users size={13} className="text-muted-foreground" />}
@@ -99,7 +113,8 @@ function MemberManagePopover({
           onClick={handleRemove}
           className="hover:bg-destructive/10 text-destructive flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
         >
-          <LogOut size={13} /> Remove from team
+          <LogOut size={13} />
+          Remove from team
         </button>
       </PopoverContent>
     </Popover>
