@@ -32,7 +32,7 @@ function TeamVsPanel({ teamA, teamB, aPct, bPct, aWinning }: TeamVsPanelProps) {
       </div>
 
       {/* Vote progress bar */}
-      <div>
+      {/* <div>
         <div className="text-muted-foreground mb-1.5 flex justify-between text-[10px] font-semibold">
           <span>{aPct}%</span>
           <span className="tracking-wider uppercase">Vote share</span>
@@ -42,7 +42,7 @@ function TeamVsPanel({ teamA, teamB, aPct, bPct, aWinning }: TeamVsPanelProps) {
           <div className="bg-primary transition-all duration-700" style={{ width: `${aPct}%` }} />
           <div className="bg-zinc-600 transition-all duration-700" style={{ width: `${bPct}%` }} />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
@@ -56,6 +56,7 @@ function TeamVoteCard({
   isWinning: boolean;
   align: 'left' | 'right';
 }) {
+  console.log({ aaaaaaaaaaaaaaaaa: team.badge });
   return (
     <div className={cn('flex flex-1 flex-col items-center gap-2', align === 'right' && 'flex-col')}>
       {/* Avatar */}
@@ -74,8 +75,8 @@ function TeamVoteCard({
           )}
         </div>
         {isWinning && (
-          <div className="absolute -top-1 -right-1 rounded-full bg-amber-400 p-0.5">
-            <Trophy size={10} className="text-amber-900" />
+          <div className="absolute -top-1 -right-1 rounded-full bg-amber-400 p-1">
+            <Trophy size={14} className="text-amber-900" />
           </div>
         )}
       </div>
@@ -83,7 +84,7 @@ function TeamVoteCard({
       {/* Vote count */}
       <div
         className={cn(
-          'flex items-center gap-1 rounded-full px-3 py-1 text-sm font-bold',
+          'flex items-center gap-1 rounded-full px-8 -mt-6 z-10 py-1 text-sm font-bold',
           isWinning ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground',
         )}
       >
@@ -92,9 +93,7 @@ function TeamVoteCard({
       </div>
 
       {/* Name */}
-      <p className="max-w-25 truncate text-center text-sm leading-tight font-semibold">
-        {team.name}
-      </p>
+      <p className="truncate text-center max-sm:text-sm  leading-tight font-semibold">{team.name}</p>
     </div>
   );
 }
