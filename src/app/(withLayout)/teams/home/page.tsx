@@ -73,7 +73,6 @@ export default function TeamPage() {
   const [leaveOpen, setLeaveOpen] = useState(false);
 
   const team = teamData?.data?.team;
-  console.log(team);
   const members: TeamMember[] = team?.members || [];
   const requests = (requestsData?.data || []) as JoinRequestViewModel[];
 
@@ -138,7 +137,7 @@ export default function TeamPage() {
     async (target: TeamMember) => {
       if (!team) return;
       try {
-        await removeMember({ teamId: team.id, memberId: target.memberId }).unwrap();
+        await removeMember({ teamId: team.id, memberId: target.id }).unwrap();
         setRemoveTarget(null);
         toast.success(`${getMemberName(target.member)} removed from team.`);
       } catch (error) {

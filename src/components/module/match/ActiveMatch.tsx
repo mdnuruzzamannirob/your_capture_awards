@@ -36,7 +36,6 @@ function ActiveMatch({
   const totalVotes = match.teamA.totalVotes + match.teamB.totalVotes;
   const aPct = totalVotes > 0 ? Math.round((match.teamA.totalVotes / totalVotes) * 100) : 50;
   const bPct = 100 - aPct;
-
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">

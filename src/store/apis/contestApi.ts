@@ -55,10 +55,30 @@ export const contestApi = createApi({
 
     // get contest photos
     getContestPhotos: builder.query<
-      { data: { data: { url: string; id: string }[] } },
-      { id: string }
+      {
+        success: boolean;
+        message: string;
+        meta: {
+          page: number;
+          limit: number;
+          total: number;
+          totalPage: number;
+          hasNextPage: boolean;
+          hasPreviousPage: boolean;
+        };
+        data: {
+          id: string;
+          url: string;
+          voteCount: number;
+        }[];
+      },
+      {
+        id: string;
+        page?: number;
+        limit?: number;
+      }
     >({
-      query: ({ id }) => `/contests/${id}/photos`,
+      query: ({ id, page = 1, limit = 10 }) => `/contests/${id}/photos?page=${page}&limit=${limit}`,
     }),
 
     // get user photos
