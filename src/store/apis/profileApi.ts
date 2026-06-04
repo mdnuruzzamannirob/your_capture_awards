@@ -6,6 +6,7 @@ import { Stats } from '../types/profileTypes';
 export const profileApi = createApi({
   reducerPath: 'profileApi',
   baseQuery: baseQuery(typeof window === 'undefined'),
+  tagTypes: ['Photos', 'Stats'],
   endpoints: (builder) => ({
     createPhoto: builder.mutation<{ data: any }, FormData>({
       query: (formData) => ({
@@ -21,10 +22,12 @@ export const profileApi = createApi({
           dispatch(setPhoto(data));
         } catch (err) {}
       },
+      invalidatesTags: ['Photos', 'Stats'],
     }),
 
     getPhotos: builder.query<{ data: any }, void>({
       query: () => '/profiles/photos',
+      providesTags: ['Photos'],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const {
@@ -47,10 +50,12 @@ export const profileApi = createApi({
           dispatch(deletePhoto(id));
         } catch (err) {}
       },
+      invalidatesTags: ['Photos', 'Stats'],
     }),
 
     getStats: builder.query<{ data: Stats }, void>({
       query: () => '/profiles/stats',
+      providesTags: ['Stats'],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const {

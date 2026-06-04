@@ -14,6 +14,7 @@ const authSlice = createSlice({
     setUser: (state, action: PayloadAction<AuthUser | null>) => {
       state.user = action.payload;
     },
+    resetAuth: () => ({ ...initialState }),
     clearUser: (state) => {
       state.user = null;
     },
@@ -26,5 +27,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, clearUser, setTempEmail, setTempToken } = authSlice.actions;
+export const { setUser, resetAuth, clearUser, setTempEmail, setTempToken } = authSlice.actions;
 export default authSlice.reducer;

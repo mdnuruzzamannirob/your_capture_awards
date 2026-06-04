@@ -9,18 +9,20 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import Cookies from 'js-cookie';
 import { toast } from 'sonner';
+import { useDispatch } from 'react-redux';
+import { logout } from '@/utils/logout';
 
 const UserMenu = () => {
   const { user, token } = useAuth();
   const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
 
   const pathname = usePathname();
   const router = useRouter();
 
   const handleLogout = () => {
-    Cookies.remove('token');
+    logout(dispatch);
     toast.success('Logged out successfully');
     setOpen(false);
     router.push('/signin');

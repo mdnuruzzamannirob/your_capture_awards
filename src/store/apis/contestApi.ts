@@ -5,6 +5,16 @@ import { PhotoToContestPayload, ContestPayload } from '../types/contestTypes';
 export const contestApi = createApi({
   reducerPath: 'contestApi',
   baseQuery: baseQuery(typeof window === 'undefined'),
+  tagTypes: [
+    'PublicContests',
+    'PrivateContests',
+    'Contest',
+    'JoinedContests',
+    'ContestPhotos',
+    'UserPhotos',
+    'ContestRankPhotos',
+    'ContestRankPhotographers',
+  ],
   endpoints: (builder) => ({
     // create single contest or upload contest photo
     createPhotoToContest: builder.mutation<{ data: { data: any } }, PhotoToContestPayload>({
@@ -28,29 +38,43 @@ export const contestApi = createApi({
           body: { photoIds },
         };
       },
+      invalidatesTags: [
+        'PublicContests',
+        'PrivateContests',
+        'Contest',
+        'JoinedContests',
+        'ContestPhotos',
+        'UserPhotos',
+        'ContestRankPhotos',
+        'ContestRankPhotographers',
+      ],
     }),
 
     // get multiple contest data
     getPublicContests: builder.query<{ data: { data: any } }, ContestPayload>({
       query: ({ status, page = 1, limit = 10 }) =>
         `/contests/ucontests?status=${status}&page=${page}&limit=${limit}`,
+      providesTags: ['PublicContests'],
     }),
 
     // get multiple contest data
     getPrivateContests: builder.query<{ data: { data: any } }, ContestPayload>({
       query: ({ status, page = 1, limit = 10 }) =>
         `/contests?status=${status}&page=${page}&limit=${limit}`,
+      providesTags: ['PrivateContests'],
     }),
 
     // get single contest data
     getContest: builder.query<{ data: any }, { id: string }>({
       query: ({ id }) => `/contests/${id}`,
+      providesTags: (result, error, { id }) => [{ type: 'Contest', id }],
     }),
 
     // get join only contest data
     getJoinedContest: builder.query<{ data: { data: any } }, ContestPayload>({
       query: ({ page = 1, limit = 10 }) =>
         `/contests/my-active-contests?page=${page}&limit=${limit}`,
+      providesTags: ['JoinedContests'],
     }),
 
     // get contest photos
@@ -79,23 +103,27 @@ export const contestApi = createApi({
       }
     >({
       query: ({ id, page = 1, limit = 10 }) => `/contests/${id}/photos?page=${page}&limit=${limit}`,
+      providesTags: (result, error, { id }) => [{ type: 'ContestPhotos', id }],
     }),
 
     // get user photos
     getUserPhotos: builder.query<{ data: { data: { url: string; id: string }[] } }, { id: string }>(
       {
         query: ({ id }) => `/contests/${id}/user-photos`,
+        providesTags: (result, error, { id }) => [{ type: 'UserPhotos', id }],
       },
     ),
 
     // get contest rank photos
     getContestRankPhotos: builder.query<{ data: any }, { id: string }>({
       query: ({ id }) => `/contests/${id}/rank-photos`,
+      providesTags: (result, error, { id }) => [{ type: 'ContestRankPhotos', id }],
     }),
 
     // get contest rank photographers
     getContestRankPhotographers: builder.query<{ data: any }, { id: string }>({
       query: ({ id }) => `/contests/${id}/rank-photographer`,
+      providesTags: (result, error, { id }) => [{ type: 'ContestRankPhotographers', id }],
     }),
 
     // create contest vote
@@ -105,6 +133,15 @@ export const contestApi = createApi({
         method: 'POST',
         body: { photoIds },
       }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Contest', id },
+        { type: 'ContestPhotos', id },
+        { type: 'ContestRankPhotos', id },
+        { type: 'ContestRankPhotographers', id },
+        { type: 'PublicContests', id: 'LIST' },
+        { type: 'PrivateContests', id: 'LIST' },
+        { type: 'JoinedContests', id: 'LIST' },
+      ],
     }),
   }),
 });
