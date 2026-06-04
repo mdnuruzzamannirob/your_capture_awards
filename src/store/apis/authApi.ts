@@ -15,6 +15,7 @@ export const authApi = createApi({
         method: 'POST',
         body: credentials,
       }),
+      invalidatesTags: ['Auth'],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const {
@@ -39,6 +40,7 @@ export const authApi = createApi({
         method: 'POST',
         body: userData,
       }),
+      invalidatesTags: ['Auth'],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const {
@@ -72,6 +74,7 @@ export const authApi = createApi({
 
     forgotPassword: builder.mutation<{ success: boolean; message?: string }, { email: string }>({
       query: (body) => ({ url: '/users/forget-password', method: 'POST', body }),
+      invalidatesTags: ['Auth'],
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled;
@@ -87,6 +90,7 @@ export const authApi = createApi({
       { email: string; code: string }
     >({
       query: (body) => ({ url: '/users/verify-otp', method: 'POST', body }),
+      invalidatesTags: ['Auth'],
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const {
@@ -104,6 +108,7 @@ export const authApi = createApi({
       { token?: string; email?: string; password: string; confirmPassword: string }
     >({
       query: (body) => ({ url: '/users/reset-password', method: 'PATCH', body }),
+      invalidatesTags: ['Auth'],
     }),
   }),
 });
