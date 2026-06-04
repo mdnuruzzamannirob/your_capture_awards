@@ -25,9 +25,10 @@ import {
   useUpdateTeamMutation,
 } from '@/store/apis/teamApi';
 import { Accessibility, Role, TeamMember } from '@/types/team';
+import { showErrorToast } from '@/utils/team-feedback';
 import { getMemberName } from '@/utils/team-utils';
 import { useRouter } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 type JoinRequestViewModel = {
@@ -93,8 +94,7 @@ export default function TeamPage() {
         await approveRequest(req.id).unwrap();
         toast.success('Request approved!');
       } catch (error) {
-        console.error('Failed to approve request:', error);
-        toast.error('Failed to approve request');
+        showErrorToast(error, 'Failed to approve request');
       }
     },
     [approveRequest],
@@ -104,10 +104,9 @@ export default function TeamPage() {
     async (req: { id: string }) => {
       try {
         await rejectRequest(req.id).unwrap();
-        toast.error('Request declined');
+        toast.success('Request declined');
       } catch (error) {
-        console.error('Failed to reject request:', error);
-        toast.error('Failed to reject request');
+        showErrorToast(error, 'Failed to reject request');
       }
     },
     [rejectRequest],
@@ -126,8 +125,7 @@ export default function TeamPage() {
         if (target)
           toast.success(`${getMemberName(target.member)} is now ${newRole.toLowerCase()}.`);
       } catch (error) {
-        console.error('Failed to assign role:', error);
-        toast.error('Failed to assign role');
+        showErrorToast(error, 'Failed to assign role');
       }
     },
     [team, members, assignRole, revokeRole],
@@ -141,8 +139,7 @@ export default function TeamPage() {
         setRemoveTarget(null);
         toast.success(`${getMemberName(target.member)} removed from team.`);
       } catch (error) {
-        console.error('Failed to remove member:', error);
-        toast.error('Failed to remove member');
+        showErrorToast(error, 'Failed to remove member');
       }
     },
     [team, removeMember],
@@ -159,8 +156,7 @@ export default function TeamPage() {
       }).unwrap();
       toast.success(`Team is now ${newAccessibility === 'PUBLIC' ? 'public' : 'private'}.`);
     } catch (error) {
-      console.error('Failed to toggle privacy:', error);
-      toast.error('Failed to update team privacy');
+      showErrorToast(error, 'Failed to update team privacy');
     }
   }, [team, updateTeam]);
 
@@ -173,14 +169,13 @@ export default function TeamPage() {
       }
 
       try {
-        await leaveTeam({ teamId: team.id, memberId }).unwrap();
-        toast.success('You left the team.');
-        setLeaveOpen(false);
-        router.push('/teams');
-      } catch (error) {
-        console.error('Failed to leave team:', error);
-        toast.error('Failed to leave team');
-      }
+      await leaveTeam({ teamId: team.id, memberId }).unwrap();
+      toast.success('You left the team.');
+      setLeaveOpen(false);
+      router.push('/teams');
+    } catch (error) {
+      showErrorToast(error, 'Failed to leave team');
+    }
     },
     [isLeader, leaveTeam, router, team],
   );
@@ -207,8 +202,7 @@ export default function TeamPage() {
         toast.success('Team info updated!');
         setEditOpen(false);
       } catch (error) {
-        console.error('Failed to update team:', error);
-        toast.error('Failed to update team');
+        showErrorToast(error, 'Failed to update team');
       }
     },
     [team, updateTeam],
@@ -216,21 +210,28 @@ export default function TeamPage() {
 
   const handleDisband = useCallback(async () => {
     if (!team) return;
-    try {
-      await deleteTeam(team.id).unwrap();
-      toast.error('Team disbanded.');
+      try {
+        await deleteTeam(team.id).unwrap();
+      toast.success('Team disbanded.');
       setDisbandOpen(false);
       router.push('/teams');
     } catch (error) {
-      console.error('Failed to disband team:', error);
-      toast.error('Failed to disband team');
+      showErrorToast(error, 'Failed to disband team');
     }
   }, [team, deleteTeam, router]);
 
   const winRate = team?.total_matches ? Math.round((team.win / team.total_matches) * 100) : 0;
+
+  useEffect(() => {
+    if (isTeamLoading || isTeamError) return;
+    if (!team) {
+      router.replace('/teams');
+    }
+  }, [isTeamError, isTeamLoading, router, team]);
+
   if (isTeamLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6" aria-busy="true" aria-live="polite">
         <div className="rounded-xl border p-5">
           <div className="flex items-start gap-4">
             <Skeleton className="size-18 rounded-xl" />

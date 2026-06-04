@@ -23,6 +23,7 @@ import {
   useJoinTeamMutation,
 } from '@/store/apis/teamApi';
 import type { PaginationMeta, TeamListItem, TeamUserSummary } from '@/store/types/teamTypes';
+import { showErrorToast } from '@/utils/team-feedback';
 
 const PAGE_SIZE = 8;
 const FEATURED_LIMIT = 8;
@@ -83,7 +84,7 @@ function JoinTeamButton({ teamId, className }: { teamId: string; className?: str
       await joinTeam(teamId).unwrap();
       router.push('/teams/home');
     } catch (error) {
-      console.error('Failed to join team:', error);
+      showErrorToast(error, 'Failed to join team');
     }
   };
 
@@ -309,6 +310,7 @@ export default function Team() {
 
   const isSearching = deferredSearch.length > 0;
   const hasResults = allTeams.length > 0;
+  const showInitialSkeleton = teamsQuery.isLoading && !teamsQuery.data;
 
   useEffect(() => {
     if (!teamsQuery.data) return;
@@ -398,7 +400,7 @@ export default function Team() {
             />
           </div>
 
-          {teamsQuery.isLoading ? (
+          {showInitialSkeleton ? (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, index) => (
                 <TeamCardSkeleton key={index} />
