@@ -26,9 +26,11 @@ type Winner = {
   id: string;
   category: string;
   photo: {
-    id: string;
-    url: string;
-  } | null;
+    photo: {
+      id: string;
+      url: string;
+    } | null;
+  };
   participant?: {
     user?: {
       fullName?: string;
@@ -42,7 +44,7 @@ type Winner = {
 const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
   const winners: Winner[] = contest?.winners?.data || [];
   const prizes: ContestPrize[] = contest?.prizes || [];
-
+  console.log(winners);
   const topPhotographerWinner = winners.find((winner) => winner.category === 'TOP_PHOTOGRAPHER');
 
   const topPhotoWinner = winners.find((winner) => winner.category === 'TOP_PHOTO');
@@ -135,7 +137,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
         {/* SIDE IMAGES */}
 
         <div
-          className={`overflow-y-auto scrollbar-none pr-1 ${
+          className={`scrollbar-none overflow-y-auto pr-1 ${
             photographerPhotos.length === 2 ? 'col-span-4' : 'col-span-3'
           }`}
         >
@@ -250,10 +252,10 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
           {/* PHOTO */}
 
           <div className="relative h-125 overflow-hidden rounded-2xl bg-white/10">
-            {topPhotoWinner?.photo?.url ? (
+            {topPhotoWinner?.photo?.photo?.url ? (
               <Image
                 alt="Top Photo"
-                src={normalizeImageUrl(topPhotoWinner.photo.url)}
+                src={normalizeImageUrl(topPhotoWinner.photo.photo.url)}
                 fill
                 className="object-cover"
               />
