@@ -44,17 +44,17 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
           />
         </Link>
 
-        <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2">
+        {/* <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2">
           <Users size={16} />
           <span>Friends</span>
-        </div>
-        <Link
+        </div> */}
+        {/* <Link
           href={'/contest/joined'}
           className="group absolute right-3 bottom-3 z-10 flex items-center gap-2"
         >
           <BarChart3 size={16} />
           <span className="group-hover:underline">Ranking</span>
-        </Link>
+        </Link> */}
         <div className="absolute bottom-3 left-1/2 w-full -translate-x-1/2 px-3 text-center">
           <h2 className="inline-block text-2xl font-semibold">{contest?.title}</h2>
           <CountdownTimer
@@ -69,7 +69,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
 
       <div className="flex flex-1 flex-col gap-3 lg:gap-5">
         {/* Stats Section */}
-        <div className="grid grid-cols-2 gap-2 border-b border-white/10 px-3 pb-3 text-center md:grid-cols-4 lg:px-5 lg:pb-5">
+        <div className="grid grid-cols-2 gap-2 border-b border-white/10 px-3 pb-3 text-center md:grid-cols-3  lg:px-5 lg:pb-5">
           <div className="flex flex-col items-center justify-center gap-1">
             <div className="text-muted-foreground text-xs uppercase">Current Level</div>
             <div className="relative">
@@ -87,7 +87,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
             </div>
           </div>
 
-          <div className="flex flex-col items-center justify-center gap-1">
+          {/* <div className="flex flex-col items-center justify-center gap-1">
             <div className="text-muted-foreground text-xs uppercase">GS Point</div>
             <div className="border-black-2-600 flex size-25 flex-col items-center justify-center gap-1 rounded-full border-4 p-2">
               <div className="text-lg font-semibold">{0}</div>
@@ -98,7 +98,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
                 <p className="bg-orange-2-400 -ml-1 size-3 rounded-full" />
               </div>
             </div>
-          </div>
+          </div> */}
 
           <div className="flex flex-col items-center justify-center gap-1">
             <div className="text-muted-foreground text-xs uppercase">Votes</div>
