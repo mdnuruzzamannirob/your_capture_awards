@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { TeamDetail } from '@/lib/mock/teamDetails';
 import { useGetTeamQuery, useJoinTeamMutation } from '@/store/apis/teamApi';
 import { getAvatarClass, getInitials, getMemberName } from '@/utils/team-utils';
+import { showErrorToast } from '@/utils/team-feedback';
 import { BadgeCheck, Languages, MapPin, Medal, Trophy, Users } from 'lucide-react';
 
 function formatSkillLabel(value: string) {
@@ -172,7 +173,7 @@ export default function TeamDetailPage() {
       await joinTeam(teamId).unwrap();
       router.push('/teams/home');
     } catch (error) {
-      console.error('Failed to join team:', error);
+      showErrorToast(error, 'Failed to join team');
     }
   };
 
