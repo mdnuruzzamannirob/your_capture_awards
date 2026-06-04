@@ -3,6 +3,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { MdOutlineHowToVote } from 'react-icons/md';
 
+const achievementIconMap: Record<string, string> = {
+  TOP_PHOTOGRAPHER: '/icons/top-photographer.png',
+  TOP_PHOTO: '/icons/top-photo.png',
+};
+
 const CompletedContestCard = ({ contest }: { contest: any }) => {
   return (
     <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col gap-5 overflow-hidden rounded-xl border-2 p-3 lg:flex-row">
@@ -22,14 +27,31 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
         <h3 className="text-lg font-medium">Achievements</h3>
 
         <div className="flex items-center gap-6">
-          <Image alt="" src={`/icons/top-photo.png`} width={60} height={50} />
-          <Image alt="" src={`/icons/top-photographer.png`} width={60} height={50} />
+          {contest?.achievements?.data?.length ? (
+            contest.achievements.data.map((achievement: any, index: number) => {
+              const icon = achievementIconMap[achievement.category];
+
+              if (!icon) return null;
+
+              return (
+                <Image
+                  key={achievement.id || index}
+                  alt={achievement.category}
+                  src={icon}
+                  width={60}
+                  height={50}
+                />
+              );
+            })
+          ) : (
+            <p className="text-muted-foreground text-sm">No achievements yet</p>
+          )}
         </div>
       </div>
 
       <div className="flex flex-1 flex-col justify-between gap-5">
         <div className="grid grid-cols-2 gap-1">
-          {contest?.photos?.map((item: any, index: number) => (
+          {contest?.photos?.data?.map((item: any, index: number) => (
             <div key={index} className="group relative cursor-pointer overflow-hidden rounded-sm">
               <Image
                 src={item?.url}
