@@ -1,8 +1,7 @@
 import CornerCount from '@/components/CornerCount';
 import { Button } from '@/components/ui/button';
-import useCountdown from '@/hooks/useCountdown';
+import CountdownTimer from '@/components/module/contest/CountdownTimer';
 import { Match } from '@/types/match';
-import { formatShortTime } from '@/utils/match-utils';
 import { Clock, Play } from 'lucide-react';
 import Image from 'next/image';
 
@@ -13,12 +12,13 @@ interface MatchCardProps {
 }
 
 function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardProps) {
-  const remaining = useCountdown(match.endsAt);
   const teamMembersLabel =
     match.teamsJoined <= 0
       ? 'No Team members in the Challenge'
       : `${match.teamsJoined} Team members in the Challenge`;
   const banner = match.teamA.badge || '/images/TeamPhoto.png';
+  const startDate = new Date(match.endsAt.getTime() - 1000 * 60 * 60 * 24 * 30).toISOString();
+  const endDate = match.endsAt.toISOString();
 
   return (
     <article className="group border-black-2-600 bg-black-2-800/80 overflow-hidden rounded-xl border">
@@ -40,7 +40,7 @@ function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardPro
             </h3>
             <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-black/55 px-3 py-1 text-sm font-medium">
               <Clock className="size-4" />
-              <span>{formatShortTime(remaining)}</span>
+              <CountdownTimer startDate={startDate} endDate={endDate} className="mt-0 text-sm" />
             </div>
           </div>
 

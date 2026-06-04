@@ -129,7 +129,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
   };
 
   const handleSubmit = async () => {
-    if (selectedIds.length === 0) return;
+    if (!id || selectedIds.length === 0) return;
 
     try {
       await voteUpload({

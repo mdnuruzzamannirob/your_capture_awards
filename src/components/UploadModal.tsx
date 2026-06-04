@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { HiOutlineDesktopComputer } from 'react-icons/hi';
@@ -91,6 +91,15 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const resolvedSubmitLabel =
       submitLabel ?? (type === 'join' ? 'Join' : type === 'upload' ? 'Upload' : 'Submit');
     const resolvedLoadingLabel = loadingLabel ?? 'Uploading...';
+
+    useEffect(() => {
+      if (!uploadModal) return;
+      if (uploadSource !== 'profile') return;
+      if (modalContentType !== 'select') return;
+      if (photos.length > 0 || isPhotosLoading) return;
+
+      void trigger({ id: contestId });
+    }, [contestId, isPhotosLoading, modalContentType, photos.length, trigger, uploadModal, uploadSource]);
 
     const resetModal = () => {
       setUploadModal(false);
