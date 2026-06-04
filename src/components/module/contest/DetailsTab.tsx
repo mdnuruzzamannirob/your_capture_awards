@@ -29,14 +29,15 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
         />
         <div className="space-y-4">
           <h2 className="text-2xl font-bold">{contest?.creator?.fullName}</h2>
-          <div className="flex items-center gap-2">
+          <h2 className="text-2xl font-bold">{contest?.creator?.country}</h2>
+          {/* <div className="flex items-center gap-2">
             <button className="flex items-center justify-center gap-1.5 rounded bg-blue-500 px-4 py-1.5 text-sm text-white">
               Follow <FaPlus />
             </button>
             <button className="flex size-8 items-center justify-center rounded border border-blue-500 text-blue-500">
               <FaFacebookF />
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
 
