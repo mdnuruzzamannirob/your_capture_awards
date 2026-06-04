@@ -14,13 +14,15 @@ import { SideItems } from '@/types';
 import { sideItems } from '@/constants/sideItems';
 import LogoName from '../LogoName';
 import { useAuth } from '@/hooks/useAuth';
-import Cookies from 'js-cookie';
 import { toast } from 'sonner';
+import { useDispatch } from 'react-redux';
+import { logout } from '@/utils/logout';
 
 const Sidebar = () => {
   const { user, token } = useAuth();
   const [open, setOpen] = useState(false);
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
+  const dispatch = useDispatch();
 
   const pathname = usePathname();
   const router = useRouter();
@@ -33,7 +35,7 @@ const Sidebar = () => {
   };
 
   const handleLogout = () => {
-    Cookies.remove('token');
+    logout(dispatch);
     toast.success('Logged out successfully');
     setOpen(false);
     router.push('/signin');
