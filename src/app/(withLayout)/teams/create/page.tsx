@@ -5,7 +5,7 @@ import { Upload } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
@@ -29,7 +29,10 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { COUNTRIES, LANGUAGES } from '@/constants/team';
+import { useAuth } from '@/hooks/useAuth';
 import { useCreateTeamMutation } from '@/store/apis/teamApi';
+import { useGetMyTeamQuery } from '@/store/apis/teamApi';
+import { showErrorToast } from '@/utils/team-feedback';
 
 const TEAM_REQUIREMENTS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'] as const;
 
@@ -55,8 +58,37 @@ const defaultValues: CreateTeamValues = {
   accessibility: 'PUBLIC',
 };
 
+function CreateTeamSkeleton() {
+  return (
+    <main className="margin container py-8 lg:py-10">
+      <div className="space-y-5">
+        <div className="h-4 w-32 rounded bg-black-2-700" />
+        <div className="space-y-2">
+          <div className="h-8 w-48 rounded bg-black-2-700" />
+          <div className="h-4 w-full max-w-2xl rounded bg-black-2-700" />
+          <div className="h-4 w-4/5 max-w-xl rounded bg-black-2-700" />
+        </div>
+        <div className="space-y-4 rounded-xl border p-5">
+          <div className="h-24 rounded-2xl bg-black-2-700" />
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="h-16 rounded bg-black-2-700" />
+            <div className="h-16 rounded bg-black-2-700" />
+          </div>
+          <div className="h-16 rounded bg-black-2-700" />
+          <div className="h-32 rounded bg-black-2-700" />
+          <div className="flex justify-end gap-3">
+            <div className="h-10 w-24 rounded bg-black-2-700" />
+            <div className="h-10 w-28 rounded bg-black-2-700" />
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
 function TeamCreatePage() {
   const router = useRouter();
+  const { token } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
   const [badgePreview, setBadgePreview] = useState<string | null>(null);
   const [badgeFileName, setBadgeFileName] = useState('No badge selected');
@@ -67,6 +99,23 @@ function TeamCreatePage() {
     resolver: zodResolver(createTeamSchema),
     defaultValues,
   });
+
+  const { data: myTeamData, isLoading: isMyTeamLoading } = useGetMyTeamQuery(undefined, {
+    skip: !token,
+  });
+
+  useEffect(() => {
+    if (isMyTeamLoading) return;
+
+    const teamId = myTeamData?.data?.team?.id;
+    if (teamId) {
+      router.replace('/teams/home');
+    }
+  }, [isMyTeamLoading, myTeamData?.data?.team?.id, router]);
+
+  if (token && isMyTeamLoading) {
+    return <CreateTeamSkeleton />;
+  }
 
   const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
     void form.handleSubmit(onSubmit)(event);
@@ -129,8 +178,7 @@ function TeamCreatePage() {
       clearBadge();
       router.push('/teams/home');
     } catch (error) {
-      console.error('Failed to create team:', error);
-      toast.error('Failed to create team');
+      showErrorToast(error, 'Failed to create team');
     }
   };
 

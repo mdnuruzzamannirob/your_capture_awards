@@ -114,33 +114,6 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="min_requirement"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-muted-foreground text-xs tracking-wider uppercase">
-                    Min Requirement
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="w-full!">
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {SKILL_LEVELS.map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {s}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <DialogFooter>
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
