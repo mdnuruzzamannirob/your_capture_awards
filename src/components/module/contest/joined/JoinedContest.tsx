@@ -35,6 +35,7 @@ const JoinedContest = () => {
   const totalPages = (data as any)?.pagination?.totalPages ?? 1;
   const hasMore = page < totalPages;
   const contest = (open as any)?.data[0] ?? {};
+  const voteContestId = (contest?.id as string | undefined) ?? contestId ?? '';
 
   // Accumulate contests data
   useEffect(() => {
@@ -72,6 +73,7 @@ const JoinedContest = () => {
 
   // Handle Vote button click
   const handleVoteClick = () => {
+    if (!voteContestId) return;
     voteModalRef.current?.open();
     setUploadModal(false);
     clearSearchParams();
@@ -208,14 +210,14 @@ const JoinedContest = () => {
       </Dialog>
 
       {/* Vote Modal */}
-      <VoteModal ref={voteModalRef} id={contestId as string} />
+      <VoteModal ref={voteModalRef} id={voteContestId} />
       <UploadModal
         type="join"
         ref={modalRef}
         title={contest?.title}
         remaining={contest?.maxUploads}
         maxUploads={contest?.maxUploads}
-        contestId={contest?.id}
+        contestId={voteContestId || contest?.id}
         description={contest?.description}
       />
     </section>
