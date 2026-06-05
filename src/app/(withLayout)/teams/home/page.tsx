@@ -169,13 +169,13 @@ export default function TeamPage() {
       }
 
       try {
-      await leaveTeam({ teamId: team.id, memberId }).unwrap();
-      toast.success('You left the team.');
-      setLeaveOpen(false);
-      router.push('/teams');
-    } catch (error) {
-      showErrorToast(error, 'Failed to leave team');
-    }
+        await leaveTeam({ teamId: team.id, memberId }).unwrap();
+        toast.success('You left the team.');
+        setLeaveOpen(false);
+        router.push('/teams');
+      } catch (error) {
+        showErrorToast(error, 'Failed to leave team');
+      }
     },
     [isLeader, leaveTeam, router, team],
   );
@@ -210,8 +210,8 @@ export default function TeamPage() {
 
   const handleDisband = useCallback(async () => {
     if (!team) return;
-      try {
-        await deleteTeam(team.id).unwrap();
+    try {
+      await deleteTeam(team.id).unwrap();
       toast.success('Team disbanded.');
       setDisbandOpen(false);
       router.push('/teams');
