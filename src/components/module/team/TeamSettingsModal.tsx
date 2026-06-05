@@ -130,7 +130,9 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
 export default TeamSettingsModal;
 const SKILL_LEVEL_SET = new Set(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT']);
 
-function resolveSkillLevel(value?: string | null): 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT' {
+function resolveSkillLevel(
+  value?: string | null,
+): 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT' {
   return SKILL_LEVEL_SET.has(value ?? '')
     ? (value as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT')
     : 'BEGINNER';

@@ -69,7 +69,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
 
       <div className="flex flex-1 flex-col gap-3 lg:gap-5">
         {/* Stats Section */}
-        <div className="grid grid-cols-2 gap-2 border-b border-white/10 px-3 pb-3 text-center md:grid-cols-3  lg:px-5 lg:pb-5">
+        <div className="grid grid-cols-2 gap-2 border-b border-white/10 px-3 pb-3 text-center md:grid-cols-3 lg:px-5 lg:pb-5">
           <div className="flex flex-col items-center justify-center gap-1">
             <div className="text-muted-foreground text-xs uppercase">Current Level</div>
             <div className="relative">

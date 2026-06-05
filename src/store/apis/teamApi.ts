@@ -201,7 +201,7 @@ export const teamApi = createApi({
       query: ({ teamId, userId }) => ({
         url: '/teams/invite',
         method: 'POST',
-        body: { userId , teamId },
+        body: { userId, teamId },
       }),
       invalidatesTags: ['TeamInvitations'],
     }),
