@@ -62,23 +62,23 @@ function CreateTeamSkeleton() {
   return (
     <main className="margin container py-8 lg:py-10">
       <div className="space-y-5">
-        <div className="h-4 w-32 rounded bg-black-2-700" />
+        <div className="bg-black-2-700 h-4 w-32 rounded" />
         <div className="space-y-2">
-          <div className="h-8 w-48 rounded bg-black-2-700" />
-          <div className="h-4 w-full max-w-2xl rounded bg-black-2-700" />
-          <div className="h-4 w-4/5 max-w-xl rounded bg-black-2-700" />
+          <div className="bg-black-2-700 h-8 w-48 rounded" />
+          <div className="bg-black-2-700 h-4 w-full max-w-2xl rounded" />
+          <div className="bg-black-2-700 h-4 w-4/5 max-w-xl rounded" />
         </div>
         <div className="space-y-4 rounded-xl border p-5">
-          <div className="h-24 rounded-2xl bg-black-2-700" />
+          <div className="bg-black-2-700 h-24 rounded-2xl" />
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="h-16 rounded bg-black-2-700" />
-            <div className="h-16 rounded bg-black-2-700" />
+            <div className="bg-black-2-700 h-16 rounded" />
+            <div className="bg-black-2-700 h-16 rounded" />
           </div>
-          <div className="h-16 rounded bg-black-2-700" />
-          <div className="h-32 rounded bg-black-2-700" />
+          <div className="bg-black-2-700 h-16 rounded" />
+          <div className="bg-black-2-700 h-32 rounded" />
           <div className="flex justify-end gap-3">
-            <div className="h-10 w-24 rounded bg-black-2-700" />
-            <div className="h-10 w-28 rounded bg-black-2-700" />
+            <div className="bg-black-2-700 h-10 w-24 rounded" />
+            <div className="bg-black-2-700 h-10 w-28 rounded" />
           </div>
         </div>
       </div>

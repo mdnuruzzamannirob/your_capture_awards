@@ -109,9 +109,7 @@ const TeamHistory = () => {
       ) : rows.length === 0 ? (
         <div className="mt-5 rounded-md border p-6 text-center">
           <p className="font-semibold">No match history yet</p>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Completed battles will appear here.
-          </p>
+          <p className="text-muted-foreground mt-1 text-sm">Completed battles will appear here.</p>
         </div>
       ) : (
         <div className="mt-5 overflow-hidden rounded-md border">

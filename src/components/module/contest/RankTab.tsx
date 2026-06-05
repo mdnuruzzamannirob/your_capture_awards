@@ -159,7 +159,9 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                       <div className="flex w-full items-center">
                         <div className="bg-black-2-500 -mr-5 flex h-12 w-full items-center justify-end rounded-l-full px-2">
                           <div
-                            className={cn('bg-primary flex h-9 whitespace-nowrap items-center rounded-l-full px-3')}
+                            className={cn(
+                              'bg-primary flex h-9 items-center rounded-l-full px-3 whitespace-nowrap',
+                            )}
                             style={{ width: `${progress}%` }}
                           >
                             {rankPhotographer?.totalVotes} Votes

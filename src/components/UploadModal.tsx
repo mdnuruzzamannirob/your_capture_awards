@@ -99,7 +99,15 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       if (photos.length > 0 || isPhotosLoading) return;
 
       void trigger({ id: contestId });
-    }, [contestId, isPhotosLoading, modalContentType, photos.length, trigger, uploadModal, uploadSource]);
+    }, [
+      contestId,
+      isPhotosLoading,
+      modalContentType,
+      photos.length,
+      trigger,
+      uploadModal,
+      uploadSource,
+    ]);
 
     const resetModal = () => {
       setUploadModal(false);
