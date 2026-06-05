@@ -44,7 +44,7 @@ type Winner = {
 const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
   const winners: Winner[] = contest?.winners?.data || [];
   const prizes: ContestPrize[] = contest?.prizes || [];
-  console.log(winners);
+
   const topPhotographerWinner = winners.find((winner) => winner.category === 'TOP_PHOTOGRAPHER');
 
   const topPhotoWinner = winners.find((winner) => winner.category === 'TOP_PHOTO');
