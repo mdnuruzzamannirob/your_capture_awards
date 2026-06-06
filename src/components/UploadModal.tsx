@@ -14,6 +14,7 @@ import { Skeleton } from './ui/skeleton';
 import { useRouter } from 'next/navigation';
 import TipTapViewer from './custom/tiptap-editor/TipTapViewer';
 import { useAuth } from '@/hooks/useAuth';
+import { canJoinContest, getUserSubscriptionStatus } from '@/constants/contestAccess';
 import {
   useCreatePhotoToContestMutation,
   useLazyGetUserPhotosQuery,
@@ -36,6 +37,8 @@ export interface UploadModalRef {
 
 interface UploadModalProps {
   contestId: string;
+  contest?: any;
+  contestType?: string;
   type?: 'upload' | 'join';
   title: string;
   description: string;
@@ -57,6 +60,8 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
   (
     {
       contestId,
+      contest,
+      contestType,
       type = 'join',
       description,
       title,
@@ -82,7 +87,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
 
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const [createPhotoToContest, { isLoading }] = useCreatePhotoToContestMutation();
     const [isCustomSubmitting, setIsCustomSubmitting] = useState(false);
     const [trigger, { data, isLoading: isPhotosLoading }] = useLazyGetUserPhotosQuery();
@@ -127,6 +132,17 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
           router.push(`/signin?returnTo=${encodeURIComponent(returnUrl)}`);
           return;
         }
+
+        if (type === 'join') {
+          const userSubscription = getUserSubscriptionStatus(user);
+          const isJoinAllowed = canJoinContest(contest ?? { type: contestType }, userSubscription);
+
+          if (!isJoinAllowed) {
+            toast.error('This contest requires an active subscription.');
+            return;
+          }
+        }
+
         setUploadModal(true);
       },
     }));
