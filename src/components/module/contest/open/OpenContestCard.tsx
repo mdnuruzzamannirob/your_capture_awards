@@ -1,10 +1,14 @@
 import Image from 'next/image';
 import CountdownTimer from '../CountdownTimer';
 import Link from 'next/link';
-import { useRef } from 'react';
+import { useRef, type MouseEvent } from 'react';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
 import CornerCount from '@/components/CornerCount';
+import { useAuth } from '@/hooks/useAuth';
+import { canJoinContest, STATIC_SUBSCRIPTION } from '@/constants/contestAccess';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Promise<any> }) => {
   const now = new Date();
@@ -16,6 +20,25 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
   const endDate = isFuture ? contestStart.toISOString() : contestEnd.toISOString();
 
   const modalRef = useRef<UploadModalRef>(null);
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
+
+  const handleJoin = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuthenticated) {
+      router.push(`/signin?returnTo=${encodeURIComponent(`/contest/${contest.id}?modal=join`)}`);
+      return;
+    }
+
+    if (!canJoinContest(contest, STATIC_SUBSCRIPTION)) {
+      toast.error('This contest requires an active subscription.');
+      return;
+    }
+
+    modalRef.current?.open();
+  };
 
   return (
     <div className="space-y-2 text-center">
@@ -51,11 +74,7 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
           {/* JOIN Button */}
           <div className="pointer-events-none flex translate-y-3 justify-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
             <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                modalRef.current?.open();
-              }}
+              onClick={handleJoin}
               className="bg-foreground text-background pointer-events-auto rounded px-3 py-2 text-sm font-medium uppercase transition"
             >
               JOIN

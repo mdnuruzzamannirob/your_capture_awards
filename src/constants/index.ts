@@ -7,9 +7,9 @@ export const navLinks: NavLink[] = [
     tags: ['/contest', '/joined', '/open', '/closed', '/completed', '/upcoming'],
   },
   { name: 'Teams', href: '/teams' },
-  { name: 'Discover', href: '/discover' },
   { name: 'Pricing', href: '/pricing' },
-  // { name: 'About', href: '/about' },
+  { name: 'About Us', href: '/about' },
+  // { name: 'Discover', href: '/discover' },
   // { name: 'Contact', href: '/contact' },
 ];
 

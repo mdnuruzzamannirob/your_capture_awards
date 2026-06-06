@@ -8,7 +8,6 @@ import Link from 'next/link';
 import UploadPhoto from './UploadPhoto';
 import CountdownTimer from '../CountdownTimer';
 import { labels, totalLevels, valueToLevel } from '@/utils/valueToExposureLabel';
-import { useSwapBoostKey } from '@/hooks/useSwapBoostKey';
 import { useEffect, useRef, useState } from 'react';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
 import CornerCount from '@/components/CornerCount';
@@ -27,7 +26,6 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
   const modalRef = useRef<VoteModalRef>(null);
   const remaining = contest?.maxUploads - images.length;
 
-  const { openModal } = useSwapBoostKey();
   const level = valueToLevel(contest?.level_data?.exposure_bonus);
 
   return (
@@ -173,13 +171,13 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
 
         <VoteModal ref={modalRef} id={contest?.id} />
         <button
-          onClick={() => openModal('swap')}
+          // onClick={() => openModal('swap')}
           className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
         >
           <MdOutlineCameraswitch className="rotate-90" /> Swap
         </button>
         <button
-          onClick={() => openModal('boost')}
+          // onClick={() => openModal('boost')}
           className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
         >
           <AiOutlineThunderbolt /> Promote
