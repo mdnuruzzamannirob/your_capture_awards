@@ -119,6 +119,8 @@ const ContestDetails = ({ id }: { id: string }) => {
                 <UploadModal
                   ref={uploadModalRef}
                   type={contest?.uploadCount ? 'upload' : 'join'}
+                  contest={contest}
+                  contestType={contest?.type}
                   title={contest?.title}
                   remaining={remaining}
                   maxUploads={contest?.maxUploads}
