@@ -9,8 +9,8 @@ export const navLinks: NavLink[] = [
   { name: 'Teams', href: '/teams' },
   { name: 'Discover', href: '/discover' },
   { name: 'Pricing', href: '/pricing' },
-  { name: 'About', href: '/about' },
-  { name: 'Contact', href: '/contact' },
+  // { name: 'About', href: '/about' },
+  // { name: 'Contact', href: '/contact' },
 ];
 
 export const memoriesImages: MemoriesImage[] = [
