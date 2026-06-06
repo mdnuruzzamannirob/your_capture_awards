@@ -7,6 +7,8 @@ import { useGetPublicContestsQuery, useGetPrivateContestsQuery } from '@/store/a
 import { useAuth } from '@/hooks/useAuth';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle } from 'lucide-react';
 
 interface OpenContestProps {
   isAuthenticated?: boolean;
@@ -25,14 +27,16 @@ const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenConte
   // Use private API if authenticated, public API otherwise
   const publicQuery = useGetPublicContestsQuery(
     { status: 'ACTIVE', page, limit: 10 },
-    { skip: isAuthenticated },
+    { skip: isAuthenticated, refetchOnMountOrArgChange: 60 },
   );
   const privateQuery = useGetPrivateContestsQuery(
     { status: 'ACTIVE', page, limit: 10 },
-    { skip: !isAuthenticated },
+    { skip: !isAuthenticated, refetchOnMountOrArgChange: 60 },
   );
 
-  const { data, isLoading, refetch, isFetching } = isAuthenticated ? privateQuery : publicQuery;
+  const { data, isLoading, refetch, isFetching, isError, error } = isAuthenticated
+    ? privateQuery
+    : publicQuery;
   const openResult = (data as any)?.data ?? [];
   const totalPages = (data as any)?.pagination?.totalPages ?? 1;
   const hasMore = page < totalPages;
@@ -65,6 +69,17 @@ const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenConte
       <section className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3">
         {isLoading ? (
           [1, 2, 3, 4, 5, 6].map((_, index) => <OpenContestCardSkeleton key={index} />)
+        ) : isError ? (
+          <div className="col-span-full flex flex-col items-center justify-center gap-4 py-20 text-center">
+            <AlertTriangle className="text-primary size-10" />
+            <div>
+              <p className="text-lg font-semibold">Could not load open contests.</p>
+              <p className="text-muted-foreground text-sm">
+                {(error as any)?.data?.message ?? 'Please try again in a moment.'}
+              </p>
+            </div>
+            <Button onClick={() => void refetch()}>Retry</Button>
+          </div>
         ) : allContests.length <= 0 ? (
           <div className="col-span-full flex w-full flex-col items-center justify-center py-20">
             <Image alt="" src="/images/no-result-found.webp" width={400} height={400} />
