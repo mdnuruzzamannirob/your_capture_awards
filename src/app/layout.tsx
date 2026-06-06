@@ -2,7 +2,9 @@ import { Toaster } from '@/components/ui/sonner';
 import { cn } from '@/utils/cn';
 import type { Metadata } from 'next';
 import { Kumbh_Sans } from 'next/font/google';
+import StoreModal from '../components/module/store/StoreModal';
 import ReduxProvider from '../providers/ReduxProvider';
+import { StoreModalProvider } from '../providers/StoreModalProvider';
 import ThemeProvider from '../providers/ThemeProvider';
 import '../styles/globals.css';
 
@@ -51,14 +53,17 @@ export default async function RootLayout({
       >
         <ThemeProvider>
           <ReduxProvider>
-            {children}{' '}
-            <Toaster
-              expand
-              richColors
-              position="bottom-right"
-              swipeDirections={['bottom', 'left', 'right', 'top']}
-              duration={3000}
-            />
+            <StoreModalProvider>
+              {children}{' '}
+              <StoreModal />
+              <Toaster
+                expand
+                richColors
+                position="bottom-right"
+                swipeDirections={['bottom', 'left', 'right', 'top']}
+                duration={3000}
+              />
+            </StoreModalProvider>
           </ReduxProvider>
         </ThemeProvider>
       </body>

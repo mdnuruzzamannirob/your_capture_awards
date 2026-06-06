@@ -5,16 +5,15 @@ import JoinedContestCardSkeleton from './JoinedContestCardSkeleton';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { labels, totalLevels } from '@/utils/valueToExposureLabel';
 import { cn } from '@/utils/cn';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
-import Link from 'next/link';
-import { FaArrowRightLong } from 'react-icons/fa6';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useGetJoinedContestQuery, useGetPublicContestsQuery } from '@/store/apis/contestApi';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const JoinedContest = () => {
   const searchParams = useSearchParams();
@@ -22,14 +21,19 @@ const JoinedContest = () => {
   const contestId = searchParams.get('contestId');
   const contestTitle = searchParams.get('contestTitle');
   const voteModalRef = useRef<VoteModalRef>(null);
-  const modalRef = useRef<UploadModalRef>(null);
 
   const [uploadModal, setUploadModal] = useState(false);
   const [page, setPage] = useState(1);
   const [allContests, setAllContests] = useState<any[]>([]);
 
-  const { data, isLoading, isFetching, refetch } = useGetJoinedContestQuery({ page, limit: 10 });
-  const { data: open, isLoading: isOpenLoading } = useGetPublicContestsQuery({ status: 'ACTIVE' });
+  const { data, isLoading, isFetching, refetch, isError, error } = useGetJoinedContestQuery(
+    { page, limit: 10 },
+    { refetchOnMountOrArgChange: 60 },
+  );
+  const { data: open } = useGetPublicContestsQuery(
+    { status: 'ACTIVE' },
+    { refetchOnMountOrArgChange: 60 },
+  );
 
   const joinedResult = (data as any)?.data ?? [];
   const totalPages = (data as any)?.pagination?.totalPages ?? 1;
@@ -81,47 +85,20 @@ const JoinedContest = () => {
 
   return (
     <section className="">
-      {Object?.keys(contest)?.length > 0 &&
-        (isOpenLoading ? (
-          <div className="border-black-2-600 my-10 overflow-hidden rounded-xl">
-            <div className="text-foreground flex flex-col items-center justify-center bg-black/50 px-10 py-24 text-center">
-              <Skeleton className="bg-black-2-600 h-12 w-1/2 text-5xl font-bold uppercase" />
-              <Skeleton className="bg-black-2-600 mt-10 mb-5 h-6 w-1/3" />
-              <Skeleton className="bg-black-2-600 h-10 w-32 rounded-sm" />
-            </div>
-          </div>
-        ) : (
-          <Link
-            href={`/contest/${contest.id}`}
-            className="border-black-2-600 my-10 block overflow-hidden rounded-xl border-2 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `url(${contest?.banner})`,
-            }}
-          >
-            <div className="text-foreground flex flex-col items-center justify-center bg-black/60 px-10 py-24 text-center">
-              <h1 className="text-2xl font-bold uppercase sm:text-3xl md:text-4xl lg:text-5xl">
-                {contest?.title}
-              </h1>
-              <p className="mt-5 mb-3 sm:mt-6 sm:mb-4 sm:text-lg md:mt-8 md:mb-5 lg:mt-10 lg:text-xl">
-                Fresh challenge just unveiled
-              </p>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  modalRef.current?.open();
-                }}
-                className="bg-primary hover:bg-primary/90 pointer-events-auto flex items-center justify-center gap-2 rounded-sm px-5 py-2 font-medium transition max-sm:text-sm"
-              >
-                Join Now <FaArrowRightLong />
-              </button>
-            </div>
-          </Link>
-        ))}
-
       <div className="my-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
         {isLoading ? (
           [1, 2, 3, 4].map((_, index) => <JoinedContestCardSkeleton key={index} />)
+        ) : isError ? (
+          <div className="col-span-full flex flex-col items-center justify-center gap-4 py-20 text-center">
+            <AlertTriangle className="text-primary size-10" />
+            <div>
+              <p className="text-lg font-semibold">Could not load joined contests.</p>
+              <p className="text-muted-foreground text-sm">
+                {(error as any)?.data?.message ?? 'Please try again in a moment.'}
+              </p>
+            </div>
+            <Button onClick={() => void refetch()}>Retry</Button>
+          </div>
         ) : allContests.length <= 0 ? (
           <div className="col-span-full flex w-full flex-col items-center justify-center py-20">
             <Image alt="" src="/images/no-result-found.webp" width={400} height={400} />
@@ -211,15 +188,6 @@ const JoinedContest = () => {
 
       {/* Vote Modal */}
       <VoteModal ref={voteModalRef} id={voteContestId} />
-      <UploadModal
-        type="join"
-        ref={modalRef}
-        title={contest?.title}
-        remaining={contest?.maxUploads}
-        maxUploads={contest?.maxUploads}
-        contestId={voteContestId || contest?.id}
-        description={contest?.description}
-      />
     </section>
   );
 };

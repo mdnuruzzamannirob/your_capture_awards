@@ -1,41 +1,9 @@
 import ClosedContest from '@/components/module/contest/closed/ClosedContest';
-import ReduxProvider from '@/providers/ReduxProvider';
-import { contestApi } from '@/store/apis/contestApi';
-import { makeStore } from '@/store/makeStore';
-import { decodeToken } from '@/utils/decodeToken';
-import { cookies } from 'next/headers';
 
-const ClosedPage = async () => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value ?? null;
-  const decoded = decodeToken(token);
-  const isAuthenticated = !!decoded;
-
-  const store = makeStore();
-
-  // Use private API if authenticated, public API otherwise
-  if (isAuthenticated) {
-    await store.dispatch(
-      contestApi.endpoints.getPrivateContests.initiate({
-        status: 'CLOSED',
-      }),
-    );
-  } else {
-    await store.dispatch(
-      contestApi.endpoints.getPublicContests.initiate({
-        status: 'CLOSED',
-      }),
-    );
-  }
-  await Promise.all(store.dispatch(contestApi.util.getRunningQueriesThunk()));
-
-  const preloadedState = store.getState();
-
+const ClosedPage = () => {
   return (
     <main className="margin-user container py-8">
-      <ReduxProvider preloadedState={preloadedState}>
-        <ClosedContest isAuthenticated={isAuthenticated} />
-      </ReduxProvider>
+      <ClosedContest />
     </main>
   );
 };

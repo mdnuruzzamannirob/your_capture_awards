@@ -39,12 +39,12 @@ const UserMenu = () => {
             src={user?.avatar}
             width={34}
             height={34}
-            className="size-8.5 cursor-pointer overflow-hidden rounded-full object-cover"
+            className="shrink-0 size-8.5 cursor-pointer overflow-hidden rounded-full object-cover"
           />
         ) : (
           <button
             className={cn(
-              'hidden size-8.5 overflow-hidden rounded-full border text-xs leading-none font-medium lg:block',
+              'hidden shrink-0 size-8.5 overflow-hidden rounded-full border text-xs leading-none font-medium lg:block',
               'bg-primary/10 border-primary',
             )}
           >

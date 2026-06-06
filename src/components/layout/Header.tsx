@@ -1,19 +1,23 @@
 'use client';
 
+import UserMenu from '@/components/UserMenu';
+import { navLinks } from '@/constants';
+import { useAuth } from '@/hooks/useAuth';
+import { useStoreModal } from '@/providers/StoreModalProvider';
 import { cn } from '@/utils/cn';
-import LogoName from '../LogoName';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FiSearch } from 'react-icons/fi';
-import { IoNotificationsOutline } from 'react-icons/io5';
-import UserMenu from '@/components/UserMenu';
-import Sidebar from './Sidebar';
-import { useAuth } from '@/hooks/useAuth';
 import { useLayoutEffect, useState } from 'react';
-import { navLinks } from '@/constants';
+import { AiOutlineThunderbolt } from 'react-icons/ai';
+import { FaPlus } from 'react-icons/fa6';
+import { IoKeyOutline, IoNotificationsOutline } from 'react-icons/io5';
+import { MdOutlineCameraswitch } from 'react-icons/md';
+import LogoName from '../LogoName';
+import Sidebar from './Sidebar';
 
 const Navbar = () => {
   const { isAuthenticated } = useAuth();
+  const { openStore } = useStoreModal();
   const [mounted, setMounted] = useState(false);
 
   const pathname = usePathname();
@@ -21,16 +25,14 @@ const Navbar = () => {
   if (!mounted) return null;
 
   return (
-    <header className="bg-background fixed top-0 right-0 left-0 z-50 py-1">
-      <nav className="container flex items-center justify-between">
+    <header className="bg-background fixed top-0 right-0 left-0 z-50 border-b border-white/10">
+      <nav className="container flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Sidebar />
           <LogoName className="max-lg:w-44" />
-        </div>
 
-        <ul className="font-kumbh hidden flex-1 items-center justify-center gap-5 select-none lg:flex">
+           <ul className="font-kumbh ml-3 hidden flex-1 items-center justify-center gap-5 select-none lg:flex">
           {navLinks?.map((link, index) => {
-            // Use /contest which will redirect based on auth
             const href = link.href;
             const isActive =
               pathname === href ||
@@ -42,7 +44,9 @@ const Navbar = () => {
                   href={isActive ? '#' : href}
                   className={cn(
                     'hover:text-primary p-1 transition-colors',
-                    isActive ? 'text-primary pointer-events-none cursor-default' : 'text-inherit',
+                    isActive
+                      ? 'text-primary pointer-events-none cursor-default'
+                      : 'text-white/65 hover:text-inherit',
                   )}
                 >
                   {link?.name}
@@ -51,15 +55,65 @@ const Navbar = () => {
             );
           })}
         </ul>
+        </div>
 
-        <div className="flex items-center justify-end gap-5 max-lg:gap-3">
-          <button className="flex items-center justify-center rounded-full border p-2">
-            <FiSearch />
-          </button>
+
+
+        <div className="flex items-center justify-end gap-3 max-lg:gap-2">
+          {isAuthenticated && (
+            <div className="hidden items-center gap-2 xl:flex">
+              {/* Resources */}
+              <button
+                onClick={() => openStore()}
+                className="group flex h-8.5 items-stretch overflow-hidden rounded-md  bg-white/10 transition hover:bg-white/15"
+              >
+                <div className="flex items-center px-2 text-sm text-white/80">
+                  {/* Key */}
+                  <div className="flex items-center gap-2">
+                    <IoKeyOutline className="text-primary size-4" />
+                    <span>2</span>
+                  </div>
+
+                  <span className="mx-3 text-white/20">|</span>
+                  {/* Trade */}
+                  <div className="flex items-center gap-2">
+                    <MdOutlineCameraswitch className="text-primary size-4 rotate-90" />
+                    <span>1</span>
+                  </div>
+                  <span className="mx-3 text-white/20">|</span>
+                  {/* Charge */}
+                  <div className="flex items-center gap-2">
+                    <AiOutlineThunderbolt className="text-primary size-4" />
+                    <span>1</span>
+                  </div>
+                </div>
+
+                {/* Single Plus Button */}
+                <div className="bg-primary/90 text-background group-hover:bg-primary flex w-10 items-center justify-center transition">
+                  <FaPlus className="size-3" />
+                </div>
+              </button>
+              {/* Coins */}
+              <button
+                onClick={() => openStore()}
+                className="group flex h-8.5 items-stretch overflow-hidden rounded-md  bg-white/10 transition hover:bg-white/15"
+              >
+                <div className="flex items-center gap-2 px-2">
+                  <span className="text-lg leading-none">🪙</span>
+
+                  <span className="text-sm font-medium text-white/90">930</span>
+                </div>
+
+                <div className="bg-primary/90 text-background group-hover:bg-primary flex w-10 items-center justify-center transition">
+                  <FaPlus className="size-3" />
+                </div>
+              </button>
+            </div>
+          )}
 
           {isAuthenticated ? (
             <>
-              <button className="flex items-center justify-center rounded-full border p-2">
+              <button className="flex shrink-0 size-10 items-center justify-center rounded-full border p-2">
                 <IoNotificationsOutline />
               </button>
               <UserMenu />
