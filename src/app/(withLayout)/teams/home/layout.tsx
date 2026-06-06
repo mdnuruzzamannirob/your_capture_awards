@@ -93,10 +93,10 @@ export default function TeamHomeLayout({
               </Link>
             ))}
           </div>
-          <button className="flex w-full flex-col items-center justify-center gap-1 border-t px-3 py-4 text-sm duration-200">
+          {/* <button className="flex w-full flex-col items-center justify-center gap-1 border-t px-3 py-4 text-sm duration-200">
             <LogOut />
             Leave
-          </button>
+          </button> */}
         </div>
         <div className="min-h-0 flex-1 scrollbar-thin overflow-y-auto p-6">{children}</div>
       </div>
