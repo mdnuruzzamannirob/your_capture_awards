@@ -1,8 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import UploadPortfolioCard from './UploadPortfolioCard';
-import { CgWebsite } from 'react-icons/cg';
 import {
   Select,
   SelectContent,
@@ -10,10 +7,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import SkeletonCard from './SkeletonCard';
-import { useAppSelector } from '@/store/hooks';
-import PortfolioCard from './PortfolioCard';
 import { useGetPhotosQuery } from '@/store/apis/profileApi';
+import { useAppSelector } from '@/store/hooks';
+import { useState } from 'react';
+import PortfolioCard from './PortfolioCard';
+import SkeletonCard from './SkeletonCard';
+import UploadPortfolioCard from './UploadPortfolioCard';
 
 export default function PortfolioSection() {
   const { photos } = useAppSelector((state) => state.profile);
@@ -36,8 +35,8 @@ export default function PortfolioSection() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <h3 className="flex items-center gap-2 font-medium">
-          <CgWebsite className="text-primary size-5" />
-          Portfolio Website
+          {/* <CgWebsite className="text-primary size-5" />
+          Portfolio Website */}
         </h3>
 
         <div className="flex items-center gap-2">
