@@ -12,6 +12,15 @@ export type ContestPayload = {
   status?: Status;
 };
 
+export type PaginationMeta = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+};
+
 export type ContestState = {
   joined: [];
   completed: [];

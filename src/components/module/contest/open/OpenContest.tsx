@@ -6,7 +6,7 @@ import OpenContestCardSkeleton from './OpenContestCardSkeleton';
 import { useGetPublicContestsQuery, useGetPrivateContestsQuery } from '@/store/apis/contestApi';
 import { useAuth } from '@/hooks/useAuth';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
 
@@ -17,6 +17,7 @@ interface OpenContestProps {
 const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenContestProps) => {
   const [page, setPage] = useState(1);
   const [allContests, setAllContests] = useState<any[]>([]);
+  const initializedRef = useRef(false);
 
   // Use client-side auth as source of truth (synchronous, no hydration delay)
   const { isAuthenticated: clientIsAuthenticated } = useAuth();
@@ -38,12 +39,19 @@ const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenConte
     ? privateQuery
     : publicQuery;
   const openResult = (data as any)?.data ?? [];
-  const totalPages = (data as any)?.pagination?.totalPages ?? 1;
-  const hasMore = page < totalPages;
+  const hasMore = Boolean((data as any)?.meta?.hasNextPage);
 
   // Accumulate contests as pages load
   useEffect(() => {
-    if (openResult.length > 0) {
+    if (!openResult.length) return;
+
+    if (!initializedRef.current) {
+      setAllContests(openResult);
+      initializedRef.current = true;
+      return;
+    }
+
+    if (page > 1) {
       setAllContests((prev) => {
         const newContests = openResult.filter(
           (contest: any) => !prev.some((p) => p.id === contest.id),
@@ -51,7 +59,7 @@ const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenConte
         return [...prev, ...newContests];
       });
     }
-  }, [openResult]);
+  }, [openResult, page]);
 
   // Infinite scroll hook
   const { loadMoreRef } = useInfiniteScroll({
@@ -93,13 +101,12 @@ const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenConte
       </section>
 
       {/* Load more trigger */}
-      {hasMore && (
-        <section className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3">
-          <div ref={loadMoreRef} className="col-span-full">
-            {isFetching && [1, 2, 3].map((_, index) => <OpenContestCardSkeleton key={index} />)}
-          </div>
-        </section>
-      )}
+      <section className="mt-10 grid min-h-80 grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3">
+        <div ref={loadMoreRef} className="col-span-full">
+          {hasMore && isFetching &&
+            [1, 2, 3].map((_, index) => <OpenContestCardSkeleton key={index} />)}
+        </div>
+      </section>
     </>
   );
 };

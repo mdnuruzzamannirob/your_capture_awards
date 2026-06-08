@@ -25,6 +25,7 @@ const JoinedContest = () => {
   const [uploadModal, setUploadModal] = useState(false);
   const [page, setPage] = useState(1);
   const [allContests, setAllContests] = useState<any[]>([]);
+  const initializedRef = useRef(false);
 
   const { data, isLoading, isFetching, refetch, isError, error } = useGetJoinedContestQuery(
     { page, limit: 10 },
@@ -36,21 +37,28 @@ const JoinedContest = () => {
   );
 
   const joinedResult = (data as any)?.data ?? [];
-  const totalPages = (data as any)?.pagination?.totalPages ?? 1;
-  const hasMore = page < totalPages;
+  const hasMore = Boolean((data as any)?.meta?.hasNextPage);
   const contest = (open as any)?.data[0] ?? {};
   const voteContestId = (contest?.id as string | undefined) ?? contestId ?? '';
 
   // Accumulate contests data
   useEffect(() => {
-    if (joinedResult.length > 0) {
+    if (!joinedResult.length) return;
+
+    if (!initializedRef.current) {
+      setAllContests(joinedResult);
+      initializedRef.current = true;
+      return;
+    }
+
+    if (page > 1) {
       setAllContests((prev) => {
         const existingIds = new Set(prev.map((item) => item.id));
         const newContests = joinedResult.filter((item: any) => !existingIds.has(item.id));
         return [...prev, ...newContests];
       });
     }
-  }, [joinedResult]);
+  }, [joinedResult, page]);
 
   // Infinite scroll
   const { loadMoreRef } = useInfiniteScroll({
@@ -112,11 +120,9 @@ const JoinedContest = () => {
       </div>
 
       {/* Load more trigger */}
-      {hasMore && (
-        <div ref={loadMoreRef} className="my-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
-          {isFetching && [1, 2].map((_, index) => <JoinedContestCardSkeleton key={index} />)}
-        </div>
-      )}
+      <div ref={loadMoreRef} className="my-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
+        {hasMore && isFetching && [1, 2].map((_, index) => <JoinedContestCardSkeleton key={index} />)}
+      </div>
 
       {/* Upload/Join Success Modal */}
       <Dialog
