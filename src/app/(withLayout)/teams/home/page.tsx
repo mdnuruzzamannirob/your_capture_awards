@@ -231,7 +231,7 @@ export default function TeamPage() {
 
   if (isTeamLoading) {
     return (
-      <div className="space-y-6" aria-busy="true" aria-live="polite">
+      <section className="margin-user container space-y-8 py-8" aria-busy="true" aria-live="polite">
         <div className="rounded-xl border p-5">
           <div className="flex items-start gap-4">
             <Skeleton className="size-18 rounded-xl" />
@@ -278,32 +278,36 @@ export default function TeamPage() {
             ))}
           </div>
         </div>
-      </div>
+      </section>
     );
   }
 
   if (isTeamError) {
     return (
-      <div className="rounded-xl border p-6 text-center">
-        <p className="font-semibold">Failed to load team data</p>
-        <p className="text-muted-foreground mt-1 text-sm">Try again to refresh the team view.</p>
-        <Button className="mt-4" onClick={() => refetch()}>
-          Retry
-        </Button>
-      </div>
+      <section className="margin-user container space-y-8 py-8">
+        <div className="rounded-xl border p-6 text-center">
+          <p className="font-semibold">Failed to load team data</p>
+          <p className="text-muted-foreground mt-1 text-sm">Try again to refresh the team view.</p>
+          <Button className="mt-4" onClick={() => refetch()}>
+            Retry
+          </Button>
+        </div>
+      </section>
     );
   }
 
   if (!team) {
     return (
-      <div className="flex h-96 items-center justify-center">
-        <p className="text-muted-foreground">Team not found</p>
-      </div>
+      <section className="margin-user container space-y-8 py-8">
+        <div className="flex h-96 items-center justify-center">
+          <p className="text-muted-foreground">Team not found</p>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <section className="margin-user container space-y-8 py-8">
       <TeamInfo
         team={team}
         winRate={winRate}
@@ -373,6 +377,6 @@ export default function TeamPage() {
         onClose={() => setRemoveTarget(null)}
         onConfirm={handleRemoveMember}
       />
-    </div>
+    </section>
   );
 }

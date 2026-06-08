@@ -75,7 +75,7 @@ const TeamLeaderboard = () => {
   }, [myTeamId, myTeamName, rows]);
 
   return (
-    <section className="w-full">
+    <section className="margin-user container space-y-8 py-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="font-kumbh text-xl font-bold">Team Leaderboard</h2>
