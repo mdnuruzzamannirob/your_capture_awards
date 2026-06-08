@@ -82,7 +82,7 @@ const TeamHistory = () => {
   const isLoading = isTeamLoading || isHistoryLoading;
 
   return (
-    <div>
+    <section className="container margin-user py-8 space-y-8">
       <div>
         <h2 className="font-kumbh text-xl font-bold">Team History</h2>
         <p className="mt-1 text-sm text-zinc-400">All matches played by your team</p>
@@ -119,7 +119,7 @@ const TeamHistory = () => {
               className="border-black-2-700 bg-black-2-800/50 grid gap-3 rounded-md border-b p-4 last:border-b-0 md:grid-cols-[minmax(0,1fr)_120px_130px_110px]"
             >
               <div>
-                <p className="font-semibold">{match.contest.title}</p>
+                <p className="font-semibold">{match.contest?.title}</p>
                 <p className="mt-1 text-sm text-zinc-400">vs {match.opponent_team.name}</p>
               </div>
               <StatusBadge
@@ -167,7 +167,7 @@ const TeamHistory = () => {
           </div>
         </div>
       ) : null}
-    </div>
+    </section>
   );
 };
 
