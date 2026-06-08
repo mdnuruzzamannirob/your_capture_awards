@@ -1,6 +1,30 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQuery } from '@/store/baseQuery';
 import { User } from '../types/userTypes';
+import { AuthUser } from '../types/authTypes';
+import { setUser } from '../slices/authSlice';
+import { authApi } from './authApi';
+
+type ApiResponse<T> = {
+  success: boolean;
+  message: string;
+  data: T;
+};
+
+type UpdateProfileBody = {
+  firstName: string;
+  lastName: string;
+  location: string;
+};
+
+type ChangePasswordBody = {
+  oldPassword: string;
+  newPassword: string;
+};
+
+type DeleteAccountBody = {
+  password: string;
+};
 
 export const userApi = createApi({
   reducerPath: 'userApi',
@@ -14,12 +38,28 @@ export const userApi = createApi({
     }),
 
     // Update user (partial)
-    updateUser: builder.mutation<User, { id: string; updateData: Partial<User> }>({
-      query: ({ id, updateData }) => ({ url: `/users`, method: 'PUT', body: updateData }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: 'User', id },
-        { type: 'Users', id: 'LIST' },
-      ],
+    updateUser: builder.mutation<ApiResponse<User>, UpdateProfileBody>({
+      query: (updateData) => ({ url: '/users', method: 'PUT', body: updateData }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const {
+            data: { data },
+          } = await queryFulfilled;
+
+          dispatch(setUser(data as AuthUser));
+          dispatch(authApi.util.invalidateTags(['Auth']));
+        } catch (error) {
+          console.error('Profile update failed:', error);
+        }
+      },
+    }),
+
+    changePassword: builder.mutation<ApiResponse<string>, ChangePasswordBody>({
+      query: (body) => ({ url: '/users/change-password', method: 'PUT', body }),
+    }),
+
+    deleteAccount: builder.mutation<ApiResponse<string>, DeleteAccountBody>({
+      query: (body) => ({ url: '/users/delete-account', method: 'DELETE', body }),
     }),
 
     // Update Avatar
@@ -39,6 +79,8 @@ export const userApi = createApi({
 export const {
   useGetUserQuery,
   useUpdateUserMutation,
+  useChangePasswordMutation,
+  useDeleteAccountMutation,
   useUpdateAvatarMutation,
   useUpdateCoverMutation,
 } = userApi;
