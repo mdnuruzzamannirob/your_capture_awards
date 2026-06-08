@@ -87,7 +87,7 @@ const UserMenu = () => {
           <span className="text-black-2-300 text-xs">{user?.email}</span>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 lg:hidden">
           <button
             type="button"
             onClick={openStore}
