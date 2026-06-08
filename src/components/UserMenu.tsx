@@ -76,11 +76,11 @@ const UserMenu = () => {
             Profile
           </Link>
           <Link
-            href="/profile"
+            href="/settings"
             onClick={() => setOpen(false)}
             className={cn(
               'flex items-center gap-2 rounded-sm p-2 transition-colors outline-none',
-              pathname === '/profile' ? 'bg-white/5' : 'hover:bg-white/5',
+              pathname === '/settings' ? 'bg-white/5' : 'hover:bg-white/5',
             )}
           >
             <Settings className="size-4" />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useGetMeQuery } from '@/store/apis/authApi';
+import { useAppSelector } from '@/store/hooks';
 import Cookies from 'js-cookie';
 import { useState, useSyncExternalStore } from 'react';
 
@@ -43,6 +44,7 @@ const subscribe = (listener: () => void) => {
 
 export const useAuth = () => {
   const [initialToken] = useState(() => getToken());
+  const authUser = useAppSelector((state) => state.auth.user);
 
   const token = useSyncExternalStore(
     subscribe,
@@ -59,8 +61,8 @@ export const useAuth = () => {
     skip: !token,
   });
 
-  const user = meData?.data ?? null;
   const isAuthenticated = !!token;
+  const user = isAuthenticated ? authUser ?? meData?.data ?? null : null;
 
   return {
     user,
