@@ -131,6 +131,7 @@ const SettingsPanel = () => {
   const { user, isLoading, isAuthenticated } = useAuth();
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -157,6 +158,10 @@ const SettingsPanel = () => {
   });
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (!user) return;
 
     profileForm.reset({
@@ -167,10 +172,11 @@ const SettingsPanel = () => {
   }, [profileForm, user]);
 
   useEffect(() => {
+    if (!mounted) return;
     if (isLoading) return;
     if (isAuthenticated) return;
     router.replace('/signin');
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, mounted, router]);
 
   const onProfileSubmit = async (data: UpdateProfileFormData) => {
     try {
@@ -229,12 +235,8 @@ const SettingsPanel = () => {
     }
   };
 
-  if (isLoading && !user) {
-    return (
-
-        <SettingsSkeleton />
-
-    );
+  if (!mounted || (isLoading && !user)) {
+    return <SettingsSkeleton />;
   }
 
   if (!user) {
@@ -247,19 +249,19 @@ const SettingsPanel = () => {
         <TabsList className="inline-flex h-auto gap-3 bg-transparent p-0">
           <TabsTrigger
             value="profile"
-            className="h-12 rounded-md border border-black-2-600 bg-black-2-800 px-10 text-white data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-black"
+            className="h-12 rounded-md border border-black-2-600 bg-black-2-800 px-10 text-white transition-colors data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-black"
           >
             Profile
           </TabsTrigger>
           <TabsTrigger
             value="security"
-            className="h-12 rounded-md border border-black-2-600 bg-black-2-800 px-10 text-white data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-black"
+            className="h-12 rounded-md border border-black-2-600 bg-black-2-800 px-10 text-white transition-colors data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-black"
           >
             Security
           </TabsTrigger>
           <TabsTrigger
             value="delete"
-            className="h-12 rounded-md border border-black-2-600 bg-black-2-800 px-10 text-white data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-black"
+            className="h-12 rounded-md border border-black-2-600 bg-black-2-800 px-10 text-white transition-colors data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-black"
           >
             Delete Account
           </TabsTrigger>
@@ -270,10 +272,10 @@ const SettingsPanel = () => {
             <div className={cardClassName}>
               <div className="mb-5 space-y-1">
                 <h3 className="text-lg font-semibold text-white">Profile</h3>
-                  <p className="text-sm text-white/55">
-                    Update the name and location visible on your account.
-                  </p>
-                </div>
+                <p className="text-sm text-white/55">
+                  Update the name and location visible on your account.
+                </p>
+              </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
