@@ -11,6 +11,17 @@ export const navLinks: NavLink[] = [
   { name: 'About', href: '/about' },
 ];
 
+export const loggedInNavLinks: NavLink[] = [
+  {
+    name: 'Contest',
+    href: '/contest',
+    tags: ['/contest', '/joined', '/open', '/closed', '/completed', '/upcoming'],
+  },
+  { name: 'Teams', href: '/teams' },
+  { name: 'Support', href: '/support' },
+  { name: 'About', href: '/about' },
+];
+
 export const memoriesImages: MemoriesImage[] = [
   {
     image: '/images/photographer.png',
