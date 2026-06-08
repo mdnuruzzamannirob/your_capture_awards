@@ -122,7 +122,7 @@ function mapContestToMatch(contest: AvailableTeamContest): Match {
 
 function MatchPageSkeleton() {
   return (
-    <div className="space-y-5">
+    <section id="match-page" className="margin-user container space-y-8 py-8">
       <div>
         <Skeleton className="h-7 w-36" />
         <Skeleton className="mt-2 h-4 w-64" />
@@ -143,7 +143,7 @@ function MatchPageSkeleton() {
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -299,18 +299,20 @@ export default function TeamMatchPage() {
 
   if (isTeamError || !teamId) {
     return (
-      <div className="rounded-xl border p-6 text-center">
-        <p className="font-semibold">Failed to load team data</p>
-        <p className="text-muted-foreground mt-1 text-sm">Try again to refresh the match view.</p>
-        <Button className="mt-4" onClick={() => refetchTeam()}>
-          Retry
-        </Button>
-      </div>
+      <section className="margin-user container space-y-8 py-8">
+        <div className="rounded-xl border p-6 text-center">
+          <p className="font-semibold">Failed to load team data</p>
+          <p className="text-muted-foreground mt-1 text-sm">Try again to refresh the match view.</p>
+          <Button className="mt-4" onClick={() => refetchTeam()}>
+            Retry
+          </Button>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div className="space-y-5">
+    <section className="margin-user container space-y-8 py-8">
       <div>
         <h2 className="font-kumbh text-xl font-bold">Team Match</h2>
         <p className="mt-1 text-sm text-zinc-400">
@@ -386,6 +388,6 @@ export default function TeamMatchPage() {
           }}
         />
       ) : null}
-    </div>
+    </section>
   );
 }
