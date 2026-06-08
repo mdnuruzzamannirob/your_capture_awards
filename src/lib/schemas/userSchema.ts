@@ -27,9 +27,15 @@ export const updateProfileSchema = z.object({
 
 export const changePasswordSchema = z
   .object({
-    oldPassword: z.string().min(6, 'Old password must be at least 6 characters long.'),
-    newPassword: z.string().min(6, 'New password must be at least 6 characters long.'),
-    confirmPassword: z.string().min(6, 'Confirm your new password.'),
+    oldPassword: z.string().min(1, 'Old password is required.'),
+    newPassword: z
+      .string()
+      .min(1, 'New password is required.')
+      .min(6, 'New password must be at least 6 characters long.'),
+    confirmPassword: z
+      .string()
+      .min(1, 'Confirm password is required.')
+      .min(6, 'Confirm password must be at least 6 characters long.'),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     path: ['confirmPassword'],
