@@ -1,6 +1,6 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { FaArrowDown } from 'react-icons/fa6';
-import { GoDotFill } from 'react-icons/go';
 
 const Banner = () => {
   return (
@@ -29,7 +29,7 @@ const Banner = () => {
           </p>
 
           {/* Stats */}
-          <div className="flex flex-wrap gap-8">
+          {/* <div className="flex flex-wrap gap-8">
             <div className="text-lg font-medium">
               <p className="text-primary relative w-16">
                 Online
@@ -48,13 +48,16 @@ const Banner = () => {
               </p>
               <p>16,985,304</p>
             </div>
-          </div>
+          </div> */}
 
           {/* Button */}
-          <button className="border-primary hover:border-primary/90 hover:text-foreground/90 flex items-center gap-2 rounded-sm border px-5 py-2 font-medium transition-colors">
+          <Link
+            href="/support"
+            className="border-primary hover:border-primary/90 hover:text-foreground/90 flex w-fit items-center gap-2 rounded-sm border px-5 py-2 font-medium transition-colors"
+          >
             Learn More
             <FaArrowDown className="size-4" />
-          </button>
+          </Link>
         </div>
 
         {/* Right content */}

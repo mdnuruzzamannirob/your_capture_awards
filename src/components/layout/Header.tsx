@@ -12,7 +12,7 @@ import { usePathname } from 'next/navigation';
 import { useLayoutEffect, useState } from 'react';
 import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { FaPlus } from 'react-icons/fa6';
-import { IoKeyOutline, IoNotificationsOutline } from 'react-icons/io5';
+import { IoKeyOutline } from 'react-icons/io5';
 import { MdOutlineCameraswitch } from 'react-icons/md';
 import LogoName from '../LogoName';
 import Sidebar from './Sidebar';
@@ -122,7 +122,7 @@ const Navbar = () => {
                 aria-label="Open coin store"
               >
                 <div className="flex items-center gap-2 px-2">
-                  <span className="text-primary text-sm font-bold leading-none">C</span>
+                  <span className="text-primary text-sm leading-none font-bold">C</span>
                   <ResourceValue
                     isLoading={isStatsLoading}
                     value={stats?.coins ?? 0}
@@ -139,9 +139,9 @@ const Navbar = () => {
 
           {isAuthenticated ? (
             <>
-              <button className="flex size-10 shrink-0 items-center justify-center rounded-full border p-2">
+              {/* <button className="flex size-10 shrink-0 items-center justify-center rounded-full border p-2">
                 <IoNotificationsOutline />
-              </button>
+              </button> */}
               <UserMenu />
             </>
           ) : (
