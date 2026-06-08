@@ -1,17 +1,16 @@
 'use client';
 
-import { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { LogOut, User as ProfileUser } from 'lucide-react';
-import { cn } from '@/utils/cn';
-import { AuthUser } from '@/store/types/authTypes';
-import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
-import { useDispatch } from 'react-redux';
+import { cn } from '@/utils/cn';
 import { logout } from '@/utils/logout';
+import { LogOut, User as ProfileUser, Settings } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { toast } from 'sonner';
 
 const UserMenu = () => {
   const { user, token } = useAuth();
@@ -39,12 +38,12 @@ const UserMenu = () => {
             src={user?.avatar}
             width={34}
             height={34}
-            className="shrink-0 size-8.5 cursor-pointer overflow-hidden rounded-full object-cover"
+            className="size-8.5 shrink-0 cursor-pointer overflow-hidden rounded-full object-cover"
           />
         ) : (
           <button
             className={cn(
-              'hidden shrink-0 size-8.5 overflow-hidden rounded-full border text-xs leading-none font-medium lg:block',
+              'hidden size-8.5 shrink-0 overflow-hidden rounded-full border text-xs leading-none font-medium lg:block',
               'bg-primary/10 border-primary',
             )}
           >
@@ -75,6 +74,17 @@ const UserMenu = () => {
           >
             <ProfileUser className="size-4" />
             Profile
+          </Link>
+          <Link
+            href="/profile"
+            onClick={() => setOpen(false)}
+            className={cn(
+              'flex items-center gap-2 rounded-sm p-2 transition-colors outline-none',
+              pathname === '/profile' ? 'bg-white/5' : 'hover:bg-white/5',
+            )}
+          >
+            <Settings className="size-4" />
+            Settings
           </Link>
           <button
             onClick={handleLogout}

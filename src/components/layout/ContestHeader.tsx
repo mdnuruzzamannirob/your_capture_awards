@@ -1,10 +1,10 @@
 'use client';
 
+import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/utils/cn';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLayoutEffect, useMemo, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 
 const ContestHeader = () => {
   const pathname = usePathname();
@@ -31,7 +31,7 @@ const ContestHeader = () => {
   if (!mounted) return null;
 
   return (
-    <header className="bg-background fixed top-[68.38px] right-0 left-0 z-50 border-b border-white/5 lg:top-[68.38px]">
+    <header className="bg-background fixed top-[68.38px] right-0 left-0 z-50 border-b border-white/5">
       <nav className="container">
         <div className="flex h-10 scrollbar-none items-stretch overflow-x-auto lg:justify-center">
           {tabs.map((tab) => {

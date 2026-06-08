@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQuery } from '@/store/baseQuery';
-import { PhotoToContestPayload, ContestPayload } from '../types/contestTypes';
+import { PhotoToContestPayload, ContestPayload, PaginationMeta } from '../types/contestTypes';
 
 export const contestApi = createApi({
   reducerPath: 'contestApi',
@@ -51,14 +51,14 @@ export const contestApi = createApi({
     }),
 
     // get multiple contest data
-    getPublicContests: builder.query<{ data: { data: any } }, ContestPayload>({
+    getPublicContests: builder.query<{ data: any[]; meta: PaginationMeta }, ContestPayload>({
       query: ({ status, page = 1, limit = 10 }) =>
         `/contests/ucontests?status=${status}&page=${page}&limit=${limit}`,
       providesTags: ['PublicContests'],
     }),
 
     // get multiple contest data
-    getPrivateContests: builder.query<{ data: { data: any } }, ContestPayload>({
+    getPrivateContests: builder.query<{ data: any[]; meta: PaginationMeta }, ContestPayload>({
       query: ({ status, page = 1, limit = 10 }) =>
         `/contests?status=${status}&page=${page}&limit=${limit}`,
       providesTags: ['PrivateContests'],
@@ -71,7 +71,7 @@ export const contestApi = createApi({
     }),
 
     // get join only contest data
-    getJoinedContest: builder.query<{ data: { data: any } }, ContestPayload>({
+    getJoinedContest: builder.query<{ data: any[]; meta: PaginationMeta }, ContestPayload>({
       query: ({ page = 1, limit = 10 }) =>
         `/contests/my-active-contests?page=${page}&limit=${limit}`,
       providesTags: ['JoinedContests'],
@@ -115,14 +115,22 @@ export const contestApi = createApi({
     ),
 
     // get contest rank photos
-    getContestRankPhotos: builder.query<{ data: any }, { id: string }>({
-      query: ({ id }) => `/contests/${id}/rank-photos`,
+    getContestRankPhotos: builder.query<
+      { data: any[]; meta: PaginationMeta },
+      { id: string; page?: number; limit?: number }
+    >({
+      query: ({ id, page = 1, limit = 12 }) =>
+        `/contests/${id}/rank-photos?page=${page}&limit=${limit}`,
       providesTags: (result, error, { id }) => [{ type: 'ContestRankPhotos', id }],
     }),
 
     // get contest rank photographers
-    getContestRankPhotographers: builder.query<{ data: any }, { id: string }>({
-      query: ({ id }) => `/contests/${id}/rank-photographer`,
+    getContestRankPhotographers: builder.query<
+      { data: { participants: any[]; contestTotalVotes?: number }; meta: PaginationMeta },
+      { id: string; page?: number; limit?: number }
+    >({
+      query: ({ id, page = 1, limit = 12 }) =>
+        `/contests/${id}/rank-photographer?page=${page}&limit=${limit}`,
       providesTags: (result, error, { id }) => [{ type: 'ContestRankPhotographers', id }],
     }),
 

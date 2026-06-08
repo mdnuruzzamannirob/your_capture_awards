@@ -6,11 +6,9 @@ export const navLinks: NavLink[] = [
     href: '/contest',
     tags: ['/contest', '/joined', '/open', '/closed', '/completed', '/upcoming'],
   },
-  { name: 'Teams', href: '/teams' },
-  { name: 'Pricing', href: '/pricing' },
-  { name: 'About Us', href: '/about' },
-  // { name: 'Discover', href: '/discover' },
-  // { name: 'Contact', href: '/contact' },
+  { name: 'Discover', href: '/discover' },
+  { name: 'Support', href: '/support' },
+  { name: 'About', href: '/about' },
 ];
 
 export const memoriesImages: MemoriesImage[] = [

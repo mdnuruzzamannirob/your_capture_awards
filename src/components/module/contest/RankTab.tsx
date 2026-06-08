@@ -2,7 +2,7 @@
 
 import { cn } from '@/utils/cn';
 import { MdOutlineHowToVote } from 'react-icons/md';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,18 +10,98 @@ import {
   useGetContestRankPhotosQuery,
   useLazyGetContestRankPhotographersQuery,
 } from '@/store/apis/contestApi';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 
 const RankTab = ({ value, id }: { value: string; id: string }) => {
   const [activeRankTab, setActiveRankTab] = useState<'top-photo' | 'top-photographer'>('top-photo');
-  const { data: rankPhotosData, isLoading: isRankPhotosLoading } = useGetContestRankPhotosQuery({
+  const [photoPage, setPhotoPage] = useState(1);
+  const [photoItems, setPhotoItems] = useState<any[]>([]);
+  const [photographerPage, setPhotographerPage] = useState(1);
+  const [photographerItems, setPhotographerItems] = useState<any[]>([]);
+  const photoInitializedRef = useRef(false);
+  const photographerInitializedRef = useRef(false);
+  const {
+    data: rankPhotosData,
+    isLoading: isRankPhotosLoading,
+    isFetching: isRankPhotosFetching,
+  } = useGetContestRankPhotosQuery({
     id,
+    page: photoPage,
+    limit: 12,
   });
-  const [
-    rankPhotographersTrigger,
-    { data: rankPhotographersData, isLoading: isRankPhotographerLoading },
-  ] = useLazyGetContestRankPhotographersQuery();
   const rankPhotos = rankPhotosData?.data ?? [];
-  const rankPhotographers = rankPhotographersData?.data ?? [];
+  const rankPhotosHasMore = Boolean(rankPhotosData?.meta?.hasNextPage);
+
+  const [
+    loadRankPhotographers,
+    {
+      data: rankPhotographersDataPage,
+      isLoading: isRankPhotographerLoadingPage,
+      isFetching: isRankPhotographerFetching,
+    },
+  ] = useLazyGetContestRankPhotographersQuery();
+  const rankPhotographers = rankPhotographersDataPage?.data?.participants ?? [];
+  const rankPhotographersHasMore = Boolean(rankPhotographersDataPage?.meta?.hasNextPage);
+
+  useEffect(() => {
+    if (!rankPhotos.length) return;
+
+    if (!photoInitializedRef.current) {
+      setPhotoItems(rankPhotos);
+      photoInitializedRef.current = true;
+      return;
+    }
+    if (photoPage > 1) {
+      setPhotoItems((prev) => {
+        const seen = new Set(prev.map((item) => item.id));
+        return [...prev, ...rankPhotos.filter((item: any) => !seen.has(item.id))];
+      });
+    }
+  }, [rankPhotos, photoPage]);
+
+  useEffect(() => {
+    if (!rankPhotographers.length) return;
+
+    if (!photographerInitializedRef.current) {
+      setPhotographerItems(rankPhotographers);
+      photographerInitializedRef.current = true;
+      return;
+    }
+    if (photographerPage > 1) {
+      setPhotographerItems((prev) => {
+        const seen = new Set(prev.map((item) => item.id));
+        return [...prev, ...rankPhotographers.filter((item: any) => !seen.has(item.id))];
+      });
+    }
+  }, [rankPhotographers, photographerPage]);
+
+  useEffect(() => {
+    if (activeRankTab === 'top-photographer') {
+      loadRankPhotographers({ id, page: photographerPage, limit: 12 });
+    }
+  }, [activeRankTab, id, loadRankPhotographers, photographerPage]);
+
+  const { loadMoreRef: photoLoadMoreRef } = useInfiniteScroll({
+    hasMore: activeRankTab === 'top-photo' && rankPhotosHasMore,
+    isLoading: isRankPhotosFetching,
+    onLoadMore: () => setPhotoPage((prev) => prev + 1),
+  });
+
+  const { loadMoreRef: photographerLoadMoreRef } = useInfiniteScroll({
+    hasMore: activeRankTab === 'top-photographer' && rankPhotographersHasMore,
+    isLoading: isRankPhotographerFetching,
+    onLoadMore: () => setPhotographerPage((prev) => prev + 1),
+  });
+
+  const EmptyState = ({ title, description }: { title: string; description: string }) => (
+    <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5 px-6 py-16 text-center">
+      <div className="bg-black-2-600 mb-4 flex size-16 items-center justify-center rounded-full">
+        <MdOutlineHowToVote className="text-primary size-7" />
+      </div>
+      <h3 className="text-lg font-semibold">{title}</h3>
+      <p className="text-muted-foreground mt-2 max-w-md text-sm">{description}</p>
+    </div>
+  );
 
   return (
     <TabsContent value={value} className="mx-auto w-full max-w-4xl">
@@ -38,7 +118,6 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
             Top Photo
           </TabsTrigger>
           <TabsTrigger
-            onClick={() => rankPhotographersTrigger({ id })}
             value="top-photographer"
             className="data-[state=active]:border-primary data-[state=active]:text-primary hover:text-primary flex w-full items-center justify-center border-transparent py-3 transition"
           >
@@ -54,7 +133,14 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
             ? [1, 2, 3, 4, 5, 6].map((_, index) => (
                 <Skeleton key={index} className="bg-black-2-600 h-72 w-full rounded-xl" />
               ))
-            : rankPhotos?.map((topPhoto: any, index: number) => (
+            : photoItems.length <= 0
+              ? (
+                <EmptyState
+                  title="No ranked photos yet"
+                  description="There are no ranked photos available for this contest right now."
+                />
+                )
+            : photoItems?.map((topPhoto: any, index: number) => (
                 <div
                   key={index}
                   className="group relative cursor-pointer overflow-hidden rounded-xl"
@@ -88,10 +174,19 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                     <p className="text-black-2-50">{topPhoto?.user?.country}</p>
                   </div>
                 </div>
-              ))}
+                ))}
+          <div ref={photoLoadMoreRef} className="col-span-full">
+            {activeRankTab === 'top-photo' && rankPhotosHasMore && isRankPhotosFetching && (
+              <div className="grid min-h-80 grid-cols-1 gap-5 pt-4 sm:grid-cols-2 lg:grid-cols-3">
+                {[1, 2, 3].map((_, index) => (
+                  <Skeleton key={index} className="bg-black-2-600 h-72 w-full rounded-xl" />
+                ))}
+              </div>
+            )}
+          </div>
         </TabsContent>
         <TabsContent value="top-photographer" className="space-y-16">
-          {isRankPhotographerLoading
+          {isRankPhotographerLoadingPage
             ? [50, 30, 15, 5].map((value, index) => (
                 <div key={index} className="space-y-5">
                   {/* Header: Avatar, Name, Country, Follow, Votes */}
@@ -130,9 +225,18 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                   </div>
                 </div>
               ))
-            : rankPhotographers?.participants?.map((rankPhotographer: any, index: number) => {
+            : photographerItems.length <= 0
+              ? (
+                <EmptyState
+                  title="No ranked photographers yet"
+                  description="There are no ranked photographers available for this contest right now."
+                />
+                )
+            : photographerItems?.map((rankPhotographer: any, index: number) => {
                 const progress = Math.max(
-                  (rankPhotographer?.totalVotes / rankPhotographers?.contestTotalVotes) * 100,
+                  ((rankPhotographer?.totalVotes ?? 0) /
+                    (rankPhotographersDataPage?.data?.contestTotalVotes ?? 1)) *
+                    100,
                   10,
                 );
 
@@ -172,8 +276,8 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                         </div>
                       </div>
                     </div>
-                    <div className="grid h-60 grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
-                      {[...rankPhotographer.photos]
+                  <div className="grid h-60 grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
+                    {[...(rankPhotographer.photos ?? [])]
                         .sort((a, b) => b?.voteCount - a?.voteCount)
                         .map((photo: any, index: any) => (
                           <div className="relative" key={index}>
@@ -195,6 +299,36 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                   </div>
                 );
               })}
+          <div ref={photographerLoadMoreRef}>
+            {activeRankTab === 'top-photographer' &&
+              rankPhotographersHasMore &&
+              isRankPhotographerFetching && (
+                <div className="space-y-16 pt-4">
+                  {[50, 30].map((value, index) => (
+                    <div key={index} className="space-y-5">
+                      <div className="flex items-center justify-between gap-5">
+                        <div className="flex w-1/3 items-center gap-3">
+                          <Skeleton className="bg-black-2-600 h-20 w-20 rounded-full" />
+                          <div className="min-w-0 space-y-1">
+                            <Skeleton className="bg-black-2-600 h-5 w-32 rounded" />
+                            <Skeleton className="bg-black-2-600 h-4 w-20 rounded" />
+                          </div>
+                        </div>
+                        <div className="flex w-full items-center">
+                          <div className="bg-black-2-500 -mr-5 flex h-12 w-full items-center justify-end rounded-l-full px-2">
+                            <Skeleton
+                              className="bg-black-2-600 h-9 w-32 rounded-l-full"
+                              style={{ width: `${value}%` }}
+                            />
+                          </div>
+                          <div className="bg-black-2-600 size-20 rounded-full text-center" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+          </div>
         </TabsContent>
       </Tabs>
     </TabsContent>

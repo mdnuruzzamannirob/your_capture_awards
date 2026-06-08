@@ -6,7 +6,7 @@ import ClosedContestCardSkeleton from './ClosedContestCardSkeleton';
 import { useGetPublicContestsQuery, useGetPrivateContestsQuery } from '@/store/apis/contestApi';
 import { useAuth } from '@/hooks/useAuth';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -17,6 +17,7 @@ interface ClosedContestProps {
 const ClosedContest = ({ isAuthenticated: propIsAuthenticated = false }: ClosedContestProps) => {
   const [page, setPage] = useState(1);
   const [allContests, setAllContests] = useState<any[]>([]);
+  const initializedRef = useRef(false);
 
   // Use client-side auth as source of truth (synchronous, no hydration delay)
   const { isAuthenticated: clientIsAuthenticated } = useAuth();
@@ -38,20 +39,25 @@ const ClosedContest = ({ isAuthenticated: propIsAuthenticated = false }: ClosedC
     ? privateQuery
     : publicQuery;
   const closedResult = (data as any)?.data ?? [];
-  const totalPages = (data as any)?.pagination?.totalPages ?? 1;
-  const hasMore = page < totalPages;
+  const hasMore = Boolean((data as any)?.meta?.hasNextPage);
 
   // Accumulate contests as pages load
   useEffect(() => {
-    if (closedResult.length > 0) {
+    if (!closedResult.length) return;
+
+    if (!initializedRef.current) {
+      setAllContests(closedResult);
+      initializedRef.current = true;
+      return;
+    }
+
+    if (page > 1) {
       setAllContests((prev) => {
-        const newContests = closedResult.filter(
-          (contest: any) => !prev.some((p) => p.id === contest.id),
-        );
+        const newContests = closedResult.filter((contest: any) => !prev.some((p) => p.id === contest.id));
         return [...prev, ...newContests];
       });
     }
-  }, [closedResult]);
+  }, [closedResult, page]);
 
   // Infinite scroll hook
   const { loadMoreRef } = useInfiniteScroll({
@@ -93,13 +99,12 @@ const ClosedContest = ({ isAuthenticated: propIsAuthenticated = false }: ClosedC
       </section>
 
       {/* Load more trigger */}
-      {hasMore && (
-        <section className="mt-10 grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3">
-          <div ref={loadMoreRef} className="col-span-full">
-            {isFetching && [1, 2, 3].map((_, index) => <ClosedContestCardSkeleton key={index} />)}
-          </div>
-        </section>
-      )}
+      <section className="mt-10 grid min-h-80 grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3">
+        <div ref={loadMoreRef} className="col-span-full">
+          {hasMore && isFetching &&
+            [1, 2, 3].map((_, index) => <ClosedContestCardSkeleton key={index} />)}
+        </div>
+      </section>
     </>
   );
 };

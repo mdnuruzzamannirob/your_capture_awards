@@ -188,11 +188,11 @@
   }
 
   .margin {
-    @apply mt-[75.38] lg:mt-[81.5px];
+    @apply mt-[68.38px];
   }
 
   .margin-user {
-    @apply mt-[167.38px] lg:mt-[137.5px];
+    @apply mt-[109.38px];
   }
 }
 
