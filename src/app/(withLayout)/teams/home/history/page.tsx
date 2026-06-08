@@ -82,7 +82,7 @@ const TeamHistory = () => {
   const isLoading = isTeamLoading || isHistoryLoading;
 
   return (
-    <section className="container margin-user py-8 space-y-8">
+    <section className="container margin-user py-6 space-y-6">
       <div>
         <h2 className="font-kumbh text-xl font-bold">Team History</h2>
         <p className="mt-1 text-sm text-zinc-400">All matches played by your team</p>

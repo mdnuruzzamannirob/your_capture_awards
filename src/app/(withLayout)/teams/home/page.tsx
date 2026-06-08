@@ -231,7 +231,7 @@ export default function TeamPage() {
 
   if (isTeamLoading) {
     return (
-      <section className="margin-user container space-y-8 py-8" aria-busy="true" aria-live="polite">
+      <section className="margin-user container space-y-6 py-6" aria-busy="true" aria-live="polite">
         <div className="rounded-xl border p-5">
           <div className="flex items-start gap-4">
             <Skeleton className="size-18 rounded-xl" />
@@ -284,7 +284,7 @@ export default function TeamPage() {
 
   if (isTeamError) {
     return (
-      <section className="margin-user container space-y-8 py-8">
+      <section className="margin-user container space-y-6 py-6">
         <div className="rounded-xl border p-6 text-center">
           <p className="font-semibold">Failed to load team data</p>
           <p className="text-muted-foreground mt-1 text-sm">Try again to refresh the team view.</p>
@@ -298,7 +298,7 @@ export default function TeamPage() {
 
   if (!team) {
     return (
-      <section className="margin-user container space-y-8 py-8">
+      <section className="margin-user container space-y-6 py-6">
         <div className="flex h-96 items-center justify-center">
           <p className="text-muted-foreground">Team not found</p>
         </div>
@@ -307,7 +307,7 @@ export default function TeamPage() {
   }
 
   return (
-    <section className="margin-user container space-y-8 py-8">
+    <section className="margin-user container space-y-6 py-6">
       <TeamInfo
         team={team}
         winRate={winRate}
