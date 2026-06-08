@@ -1,5 +1,7 @@
+import SettingsPanel from '@/components/module/settings/SettingsPanel';
+
 const SettingsPage = () => {
-  return <div>SettingsPage</div>;
+  return <SettingsPanel />;
 };
 
 export default SettingsPage;
