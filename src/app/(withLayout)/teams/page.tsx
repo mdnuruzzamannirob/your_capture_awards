@@ -351,7 +351,7 @@ export default function Team() {
   }
 
   return (
-    <main className="margin relative isolate container overflow-hidden py-8 lg:py-10">
+    <main className="margin relative isolate container overflow-hidden py-6 sm:py-8 lg:py-10">
       <div className="pointer-events-none absolute -top-24 left-8 h-72 w-72 rounded-full blur-3xl" />
       <div className="pointer-events-none absolute top-32 right-0 h-80 w-80 rounded-full bg-white/5 blur-3xl" />
 
@@ -380,12 +380,12 @@ export default function Team() {
         ) : null}
 
         <section className="space-y-4">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-foreground text-xs font-medium tracking-[0.12em] uppercase">
               More Teams
             </div>
 
-            <Button asChild>
+            <Button asChild className="w-full sm:w-auto">
               <Link href="/teams/create">Create Team</Link>
             </Button>
           </div>
@@ -396,7 +396,7 @@ export default function Team() {
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search by team's name"
-              className="border-black-2-600 bg-black-2-700/90 text-foreground placeholder:text-muted-foreground pr-11"
+              className="border-black-2-600 bg-black-2-700/90 pr-11 text-foreground placeholder:text-muted-foreground"
             />
           </div>
 
