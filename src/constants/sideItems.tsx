@@ -1,11 +1,10 @@
 import { SideItems } from '@/types';
-import { AiOutlineHome } from 'react-icons/ai';
 
 export const sideItems: SideItems[] = [
   {
-    name: 'Home',
-    path: '/',
-    icon: <AiOutlineHome className="size-4" />,
+    name: 'Contests',
+    path: '/contests',
+    icon: null,
   },
   {
     name: 'Discover',
@@ -13,28 +12,13 @@ export const sideItems: SideItems[] = [
     icon: null,
   },
   {
-    name: 'Challengers',
-    path: '/challengers',
-    icon: null,
-  },
-  {
-    name: 'Teams',
-    path: '/teams',
-    icon: null,
-  },
-  {
-    name: 'Pricing',
-    path: '/pricing',
+    name: 'Support',
+    path: '/support',
     icon: null,
   },
   {
     name: 'About',
     path: '/about',
-    icon: null,
-  },
-  {
-    name: 'Profile',
-    path: '/profile',
     icon: null,
   },
 ];
