@@ -108,12 +108,50 @@ const BundleItems = ({ items }: { items: StoreProductItem[] }) => {
   );
 };
 
-const ProductSkeleton = ({ count, className }: { count: number; className: string }) => (
-  <>
-    {Array.from({ length: count }).map((_, index) => (
-      <Skeleton key={index} className={className} />
-    ))}
-  </>
+/* ─── Skeleton Components ────────────────────────────────────────── */
+const CoinCardSkeleton = () => (
+  <div className="group relative overflow-hidden rounded-2xl border border-white/8 bg-linear-to-b from-white/[0.07] to-white/2 p-1">
+    <div className="relative rounded-xl bg-linear-to-b from-white/4 to-transparent p-4">
+      <div className="flex flex-col gap-4">
+        {/* Image skeleton */}
+        <Skeleton className="h-28 w-full rounded-xl" />
+
+        {/* Title skeleton */}
+        <div className="space-y-2 text-center">
+          <Skeleton className="mx-auto h-3 w-20" />
+          <Skeleton className="mx-auto h-8 w-24" />
+          <Skeleton className="mx-auto h-3 w-32" />
+        </div>
+
+        {/* Button skeleton */}
+        <Skeleton className="h-10 w-full rounded-xl" />
+      </div>
+    </div>
+  </div>
+);
+
+const BundleCardSkeleton = () => (
+  <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-linear-to-b from-white/[0.07] to-white/2 p-1">
+    <div className="relative flex flex-1 flex-col rounded-xl bg-linear-to-b from-white/4 to-transparent p-3.5">
+      {/* Title skeleton */}
+      <div className="mb-3 space-y-2 text-center">
+        <Skeleton className="mx-auto h-4 w-24" />
+        <Skeleton className="mx-auto h-3 w-32" />
+      </div>
+
+      {/* Items skeleton */}
+      <div className="flex-1 rounded-xl border border-white/6 bg-black/20 p-2.5">
+        <div className="grid gap-1.5">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-6 w-full" />
+          ))}
+        </div>
+      </div>
+
+      {/* Button skeleton */}
+      <Skeleton className="mt-3 h-9 w-full rounded-xl" />
+    </div>
+  </div>
 );
 
 /* ─── Coin Card ──────────────────────────────────────────────────── */
@@ -265,7 +303,7 @@ const StoreModal = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
         showCloseButton
-        className="border-black-2-600 bg-background gap-0 flex max-h-[95vh] max-w-[95vw] flex-col overflow-hidden border-2 p-0 sm:max-w-4xl"
+        className="border-black-2-600 bg-background flex max-h-[95vh] max-w-[95vw] flex-col gap-0 overflow-hidden border-2 p-0 sm:max-w-4xl"
       >
         {/* Header */}
         <DialogHeader className="border-b border-white/5 px-5 py-4 sm:px-6">
@@ -290,7 +328,9 @@ const StoreModal = () => {
                     value: stats?.boost ?? 0,
                   },
                   {
-                    icon: <span className="text-primary text-sm leading-none font-semibold">C</span>,
+                    icon: (
+                      <span className="text-primary text-sm leading-none font-semibold">C</span>
+                    ),
                     value: stats?.coins ?? 0,
                   },
                 ].map((item, i) => (
@@ -327,14 +367,26 @@ const StoreModal = () => {
             </div>
 
             {productsLoading ? (
-              <div className="grid gap-4 md:grid-cols-3">
-                <ProductSkeleton count={3} className="h-64 rounded-2xl" />
-              </div>
+              <Carousel opts={{ align: 'start', loop: false }} className="w-full">
+                <CarouselContent className="-ml-3">
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <CarouselItem
+                      key={index}
+                      className="basis-full pl-3 select-none sm:basis-1/2 md:basis-1/3 lg:basis-1/3"
+                    >
+                      <CoinCardSkeleton />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
             ) : coinOffers.length ? (
               <Carousel opts={{ align: 'start', loop: false }} className="w-full">
                 <CarouselContent className="-ml-3">
                   {coinOffers.map((offer) => (
-                    <CarouselItem key={offer.id} className="pl-3 sm:basis-1/2 md:basis-1/3 select-none">
+                    <CarouselItem
+                      key={offer.id}
+                      className="basis-full pl-3 select-none sm:basis-1/2 md:basis-1/3 lg:basis-1/3"
+                    >
                       <CoinCard
                         offer={offer}
                         onPurchase={handlePurchase}
@@ -365,16 +417,25 @@ const StoreModal = () => {
             </div>
 
             {productsLoading ? (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-                <ProductSkeleton count={6} className="h-52 rounded-2xl" />
-              </div>
+              <Carousel opts={{ align: 'start', loop: false }} className="w-full">
+                <CarouselContent className="-ml-3">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <CarouselItem
+                      key={index}
+                      className="basis-full pl-3 select-none sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+                    >
+                      <BundleCardSkeleton />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
             ) : bundleOffers.length ? (
               <Carousel opts={{ align: 'start', loop: false }} className="w-full">
                 <CarouselContent className="-ml-3">
                   {bundleOffers.map((bundle) => (
                     <CarouselItem
                       key={bundle.id}
-                      className="pl-3 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 select-none"
+                      className="basis-full pl-3 select-none sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                     >
                       <BundleCard
                         bundle={bundle}
