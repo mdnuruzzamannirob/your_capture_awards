@@ -1,38 +1,35 @@
 'use client';
 
 import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
-import { useState } from 'react';
-import { RiMenuFill } from 'react-icons/ri';
-import { IoCloseOutline } from 'react-icons/io5';
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
-import { usePathname, useRouter } from 'next/navigation';
-import { IoIosArrowDown } from 'react-icons/io';
-import { cn } from '@/utils/cn';
-import Link from 'next/link';
-import Image from 'next/image';
-import { SideItems } from '@/types';
-import { sideItems } from '@/constants/sideItems';
-import LogoName from '../LogoName';
+import { loggedInNavLinks, navLinks } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
-import { useDispatch } from 'react-redux';
+import { useStoreModal } from '@/providers/StoreModalProvider';
+import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
+import { cn } from '@/utils/cn';
 import { logout } from '@/utils/logout';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { LogOut } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { IoCloseOutline } from 'react-icons/io5';
+import { RiMenuFill } from 'react-icons/ri';
+import { useDispatch } from 'react-redux';
+import { toast } from 'sonner';
+import LogoName from '../LogoName';
 
 const Sidebar = () => {
-  const { user, token } = useAuth();
+  const { user, token, isAuthenticated } = useAuth();
+  const { openStore } = useStoreModal();
+  const { data: storeStats } = useGetStoreStatsQuery(undefined, {
+    skip: !isAuthenticated,
+  });
   const [open, setOpen] = useState(false);
-  const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
-  const dispatch = useDispatch();
-
   const pathname = usePathname();
   const router = useRouter();
-
-  const handleNavigation = (path: string | null) => {
-    if (path) {
-      router.push(path);
-      setOpen(false);
-    }
-  };
+  const dispatch = useDispatch();
+  const menuLinks = isAuthenticated ? loggedInNavLinks : navLinks;
+  const stats = storeStats?.data;
 
   const handleLogout = () => {
     logout(dispatch);
@@ -41,61 +38,18 @@ const Sidebar = () => {
     router.push('/signin');
   };
 
-  const toggleSubmenu = (itemName: string) => {
-    setOpenSubmenus((prev) => ({
-      ...prev,
-      [itemName]: !prev[itemName],
-    }));
-  };
-
-  const renderMenuItems = (items: SideItems[], level = 0) => {
-    return items.map((item, index) => (
-      <li key={index} className="flex flex-col gap-1">
-        <button
-          onClick={() => {
-            if (item.children) {
-              toggleSubmenu(item.name);
-            } else {
-              handleNavigation(item.path);
-            }
-          }}
-          className={cn(
-            'flex w-full items-center justify-between gap-3 rounded-sm px-3 py-2 text-sm transition-colors',
-            (item.path === '/' && pathname === '/') ||
-              (pathname.startsWith(item.path as string) && item.path !== '/')
-              ? 'bg-white/5'
-              : openSubmenus[item.name]
-                ? 'bg-white/5'
-                : 'text-foreground hover:bg-white/5 hover:text-inherit',
-          )}
-        >
-          {item.name}
-          {item.children && (
-            <IoIosArrowDown className={openSubmenus[item.name] ? 'rotate-180' : 'rotate-0'} />
-          )}
-        </button>
-
-        {/* Submenu Items */}
-        {item.children && openSubmenus[item.name] && (
-          <ul className={cn('space-y-1 border-l border-black/10 pl-2 dark:border-white/10')}>
-            {renderMenuItems(item.children, level + 1)}
-          </ul>
-        )}
-      </li>
-    ));
-  };
-
   return (
     <div className="flex-1 lg:hidden">
       <Drawer direction="left" open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
-          <button className="flex size-8.5 items-center justify-center rounded-full border">
+          <button className="border-black-2-600 flex size-8.5 items-center justify-center rounded-full border">
             <RiMenuFill />
           </button>
         </DrawerTrigger>
+
         <DrawerContent className="bg-background text-foreground border-y-none border-l-none border-black-2-600 border-r">
           <VisuallyHidden>
-            <DrawerTitle></DrawerTitle>
+            <DrawerTitle />
           </VisuallyHidden>
 
           <div className="flex h-full flex-col">
@@ -107,55 +61,49 @@ const Sidebar = () => {
               </button>
             </div>
 
-            {/* Navigation Items */}
             <nav className="p-4">
-              <ul className="space-y-1">{renderMenuItems(sideItems)}</ul>
+              <ul className="space-y-1">
+                {menuLinks.map((item) => {
+                  const isActive =
+                    pathname === item.href ||
+                    (Array.isArray(item.tags) && item.tags.some((tag) => pathname.includes(tag)));
+
+                  return (
+                    <li key={item.name}>
+                      <Link
+                        href={item.href}
+                        onClick={() => setOpen(false)}
+                        className={cn(
+                          'flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors',
+                          isActive
+                            ? 'text-primary bg-white/5'
+                            : 'text-foreground hover:bg-white/5 hover:text-inherit',
+                        )}
+                      >
+                        {item.name}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             </nav>
 
-            {/* User Section */}
-            <div className="border-black-2-600 mt-auto border-t px-4 py-3">
-              {user && token ? (
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    {/* User Icon */}
-                    {user?.avatar ? (
-                      <Image
-                        alt="User Avatar"
-                        src={user?.avatar}
-                        width={34}
-                        height={34}
-                        className="size-9 min-w-9 cursor-pointer overflow-hidden rounded-full object-cover"
-                      />
-                    ) : (
-                      <button className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-700">
-                        {user?.firstName?.charAt(0) || 'U'}
-                        {user?.lastName?.charAt(0) || null}
-                      </button>
-                    )}
-
-                    {/* User Info */}
-                    <div className="flex min-w-0 flex-col">
-                      <span className="truncate font-medium">
-                        {user.firstName || 'Name not found'} {user.lastName}
-                      </span>
-                      <span className="text-muted-foreground truncate text-sm">{user.email}</span>
-                    </div>
-                  </div>
-
-                  {/* Logout Button */}
-                  <button
-                    onClick={handleLogout}
-                    className="mt-2 w-full rounded-sm bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600"
-                  >
-                    Logout
-                  </button>
-                </div>
+            <div className="border-black-2-600 mt-auto border-t px-4 py-4">
+              {isAuthenticated ? (
+                <button
+                  onClick={handleLogout}
+                  className="flex w-full items-center justify-center gap-2 rounded-md bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600"
+                >
+                  <LogOut className="size-4" />
+                  Logout
+                </button>
               ) : (
                 <Link
                   href="/signin"
-                  className="flex w-full items-center justify-center rounded-sm border border-gray-50 px-4 py-2"
+                  onClick={() => setOpen(false)}
+                  className="border-primary hover:border-primary/90 block w-full rounded-sm border px-4 py-2 text-center text-sm transition-colors"
                 >
-                  Sign in
+                  Login
                 </Link>
               )}
             </div>
