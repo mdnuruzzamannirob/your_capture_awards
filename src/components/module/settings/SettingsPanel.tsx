@@ -21,7 +21,7 @@ import {
 import { useAppDispatch } from '@/store/hooks';
 import { logout } from '@/utils/logout';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff, Loader2, Trash2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FieldValues, Path, UseFormRegister, useForm } from 'react-hook-form';
@@ -116,7 +116,7 @@ function PasswordField<TFieldValues extends FieldValues>({
           onMouseDown={(e) => e.preventDefault()}
           onClick={onToggle}
           disabled={disabled}
-          className="absolute top-1/2 right-3 -translate-y-1/2 rounded-md p-1 text-white/55 transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-50"
+          className="hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 rounded-md p-1 text-white/55 transition disabled:cursor-not-allowed disabled:opacity-50"
           aria-label={`Toggle ${label.toLowerCase()}`}
         >
           {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -249,19 +249,19 @@ const SettingsPanel = () => {
         <TabsList className="inline-flex h-auto gap-3 bg-transparent p-0">
           <TabsTrigger
             value="profile"
-            className="h-12 rounded-md border border-black-2-600 bg-black-2-800 px-10 text-white transition-colors data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-black"
+            className="border-black-2-600 bg-black-2-800 data-[state=active]:border-primary data-[state=active]:bg-primary h-12 rounded-md border px-10 text-white transition-colors data-[state=active]:text-black"
           >
             Profile
           </TabsTrigger>
           <TabsTrigger
             value="security"
-            className="h-12 rounded-md border border-black-2-600 bg-black-2-800 px-10 text-white transition-colors data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-black"
+            className="border-black-2-600 bg-black-2-800 data-[state=active]:border-primary data-[state=active]:bg-primary h-12 rounded-md border px-10 text-white transition-colors data-[state=active]:text-black"
           >
             Security
           </TabsTrigger>
           <TabsTrigger
             value="delete"
-            className="h-12 rounded-md border border-black-2-600 bg-black-2-800 px-10 text-white transition-colors data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-black"
+            className="border-black-2-600 bg-black-2-800 data-[state=active]:border-primary data-[state=active]:bg-primary h-12 rounded-md border px-10 text-white transition-colors data-[state=active]:text-black"
           >
             Delete Account
           </TabsTrigger>
@@ -337,7 +337,7 @@ const SettingsPanel = () => {
                 <Button
                   type="submit"
                   disabled={isProfileSaving}
-                  className="h-11 rounded-md border border-primary bg-primary px-8 text-black hover:bg-primary/90"
+                  className="border-primary bg-primary hover:bg-primary/90 h-11 rounded-md border px-8 text-black"
                 >
                   {isProfileSaving ? (
                     <>
@@ -405,7 +405,7 @@ const SettingsPanel = () => {
                 <Button
                   type="submit"
                   disabled={isPasswordSaving}
-                  className="h-11 rounded-md border border-primary bg-primary px-8 text-black hover:bg-primary/90"
+                  className="border-primary bg-primary hover:bg-primary/90 h-11 rounded-md border px-8 text-black"
                 >
                   {isPasswordSaving ? (
                     <>
@@ -424,22 +424,19 @@ const SettingsPanel = () => {
         <TabsContent value="delete" className="mt-8">
           <form onSubmit={deleteForm.handleSubmit(onDeleteSubmit)}>
             <div className={cardClassName}>
-              <div className="mb-5 flex items-start gap-3">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-full border border-red-400 text-red-300">
-                  <Trash2 className="size-5" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Delete Account</h3>
-                  <p className="mt-1 text-sm text-white/60">
-                    This removes your profile, access, and all account-owned data that the backend
-                    deletes with your account.
-                  </p>
-                </div>
+              <div className="mb-5">
+                <h3 className="text-lg font-semibold text-white">Delete Account</h3>
+                <p className="mt-1 text-sm text-white/60">
+                  This removes your profile, access, and all account-owned data that the backend
+                  deletes with your account.
+                </p>
               </div>
 
-              <div className="rounded-2xl border border-black-2-600 bg-black-2-900/50 p-4 text-sm text-white/70">
+              <div className="border-black-2-600 bg-black-2-900/50 rounded-2xl border p-4 text-sm text-white/70">
                 <p>Before continuing, remember that account deletion is permanent.</p>
-                <p className="mt-2">You will need to create a new account if you want to return later.</p>
+                <p className="mt-2">
+                  You will need to create a new account if you want to return later.
+                </p>
                 <p className="mt-2">Enter your password below to confirm the request.</p>
               </div>
 
