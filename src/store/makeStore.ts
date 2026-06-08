@@ -1,6 +1,7 @@
 import { authApi } from '@/store/apis/authApi';
 import { contestApi } from '@/store/apis/contestApi';
 import { profileApi } from '@/store/apis/profileApi';
+import { storeApi } from '@/store/apis/storeApi';
 import { teamApi } from '@/store/apis/teamApi';
 import { userApi } from '@/store/apis/userApi';
 import authReducer from '@/store/slices/authSlice';
@@ -17,6 +18,7 @@ export const makeStore = (preloadedState = {}) => {
       [profileApi.reducerPath]: profileApi.reducer,
       [contestApi.reducerPath]: contestApi.reducer,
       [teamApi.reducerPath]: teamApi.reducer,
+      [storeApi.reducerPath]: storeApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
@@ -27,6 +29,7 @@ export const makeStore = (preloadedState = {}) => {
         profileApi.middleware,
         contestApi.middleware,
         teamApi.middleware,
+        storeApi.middleware,
       ),
     preloadedState,
     devTools: process.env.NODE_ENV !== 'production',
