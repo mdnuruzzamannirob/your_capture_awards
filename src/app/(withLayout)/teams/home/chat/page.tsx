@@ -130,6 +130,10 @@ export default function TeamChatPage() {
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
   const [initialLoaded, setInitialLoaded] = useState(false);
+  const isPrependingOlderRef = useRef(false);
+  const olderScrollStateRef = useRef<{ top: number; height: number } | null>(null);
+  const skipNextAutoScrollRef = useRef(false);
+  const isAtBottomRef = useRef(true);
 
   const socketBaseUrl = useMemo(() => getSocketBaseUrl(), []);
 
@@ -137,6 +141,7 @@ export default function TeamChatPage() {
     const container = scrollContainerRef.current;
 
     if (container) {
+      isAtBottomRef.current = true;
       container.scrollTo({
         top: container.scrollHeight,
         behavior,
@@ -203,6 +208,11 @@ export default function TeamChatPage() {
     (socket: Socket, currentTeamId: string, targetPage = 1, appendOlder = false) => {
       if (appendOlder) {
         setIsLoadingOlder(true);
+        isPrependingOlderRef.current = true;
+        olderScrollStateRef.current = {
+          top: scrollContainerRef.current?.scrollTop ?? 0,
+          height: scrollContainerRef.current?.scrollHeight ?? 0,
+        };
       }
 
       socket.emit('get_team_messages', { teamId: currentTeamId, page: targetPage, limit }, (response: TeamMessagesResponse) => {
@@ -219,7 +229,6 @@ export default function TeamChatPage() {
 
         if (appendOlder) {
           const container = scrollContainerRef.current;
-          const previousHeight = container?.scrollHeight ?? 0;
 
           setMessages((prev) => {
             const merged = [...incomingMessages, ...prev];
@@ -228,9 +237,18 @@ export default function TeamChatPage() {
           });
 
           requestAnimationFrame(() => {
-            if (!container) return;
-            const nextHeight = container.scrollHeight;
-            container.scrollTop = nextHeight - previousHeight;
+            if (container && olderScrollStateRef.current) {
+              const nextHeight = container.scrollHeight;
+              const { top, height } = olderScrollStateRef.current;
+              container.scrollTop = nextHeight - height + top;
+              const isAwayFromBottom =
+                container.scrollHeight - container.scrollTop - container.clientHeight > 96;
+              isAtBottomRef.current = !isAwayFromBottom;
+            }
+            olderScrollStateRef.current = null;
+            isPrependingOlderRef.current = false;
+            skipNextAutoScrollRef.current = true;
+            setPage(meta?.page ?? targetPage);
             setIsLoadingOlder(false);
           });
           return;
@@ -250,10 +268,11 @@ export default function TeamChatPage() {
     if (!container) return;
 
     if (container.scrollTop < 24 && socketRef.current && teamId && hasMoreOlder && !isLoadingOlder) {
-      void loadTeamMessages(socketRef.current, teamId, Math.max(1, page - 1), true);
+      void loadTeamMessages(socketRef.current, teamId, page + 1, true);
     }
 
     const isAwayFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight > 96;
+    isAtBottomRef.current = !isAwayFromBottom;
     setShowScrollButton(isAwayFromBottom);
   }, [hasMoreOlder, isLoadingOlder, loadTeamMessages, page, teamId]);
 
@@ -406,7 +425,12 @@ export default function TeamChatPage() {
   }, [handleNewMessage, loadTeamMessages, socketBaseUrl, teamId, token]);
 
   useEffect(() => {
-    if (messages.length === 0 || !initialLoaded) return;
+    if (messages.length === 0 || !initialLoaded || isLoadingOlder || isPrependingOlderRef.current) return;
+    if (skipNextAutoScrollRef.current) {
+      skipNextAutoScrollRef.current = false;
+      return;
+    }
+    if (!isAtBottomRef.current) return;
 
     const frame1 = requestAnimationFrame(() => {
       scrollToBottom('auto');
@@ -414,7 +438,7 @@ export default function TeamChatPage() {
     });
 
     return () => cancelAnimationFrame(frame1);
-  }, [initialLoaded, messages, scrollToBottom]);
+  }, [initialLoaded, isLoadingOlder, messages, scrollToBottom]);
 
   const currentUserName = useMemo(() => {
     if (!user) return 'You';
