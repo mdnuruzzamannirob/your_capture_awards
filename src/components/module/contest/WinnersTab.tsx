@@ -34,7 +34,7 @@ type Winner = {
   participant?: {
     user?: {
       fullName?: string;
-      country?: string | null;
+      location?: string | null;
       avatar?: string | null;
     };
     photos?: WinnerPhoto[];
@@ -201,7 +201,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
             </h3>
 
             <p className="text-muted-foreground leading-none">
-              {winner?.participant?.user?.country || 'Unknown Country'}
+              {winner?.participant?.user?.location }
             </p>
           </div>
         </div>
