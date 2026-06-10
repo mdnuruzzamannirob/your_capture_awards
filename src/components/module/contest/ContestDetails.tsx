@@ -14,15 +14,25 @@ import WinnersTab from './WinnersTab';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
 import CornerCount from '@/components/CornerCount';
-import { useGetContestQuery, useLazyGetContestRankPhotosQuery } from '@/store/apis/contestApi';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  useGetContestQuery,
+  useLazyGetContestRankPhotosQuery,
+  useGetJoinedContestQuery,
+} from '@/store/apis/contestApi';
 
 const ContestDetails = ({ id }: { id: string }) => {
+  const { isAuthenticated } = useAuth();
   const { data: contestData } = useGetContestQuery({ id });
+  const { data: joinedContestData } = useGetJoinedContestQuery({ page: 1, limit: 100 }, {
+    skip: !isAuthenticated,
+  });
   const [rankPhotosTrigger] = useLazyGetContestRankPhotosQuery();
   const searchParams = useSearchParams();
   const modalParam = searchParams.get('modal');
 
   const contest = contestData?.data ?? {};
+  const isJoined = joinedContestData?.data?.some((c: any) => c.id === id) ?? false;
   const tabs = getContestTabs(contest?.status);
   const [activeTab, setActiveTab] = useState(tabs?.[0]?.key);
 
@@ -70,7 +80,6 @@ const ContestDetails = ({ id }: { id: string }) => {
             width={1920}
             height={500}
             className="size-full object-cover opacity-60"
-            // onError={() => setCoverError(true)}
           />
         ) : (
           <div className="bg-black-2-600 flex h-full w-full items-center justify-center text-gray-300">
@@ -95,15 +104,23 @@ const ContestDetails = ({ id }: { id: string }) => {
 
               <div className="mt-5 flex items-center justify-center gap-5">
                 {remaining > 0 && (
-                  <button
-                    onClick={() => uploadModalRef.current?.open()}
-                    className="bg-background/20 text-foreground border-foreground w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10"
-                  >
-                    Upload Photo
-                  </button>
+                  <div className="relative w-full max-w-54">
+                    <button
+                      onClick={() => uploadModalRef.current?.open()}
+                      className="bg-background/20 text-foreground border-foreground w-full rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10"
+                    >
+                      {isJoined ? 'Submit Photo' : 'JOIN'}
+                    </button>
+                    {!isJoined && (contest?.coin_requirement ?? contest?.coinRequirement) && (contest?.coin_required ?? contest?.coinRequired ?? 0) > 0 && (
+                      <div className="absolute -bottom-2.5 -right-3 flex items-center gap-1.5 rounded-full border border-sky-400 bg-white pl-1 pr-3 py-1 text-sm font-bold text-sky-500 shadow-md select-none">
+                        <div className="h-5 w-5 rounded-full bg-linear-to-tr from-amber-500 to-amber-300 border border-amber-200 animate-pulse" />
+                        <span>{contest?.coin_required ?? contest?.coinRequired}</span>
+                      </div>
+                    )}
+                  </div>
                 )}
 
-                {contest?.joined && (
+                {isJoined && (
                   <>
                     <button
                       onClick={() => voteModalRef.current?.open()}
@@ -118,7 +135,7 @@ const ContestDetails = ({ id }: { id: string }) => {
                 {/* Modal */}
                 <UploadModal
                   ref={uploadModalRef}
-                  type={contest?.uploadCount ? 'upload' : 'join'}
+                  type={isJoined ? 'upload' : 'join'}
                   contest={contest}
                   contestType={contest?.type}
                   title={contest?.title}
