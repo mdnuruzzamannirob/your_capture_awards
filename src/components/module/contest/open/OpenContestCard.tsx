@@ -50,16 +50,24 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
 
           {/* JOIN Button */}
           <div className="pointer-events-none flex translate-y-3 justify-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                modalRef.current?.open();
-              }}
-              className="bg-foreground text-background pointer-events-auto rounded px-3 py-2 text-sm font-medium uppercase transition"
-            >
-              JOIN
-            </button>
+            <div className="pointer-events-auto relative">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  modalRef.current?.open();
+                }}
+                className="bg-foreground text-background rounded px-6 py-2 text-sm font-medium uppercase transition hover:bg-foreground/90"
+              >
+                JOIN
+              </button>
+              {((contest?.coin_requirement ?? contest?.coinRequirement) && (contest?.coin_required ?? contest?.coinRequired) > 0) && (
+                <div className="absolute -bottom-2 -right-4 flex items-center gap-1 rounded-full border border-sky-400 bg-white pl-0.5 pr-2 py-0.5 text-[10px] font-bold text-sky-500 shadow-sm select-none">
+                  <div className="h-4 w-4 rounded-full bg-linear-to-tr from-amber-500 to-amber-300 border border-amber-200 animate-pulse" />
+                  <span>{contest?.coin_required ?? contest?.coinRequired}</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Footer */}
