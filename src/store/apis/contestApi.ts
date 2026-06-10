@@ -75,6 +75,9 @@ export const contestApi = createApi({
       query: ({ page = 1, limit = 10 } = {}) =>
         `/contests/my-active-contests?page=${page}&limit=${limit}`,
       providesTags: ['JoinedContests'],
+      // Keep cache alive for 5 minutes so ContestDetails and JoinedContest page
+      // share the same cache entry and avoid duplicate network calls.
+      keepUnusedDataFor: 300,
     }),
 
     // get contest photos

@@ -24,7 +24,10 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
   }, [contest?.photos]);
 
   const modalRef = useRef<VoteModalRef>(null);
-  const remaining = contest?.maxUploads - images.length;
+  // Use server-authoritative uploadCount as primary; fall back to local images length.
+  // This ensures the upload slots disappear as soon as max is reached.
+  const uploadedCount = contest?.uploadCount ?? images.length;
+  const remaining = Math.max(0, (contest?.maxUploads ?? 0) - uploadedCount);
 
   const level = valueToLevel(contest?.level_data?.exposure_bonus);
 
