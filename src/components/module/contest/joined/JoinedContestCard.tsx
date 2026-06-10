@@ -177,13 +177,13 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
           // onClick={() => openModal('swap')}
           className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
         >
-          <MdOutlineCameraswitch className="rotate-90" /> Swap
+          <MdOutlineCameraswitch className="rotate-90" /> Trade
         </button>
         <button
           // onClick={() => openModal('boost')}
           className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
         >
-          <AiOutlineThunderbolt /> Promote
+          <AiOutlineThunderbolt /> Charge
         </button>
       </div>
     </div>

@@ -385,7 +385,7 @@ export const chatMessages = [
   {
     author: 'Omar',
     role: 'Moderator',
-    message: 'Two hours left on Portrait Sprint. Boosts should go to the top three entries.',
+    message: 'Two hours left on Portrait Sprint. Charges should go to the top three entries.',
     time: '11:20',
   },
   {
