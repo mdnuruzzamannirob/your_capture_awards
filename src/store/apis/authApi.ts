@@ -29,7 +29,6 @@ export const authApi = createApi({
           });
           dispatch(setUser(data.user));
         } catch (err) {
-          console.error('Signin failed:', err);
         }
       },
     }),
@@ -54,7 +53,6 @@ export const authApi = createApi({
           });
           dispatch(setUser(data.user));
         } catch (err) {
-          console.error('Signup failed:', err);
         }
       },
     }),
@@ -67,7 +65,6 @@ export const authApi = createApi({
           const { data } = await queryFulfilled;
           dispatch(setUser(data.data));
         } catch (err) {
-          console.error('Failed to fetch user:', err);
         }
       },
     }),
@@ -80,7 +77,6 @@ export const authApi = createApi({
           await queryFulfilled;
           dispatch(setTempEmail(arg.email));
         } catch (err) {
-          console.error('Forgot password failed:', err);
         }
       },
     }),
@@ -98,7 +94,6 @@ export const authApi = createApi({
           } = await queryFulfilled;
           dispatch(setTempToken(data?.reset_password_token));
         } catch (err) {
-          console.error('OTP verification failed:', err);
         }
       },
     }),
