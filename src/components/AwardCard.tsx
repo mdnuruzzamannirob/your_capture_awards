@@ -49,12 +49,12 @@ const AwardCard = ({
             <div className="bg-foreground text-background flex h-32 w-28 translate-x-5 translate-y-3 -rotate-12 flex-col items-center justify-center rounded border shadow-md sm:h-36 sm:w-32">
               <Image alt="" src="/icons/swap.png" width={50} height={50} />
               <h4 className="mt-1 text-lg font-extrabold">x{swap}</h4>
-              <h3 className="text-muted-foreground font-semibold">Swap</h3>
+              <h3 className="text-muted-foreground font-semibold">Trade</h3>
             </div>
             <div className="bg-foreground text-background z-10 flex h-32 w-28 flex-col items-center justify-center rounded border shadow-md sm:h-36 sm:w-32">
               <Image alt="" src="/icons/vote.png" width={50} height={50} />
               <h4 className="mt-1 text-lg font-extrabold">x{boost}</h4>
-              <h3 className="text-muted-foreground font-semibold">Boost</h3>
+              <h3 className="text-muted-foreground font-semibold">Charge</h3>
             </div>
             <div className="bg-foreground text-background flex h-32 w-28 -translate-x-5 translate-y-3 rotate-12 flex-col items-center justify-center rounded border shadow-md sm:h-36 sm:w-32">
               <Image alt="" src="/icons/key.png" width={50} height={50} />
