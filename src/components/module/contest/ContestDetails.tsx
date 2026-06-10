@@ -1,35 +1,46 @@
 'use client';
 
-import Image from 'next/image';
-import { useRef, useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import getContestTabs from '@/utils/getContestTabs';
+import CornerCount from '@/components/CornerCount';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import DetailsTab from './DetailsTab';
+import UploadModal, { UploadModalRef } from '@/components/UploadModal';
+import VoteModal, { VoteModalRef } from '@/components/VoteModal';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  useGetContestQuery,
+  useGetJoinedContestQuery,
+  useLazyGetContestRankPhotosQuery,
+} from '@/store/apis/contestApi';
+import getContestTabs from '@/utils/getContestTabs';
+import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 import CountdownTimer from './CountdownTimer';
+import DetailsTab from './DetailsTab';
 import PrizesTab from './PrizesTab';
 import RankTab from './RankTab';
 import RulesTab from './RulesTab';
 import WinnersTab from './WinnersTab';
-import UploadModal, { UploadModalRef } from '@/components/UploadModal';
-import VoteModal, { VoteModalRef } from '@/components/VoteModal';
-import CornerCount from '@/components/CornerCount';
-import { useAuth } from '@/hooks/useAuth';
-import {
-  useGetContestQuery,
-  useLazyGetContestRankPhotosQuery,
-  useGetJoinedContestQuery,
-} from '@/store/apis/contestApi';
 
 const ContestDetails = ({ id }: { id: string }) => {
   const { isAuthenticated } = useAuth();
-  const { data: contestData } = useGetContestQuery({ id });
-  const { data: joinedContestData } = useGetJoinedContestQuery({ page: 1, limit: 100 }, {
-    skip: !isAuthenticated,
-  });
+  const { data: contestData, isLoading: contestLoading } = useGetContestQuery({ id });
+  const { data: joinedContestData, isLoading: joinedLoading } = useGetJoinedContestQuery(
+    { page: 1, limit: 100 },
+    {
+      skip: !isAuthenticated,
+    },
+  );
   const [rankPhotosTrigger] = useLazyGetContestRankPhotosQuery();
   const searchParams = useSearchParams();
   const modalParam = searchParams.get('modal');
+
+  // Tracks client-side mount to avoid SSR/client hydration mismatch.
+  // `joinedLoading` is false on the server (query skipped) but true on
+  // the client initially — rendering different disabled/text causes mismatch.
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const contest = contestData?.data ?? {};
   const isJoined = joinedContestData?.data?.some((c: any) => c.id === id) ?? false;
@@ -46,6 +57,12 @@ const ContestDetails = ({ id }: { id: string }) => {
       uploadModalRef.current.open();
     }
   }, [modalParam]);
+
+  if (contestLoading || !contest || Object.keys(contest).length === 0) {
+    return (
+      <div className="flex items-center justify-center py-20 text-lg">Loading contest...</div>
+    );
+  }
 
   // render dynamic tab
   const renderTabContent = (key: string) => {
@@ -69,6 +86,13 @@ const ContestDetails = ({ id }: { id: string }) => {
         return null;
     }
   };
+
+  // Skeleton placeholder shown while client mounts or joined query is loading
+  const buttonSkeleton = (
+    <div className="relative w-full max-w-54">
+      <div className="h-13 w-full animate-pulse rounded-md bg-white/10" />
+    </div>
+  );
 
   return (
     <main className="margin-user space-y-10">
@@ -104,23 +128,35 @@ const ContestDetails = ({ id }: { id: string }) => {
 
               <div className="mt-5 flex items-center justify-center gap-5">
                 {remaining > 0 && (
-                  <div className="relative w-full max-w-54">
-                    <button
-                      onClick={() => uploadModalRef.current?.open()}
-                      className="bg-background/20 text-foreground border-foreground w-full rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10"
-                    >
-                      {isJoined ? 'Submit Photo' : 'JOIN'}
-                    </button>
-                    {!isJoined && (contest?.coin_requirement ?? contest?.coinRequirement) && (contest?.coin_required ?? contest?.coinRequired ?? 0) > 0 && (
-                      <div className="absolute -bottom-2.5 -right-3 flex items-center gap-1.5 rounded-full border border-sky-400 bg-white pl-1 pr-3 py-1 text-sm font-bold text-sky-500 shadow-md select-none">
-                        <div className="h-5 w-5 rounded-full bg-linear-to-tr from-amber-500 to-amber-300 border border-amber-200 animate-pulse" />
-                        <span>{contest?.coin_required ?? contest?.coinRequired}</span>
+                  <>
+                    {/* Show skeleton until client is mounted and joined status resolved */}
+                    {!isMounted || joinedLoading ? (
+                      buttonSkeleton
+                    ) : (
+                      <div className="relative w-full max-w-54">
+                        <button
+                          onClick={() => uploadModalRef.current?.open()}
+                          className="bg-background/20 text-foreground border-foreground w-full rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10"
+                        >
+                          {isJoined ? 'Submit Photo' : 'JOIN'}
+                        </button>
+
+                        {/* Coin badge — only when not joined and coin required */}
+                        {!isJoined &&
+                          (contest?.coin_requirement ?? contest?.coinRequirement) &&
+                          (contest?.coin_required ?? contest?.coinRequirement ?? 0) > 0 && (
+                            <div className="absolute -right-3 -bottom-2.5 flex items-center gap-1.5 rounded-full border border-sky-400 bg-white py-1 pr-3 pl-1 text-sm font-bold text-sky-500 shadow-md select-none">
+                              <div className="h-5 w-5 animate-pulse rounded-full border border-amber-200 bg-linear-to-tr from-amber-500 to-amber-300" />
+                              <span>{contest?.coin_required ?? contest?.coinRequirement}</span>
+                            </div>
+                          )}
                       </div>
                     )}
-                  </div>
+                  </>
                 )}
 
-                {isJoined && (
+                {/* Vote button — only render on client after joined status is known */}
+                {isMounted && !joinedLoading && isJoined && (
                   <>
                     <button
                       onClick={() => voteModalRef.current?.open()}
@@ -132,7 +168,7 @@ const ContestDetails = ({ id }: { id: string }) => {
                   </>
                 )}
 
-                {/* Modal */}
+                {/* Upload/Join Modal */}
                 <UploadModal
                   ref={uploadModalRef}
                   type={isJoined ? 'upload' : 'join'}

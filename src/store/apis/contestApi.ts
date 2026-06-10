@@ -72,7 +72,7 @@ export const contestApi = createApi({
 
     // get join only contest data
     getJoinedContest: builder.query<{ data: any[]; meta: PaginationMeta }, ContestPayload>({
-      query: ({ page = 1, limit = 10 }) =>
+      query: ({ page = 1, limit = 10 } = {}) =>
         `/contests/my-active-contests?page=${page}&limit=${limit}`,
       providesTags: ['JoinedContests'],
     }),
