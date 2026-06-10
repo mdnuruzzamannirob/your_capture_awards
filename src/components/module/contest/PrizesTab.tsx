@@ -4,6 +4,7 @@ import AwardCard from '@/components/AwardCard';
 import { TabsContent } from '@/components/ui/tabs';
 
 const PrizesTab = ({ contest, value }: { contest: any; value: string }) => {
+
   return (
     <TabsContent value={value} className="mx-auto w-full max-w-4xl space-y-32">
       {contest?.isMoneyContest ? (
@@ -11,9 +12,9 @@ const PrizesTab = ({ contest, value }: { contest: any; value: string }) => {
           <AwardCard
             key={index}
             title={prize?.category === 'TOP_PHOTO' ? 'top-photo' : 'top-photographer'}
-            swap={prize?.trades}
-            boost={prize?.charges}
-            keys={prize?.keys}
+            swap={prize?.swap}
+            boost={prize?.boost}
+            keys={prize?.key}
           />
         ))
       ) : (
