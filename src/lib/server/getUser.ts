@@ -36,7 +36,6 @@ export async function getUser(): Promise<AuthData> {
       token,
     };
   } catch (err) {
-    console.error('Failed to fetch user:', err);
     return defaultState;
   }
 }
