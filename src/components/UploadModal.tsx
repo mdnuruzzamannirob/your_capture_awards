@@ -18,6 +18,8 @@ import {
   useCreatePhotoToContestMutation,
   useLazyGetUserPhotosQuery,
 } from '@/store/apis/contestApi';
+import { useStoreModal } from '@/providers/StoreModalProvider';
+import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
 
 export type ModalContentType = 'preview' | 'choose' | 'select';
 export type UploadSource = 'computer' | 'profile';
@@ -82,6 +84,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       type === 'join' ? 'preview' : 'choose',
     );
     const [uploadModal, setUploadModal] = useState(false);
+    const [showCoinConfirm, setShowCoinConfirm] = useState(false);
     const [uploadSource, setUploadSource] = useState<UploadSource | null>(null);
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string>('');
@@ -90,6 +93,12 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const { isAuthenticated } = useAuth();
+    const { openStore } = useStoreModal();
+    const { data: storeStats } = useGetStoreStatsQuery(undefined, {
+      skip: !isAuthenticated,
+    });
+    const stats = storeStats?.data;
+
     const [createPhotoToContest, { isLoading }] = useCreatePhotoToContestMutation();
     const [isCustomSubmitting, setIsCustomSubmitting] = useState(false);
     const [trigger, { data, isLoading: isPhotosLoading }] = useLazyGetUserPhotosQuery();
@@ -132,6 +141,13 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         if (!isAuthenticated && type === 'join') {
           const returnUrl = `/contest/${contestId}?modal=join`;
           router.push(`/signin?returnTo=${encodeURIComponent(returnUrl)}`);
+          return;
+        }
+
+        // Check coin requirement if type is join
+        const hasCoinRequirement = contest?.coin_requirement ?? contest?.coinRequirement;
+        if (type === 'join' && hasCoinRequirement) {
+          setShowCoinConfirm(true);
           return;
         }
 
@@ -431,36 +447,75 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               </div>
             </div>
           );
-
         default:
           break;
       }
     };
-    return (
-      <Dialog open={uploadModal} onOpenChange={setUploadModal}>
-        <DialogContent className="border-black-2-600 border-2 sm:max-w-2xl">
-          <DialogTitle>
-            {(modalContentType === 'choose' || modalContentType === 'select') && (
-              <button
-                onClick={() =>
-                  setModalContentType(
-                    modalContentType === 'select'
-                      ? 'choose'
-                      : modalContentType === 'choose'
-                        ? 'preview'
-                        : 'preview',
-                  )
-                }
-                className="hover:text-primary flex size-10 items-center justify-center rounded-full transition hover:bg-white/5"
-              >
-                <ArrowLeft />
-              </button>
-            )}
-          </DialogTitle>
+    const requiredCoins = contest?.coin_required ?? contest?.coinRequired ?? 0;
 
-          {modalContentView()}
-        </DialogContent>
-      </Dialog>
+    return (
+      <>
+        <Dialog open={uploadModal} onOpenChange={setUploadModal}>
+          <DialogContent className="border-black-2-600 border-2 sm:max-w-2xl">
+            <DialogTitle>
+              {(modalContentType === 'choose' || modalContentType === 'select') && (
+                <button
+                  onClick={() =>
+                    setModalContentType(
+                      modalContentType === 'select'
+                        ? 'choose'
+                        : modalContentType === 'choose'
+                          ? 'preview'
+                          : 'preview',
+                    )
+                  }
+                  className="hover:text-primary flex size-10 items-center justify-center rounded-full transition hover:bg-white/5"
+                >
+                  <ArrowLeft />
+                </button>
+              )}
+            </DialogTitle>
+
+            {modalContentView()}
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showCoinConfirm} onOpenChange={setShowCoinConfirm}>
+          <DialogContent className="border-black-2-600 border-2 max-w-sm text-center p-6 space-y-6">
+            <div className="flex flex-col items-center justify-center gap-3">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 shadow-inner">
+                <div className="h-8 w-8 rounded-full bg-linear-to-tr from-amber-500 to-amber-300 border border-amber-200 animate-pulse" />
+              </div>
+              <DialogTitle className="text-xl font-bold uppercase text-foreground">Coin Required</DialogTitle>
+            </div>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Joining this contest requires <span className="text-primary font-bold">{requiredCoins}</span> coins. Would you like to proceed?
+            </p>
+            <div className="flex items-center justify-center gap-4 pt-2">
+              <button
+                onClick={() => setShowCoinConfirm(false)}
+                className="border-primary text-primary hover:bg-primary/5 w-full rounded-md border py-2.5 text-sm font-medium transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowCoinConfirm(false);
+                  const userCoins = stats?.coins ?? 0;
+                  if (userCoins < requiredCoins) {
+                    openStore();
+                  } else {
+                    setUploadModal(true);
+                  }
+                }}
+                className="bg-primary text-background hover:bg-primary/95 w-full rounded-md py-2.5 text-sm font-semibold transition"
+              >
+                Continue
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </>
     );
   },
 );
