@@ -273,6 +273,11 @@ export default function Team() {
   const deferredSearch = useDeferredValue(searchQuery.trim());
   const router = useRouter();
   const { token } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     setPage(1);
@@ -281,16 +286,19 @@ export default function Team() {
 
   const { data: myTeamData, isLoading: isMyTeamLoading } = useGetMyTeamQuery(undefined, {
     skip: !token,
+    refetchOnMountOrArgChange: true,
   });
 
   useEffect(() => {
+    if (!mounted) return;
+    if (!token) return;
     if (isMyTeamLoading) return;
 
-    const teamId = myTeamData?.data?.team?.id;
-    if (teamId) {
+    const team = myTeamData?.data?.team;
+    if (team && team.id) {
       router.replace('/teams/home');
     }
-  }, [isMyTeamLoading, myTeamData?.data?.team?.id, router]);
+  }, [token, isMyTeamLoading, myTeamData, router, mounted]);
 
   const teamsQuery = useGetTeamsQuery({
     page,
@@ -338,7 +346,7 @@ export default function Team() {
     onLoadMore: loadMore,
   });
 
-  if (token && isMyTeamLoading) {
+  if (mounted && token && (isMyTeamLoading || myTeamData?.data?.team?.id)) {
     return (
       <main className="margin relative isolate container overflow-hidden py-8 lg:py-10">
         <div className="space-y-6">
@@ -396,7 +404,7 @@ export default function Team() {
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search by team's name"
-              className="border-black-2-600 bg-black-2-700/90 pr-11 text-foreground placeholder:text-muted-foreground"
+              className="border-black-2-600 bg-black-2-700/90 text-foreground placeholder:text-muted-foreground pr-11"
             />
           </div>
 

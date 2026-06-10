@@ -10,7 +10,7 @@ import { labels, totalLevels } from '@/utils/valueToExposureLabel';
 import { cn } from '@/utils/cn';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
-import { useGetJoinedContestQuery, useGetPublicContestsQuery } from '@/store/apis/contestApi';
+import { useGetJoinedContestQuery } from '@/store/apis/contestApi';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,18 +29,28 @@ const JoinedContest = () => {
 
   const { data, isLoading, isFetching, refetch, isError, error } = useGetJoinedContestQuery(
     { page, limit: 10 },
-  );
-  const { data: open } = useGetPublicContestsQuery(
-    { status: 'ACTIVE' },
-    { refetchOnMountOrArgChange: 60 },
+    {
+      // Re-fetch every 60 seconds in the background so fresh photo/vote data
+      // arrives without the user needing to manually refresh.
+      pollingInterval: 60_000,
+      // Always try to serve cached data first; don't block the UI while
+      // a background poll is in-flight (this prevents skeleton flashes).
+      refetchOnMountOrArgChange: false,
+    },
   );
 
+  // Derive the active contest id from the joined list itself.
+  // This avoids a separate getPublicContests call just to get the vote target.
+  const firstActiveContest = (data as any)?.data?.find(
+    (c: any) => c.status === 'ACTIVE' || !c.status,
+  );
   const joinedResult = (data as any)?.data ?? [];
   const hasMore = Boolean((data as any)?.meta?.hasNextPage);
-  const contest = (open as any)?.data[0] ?? {};
-  const voteContestId = (contest?.id as string | undefined) ?? contestId ?? '';
+  const voteContestId = (firstActiveContest?.id as string | undefined) ?? contestId ?? '';
 
-  // Accumulate contests data
+  // Accumulate contests data across infinite-scroll pages.
+  // On page 1 (including background polls), we merge updates into existing items
+  // so vote counts / upload counts stay fresh without losing later-page entries.
   useEffect(() => {
     if (!joinedResult.length) return;
 
@@ -50,7 +60,18 @@ const JoinedContest = () => {
       return;
     }
 
-    if (page > 1) {
+    if (page === 1) {
+      // Background poll: merge updated page-1 items into the accumulated list.
+      // Items already in the list get refreshed; brand-new items are prepended.
+      setAllContests((prev) => {
+        const updatedMap = new Map(joinedResult.map((item: any) => [item.id, item]));
+        const merged = prev.map((item) => updatedMap.get(item.id) ?? item);
+        const existingIds = new Set(prev.map((item) => item.id));
+        const newOnes = joinedResult.filter((item: any) => !existingIds.has(item.id));
+        return [...newOnes, ...merged];
+      });
+    } else {
+      // Infinite scroll: append only genuinely new items from the next page.
       setAllContests((prev) => {
         const existingIds = new Set(prev.map((item) => item.id));
         const newContests = joinedResult.filter((item: any) => !existingIds.has(item.id));

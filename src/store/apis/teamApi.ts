@@ -285,7 +285,9 @@ export const teamApi = createApi({
         method: 'POST',
         body: memberId ? { teamId, memberId } : { teamId },
       }),
-      invalidatesTags: ['Team', 'TeamMembers'],
+      // Invalidate all team-related caches so the /teams listing page
+      // and /teams/home page both reflect the updated membership immediately.
+      invalidatesTags: ['Team', 'TeamMembers', 'Teams', 'SuggestedTeams'],
     }),
 
     // ── Delete Team ───────────────────────────────────────────────────────
@@ -294,7 +296,9 @@ export const teamApi = createApi({
         url: `/teams/${teamId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Team', 'TeamMembers'],
+      // Also wipe Teams + SuggestedTeams so the listing page no longer shows
+      // the disbanded team.
+      invalidatesTags: ['Team', 'TeamMembers', 'Teams', 'SuggestedTeams'],
     }),
   }),
 });

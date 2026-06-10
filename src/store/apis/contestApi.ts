@@ -5,6 +5,8 @@ import { PhotoToContestPayload, ContestPayload, PaginationMeta } from '../types/
 export const contestApi = createApi({
   reducerPath: 'contestApi',
   baseQuery: baseQuery(typeof window === 'undefined'),
+  // Default cache lifetime: 60 seconds. Override per endpoint as needed.
+  keepUnusedDataFor: 60,
   tagTypes: [
     'PublicContests',
     'PrivateContests',
@@ -38,15 +40,15 @@ export const contestApi = createApi({
           body: { photoIds },
         };
       },
-      invalidatesTags: [
+      invalidatesTags: (result, error, { contestId }) => [
+        // Invalidate the specific contest entry and its related data.
+        // Do NOT blast every tag — keep unrelated cache entries intact.
+        { type: 'Contest', id: contestId },
+        { type: 'JoinedContests', id: 'LIST' },
+        { type: 'ContestPhotos', id: contestId },
+        { type: 'UserPhotos', id: contestId },
         'PublicContests',
         'PrivateContests',
-        'Contest',
-        'JoinedContests',
-        'ContestPhotos',
-        'UserPhotos',
-        'ContestRankPhotos',
-        'ContestRankPhotographers',
       ],
     }),
 
@@ -54,14 +56,21 @@ export const contestApi = createApi({
     getPublicContests: builder.query<{ data: any[]; meta: PaginationMeta }, ContestPayload>({
       query: ({ status, page = 1, limit = 10 }) =>
         `/contests/ucontests?status=${status}&page=${page}&limit=${limit}`,
-      providesTags: ['PublicContests'],
+      // Tag with a stable LIST id so invalidation only hits this tag type.
+      providesTags: (result, error, { status, page = 1 }) => [
+        { type: 'PublicContests', id: `${status}-${page}` },
+        { type: 'PublicContests', id: 'LIST' },
+      ],
     }),
 
     // get multiple contest data
     getPrivateContests: builder.query<{ data: any[]; meta: PaginationMeta }, ContestPayload>({
       query: ({ status, page = 1, limit = 10 }) =>
         `/contests?status=${status}&page=${page}&limit=${limit}`,
-      providesTags: ['PrivateContests'],
+      providesTags: (result, error, { status, page = 1 }) => [
+        { type: 'PrivateContests', id: `${status}-${page}` },
+        { type: 'PrivateContests', id: 'LIST' },
+      ],
     }),
 
     // get single contest data
@@ -74,7 +83,10 @@ export const contestApi = createApi({
     getJoinedContest: builder.query<{ data: any[]; meta: PaginationMeta }, ContestPayload>({
       query: ({ page = 1, limit = 10 } = {}) =>
         `/contests/my-active-contests?page=${page}&limit=${limit}`,
-      providesTags: ['JoinedContests'],
+      providesTags: (result, error, { page = 1 }) => [
+        { type: 'JoinedContests', id: `page-${page}` },
+        { type: 'JoinedContests', id: 'LIST' },
+      ],
       // Keep cache alive for 5 minutes so ContestDetails and JoinedContest page
       // share the same cache entry and avoid duplicate network calls.
       keepUnusedDataFor: 300,
@@ -106,7 +118,12 @@ export const contestApi = createApi({
       }
     >({
       query: ({ id, page = 1, limit = 10 }) => `/contests/${id}/photos?page=${page}&limit=${limit}`,
-      providesTags: (result, error, { id }) => [{ type: 'ContestPhotos', id }],
+      providesTags: (result, error, { id }) => [
+        { type: 'ContestPhotos', id },
+        { type: 'ContestPhotos', id: 'LIST' },
+      ],
+      // Keep contest photos cached for 5 minutes across navigations.
+      keepUnusedDataFor: 300,
     }),
 
     // get user photos
@@ -145,13 +162,16 @@ export const contestApi = createApi({
         body: { photoIds },
       }),
       invalidatesTags: (result, error, { id }) => [
+        // Refresh the specific contest data and its photos/ranks after voting.
         { type: 'Contest', id },
         { type: 'ContestPhotos', id },
         { type: 'ContestRankPhotos', id },
         { type: 'ContestRankPhotographers', id },
+        // Refresh joined contest list so vote counts update on the joined page.
+        { type: 'JoinedContests', id: 'LIST' },
+        // Public/private list may show vote count badges — refresh them too.
         { type: 'PublicContests', id: 'LIST' },
         { type: 'PrivateContests', id: 'LIST' },
-        { type: 'JoinedContests', id: 'LIST' },
       ],
     }),
   }),

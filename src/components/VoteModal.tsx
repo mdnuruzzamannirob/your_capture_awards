@@ -44,11 +44,11 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
   const fetchPhotos = useCallback(
     async (targetPage: number, reset = false) => {
       try {
-        const res = await trigger({
-          id,
-          page: targetPage,
-          limit: LIMIT,
-        }).unwrap();
+        const res = await trigger(
+          { id, page: targetPage, limit: LIMIT },
+          // On re-open serve cached data instantly; a background refetch follows.
+          true,
+        ).unwrap();
 
         const incomingPhotos = res?.data || [];
 
@@ -75,14 +75,14 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
   useImperativeHandle(ref, () => ({
     open: async () => {
       setOpen(true);
-
       setSelectedIds([]);
-
-      setPhotos([]);
-
       setPage(1);
-
       setHasNextPage(true);
+
+      // If we already have cached photos for page 1, show them immediately
+      // (photos state keeps the previous session; reset them first so the
+      // cached response repopulates cleanly).
+      setPhotos([]);
 
       await fetchPhotos(1, true);
     },

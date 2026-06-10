@@ -223,8 +223,8 @@ export default function TeamPage() {
   const winRate = team?.total_matches ? Math.round((team.win / team.total_matches) * 100) : 0;
 
   useEffect(() => {
-    if (isTeamLoading || isTeamError) return;
-    if (!team) {
+    if (isTeamLoading) return;
+    if (isTeamError || !team) {
       router.replace('/teams');
     }
   }, [isTeamError, isTeamLoading, router, team]);
