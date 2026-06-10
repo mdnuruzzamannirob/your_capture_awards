@@ -58,7 +58,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         description: errorMessage,
       });
 
-      console.error('Signin error:', err);
     }
   };
 
@@ -88,7 +87,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         description: errorMessage,
       });
 
-      console.error('Signup error:', err);
     }
   };
 

@@ -67,9 +67,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
 
           return Array.from(map.values());
         });
-      } catch (error) {
-        console.error('Failed to fetch photos:', error);
-      }
+      } catch (error) {}
     },
     [id, trigger],
   );

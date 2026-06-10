@@ -49,7 +49,6 @@ export const userApi = createApi({
           dispatch(setUser(data as AuthUser));
           dispatch(authApi.util.invalidateTags(['Auth']));
         } catch (error) {
-          console.error('Profile update failed:', error);
         }
       },
     }),
