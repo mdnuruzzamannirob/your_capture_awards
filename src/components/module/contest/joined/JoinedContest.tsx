@@ -29,7 +29,6 @@ const JoinedContest = () => {
 
   const { data, isLoading, isFetching, refetch, isError, error } = useGetJoinedContestQuery(
     { page, limit: 10 },
-    { refetchOnMountOrArgChange: 60 },
   );
   const { data: open } = useGetPublicContestsQuery(
     { status: 'ACTIVE' },

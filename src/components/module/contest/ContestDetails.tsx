@@ -24,32 +24,36 @@ import WinnersTab from './WinnersTab';
 const ContestDetails = ({ id }: { id: string }) => {
   const { isAuthenticated } = useAuth();
   const { data: contestData, isLoading: contestLoading } = useGetContestQuery({ id });
+  // Same args as JoinedContest.tsx → shares RTK Query cache, no duplicate network call.
   const { data: joinedContestData, isLoading: joinedLoading } = useGetJoinedContestQuery(
-    { page: 1, limit: 100 },
-    {
-      skip: !isAuthenticated,
-    },
+    { page: 1, limit: 10 },
+    { skip: !isAuthenticated },
   );
   const [rankPhotosTrigger] = useLazyGetContestRankPhotosQuery();
   const searchParams = useSearchParams();
   const modalParam = searchParams.get('modal');
 
-  // Tracks client-side mount to avoid SSR/client hydration mismatch.
-  // `joinedLoading` is false on the server (query skipped) but true on
-  // the client initially — rendering different disabled/text causes mismatch.
+  // Avoid SSR/client hydration mismatch — joinedLoading differs between server and client.
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   const contest = contestData?.data ?? {};
-  const isJoined = joinedContestData?.data?.some((c: any) => c.id === id) ?? false;
+
+  // Find the joined entry for this specific contest to get accurate upload data.
+  const joinedEntry = joinedContestData?.data?.find((c: any) => c.id === id);
+  const isJoined = !!joinedEntry;
+
+  const maxUploads: number = contest?.maxUploads ?? 0;
+  const uploadedCount = joinedEntry?.uploadCount ?? (joinedEntry?.photos?.length ?? 0);
+  const remaining = Math.max(0, maxUploads - uploadedCount);
+
   const tabs = getContestTabs(contest?.status);
   const [activeTab, setActiveTab] = useState(tabs?.[0]?.key);
 
   const uploadModalRef = useRef<UploadModalRef>(null);
   const voteModalRef = useRef<VoteModalRef>(null);
-  const remaining = (contest?.maxUploads ?? 0) - (contest?.uploadCount ?? 0);
 
   // Auto-open join modal if redirected from login
   useEffect(() => {
@@ -64,30 +68,23 @@ const ContestDetails = ({ id }: { id: string }) => {
     );
   }
 
-  // render dynamic tab
   const renderTabContent = (key: string) => {
     switch (key) {
       case 'details':
         return <DetailsTab contest={contest} value={key} />;
-
       case 'prizes':
         return <PrizesTab contest={contest} value={key} />;
-
       case 'rules':
         return <RulesTab contest={contest} value={key} />;
-
       case 'rank':
         return <RankTab value={key} id={id} />;
-
       case 'winners':
         return <WinnersTab contest={contest} value={key} />;
-
       default:
         return null;
     }
   };
 
-  // Skeleton placeholder shown while client mounts or joined query is loading
   const buttonSkeleton = (
     <div className="relative w-full max-w-54">
       <div className="h-13 w-full animate-pulse rounded-md bg-white/10" />
@@ -127,12 +124,12 @@ const ContestDetails = ({ id }: { id: string }) => {
               />
 
               <div className="mt-5 flex items-center justify-center gap-5">
-                {remaining > 0 && (
+                {!isMounted || joinedLoading ? (
+                  buttonSkeleton
+                ) : (
                   <>
-                    {/* Show skeleton until client is mounted and joined status resolved */}
-                    {!isMounted || joinedLoading ? (
-                      buttonSkeleton
-                    ) : (
+                    {/* Hide when max uploads reached — applies to JOIN and Submit Photo */}
+                    {remaining > 0 && (
                       <div className="relative w-full max-w-54">
                         <button
                           onClick={() => uploadModalRef.current?.open()}
@@ -144,10 +141,10 @@ const ContestDetails = ({ id }: { id: string }) => {
                         {/* Coin badge — only when not joined and coin required */}
                         {!isJoined &&
                           (contest?.coin_requirement ?? contest?.coinRequirement) &&
-                          (contest?.coin_required ?? contest?.coinRequirement ?? 0) > 0 && (
+                          (contest?.coin_required ?? contest?.coinRequired ?? 0) > 0 && (
                             <div className="absolute -right-3 -bottom-2.5 flex items-center gap-1.5 rounded-full border border-sky-400 bg-white py-1 pr-3 pl-1 text-sm font-bold text-sky-500 shadow-md select-none">
                               <div className="h-5 w-5 animate-pulse rounded-full border border-amber-200 bg-linear-to-tr from-amber-500 to-amber-300" />
-                              <span>{contest?.coin_required ?? contest?.coinRequirement}</span>
+                              <span>{contest?.coin_required ?? contest?.coinRequired}</span>
                             </div>
                           )}
                       </div>
@@ -155,7 +152,7 @@ const ContestDetails = ({ id }: { id: string }) => {
                   </>
                 )}
 
-                {/* Vote button — only render on client after joined status is known */}
+                {/* Vote button */}
                 {isMounted && !joinedLoading && isJoined && (
                   <>
                     <button
@@ -168,7 +165,6 @@ const ContestDetails = ({ id }: { id: string }) => {
                   </>
                 )}
 
-                {/* Upload/Join Modal */}
                 <UploadModal
                   ref={uploadModalRef}
                   type={isJoined ? 'upload' : 'join'}
@@ -176,7 +172,7 @@ const ContestDetails = ({ id }: { id: string }) => {
                   contestType={contest?.type}
                   title={contest?.title}
                   remaining={remaining}
-                  maxUploads={contest?.maxUploads}
+                  maxUploads={maxUploads}
                   contestId={contest?.id}
                   description={contest?.description}
                 />
