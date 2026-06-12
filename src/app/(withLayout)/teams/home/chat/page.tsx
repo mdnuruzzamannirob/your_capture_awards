@@ -339,23 +339,6 @@ export default function TeamChatPage() {
   }, []);
 
   useEffect(() => {
-    if (teamLoading || authLoading) return;
-
-    if (!isAuthenticated || !token) {
-      router.replace('/signin');
-      return;
-    }
-
-    if (teamError) {
-      return;
-    }
-
-    if (!team) {
-      router.replace('/teams');
-    }
-  }, [authLoading, isAuthenticated, router, team, teamError, teamLoading, token]);
-
-  useEffect(() => {
     if (!teamId || !token) return;
 
     const socket = io(socketBaseUrl, {

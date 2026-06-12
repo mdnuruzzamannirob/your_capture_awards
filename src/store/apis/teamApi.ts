@@ -285,9 +285,23 @@ export const teamApi = createApi({
         method: 'POST',
         body: memberId ? { teamId, memberId } : { teamId },
       }),
-      // Invalidate all team-related caches so the /teams listing page
-      // and /teams/home page both reflect the updated membership immediately.
       invalidatesTags: ['Team', 'TeamMembers', 'Teams', 'SuggestedTeams'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            teamApi.util.updateQueryData('getMyTeam', undefined, (draft) => {
+              if (draft?.data) {
+                draft.data.team = null as unknown as typeof draft.data.team;
+                draft.data.members = [];
+                draft.data.memberCount = 0;
+              }
+            }),
+          );
+        } catch {
+          // Leave failed — keep existing membership cache.
+        }
+      },
     }),
 
     // ── Delete Team ───────────────────────────────────────────────────────
@@ -296,9 +310,23 @@ export const teamApi = createApi({
         url: `/teams/${teamId}`,
         method: 'DELETE',
       }),
-      // Also wipe Teams + SuggestedTeams so the listing page no longer shows
-      // the disbanded team.
       invalidatesTags: ['Team', 'TeamMembers', 'Teams', 'SuggestedTeams'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(
+            teamApi.util.updateQueryData('getMyTeam', undefined, (draft) => {
+              if (draft?.data) {
+                draft.data.team = null as unknown as typeof draft.data.team;
+                draft.data.members = [];
+                draft.data.memberCount = 0;
+              }
+            }),
+          );
+        } catch {
+          // Delete failed — keep existing membership cache.
+        }
+      },
     }),
   }),
 });

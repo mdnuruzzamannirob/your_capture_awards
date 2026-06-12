@@ -17,7 +17,11 @@ export const loggedInNavLinks: NavLink[] = [
     href: '/contest',
     tags: ['/contest', '/joined', '/open', '/closed', '/completed', '/upcoming'],
   },
-  { name: 'Teams', href: '/teams' },
+  {
+    name: 'Teams',
+    href: '/teams',
+    tags: ['/teams/home', '/teams/create'],
+  },
   { name: 'Support', href: '/support' },
   { name: 'About', href: '/about' },
 ];

@@ -28,10 +28,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import TeamMembershipLoading from '@/components/module/team/TeamMembershipLoading';
 import { COUNTRIES, LANGUAGES } from '@/constants/team';
 import { useAuth } from '@/hooks/useAuth';
+import { useTeamMembership } from '@/hooks/useTeamMembership';
 import { useCreateTeamMutation } from '@/store/apis/teamApi';
-import { useGetMyTeamQuery } from '@/store/apis/teamApi';
 import { showErrorToast } from '@/utils/team-feedback';
 
 const TEAM_REQUIREMENTS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'] as const;
@@ -100,21 +101,17 @@ function TeamCreatePage() {
     defaultValues,
   });
 
-  const { data: myTeamData, isLoading: isMyTeamLoading } = useGetMyTeamQuery(undefined, {
-    skip: !token,
-  });
+  const { isCheckingMembership, hasTeam } = useTeamMembership();
 
   useEffect(() => {
-    if (isMyTeamLoading) return;
-
-    const teamId = myTeamData?.data?.team?.id;
-    if (teamId) {
+    if (isCheckingMembership) return;
+    if (hasTeam) {
       router.replace('/teams/home');
     }
-  }, [isMyTeamLoading, myTeamData?.data?.team?.id, router]);
+  }, [hasTeam, isCheckingMembership, router]);
 
-  if (token && isMyTeamLoading) {
-    return <CreateTeamSkeleton />;
+  if (isCheckingMembership || hasTeam) {
+    return <TeamMembershipLoading />;
   }
 
   const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -176,7 +173,7 @@ function TeamCreatePage() {
       toast.success('Team created successfully.');
       form.reset(defaultValues);
       clearBadge();
-      router.push('/teams/home');
+      router.replace('/teams/home');
     } catch (error) {
       showErrorToast(error, 'Failed to create team');
     }
