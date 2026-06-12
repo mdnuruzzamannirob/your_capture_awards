@@ -289,15 +289,7 @@ export const teamApi = createApi({
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled;
-          dispatch(
-            teamApi.util.updateQueryData('getMyTeam', undefined, (draft) => {
-              if (draft?.data) {
-                draft.data.team = null as unknown as typeof draft.data.team;
-                draft.data.members = [];
-                draft.data.memberCount = 0;
-              }
-            }),
-          );
+          dispatch(teamApi.util.resetApiState());
         } catch {
           // Leave failed — keep existing membership cache.
         }
@@ -314,15 +306,7 @@ export const teamApi = createApi({
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled;
-          dispatch(
-            teamApi.util.updateQueryData('getMyTeam', undefined, (draft) => {
-              if (draft?.data) {
-                draft.data.team = null as unknown as typeof draft.data.team;
-                draft.data.members = [];
-                draft.data.memberCount = 0;
-              }
-            }),
-          );
+          dispatch(teamApi.util.resetApiState());
         } catch {
           // Delete failed — keep existing membership cache.
         }
