@@ -14,10 +14,11 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Avatar, AvatarFallback, AvatarGroup, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import TeamMembershipLoading from '@/components/module/team/TeamMembershipLoading';
 import { useAuth } from '@/hooks/useAuth';
+import { useTeamMembership } from '@/hooks/useTeamMembership';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import {
-  useGetMyTeamQuery,
   useGetSuggestedTeamsQuery,
   useGetTeamsQuery,
   useJoinTeamMutation,
@@ -82,7 +83,7 @@ function JoinTeamButton({ teamId, className }: { teamId: string; className?: str
 
     try {
       await joinTeam(teamId).unwrap();
-      router.push('/teams/home');
+      router.replace('/teams/home');
     } catch (error) {
       showErrorToast(error, 'Failed to join team');
     }
@@ -272,44 +273,39 @@ export default function Team() {
   const [allTeams, setAllTeams] = useState<TeamListItem[]>([]);
   const deferredSearch = useDeferredValue(searchQuery.trim());
   const router = useRouter();
-  const { token } = useAuth();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { isAuthenticated } = useAuth();
+  const { isCheckingMembership, hasTeam } = useTeamMembership();
 
   useEffect(() => {
     setPage(1);
     setAllTeams([]);
   }, [deferredSearch]);
 
-  const { data: myTeamData, isLoading: isMyTeamLoading } = useGetMyTeamQuery(undefined, {
-    skip: !token,
-    refetchOnMountOrArgChange: true,
-  });
-
   useEffect(() => {
-    if (!mounted) return;
-    if (!token) return;
-    if (isMyTeamLoading) return;
-
-    const team = myTeamData?.data?.team;
-    if (team && team.id) {
+    if (isCheckingMembership) return;
+    if (hasTeam) {
       router.replace('/teams/home');
     }
-  }, [token, isMyTeamLoading, myTeamData, router, mounted]);
+  }, [hasTeam, isCheckingMembership, router]);
 
-  const teamsQuery = useGetTeamsQuery({
-    page,
-    limit: PAGE_SIZE,
-    search: deferredSearch || undefined,
-  });
+  const skipListing = isAuthenticated && (isCheckingMembership || hasTeam);
 
-  const suggestedQuery = useGetSuggestedTeamsQuery({
-    page: 1,
-    limit: FEATURED_LIMIT,
-  });
+  const teamsQuery = useGetTeamsQuery(
+    {
+      page,
+      limit: PAGE_SIZE,
+      search: deferredSearch || undefined,
+    },
+    { skip: skipListing },
+  );
+
+  const suggestedQuery = useGetSuggestedTeamsQuery(
+    {
+      page: 1,
+      limit: FEATURED_LIMIT,
+    },
+    { skip: skipListing },
+  );
 
   const teams = teamsQuery.data?.data ?? [];
   const suggestedTeams = suggestedQuery.data?.data ?? [];
@@ -346,16 +342,8 @@ export default function Team() {
     onLoadMore: loadMore,
   });
 
-  if (mounted && token && (isMyTeamLoading || myTeamData?.data?.team?.id)) {
-    return (
-      <main className="margin relative isolate container overflow-hidden py-8 lg:py-10">
-        <div className="space-y-6">
-          <TeamCardSkeleton />
-          <TeamCardSkeleton />
-          <TeamCardSkeleton />
-        </div>
-      </main>
-    );
+  if (skipListing) {
+    return <TeamMembershipLoading />;
   }
 
   return (

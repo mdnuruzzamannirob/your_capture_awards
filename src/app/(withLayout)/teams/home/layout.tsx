@@ -1,16 +1,11 @@
 'use client';
 
-import TeamsHeader from '@/components/layout/TeamsHeader';
+import TeamsHomeGuard from '@/components/module/team/TeamsHomeGuard';
 
 export default function TeamHomeLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <>
-      <TeamsHeader />
-      {children}
-    </>
-  );
+  return <TeamsHomeGuard>{children}</TeamsHomeGuard>;
 }

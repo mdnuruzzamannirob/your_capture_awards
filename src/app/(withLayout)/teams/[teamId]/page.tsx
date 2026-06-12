@@ -171,7 +171,7 @@ export default function TeamDetailPage() {
 
     try {
       await joinTeam(teamId).unwrap();
-      router.push('/teams/home');
+      router.replace('/teams/home');
     } catch (error) {
       showErrorToast(error, 'Failed to join team');
     }

@@ -8,11 +8,11 @@ import LeaveTeamDialog from '@/components/module/team/LeaveTeamDialog';
 import MemberList from '@/components/module/team/MemberList';
 import RemoveMemberDialog from '@/components/module/team/RemoveMemberDialog';
 import TeamInfo from '@/components/module/team/TeamInfo';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { EditTeamValues } from '@/lib/schemas/teamSchema';
 import {
+  teamApi,
   useApproveJoinRequestMutation,
   useAssignRoleMutation,
   useDeleteTeamMutation,
@@ -24,11 +24,12 @@ import {
   useRevokeRoleMutation,
   useUpdateTeamMutation,
 } from '@/store/apis/teamApi';
+import { useAppDispatch } from '@/store/hooks';
 import { Accessibility, Role, TeamMember } from '@/types/team';
 import { showErrorToast } from '@/utils/team-feedback';
 import { getMemberName } from '@/utils/team-utils';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 type JoinRequestViewModel = {
@@ -45,6 +46,7 @@ type JoinRequestViewModel = {
 
 export default function TeamPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const { user } = useAuth();
   const currentUserId = user?.id || '';
 
@@ -52,7 +54,6 @@ export default function TeamPage() {
     data: teamData,
     isLoading: isTeamLoading,
     isError: isTeamError,
-    refetch,
   } = useGetMyTeamQuery();
   const { data: requestsData } = useGetPendingRequestsQuery(teamData?.data?.team?.id || '', {
     skip: !teamData?.data?.team?.id,
@@ -71,6 +72,13 @@ export default function TeamPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [disbandOpen, setDisbandOpen] = useState(false);
+
+  const navigateToTeamsListing = useCallback(async () => {
+    await dispatch(
+      teamApi.endpoints.getMyTeam.initiate(undefined, { forceRefetch: true, subscribe: false }),
+    );
+    router.replace('/teams');
+  }, [dispatch, router]);
   const [leaveOpen, setLeaveOpen] = useState(false);
 
   const team = teamData?.data?.team;
@@ -172,12 +180,12 @@ export default function TeamPage() {
         await leaveTeam({ teamId: team.id, memberId }).unwrap();
         toast.success('You left the team.');
         setLeaveOpen(false);
-        router.push('/teams');
+        await navigateToTeamsListing();
       } catch (error) {
         showErrorToast(error, 'Failed to leave team');
       }
     },
-    [isLeader, leaveTeam, router, team],
+    [isLeader, leaveTeam, navigateToTeamsListing, team],
   );
 
   const handleEditTeam = useCallback(
@@ -214,20 +222,13 @@ export default function TeamPage() {
       await deleteTeam(team.id).unwrap();
       toast.success('Team disbanded.');
       setDisbandOpen(false);
-      router.push('/teams');
+      await navigateToTeamsListing();
     } catch (error) {
       showErrorToast(error, 'Failed to disband team');
     }
-  }, [team, deleteTeam, router]);
+  }, [team, deleteTeam, navigateToTeamsListing]);
 
   const winRate = team?.total_matches ? Math.round((team.win / team.total_matches) * 100) : 0;
-
-  useEffect(() => {
-    if (isTeamLoading) return;
-    if (isTeamError || !team) {
-      router.replace('/teams');
-    }
-  }, [isTeamError, isTeamLoading, router, team]);
 
   if (isTeamLoading) {
     return (
@@ -282,28 +283,8 @@ export default function TeamPage() {
     );
   }
 
-  if (isTeamError) {
-    return (
-      <section className="margin-user container space-y-6 py-6">
-        <div className="rounded-xl border p-6 text-center">
-          <p className="font-semibold">Failed to load team data</p>
-          <p className="text-muted-foreground mt-1 text-sm">Try again to refresh the team view.</p>
-          <Button className="mt-4" onClick={() => refetch()}>
-            Retry
-          </Button>
-        </div>
-      </section>
-    );
-  }
-
-  if (!team) {
-    return (
-      <section className="margin-user container space-y-6 py-6">
-        <div className="flex h-96 items-center justify-center">
-          <p className="text-muted-foreground">Team not found</p>
-        </div>
-      </section>
-    );
+  if (isTeamError || !team) {
+    return null;
   }
 
   return (
