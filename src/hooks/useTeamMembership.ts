@@ -12,12 +12,14 @@ export function useTeamMembership() {
     isLoading: isTeamLoading,
     isFetching,
     isError,
+    isSuccess,
   } = useGetMyTeamQuery(undefined, {
     skip: !token,
     refetchOnMountOrArgChange: true,
   });
 
-  const team: TeamData | null = data?.data?.team?.id ? data.data.team : null;
+  const team: TeamData | null =
+    isSuccess && data?.success && data?.data?.team?.id ? data.data.team : null;
   const hasTeam = Boolean(team?.id);
 
   const isCheckingMembership =

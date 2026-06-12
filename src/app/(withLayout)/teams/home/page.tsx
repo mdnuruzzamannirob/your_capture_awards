@@ -73,10 +73,8 @@ export default function TeamPage() {
   const [inviteOpen, setInviteOpen] = useState(false);
   const [disbandOpen, setDisbandOpen] = useState(false);
 
-  const navigateToTeamsListing = useCallback(async () => {
-    await dispatch(
-      teamApi.endpoints.getMyTeam.initiate(undefined, { forceRefetch: true, subscribe: false }),
-    );
+  const navigateToTeamsListing = useCallback(() => {
+    dispatch(teamApi.util.resetApiState());
     router.replace('/teams');
   }, [dispatch, router]);
   const [leaveOpen, setLeaveOpen] = useState(false);
