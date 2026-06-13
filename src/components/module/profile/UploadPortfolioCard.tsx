@@ -72,7 +72,7 @@ export default function UploadPortfolioCard() {
       onDragOver={handleDragOver}
       onClick={() => document.getElementById('fileInput')?.click()}
       onKeyDown={handleKeyPress}
-      className="group border-primary/60 hover:border-primary hover:bg-primary/5 focus:ring-primary/40 relative flex min-h-44 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed bg-white/5 p-2 text-white/60 transition focus:ring-2 focus:outline-none"
+      className="group border-primary/60 hover:border-primary hover:bg-primary/5 focus:ring-primary/40 hover:shadow-primary/10 relative flex min-h-44 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed bg-white/5 p-2 text-white/60 shadow-lg ring-1 shadow-black/20 ring-white/10 transition duration-300 hover:-translate-y-1 hover:shadow-2xl focus:ring-2 focus:outline-none active:scale-[0.98]"
     >
       <input type="file" id="fileInput" className="hidden" onChange={handleFileChange} />
 
