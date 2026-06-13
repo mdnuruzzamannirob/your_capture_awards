@@ -53,7 +53,7 @@ const Navbar = () => {
           <Sidebar />
           <LogoName className="max-lg:w-44" />
 
-          <ul className="font-kumbh ml-3 hidden flex-1 items-center justify-center gap-5 select-none lg:flex">
+          <ul className="font-kumbh ml-3 hidden flex-1 items-center uppercase justify-center gap-5 select-none lg:flex">
             {menuLinks.map((link, index) => {
               const href = link.href;
               const isActive =
@@ -65,7 +65,7 @@ const Navbar = () => {
                   <Link
                     href={isActive ? '#' : href}
                     className={cn(
-                      'hover:text-primary p-1 transition-colors',
+                      'hover:text-primary p-1 text-sm transition-colors',
                       isActive
                         ? 'text-primary pointer-events-none cursor-default'
                         : 'text-white/65 hover:text-inherit',

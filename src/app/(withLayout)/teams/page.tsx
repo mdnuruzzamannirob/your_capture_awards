@@ -219,7 +219,7 @@ function FeaturedTeamCard({ team }: { team: TeamListItem }) {
 
 function MoreTeamCard({ team }: { team: TeamListItem }) {
   return (
-    <article className="border-black-2-600  rounded-xl border p-4 transition duration-200">
+    <article className="border-black-2-600 rounded-xl border p-4 transition duration-200">
       <div className="flex items-start gap-3">
         <div className="border-black-2-600 bg-black-2-800 relative size-14 shrink-0 overflow-hidden rounded-full border">
           <Image
@@ -279,6 +279,11 @@ export default function Team() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const { isCheckingMembership, hasTeam } = useTeamMembership();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     setPage(1);
@@ -286,13 +291,13 @@ export default function Team() {
   }, [deferredSearch]);
 
   useEffect(() => {
-    if (isCheckingMembership) return;
+    if (!isMounted || isCheckingMembership) return;
     if (hasTeam) {
       router.replace('/teams/home');
     }
-  }, [hasTeam, isCheckingMembership, router]);
+  }, [hasTeam, isCheckingMembership, router, isMounted]);
 
-  const skipListing = isAuthenticated && (isCheckingMembership || hasTeam);
+  const skipListing = !isMounted || (isAuthenticated && (isCheckingMembership || hasTeam));
 
   const teamsQuery = useGetTeamsQuery(
     {
@@ -358,9 +363,7 @@ export default function Team() {
       <div className="relative space-y-8">
         {featuredTeams.length > 0 ? (
           <section className="space-y-4">
-            <div className="text-foreground font-light uppercase">
-              Suggested Teams
-            </div>
+            <div className="text-foreground font-light uppercase">Suggested Teams</div>
 
             <Swiper
               modules={[FreeMode, Scrollbar]}
@@ -381,9 +384,7 @@ export default function Team() {
 
         <section className="space-y-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-foreground font-light uppercase">
-              More Teams
-            </div>
+            <div className="text-foreground font-light uppercase">More Teams</div>
 
             <Button asChild className="w-full sm:w-auto">
               <Link href="/teams/create">Create Team</Link>
@@ -396,7 +397,7 @@ export default function Team() {
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search by team's name"
-              className="border-black-2-600 bg-black-2-700/90 h-12 text-foreground rounded-full placeholder:text-muted-foreground pr-11"
+              className="border-black-2-600 bg-black-2-700/90 text-foreground placeholder:text-muted-foreground h-12 rounded-full pr-11"
             />
           </div>
 
