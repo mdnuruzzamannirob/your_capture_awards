@@ -1,7 +1,11 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQuery } from '@/store/baseQuery';
 import { setPhoto, setPhotos, deletePhoto, setStats } from '../slices/profileSlice';
-import { Stats } from '../types/profileTypes';
+import { Photo, Stats } from '../types/profileTypes';
+
+type PhotosResponse = {
+  data: Photo[] | { photos?: Photo[] };
+};
 
 export const profileApi = createApi({
   reducerPath: 'profileApi',
@@ -25,7 +29,7 @@ export const profileApi = createApi({
       invalidatesTags: ['Photos', 'Stats'],
     }),
 
-    getPhotos: builder.query<{ data: any }, void>({
+    getPhotos: builder.query<PhotosResponse, void>({
       query: () => '/profiles/photos',
       providesTags: ['Photos'],
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
@@ -33,7 +37,9 @@ export const profileApi = createApi({
           const {
             data: { data },
           } = await queryFulfilled;
-          dispatch(setPhotos(data.photos));
+
+          const photos = Array.isArray(data) ? data : (data.photos ?? []);
+          dispatch(setPhotos(photos));
         } catch {}
       },
     }),
