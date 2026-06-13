@@ -1,13 +1,14 @@
 'use client';
 
-import { FaPlus, FaFacebookF, FaHourglassHalf } from 'react-icons/fa';
-import { MdOutlineHowToVote, MdOutlinePaid } from 'react-icons/md';
-import CountdownTimer from './CountdownTimer';
-import Image from 'next/image';
+import TipTapViewer from '@/components/custom/tiptap-editor/TipTapViewer';
+import { TabsContent } from '@/components/ui/tabs';
 import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
-import { TabsContent } from '@/components/ui/tabs';
-import TipTapViewer from '@/components/custom/tiptap-editor/TipTapViewer';
+import { Globe } from 'lucide-react';
+import Image from 'next/image';
+import { FaHourglassHalf } from 'react-icons/fa';
+import { MdOutlineHowToVote, MdOutlinePaid } from 'react-icons/md';
+import CountdownTimer from './CountdownTimer';
 
 const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
   const now = new Date();
@@ -19,18 +20,21 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
 
   return (
     <TabsContent value={value} className="mx-auto w-full max-w-4xl space-y-10">
-      <div className="flex flex-col items-center justify-center gap-5">
-        <Image
-          alt="Profile Photo"
-          src={contest?.creator?.avatar}
-          width={200}
-          height={200}
-          className="size-36 rounded-full object-cover"
-        />
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold">{contest?.creator?.fullName}</h2>
-          <h2 className="text-2xl font-bold">{contest?.creator?.location}</h2>
-          {/* <div className="flex items-center gap-2">
+      <div className="flex">
+        <div className="flex flex-1 flex-col items-center justify-center gap-3">
+          <Image
+            alt="Profile Photo"
+            src={contest?.creator?.avatar}
+            width={200}
+            height={200}
+            className="size-28 rounded-full object-cover"
+          />
+          <div className="flex flex-col items-center space-y-1">
+            <h2 className="font-medium">{contest?.creator?.fullName}</h2>
+            <h2 className="flex items-center gap-1.5 text-sm">
+              <Globe size={16} /> {contest?.creator?.location}
+            </h2>
+            {/* <div className="flex items-center gap-2">
             <button className="flex items-center justify-center gap-1.5 rounded bg-blue-500 px-4 py-1.5 text-sm text-white">
               Follow <FaPlus />
             </button>
@@ -38,11 +42,17 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
               <FaFacebookF />
             </button>
           </div> */}
+          </div>
         </div>
-      </div>
 
-      <div className="col-span-2">
-        <TipTapViewer content={contest?.description} />
+        <div className="border-r mr-10"></div>
+
+        <div className="col-span-2 flex-3">
+          <h1 className="text-3xl font-light mb-6">
+            <span className="font-semibold text-primary">{contest?.title}</span> Challenge
+          </h1>
+          <TipTapViewer content={contest?.description} />
+        </div>
       </div>
 
       <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center lg:gap-3">
