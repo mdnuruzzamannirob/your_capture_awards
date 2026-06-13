@@ -13,12 +13,9 @@ import { useEffect, useRef, useState } from 'react';
 import { MdOutlineHowToVote } from 'react-icons/md';
 
 const EmptyState = ({ title, description }: { title: string; description: string }) => (
-  <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/5 px-6 py-16 text-center">
-    <div className="bg-black-2-600 mb-4 flex size-16 items-center justify-center rounded-full">
-      <MdOutlineHowToVote className="text-primary size-7" />
-    </div>
+  <div className="col-span-full flex flex-col items-center justify-center text-center">
     <h3 className="text-lg font-semibold">{title}</h3>
-    <p className="text-muted-foreground mt-2 max-w-md text-sm">{description}</p>
+    <p className="text-muted-foreground mt-2 text-sm">{description}</p>
   </div>
 );
 

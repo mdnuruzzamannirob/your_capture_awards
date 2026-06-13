@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin, Search, Trophy, Users, X } from 'lucide-react';
+import { BarChartBig, Languages, MapPin, Search, Trophy, Users, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -11,13 +11,13 @@ import 'swiper/css/scrollbar';
 import { FreeMode, Scrollbar } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
+import TeamMembershipLoading from '@/components/module/team/TeamMembershipLoading';
 import { Avatar, AvatarFallback, AvatarGroup, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import TeamMembershipLoading from '@/components/module/team/TeamMembershipLoading';
 import { useAuth } from '@/hooks/useAuth';
-import { useTeamMembership } from '@/hooks/useTeamMembership';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { useTeamMembership } from '@/hooks/useTeamMembership';
 import {
   useGetSuggestedTeamsQuery,
   useGetTeamsQuery,
@@ -48,6 +48,10 @@ function getUserName(user?: TeamUserSummary) {
     user.username ||
     'Team member'
   );
+}
+
+function formatSkillLabel(value: string) {
+  return value.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 function getInitials(value: string) {
@@ -215,47 +219,47 @@ function FeaturedTeamCard({ team }: { team: TeamListItem }) {
 
 function MoreTeamCard({ team }: { team: TeamListItem }) {
   return (
-    <article className="border-black-2-600 hover:border-orange-2-500/40 rounded-xl border bg-transparent p-4 transition duration-200">
+    <article className="border-black-2-600  rounded-xl border p-4 transition duration-200">
       <div className="flex items-start gap-3">
-        <div className="border-black-2-600 bg-black-2-800 relative size-12 shrink-0 overflow-hidden rounded-full border">
+        <div className="border-black-2-600 bg-black-2-800 relative size-14 shrink-0 overflow-hidden rounded-full border">
           <Image
             src={getTeamBanner(team)}
             alt={team.name}
             fill
             className="object-cover"
-            sizes="48px"
+            sizes="56px"
           />
         </div>
 
-        <div className="min-w-0 flex-1">
-          <h3 className="truncate font-semibold text-balance">{team.name}</h3>
-          <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">{team.description}</p>
+        <div className="mt-1 min-w-0 flex-1">
+          <h3 className="truncate text-lg font-semibold text-balance">{team.name}</h3>
+          <p className="text-muted-foreground line-clamp-2 text-sm">{team.description}</p>
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
-        <span className="border-black-2-600 bg-black-2-800 text-muted-foreground rounded-sm border px-2 py-1">
+      <div className="mt-4 flex flex-wrap gap-2">
+        <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+          <Languages size={12} />
+          {team.language}
+        </span>
+        <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+          <MapPin size={12} />
           {team.country}
         </span>
-        <span className="border-black-2-600 bg-black-2-800 text-foreground inline-flex items-center gap-1.5 rounded-sm border px-2 py-1">
-          <Users className="text-muted-foreground size-3.5" />
-          {team.member_count}
+        <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+          <BarChartBig size={12} />{' '}
+          {team.min_requirement ? formatSkillLabel(team.min_requirement) : 'N/A'}
         </span>
-        <span className="border-black-2-600 bg-black-2-800 text-foreground inline-flex items-center gap-1.5 rounded-sm border px-2 py-1">
-          <Trophy className="text-orange-2-200 size-3.5" />
-          {team.score.toLocaleString()}
+        <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+          <Users size={12} /> {team.member_count}/{team.member_slots}
         </span>
-        <span className="border-black-2-600 bg-black-2-800 text-foreground rounded-sm border px-2 py-1 tracking-[0.2em] uppercase">
-          {team.accessibility}
+        <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+          <Trophy size={12} /> {team.score.toLocaleString()}
         </span>
       </div>
 
       <div className="mt-4 flex gap-2">
-        <Button
-          asChild
-          variant="secondary"
-          className="text-primary hover:text-primary hover:bg-primary/10 flex-1 px-3"
-        >
+        <Button asChild variant="secondary" className="flex-1 px-3">
           <Link href={`/teams/${team.id}`}>View</Link>
         </Button>
         <JoinTeamButton
@@ -354,7 +358,7 @@ export default function Team() {
       <div className="relative space-y-8">
         {featuredTeams.length > 0 ? (
           <section className="space-y-4">
-            <div className="text-foreground text-xs font-medium tracking-[0.12em] uppercase">
+            <div className="text-foreground font-light uppercase">
               Suggested Teams
             </div>
 
@@ -375,9 +379,9 @@ export default function Team() {
           </section>
         ) : null}
 
-        <section className="space-y-4">
+        <section className="space-y-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-foreground text-xs font-medium tracking-[0.12em] uppercase">
+            <div className="text-foreground font-light uppercase">
               More Teams
             </div>
 
@@ -392,7 +396,7 @@ export default function Team() {
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search by team's name"
-              className="border-black-2-600 bg-black-2-700/90 text-foreground placeholder:text-muted-foreground pr-11"
+              className="border-black-2-600 bg-black-2-700/90 h-12 text-foreground rounded-full placeholder:text-muted-foreground pr-11"
             />
           </div>
 
