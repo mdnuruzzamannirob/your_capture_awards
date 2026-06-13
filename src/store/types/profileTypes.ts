@@ -1,3 +1,10 @@
+export type ContestUpload = {
+  achievements?: unknown[];
+  _count?: {
+    votes?: number;
+  };
+};
+
 export type Photo = {
   states: unknown | null;
   url: string;
@@ -5,10 +12,12 @@ export type Photo = {
   userId: string;
   views: number;
   labels: unknown[];
-  contestUpload: unknown[];
+  contestUpload: ContestUpload[];
   title: string | null;
   description: string | null;
   adult: boolean;
+  createdAt: string;
+  updatedAt: string;
   likes: number;
   totalVotes: number;
 };
