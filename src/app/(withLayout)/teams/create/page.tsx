@@ -273,7 +273,7 @@ function TeamCreatePage() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
+                    <FormLabel className="text-muted-foreground text-xs uppercase">
                       Team name
                     </FormLabel>
                     <FormControl>
@@ -293,7 +293,7 @@ function TeamCreatePage() {
                 name="min_requirement"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
+                    <FormLabel className="text-muted-foreground text-xs uppercase">
                       Minimum requirement
                     </FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
@@ -322,7 +322,7 @@ function TeamCreatePage() {
                 name="language"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
+                    <FormLabel className="text-muted-foreground text-xs uppercase">
                       Language
                     </FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
@@ -349,7 +349,7 @@ function TeamCreatePage() {
                 name="country"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
+                    <FormLabel className="text-muted-foreground text-xs uppercase">
                       Country
                     </FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
@@ -377,7 +377,7 @@ function TeamCreatePage() {
               name="accessibility"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
+                  <FormLabel className="text-muted-foreground text-xs uppercase">
                     Accessibility
                   </FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
@@ -401,7 +401,7 @@ function TeamCreatePage() {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-muted-foreground text-xs tracking-[0.24em] uppercase">
+                  <FormLabel className="text-muted-foreground text-xs uppercase">
                     Description
                   </FormLabel>
                   <FormControl>

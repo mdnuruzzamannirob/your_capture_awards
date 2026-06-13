@@ -12,9 +12,9 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { TeamDetail } from '@/lib/mock/teamDetails';
 import { useGetTeamQuery, useJoinTeamMutation } from '@/store/apis/teamApi';
-import { getAvatarClass, getInitials, getMemberName } from '@/utils/team-utils';
 import { showErrorToast } from '@/utils/team-feedback';
-import { BadgeCheck, Languages, MapPin, Medal, Trophy, Users } from 'lucide-react';
+import { getAvatarClass, getInitials, getMemberName } from '@/utils/team-utils';
+import { BadgeCheck, BarChartBig, Languages, MapPin, Medal, Trophy, Users } from 'lucide-react';
 
 function formatSkillLabel(value: string) {
   return value.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
@@ -149,8 +149,6 @@ export default function TeamDetailPage() {
           label: 'Team Members',
           value: `${resolvedTeam.member_count}/${resolvedTeam.member_slots}`,
         },
-        { icon: Languages, label: 'Language', value: resolvedTeam.language },
-        { icon: MapPin, label: 'Country', value: resolvedTeam.country },
       ]
     : [];
 
@@ -252,7 +250,7 @@ export default function TeamDetailPage() {
                       <MapPin size={12} /> {resolvedTeam.country}
                     </span>
                     <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
-                      Min Requirement:{' '}
+                      <BarChartBig size={12} />{' '}
                       {resolvedTeam.min_requirement
                         ? formatSkillLabel(resolvedTeam.min_requirement)
                         : 'N/A'}
@@ -274,7 +272,7 @@ export default function TeamDetailPage() {
             </div>
 
             <div className={`${teamCardClass} relative mt-8 px-4 py-4 sm:px-5`}>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {metrics.map((metric) => {
                   const Icon = metric.icon;
 
