@@ -6,9 +6,11 @@ import { Textarea } from '@/components/ui/textarea';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useSubmitSupportTicketMutation } from '@/store/apis/supportApi';
 
 export default function SupportPage() {
   const [submitting, setSubmitting] = useState(false);
+  const [submitSupportTicket] = useSubmitSupportTicketMutation();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,12 +24,17 @@ export default function SupportPage() {
     const message = String(formData.get('message') || '');
 
     try {
-      const mailto = `mailto:support@yourcaptureawards.com?subject=${encodeURIComponent(subject || 'Support request')}&body=${encodeURIComponent(
-        `Name: ${name}\nEmail: ${email}\n\n${message}`,
-      )}`;
-      window.location.href = mailto;
-      toast.success('Opening your email app');
+      const response = await submitSupportTicket({
+        name,
+        email,
+        subject,
+        message,
+      }).unwrap();
+
+      toast.success(response.message || 'Support ticket submitted successfully');
       form.reset();
+    } catch (error: any) {
+      toast.error(error?.data?.message || error?.message || 'Unable to submit support request');
     } finally {
       setSubmitting(false);
     }
