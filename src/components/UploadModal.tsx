@@ -151,6 +151,11 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
           return;
         }
 
+        setModalContentType(type === 'join' ? 'preview' : 'choose');
+        setFile(null);
+        setPreview('');
+        setSelectedImages([]);
+        setUploadSource(null);
         setUploadModal(true);
       },
     }));
@@ -333,21 +338,23 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               {uploadSource === 'computer' ? (
                 <>
                   {preview ? (
-                    <Image
-                      src={preview}
-                      alt="Preview"
-                      width={400}
-                      height={240}
-                      onClick={() => fileInputRef.current?.click()}
-                      className="border-primary bg-background h-60 w-full cursor-pointer rounded-xl border border-dashed object-cover"
-                    />
+                    <div className="flex justify-center items-center py-2">
+                      <Image
+                        src={preview}
+                        alt="Preview"
+                        width={400}
+                        height={300}
+                        onClick={() => fileInputRef.current?.click()}
+                        className="max-h-72 w-auto object-contain cursor-pointer rounded-xl border border-dashed border-primary transition hover:opacity-90"
+                      />
+                    </div>
                   ) : (
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="border-primary hover:bg-primary/5 flex h-60 w-full flex-col items-center justify-center gap-3 rounded-xl border border-dashed transition"
+                      className="border-primary hover:bg-primary/5 flex h-48 w-80 mx-auto flex-col items-center justify-center gap-3 rounded-xl border border-dashed transition"
                     >
-                      <UploadCloud className="text-primary" size={50} />
-                      <p className="mt-1 text-sm">Upload Photo</p>
+                      <UploadCloud className="text-primary" size={40} />
+                      <p className="text-sm">Choose photo from computer</p>
                     </button>
                   )}
                   <input
@@ -361,56 +368,58 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               ) : (
                 uploadSource === 'profile' && (
                   <div className="space-y-5">
-                    <div className="grid max-h-64 scrollbar-thin grid-cols-3 gap-1 overflow-y-auto">
+                    <div className="flex flex-wrap gap-0 max-h-64 scrollbar-thin overflow-y-auto justify-start items-start">
                       {isPhotosLoading
                         ? [1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
-                            <Skeleton className="bg-black-2-600 h-28 w-full" key={item} />
+                            <Skeleton className="bg-black-2-600 h-28 w-28" key={item} />
                           ))
                         : photos?.map((photo, index) => (
                             <button
                               key={index}
+                              type="button"
                               onClick={() => imageSelectHandler(photo)}
-                              className="overflow-hidden rounded"
+                              className="overflow-hidden relative h-28 hover:opacity-90 transition"
                             >
                               <Image
                                 src={photo.url}
                                 alt={`profile-${index}`}
-                                width={150}
-                                height={140}
-                                className="bg-background h-28 w-full object-cover transition hover:opacity-80"
+                                width={200}
+                                height={112}
+                                className="h-full w-auto object-contain"
                               />
                             </button>
                           ))}
                     </div>
-                    {selectedImages.length > 0 && (
-                      <div className="border-black-2-500 grid grid-cols-4 gap-1 border-t pt-5">
-                        <h4 className="col-span-full mb-2 flex items-center gap-2 text-sm">
+                     {selectedImages.length > 0 && (
+                      <div className="border-black-2-500 flex flex-wrap gap-0 border-t pt-5">
+                        <h4 className="w-full mb-2 flex items-center gap-2 text-sm text-white/80">
                           <IoImagesOutline className="size-4" /> Selected Images
                         </h4>
                         {selectedImages?.slice(0, 4)?.map((img, i) => (
                           <div
                             aria-hidden="true"
                             key={i}
-                            className="group relative overflow-hidden rounded"
+                            className="group relative overflow-hidden h-20"
                           >
                             <Image
                               src={img.url}
-                              alt={`profile-${i}`}
+                              alt={`selected-${i}`}
                               width={150}
-                              height={140}
-                              className="h-20 w-full object-cover transition group-hover:brightness-40"
+                              height={80}
+                              className="h-full w-auto object-contain transition group-hover:brightness-40"
                             />
 
-                            <div className="absolute inset-0 flex flex-col justify-center">
+                            <div className="absolute inset-0 flex flex-col justify-center items-center">
                               <button
+                                type="button"
                                 onClick={() =>
                                   setSelectedImages(
                                     selectedImages.filter((image) => image.url !== img.url),
                                   )
                                 }
-                                className="flex translate-y-3 items-center justify-center gap-2 text-red-500 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100"
+                                className="flex items-center justify-center text-red-500 opacity-0 transition-all duration-300 group-hover:opacity-100 bg-black/60 p-1.5 rounded-full"
                               >
-                                <AiOutlineDelete className="size-7" />
+                                <AiOutlineDelete className="size-4" />
                               </button>
                             </div>
                           </div>
@@ -455,8 +464,17 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
 
     return (
       <>
-        <Dialog open={uploadModal} onOpenChange={setUploadModal}>
-          <DialogContent className="border-black-2-600 border-2 sm:max-w-2xl">
+        <Dialog
+          open={uploadModal}
+          onOpenChange={(openVal) => {
+            if (!openVal) {
+              resetModal();
+            } else {
+              setUploadModal(true);
+            }
+          }}
+        >
+          <DialogContent className="border-black-2-600 border-2 sm:max-w-2xl min-h-100 max-h-[85vh] overflow-y-auto scrollbar-thin flex flex-col justify-between">
             <DialogTitle>
               {(modalContentType === 'choose' || modalContentType === 'select') && (
                 <button
