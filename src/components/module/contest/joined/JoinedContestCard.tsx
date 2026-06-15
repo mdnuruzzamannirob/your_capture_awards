@@ -11,6 +11,7 @@ import { labels, totalLevels, valueToLevel } from '@/utils/valueToExposureLabel'
 import { useEffect, useRef, useState } from 'react';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
 import CornerCount from '@/components/CornerCount';
+import ContestActionModal, { ContestActionModalRef } from './ContestActionModal';
 
 const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => Promise<any> }) => {
   const [images, setImages] = useState<string[]>([]);
@@ -24,6 +25,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
   }, [contest?.photos]);
 
   const modalRef = useRef<VoteModalRef>(null);
+  const actionModalRef = useRef<ContestActionModalRef>(null);
   // Use server-authoritative uploadCount as primary; fall back to local images length.
   // This ensures the upload slots disappear as soon as max is reached.
   const uploadedCount = contest?.uploadCount ?? images.length;
@@ -174,17 +176,24 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
 
         <VoteModal ref={modalRef} id={contest?.id} />
         <button
-          // onClick={() => openModal('swap')}
+          onClick={() => actionModalRef.current?.open('trade')}
           className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
         >
           <MdOutlineCameraswitch className="rotate-90" /> Trade
         </button>
         <button
-          // onClick={() => openModal('boost')}
+          onClick={() => actionModalRef.current?.open('boost')}
           className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
         >
           <AiOutlineThunderbolt /> Charge
         </button>
+        <ContestActionModal
+          ref={actionModalRef}
+          contestId={contest?.id}
+          contestTitle={contest?.title}
+          contestPhotos={contest?.photos ?? []}
+          onSuccess={refetch}
+        />
       </div>
     </div>
   );

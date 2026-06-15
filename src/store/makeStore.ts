@@ -2,6 +2,7 @@ import { authApi } from '@/store/apis/authApi';
 import { contestApi } from '@/store/apis/contestApi';
 import { discoverApi } from '@/store/apis/discoverApi';
 import { profileApi } from '@/store/apis/profileApi';
+import { supportApi } from '@/store/apis/supportApi';
 import { storeApi } from '@/store/apis/storeApi';
 import { teamApi } from '@/store/apis/teamApi';
 import { userApi } from '@/store/apis/userApi';
@@ -20,6 +21,7 @@ export const makeStore = (preloadedState = {}) => {
       [contestApi.reducerPath]: contestApi.reducer,
       [teamApi.reducerPath]: teamApi.reducer,
       [storeApi.reducerPath]: storeApi.reducer,
+      [supportApi.reducerPath]: supportApi.reducer,
       [discoverApi.reducerPath]: discoverApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
@@ -32,6 +34,7 @@ export const makeStore = (preloadedState = {}) => {
         contestApi.middleware,
         teamApi.middleware,
         storeApi.middleware,
+        supportApi.middleware,
         discoverApi.middleware,
       ),
     preloadedState,
