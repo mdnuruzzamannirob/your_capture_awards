@@ -2,6 +2,18 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQuery } from '@/store/baseQuery';
 import { PhotoToContestPayload, ContestPayload, PaginationMeta } from '../types/contestTypes';
 
+export type PromoteContestPhotoPayload = {
+  contestId: string;
+  photoId: string;
+};
+
+export type TradeContestPhotoPayload = {
+  contestId: string;
+  contestPhotoId: string;
+  newPhotoId: string;
+  file: File;
+};
+
 export const contestApi = createApi({
   reducerPath: 'contestApi',
   baseQuery: baseQuery(typeof window === 'undefined'),
@@ -174,6 +186,44 @@ export const contestApi = createApi({
         { type: 'PrivateContests', id: 'LIST' },
       ],
     }),
+
+    // promote a contest photo
+    promoteContestPhoto: builder.mutation<{ success: boolean; message: string; data?: any }, PromoteContestPhotoPayload>({
+      query: ({ contestId, photoId }) => ({
+        url: '/contests/photos/promote',
+        method: 'POST',
+        body: { contestId, photoId },
+      }),
+      invalidatesTags: (result, error, { contestId }) => [
+        { type: 'Contest', id: contestId },
+        { type: 'JoinedContests', id: 'LIST' },
+        { type: 'ContestPhotos', id: contestId },
+        { type: 'UserPhotos', id: contestId },
+      ],
+    }),
+
+    // trade a contest photo
+    tradeContestPhoto: builder.mutation<{ success: boolean; message: string; data?: any }, TradeContestPhotoPayload>({
+      query: ({ contestId, contestPhotoId, newPhotoId, file }) => {
+        const formData = new FormData();
+        formData.append('contestId', contestId);
+        formData.append('contestPhotoId', contestPhotoId);
+        formData.append('newPhotoId', newPhotoId);
+        formData.append('file', file);
+
+        return {
+          url: '/contests/trade',
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: (result, error, { contestId }) => [
+        { type: 'Contest', id: contestId },
+        { type: 'JoinedContests', id: 'LIST' },
+        { type: 'ContestPhotos', id: contestId },
+        { type: 'UserPhotos', id: contestId },
+      ],
+    }),
   }),
 });
 
@@ -192,4 +242,6 @@ export const {
   useGetContestRankPhotographersQuery,
   useLazyGetContestRankPhotographersQuery,
   useCreateVoteMutation,
+  usePromoteContestPhotoMutation,
+  useTradeContestPhotoMutation,
 } = contestApi;
