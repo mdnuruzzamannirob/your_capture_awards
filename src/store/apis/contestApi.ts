@@ -10,8 +10,8 @@ export type PromoteContestPhotoPayload = {
 export type TradeContestPhotoPayload = {
   contestId: string;
   contestPhotoId: string;
-  newPhotoId: string;
-  file: File;
+  newPhotoId?: string;
+  file?: File;
 };
 
 export const contestApi = createApi({
@@ -208,8 +208,8 @@ export const contestApi = createApi({
         const formData = new FormData();
         formData.append('contestId', contestId);
         formData.append('contestPhotoId', contestPhotoId);
-        formData.append('newPhotoId', newPhotoId);
-        formData.append('file', file);
+        if (newPhotoId) formData.append('newPhotoId', newPhotoId);
+        if (file) formData.append('file', file);
 
         return {
           url: '/contests/trade',
