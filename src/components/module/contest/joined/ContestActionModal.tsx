@@ -1,6 +1,7 @@
 'use client';
 
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useStoreModal } from '@/providers/StoreModalProvider';
 import {
@@ -9,11 +10,12 @@ import {
   usePromoteContestPhotoMutation,
   useTradeContestPhotoMutation,
 } from '@/store/apis/contestApi';
-import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
+import { storeApi, useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { cn } from '@/utils/cn';
-import { ArrowLeft, RotateCw, Sparkles, UploadCloud } from 'lucide-react';
+import { ArrowLeft, UploadCloud } from 'lucide-react';
 import Image from 'next/image';
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { FaRegUser } from 'react-icons/fa';
 import { HiOutlineDesktopComputer } from 'react-icons/hi';
@@ -39,6 +41,7 @@ const getErrorMessage = (error: any, fallback: string) =>
 
 const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalProps>(
   ({ contestId, contestTitle, contestPhotos = [], onSuccess }, ref) => {
+    const dispatch = useDispatch();
     const { isAuthenticated } = useAuth();
     const { openStore } = useStoreModal();
     const { data: storeStats, isFetching: isStatsFetching } = useGetStoreStatsQuery(undefined, {
@@ -54,7 +57,10 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
     const [step, setStep] = useState<ActionStep>('selectContestPhoto');
     const [swapSource, setSwapSource] = useState<'computer' | 'profile' | null>(null);
     const [selectedContestPhotoId, setSelectedContestPhotoId] = useState('');
+    // For trade → profile: single photo id (swap is 1-for-1)
     const [selectedUserPhotoId, setSelectedUserPhotoId] = useState('');
+    // FIX: store the URL directly so review step doesn't need to re-filter uploadedPhotos
+    const [selectedUserPhotoUrl, setSelectedUserPhotoUrl] = useState('');
     const [replacementFile, setReplacementFile] = useState<File | null>(null);
     const [preview, setPreview] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,6 +73,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
     );
     const uploadedPhotos = (userPhotos?.data ?? []) as { id: string; url: string }[];
 
+    // ── Open ─────────────────────────────────────────────────────────────
     useImperativeHandle(ref, () => ({
       open: (type: ActionType) => {
         if (!isAuthenticated) {
@@ -89,6 +96,11 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
         setActionType(type);
         setStep('selectContestPhoto');
         setSwapSource(null);
+        setSelectedContestPhotoId('');
+        setSelectedUserPhotoId('');
+        setSelectedUserPhotoUrl(''); // FIX: reset url state
+        setReplacementFile(null);
+        setPreview('');
         setOpen(true);
         if (type === 'trade') {
           triggerPhotos({ id: contestId });
@@ -96,17 +108,20 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
       },
     }));
 
+    // ── Reset ─────────────────────────────────────────────────────────────
     const reset = () => {
       setOpen(false);
       setStep('selectContestPhoto');
       setSwapSource(null);
       setSelectedContestPhotoId('');
       setSelectedUserPhotoId('');
+      setSelectedUserPhotoUrl(''); // FIX: reset url state
       setReplacementFile(null);
       setPreview('');
       setIsSubmitting(false);
     };
 
+    // ── File handler ──────────────────────────────────────────────────────
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
@@ -116,8 +131,9 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
       reader.readAsDataURL(file);
     };
 
-    const handleSubmit = async (photoIdForBoost?: string) => {
-      const targetPhotoId = photoIdForBoost || selectedContestPhotoId;
+    // ── Submit ────────────────────────────────────────────────────────────
+    const handleSubmit = async () => {
+      const targetPhotoId = selectedContestPhotoId;
       if (!targetPhotoId) {
         toast.error('Please select an existing contest photo.');
         return;
@@ -157,6 +173,9 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
           toast.success(response.message || 'Photo swapped successfully.');
         }
 
+        // Invalidate store stats so the token count refreshes after consuming one
+        dispatch(storeApi.util.invalidateTags(['StoreStats']));
+
         await onSuccess?.();
         reset();
       } catch (error) {
@@ -166,6 +185,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
       }
     };
 
+    // ── Navigation helpers ────────────────────────────────────────────────
     const actionLabel = actionType === 'boost' ? 'Promote' : 'Trade';
     const actionLoading = actionType === 'boost' ? isPromoting : isTrading;
     const actionIcon =
@@ -178,14 +198,19 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
     const canGoBack = step !== 'selectContestPhoto';
     const goBack = () => {
       if (step === 'review') {
-        setStep('selectTradeSource');
+        setStep(actionType === 'boost' ? 'selectContestPhoto' : 'selectTradeSource');
         return;
       }
       if (step === 'selectTradeSource') {
+        setSelectedUserPhotoId('');
+        setSelectedUserPhotoUrl(''); // FIX: also clear url on back
+        setReplacementFile(null);
+        setPreview('');
         setStep('chooseSwapSource');
         return;
       }
       if (step === 'chooseSwapSource') {
+        setSwapSource(null);
         setStep('selectContestPhoto');
       }
     };
@@ -215,28 +240,38 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
 
     const dialogTitle =
       actionType === 'boost'
-        ? 'Promote contest photo'
+        ? step === 'selectContestPhoto'
+          ? 'Promote Contest Photo'
+          : 'Confirm Promotion'
         : step === 'selectContestPhoto'
-          ? 'Trade contest photo'
+          ? 'Trade Contest Photo'
           : step === 'chooseSwapSource'
-            ? 'Choose swap source'
+            ? 'Choose Trade Source'
             : step === 'selectTradeSource'
               ? swapSource === 'computer'
-                ? 'Upload replacement photo'
-                : 'Select replacement photo'
-              : 'Review trade';
+                ? 'Upload Replacement Photo'
+                : 'Select Replacement Photo'
+              : 'Review Trade';
 
+    // ── Render ────────────────────────────────────────────────────────────
     return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="border-black-2-600 border-2 sm:max-w-4xl">
-          <DialogTitle className="flex items-center gap-2">
+      <Dialog
+        open={open}
+        onOpenChange={(openVal) => {
+          if (!openVal) reset();
+          else setOpen(true);
+        }}
+      >
+        <DialogContent className="border-black-2-600 flex max-h-[85vh] min-h-100 scrollbar-thin flex-col justify-between overflow-y-auto border-2 sm:max-w-2xl">
+          {/* ── Header ─────────────────────────────────── */}
+          <DialogTitle className="flex shrink-0 items-center gap-2">
             {canGoBack ? (
               <button
                 type="button"
                 onClick={goBack}
-                className="flex size-8 items-center justify-center rounded-full transition hover:bg-white/5"
+                className="hover:text-primary flex size-10 items-center justify-center rounded-full transition hover:bg-white/5"
               >
-                <ArrowLeft className="size-4" />
+                <ArrowLeft />
               </button>
             ) : (
               actionIcon
@@ -244,34 +279,47 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
             <span>{dialogTitle}</span>
           </DialogTitle>
 
-          <div className="space-y-6">
+          {/* ── Body ───────────────────────────────────── */}
+          <div className="flex flex-col gap-6">
+            {/* ── STEP 1: Select contest photo ───────────────────────────── */}
             {step === 'selectContestPhoto' && (
-              <div className="space-y-4">
-                <div className="grid max-h-105 grid-cols-2 gap-3 overflow-y-auto pr-1 md:grid-cols-3">
-                  {currentContestPhotos.map((photo) => (
-                    <button
-                      key={photo.id}
-                      type="button"
-                      onClick={() => setSelectedContestPhotoId(photo.id)}
-                      className={cn(
-                        'group relative overflow-hidden rounded-xl border transition',
-                        selectedContestPhotoId === photo.id
-                          ? 'border-primary ring-primary/30 ring-2'
-                          : 'border-white/10 hover:border-white/30',
-                      )}
-                    >
-                      <Image
-                        src={photo.url}
-                        alt="Contest photo"
-                        width={320}
-                        height={220}
-                        className="h-40 w-full object-cover transition group-hover:scale-[1.02]"
-                      />
-                      <span className="absolute top-2 right-2 rounded-full bg-black/70 px-2 py-1 text-[10px]">
-                        {selectedContestPhotoId === photo.id ? 'Selected' : 'Select'}
-                      </span>
-                    </button>
-                  ))}
+              <div className="space-y-5">
+                <div className="grid max-h-105 scrollbar-thin items-start grid-cols-2 gap-3 overflow-y-auto pr-1 md:grid-cols-3">
+                  {currentContestPhotos.map((photo) => {
+                    const isSelected = selectedContestPhotoId === photo.id;
+                    return (
+                      <button
+                        key={photo.id}
+                        type="button"
+                        onClick={() => setSelectedContestPhotoId(photo.id)}
+                        // FIX: negative outlineOffset keeps indicator inside the element,
+                        // so overflow-hidden on the button never clips it
+                        style={{
+                          outline: isSelected
+                            ? '3px solid var(--color-primary, #a855f7)'
+                            : '1px solid rgba(255,255,255,0.1)',
+                          outlineOffset: '-3px',
+                        }}
+                        className="group relative overflow-hidden rounded-xl transition hover:opacity-90"
+                      >
+                        <Image
+                          src={photo.url}
+                          alt="Contest photo"
+                          width={320}
+                          height={220}
+                          className="h-40 w-full object-cover transition group-hover:scale-[1.02]"
+                        />
+                        <span
+                          className={cn(
+                            'absolute top-2 right-2 rounded-full px-2 py-0.5 text-[10px] font-medium transition',
+                            isSelected ? 'bg-primary text-black' : 'bg-black/60 text-white/80',
+                          )}
+                        >
+                          {isSelected ? '✓ Selected' : 'Select'}
+                        </span>
+                      </button>
+                    );
+                  })}
 
                   {!currentContestPhotos.length && (
                     <div className="border-black-2-600 text-muted-foreground col-span-full rounded-xl border border-dashed p-6 text-center text-sm">
@@ -280,19 +328,20 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                   )}
                 </div>
 
-                <div className="flex items-center justify-end gap-3 border-t border-white/10 pt-4">
+                {/* footer */}
+                <div className="border-black-2-500 flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
                   <button
                     type="button"
                     onClick={reset}
-                    className="border-primary text-primary rounded-md border px-4 py-2 text-sm"
+                    className="text-primary border-primary rounded-sm border px-5 py-2 text-sm"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     disabled={!selectedContestPhotoId || isSubmitting || actionLoading}
-                    onClick={actionType === 'boost' ? () => handleSubmit() : selectContestPhoto}
-                    className="bg-primary text-background rounded-md px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                    onClick={actionType === 'boost' ? handleSubmit : selectContestPhoto}
+                    className="bg-primary text-background rounded-sm px-5 py-2 text-sm disabled:opacity-60"
                   >
                     {actionType === 'boost'
                       ? isSubmitting || actionLoading
@@ -304,8 +353,22 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
               </div>
             )}
 
+            {/* ── STEP 2: Choose swap source ───────────────────────────── */}
             {step === 'chooseSwapSource' && actionType === 'trade' && (
               <div className="space-y-5">
+                {/* header */}
+                <div className="space-y-2 text-center uppercase">
+                  <h1 className="text-lg font-semibold sm:text-xl">
+                    SWAP PHOTO IN{' '}
+                    {contestTitle && <span className="text-primary">{contestTitle}</span>}
+                    {!contestTitle && 'THIS CONTEST'}
+                  </h1>
+                  <p className="text-sm text-white/50">
+                    Select where your replacement photo comes from
+                  </p>
+                </div>
+
+                {/* content */}
                 <div className="flex h-54 items-center justify-center gap-5">
                   {/* Computer */}
                   <button
@@ -337,78 +400,48 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
               </div>
             )}
 
+            {/* ── STEP 3: Select trade source ───────────────────────────── */}
             {step === 'selectTradeSource' && actionType === 'trade' && (
-              <div className="space-y-4">
-                {swapSource === 'profile' ? (
-                  <div className="space-y-3 rounded-xl border border-white/10 p-4">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-white/80 uppercase">
-                      <Sparkles className="text-primary size-4" />
-                      Select existing upload
-                    </div>
-                    <div className="grid max-h-44 grid-cols-3 gap-2 overflow-y-auto pr-1">
-                      {isPhotosLoading
-                        ? [1, 2, 3, 4, 5, 6].map((i) => (
-                            <div key={i} className="bg-black-2-600 h-20 animate-pulse rounded-lg" />
-                          ))
-                        : uploadedPhotos.map((photo) => (
-                            <button
-                              key={photo.id}
-                              type="button"
-                              onClick={() => setSelectedUserPhotoId(photo.id)}
-                              className={cn(
-                                'overflow-hidden rounded-lg border transition',
-                                selectedUserPhotoId === photo.id
-                                  ? 'border-primary ring-primary/30 ring-2'
-                                  : 'border-white/10 hover:border-white/30',
-                              )}
-                            >
-                              <Image
-                                src={photo.url}
-                                alt="Uploaded photo"
-                                width={150}
-                                height={110}
-                                className="h-20 w-full object-cover"
-                              />
-                            </button>
-                          ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-3 rounded-xl border border-white/10 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-white/80 uppercase">
-                        <RotateCw className="text-primary size-4" />
-                        New image file
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="border-primary text-primary rounded-md border px-3 py-1.5 text-xs"
-                      >
-                        Choose file
-                      </button>
-                    </div>
+              <div className="space-y-5">
+                {/* header */}
+                <div className="space-y-2 text-center uppercase">
+                  <h1 className="text-lg font-semibold sm:text-xl">
+                    {swapSource === 'computer'
+                      ? 'Upload replacement photo'
+                      : 'Select replacement photo'}
+                  </h1>
+                  <p className="text-sm text-white/50">
+                    {swapSource === 'computer'
+                      ? 'Choose a photo from your computer'
+                      : 'Pick one photo from your uploaded photos'}
+                  </p>
+                </div>
 
+                {/* content */}
+                {swapSource === 'computer' ? (
+                  <>
                     {preview ? (
-                      <Image
-                        src={preview}
-                        alt="Replacement preview"
-                        width={320}
-                        height={220}
-                        className="h-40 w-full cursor-pointer rounded-xl object-cover"
-                        onClick={() => fileInputRef.current?.click()}
-                      />
+                      <div className="flex items-center justify-center py-2">
+                        <Image
+                          src={preview}
+                          alt="Preview"
+                          width={400}
+                          height={300}
+                          onClick={() => fileInputRef.current?.click()}
+                          // FIX: ring applied directly on the image wrapper — no broken absolute div
+                          className="ring-primary max-h-72 w-auto cursor-pointer rounded-xl object-contain ring-2 ring-offset-2 ring-offset-black transition hover:opacity-90"
+                        />
+                      </div>
                     ) : (
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="border-primary/30 text-muted-foreground flex h-40 w-full flex-col items-center justify-center rounded-xl border border-dashed text-sm"
+                        className="border-primary hover:bg-primary/5 mx-auto flex h-48 w-80 flex-col items-center justify-center gap-3 rounded-xl border border-dashed transition"
                       >
-                        <UploadCloud className="text-primary mb-2 size-6" />
-                        Upload the replacement image
+                        <UploadCloud className="text-primary" size={40} />
+                        <p className="text-sm">Choose photo from computer</p>
                       </button>
                     )}
-
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -416,14 +449,62 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                       className="hidden"
                       onChange={handleFileChange}
                     />
-                  </div>
+                  </>
+                ) : (
+                  swapSource === 'profile' && (
+                    <div className="flex max-h-64 scrollbar-thin flex-wrap items-start justify-start gap-0 overflow-y-auto">
+                      {isPhotosLoading
+                        ? [1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
+                            <Skeleton className="bg-black-2-600 h-28 w-28" key={item} />
+                          ))
+                        : uploadedPhotos.map((photo, index) => {
+                            const isSelected = selectedUserPhotoId === photo.id;
+                            return (
+                              <button
+                                key={index}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedUserPhotoId(photo.id);
+                                  setSelectedUserPhotoUrl(photo.url); // FIX: save URL in state
+                                }}
+                                // FIX: negative outlineOffset keeps ring inside the element —
+                                // gap-0 grid so ring-offset would bleed into neighbors
+                                style={
+                                  isSelected
+                                    ? {
+                                        outline: '3px solid var(--color-primary, #a855f7)',
+                                        outlineOffset: '-3px',
+                                      }
+                                    : undefined
+                                }
+                                className="relative h-28 overflow-hidden transition hover:opacity-90"
+                              >
+                                <Image
+                                  src={photo.url}
+                                  alt={`profile-${index}`}
+                                  width={200}
+                                  height={112}
+                                  className="h-full w-auto object-contain"
+                                />
+                                {/* checkmark badge */}
+                                {isSelected && (
+                                  <span className="bg-primary absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-black shadow">
+                                    ✓
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
+                    </div>
+                  )
                 )}
 
-                <div className="flex items-center justify-end gap-3 border-t border-white/10 pt-4">
+                {/* footer */}
+                <div className="border-black-2-500 flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
                   <button
                     type="button"
                     onClick={reset}
-                    className="border-primary text-primary rounded-md border px-4 py-2 text-sm"
+                    className="text-primary border-primary rounded-sm border px-5 py-2 text-sm"
                   >
                     Cancel
                   </button>
@@ -431,7 +512,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                     type="button"
                     disabled={swapSource === 'profile' ? !selectedUserPhotoId : !replacementFile}
                     onClick={selectTradeSource}
-                    className="bg-primary text-background rounded-md px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                    className="bg-primary text-background rounded-sm px-5 py-2 text-sm disabled:opacity-60"
                   >
                     Continue
                   </button>
@@ -439,76 +520,83 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
               </div>
             )}
 
+            {/* ── STEP 4: Review ─────────────────────────────────────────── */}
             {step === 'review' && (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2 rounded-xl border border-white/10 p-4">
-                    <p className="text-xs text-white/50 uppercase">Selected contest photo</p>
-                    {currentContestPhotos
-                      .filter((photo) => photo.id === selectedContestPhotoId)
-                      .map((photo) => (
-                        <Image
-                          key={photo.id}
-                          src={photo.url}
-                          alt="Selected contest photo"
-                          width={320}
-                          height={220}
-                          className="h-44 w-full rounded-xl object-cover"
-                        />
-                      ))}
+                  {/* Left: selected contest photo */}
+                  <div className="flex flex-col items-center gap-2 rounded-xl bg-white/3 p-4">
+                    <p className="text-xs font-medium tracking-wider text-white/40 uppercase">
+                      Contest photo
+                    </p>
+                    <div className="flex w-full items-center justify-center overflow-hidden rounded-lg">
+                      {currentContestPhotos
+                        .filter((p) => p.id === selectedContestPhotoId)
+                        .map((photo) => (
+                          <Image
+                            key={photo.id}
+                            src={photo.url}
+                            alt="Selected contest photo"
+                            width={320}
+                            height={220}
+                            className="max-h-60 w-auto max-w-full rounded-lg object-contain"
+                          />
+                        ))}
+                    </div>
                   </div>
 
+                  {/* Right: action info or swap preview */}
                   {actionType === 'boost' ? (
-                    <div className="space-y-2 rounded-xl border border-white/10 p-4">
-                      <p className="text-xs text-white/50 uppercase">Action</p>
-                      <div className="flex h-44 items-center justify-center rounded-xl border border-dashed border-white/10 text-sm text-white/70">
-                        This photo will be promoted.
-                      </div>
+                    <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-white/3 p-4">
+                      <AiOutlineThunderbolt className="text-primary size-10" />
+                      <p className="text-center text-sm text-white/60">
+                        This photo will be boosted to the top of the contest rankings.
+                      </p>
                     </div>
                   ) : (
-                    <div className="space-y-2 rounded-xl border border-white/10 p-4">
-                      <p className="text-xs text-white/50 uppercase">Swap preview</p>
-                      <div className="grid gap-3">
-                        {swapSource === 'profile' &&
-                          uploadedPhotos
-                            .filter((photo) => photo.id === selectedUserPhotoId)
-                            .map((photo) => (
-                              <Image
-                                key={photo.id}
-                                src={photo.url}
-                                alt="Selected upload"
-                                width={320}
-                                height={160}
-                                className="h-44 w-full rounded-xl object-cover"
-                              />
-                            ))}
-                        {swapSource === 'computer' && preview ? (
+                    <div className="flex flex-col items-center gap-2 rounded-xl bg-white/3 p-4">
+                      <p className="text-xs font-medium tracking-wider text-white/40 uppercase">
+                        Replacement photo
+                      </p>
+                      <div className="flex w-full items-center justify-center overflow-hidden rounded-lg">
+                        {/* FIX: use stored selectedUserPhotoUrl directly — no filter needed */}
+                        {swapSource === 'profile' && selectedUserPhotoUrl && (
+                          <Image
+                            src={selectedUserPhotoUrl}
+                            alt="Replacement photo"
+                            width={320}
+                            height={220}
+                            className="max-h-60 w-auto max-w-full rounded-lg object-contain"
+                          />
+                        )}
+                        {swapSource === 'computer' && preview && (
                           <Image
                             src={preview}
                             alt="Replacement preview"
                             width={320}
-                            height={160}
-                            className="h-44 w-full rounded-xl object-cover"
+                            height={220}
+                            className="max-h-60 w-auto max-w-full rounded-lg object-contain"
                           />
-                        ) : null}
+                        )}
                       </div>
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-center justify-end gap-3 border-t border-white/10 pt-4">
+                {/* footer */}
+                <div className="border-black-2-500 flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
                   <button
                     type="button"
                     onClick={reset}
-                    className="border-primary text-primary rounded-md border px-4 py-2 text-sm"
+                    className="text-primary border-primary rounded-sm border px-5 py-2 text-sm"
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     disabled={isSubmitting || actionLoading}
-                    onClick={() => handleSubmit()}
-                    className="bg-primary text-background rounded-md px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                    onClick={handleSubmit}
+                    className="bg-primary text-background rounded-sm px-5 py-2 text-sm disabled:opacity-60"
                   >
                     {isSubmitting || actionLoading ? 'Processing...' : actionLabel}
                   </button>
