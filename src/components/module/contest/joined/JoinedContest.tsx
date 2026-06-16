@@ -1,19 +1,19 @@
 'use client';
 
-import JoinedContestCard from './JoinedContestCard';
-import JoinedContestCardSkeleton from './JoinedContestCardSkeleton';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import VoteModal, { VoteModalRef } from '@/components/VoteModal';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { useGetJoinedContestQuery } from '@/store/apis/contestApi';
+import { cn } from '@/utils/cn';
+import { labels, totalLevels } from '@/utils/valueToExposureLabel';
+import { AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useEffect, useRef, useState } from 'react';
-import { labels, totalLevels } from '@/utils/valueToExposureLabel';
-import { cn } from '@/utils/cn';
-import VoteModal, { VoteModalRef } from '@/components/VoteModal';
-import UploadModal, { UploadModalRef } from '@/components/UploadModal';
-import { useGetJoinedContestQuery } from '@/store/apis/contestApi';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import ContestActionModal, { ContestActionModalRef } from './ContestActionModal';
+import JoinedContestCard from './JoinedContestCard';
+import JoinedContestCardSkeleton from './JoinedContestCardSkeleton';
 
 const JoinedContest = () => {
   const searchParams = useSearchParams();
@@ -26,6 +26,7 @@ const JoinedContest = () => {
   const [page, setPage] = useState(1);
   const [allContests, setAllContests] = useState<any[]>([]);
   const initializedRef = useRef(false);
+  const actionModalRef = useRef<ContestActionModalRef>(null);
 
   const { data, isLoading, isFetching, refetch, isError, error } = useGetJoinedContestQuery(
     { page, limit: 10 },
@@ -111,6 +112,14 @@ const JoinedContest = () => {
     clearSearchParams();
   };
 
+  // Handle Charge button click
+  const handleChargeClick = () => {
+    if (!voteContestId) return;
+    actionModalRef.current?.open('boost');
+    setUploadModal(false);
+    clearSearchParams();
+  };
+
   return (
     <section className="">
       <div className="my-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
@@ -141,7 +150,9 @@ const JoinedContest = () => {
 
       {/* Load more trigger */}
       <div ref={loadMoreRef} className="my-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
-        {hasMore && isFetching && [1, 2].map((_, index) => <JoinedContestCardSkeleton key={index} />)}
+        {hasMore &&
+          isFetching &&
+          [1, 2].map((_, index) => <JoinedContestCardSkeleton key={index} />)}
       </div>
 
       {/* Upload/Join Success Modal */}
@@ -194,12 +205,10 @@ const JoinedContest = () => {
 
             <div className="border-black-2-500 flex items-center justify-center gap-10 border-t-[0.5px] pt-5">
               <button
-                onClick={() => {
-                  // optional: Fill button action
-                }}
+                onClick={handleChargeClick}
                 className="text-primary border-primary rounded-sm border px-5 py-2 text-sm"
               >
-                Fill
+                Charge
               </button>
               <button
                 onClick={handleVoteClick}
@@ -214,6 +223,13 @@ const JoinedContest = () => {
 
       {/* Vote Modal */}
       <VoteModal ref={voteModalRef} id={voteContestId} />
+      <ContestActionModal
+        ref={actionModalRef}
+        contestId={voteContestId}
+        contestTitle={contestTitle ?? firstActiveContest?.title ?? ''}
+        contestPhotos={firstActiveContest?.photos ?? []}
+        onSuccess={() => void refetch()}
+      />
     </section>
   );
 };
