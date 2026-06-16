@@ -15,11 +15,11 @@ import { cn } from '@/utils/cn';
 import { ArrowLeft, UploadCloud } from 'lucide-react';
 import Image from 'next/image';
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { FaRegUser } from 'react-icons/fa';
 import { HiOutlineDesktopComputer } from 'react-icons/hi';
 import { MdOutlineCameraswitch } from 'react-icons/md';
+import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
 type ActionType = 'boost' | 'trade';
@@ -88,7 +88,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
 
         const required = type === 'boost' ? (stats?.boost ?? 0) : (stats?.swap ?? 0);
         if (required <= 0) {
-          toast.error(`You need a ${type === 'boost' ? 'boost' : 'swap'} token first.`);
+
           openStore();
           return;
         }
