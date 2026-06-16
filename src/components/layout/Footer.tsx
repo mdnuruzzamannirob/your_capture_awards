@@ -29,7 +29,24 @@ const Footer = () => {
         </div>
 
         {/* divider */}
-        <div className="border-primary hidden h-60 border-r md:block" />
+        <div className="border-primary hidden h-40 border-r md:block" />
+
+        {/* Quick Links Column */}
+        <div className="flex flex-col items-center md:items-start gap-3">
+          <h4 className="text-lg font-semibold">Quick Links</h4>
+          <Link href="/about" className="text-sm text-white/60 hover:text-primary transition-colors">
+            About Us
+          </Link>
+          <Link href="/terms" className="text-sm text-white/60 hover:text-primary transition-colors">
+            Terms & Conditions
+          </Link>
+          <Link href="/privacy-policy" className="text-sm text-white/60 hover:text-primary transition-colors">
+            Privacy Policy
+          </Link>
+        </div>
+
+        {/* divider */}
+        <div className="border-primary hidden h-40 border-r md:block" />
 
         <div className="space-y-5">
           <LogoName className="scale-125" />

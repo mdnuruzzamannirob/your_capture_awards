@@ -13,6 +13,9 @@ export const signupSchema = z
     phone: z.string().min(11, 'Enter a valid phone number.'),
     password: z.string().min(6, 'Password must be at least 6 characters long.'),
     confirmPassword: z.string().min(6, 'Confirm your password.'),
+    agree: z.literal(true, {
+      message: 'You must agree to the Terms & Conditions and Privacy Policy.',
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ['confirmPassword'],
