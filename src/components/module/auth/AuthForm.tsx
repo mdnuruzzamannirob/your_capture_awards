@@ -300,10 +300,44 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         </button>
       </div>
 
+      <div className="flex flex-col gap-1 mt-1">
+        <label className="flex items-center gap-2 text-sm font-medium text-gray-100 select-none cursor-pointer">
+          <input
+            type="checkbox"
+            id="agree"
+            className="sr-only"
+            {...signupForm.register('agree')}
+          />
+          <span className="mt-0.5 shrink-0">
+            {signupForm.watch('agree') ? (
+              <IoCheckbox className="text-primary size-5" />
+            ) : (
+              <IoCheckboxOutline className="text-primary size-5" />
+            )}
+          </span>
+          <span className="text-white/70 text-xs leading-normal">
+            I agree to the{' '}
+            <Link href="/terms" target="_blank" className="text-primary hover:underline font-semibold">
+              Terms & Conditions
+            </Link>{' '}
+            and{' '}
+            <Link href="/privacy-policy" target="_blank" className="text-primary hover:underline font-semibold">
+              Privacy Policy
+            </Link>
+            .
+          </span>
+        </label>
+        {signupForm.formState.errors.agree && (
+          <p className="text-red-500 text-xs mt-0.5">
+            {signupForm.formState.errors.agree.message}
+          </p>
+        )}
+      </div>
+
       <button
         type="submit"
         disabled={isSignupLoading}
-        className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary w-full rounded-sm py-2.25 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+        className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-2 w-full rounded-sm py-2.25 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSignupLoading ? 'Creating account...' : 'Sign Up'}
       </button>
