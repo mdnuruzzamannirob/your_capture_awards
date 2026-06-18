@@ -36,6 +36,17 @@ export type PublicProfile = {
   followers: number;
   following: number;
   bio: string;
+  likedPhotoIds?: string[];
+  followersList?: PublicProfileMini[];
+  followingList?: PublicProfileMini[];
+};
+
+export type PublicProfileMini = {
+  username: string;
+  name: string;
+  country: string;
+  avatar: string;
+  isFollowing: boolean;
 };
 
 export const publicProfiles: PublicProfile[] = [
@@ -54,6 +65,27 @@ export const publicProfiles: PublicProfile[] = [
     followers: 43,
     following: 4,
     bio: 'Landscape, pets, and quiet human moments captured with soft natural light.',
+    likedPhotoIds: ['coastal-glow', 'bright-smile'],
+    followersList: [
+      {
+        username: 'sahinsiraj360',
+        name: 'Sahin Siraj',
+        country: 'Bangladesh',
+        avatar:
+          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=240&q=80',
+        isFollowing: false,
+      },
+    ],
+    followingList: [
+      {
+        username: 'wildframe',
+        name: 'Wild Frame',
+        country: 'Norway',
+        avatar:
+          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80',
+        isFollowing: true,
+      },
+    ],
   },
   {
     username: 'sahinsiraj360',
@@ -70,6 +102,27 @@ export const publicProfiles: PublicProfile[] = [
     followers: 128,
     following: 37,
     bio: 'Travel stories, street colors, and competition-ready photo sets.',
+    likedPhotoIds: ['sunflower-flight', 'coastal-glow', 'little-king'],
+    followersList: [
+      {
+        username: 'shane-stucky',
+        name: 'Shane Stucky',
+        country: 'United States',
+        avatar:
+          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80',
+        isFollowing: true,
+      },
+    ],
+    followingList: [
+      {
+        username: 'urban-frame',
+        name: 'Urban Frame',
+        country: 'France',
+        avatar:
+          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=240&q=80',
+        isFollowing: true,
+      },
+    ],
   },
 ];
 
