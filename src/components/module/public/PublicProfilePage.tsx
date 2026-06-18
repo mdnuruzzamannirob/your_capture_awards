@@ -45,66 +45,43 @@ function MasonryGrid({
 }: {
   children: React.ReactNode;
 }) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const [positions, setPositions] = useState<Array<{ x: number; y: number; w: number; h: number }>>([]);
-  const [containerHeight, setContainerHeight] = useState(0);
-
-  const childrenArray = useMemo(() => Array.from((Array.isArray(children) ? children : [children]).filter(Boolean)), [children]);
+  const [spans, setSpans] = useState<number[]>([]);
+  const childrenArray = useMemo(
+    () => Array.from((Array.isArray(children) ? children : [children]).filter(Boolean)),
+    [children],
+  );
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
     const measure = () => {
-      const width = container.clientWidth;
-      const columns = width >= 1400 ? 4 : width >= 1024 ? 3 : width >= 640 ? 2 : 1;
-      const gap = 4;
-      const columnWidth = (width - gap * (columns - 1)) / columns;
-      const heights = Array.from({ length: columns }, () => 0);
-
-      const nextPositions = itemRefs.current.map((node) => {
-        const height = node?.getBoundingClientRect().height ?? 320;
-        const columnIndex = heights.indexOf(Math.min(...heights));
-        const x = columnIndex * (columnWidth + gap);
-        const y = heights[columnIndex];
-        heights[columnIndex] += height + gap;
-        return { x, y, w: columnWidth, h: height };
+      const next = itemRefs.current.map((node) => {
+        const height = node?.offsetHeight ?? 240;
+        return Math.ceil((height + 1) / 10);
       });
-
-      setPositions(nextPositions);
-      setContainerHeight(Math.max(...heights, 0));
+      setSpans(next);
     };
 
     measure();
-    const resizeObserver = new ResizeObserver(() => measure());
-    resizeObserver.observe(container);
-    itemRefs.current.forEach((node) => node && resizeObserver.observe(node));
+    const observer = new ResizeObserver(() => measure());
+    itemRefs.current.forEach((node) => node && observer.observe(node));
 
-    return () => resizeObserver.disconnect();
+    return () => observer.disconnect();
   }, [childrenArray.length]);
 
   return (
-    <div ref={containerRef} className="relative w-full" style={{ minHeight: containerHeight || undefined }}>
-      {childrenArray.map((child, index) => {
-        const pos = positions[index];
-
-        return (
-          <div
-            key={index}
-            ref={(node) => {
-              itemRefs.current[index] = node;
-            }}
-            className="absolute top-0 left-0 w-full"
-            style={{
-              width: pos?.w ? `${pos.w}px` : '100%',
-              transform: pos ? `translate3d(${pos.x}px, ${pos.y}px, 0)` : undefined,
-            }}
-          >
-            {child}
-          </div>
-        );
-      })}
+    <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-[10px]">
+      {childrenArray.map((child, index) => (
+        <div
+          key={index}
+          ref={(node) => {
+            itemRefs.current[index] = node;
+          }}
+          className="masonry-item"
+          style={{ gridRowEnd: `span ${spans[index] ?? 24}` }}
+        >
+          {child}
+        </div>
+      ))}
     </div>
   );
 }
@@ -130,7 +107,7 @@ function PhotoCard({
         alt={photo.alt}
         width={1200}
         height={900}
-        className="h-auto w-full object-cover transition duration-500 group-hover:scale-105"
+        className="h-96 w-full object-cover transition duration-500 group-hover:scale-105"
       />
       <Heart className="absolute top-3 right-3 size-8 text-white drop-shadow" />
       <div className="absolute inset-x-0 bottom-0 translate-y-full bg-black/70 p-3 text-white transition group-hover:translate-y-0">
@@ -157,6 +134,16 @@ function PhotoCard({
       </div>
     </Link>
   );
+}
+
+function LikeCard({
+  photo,
+  profileUsername,
+}: {
+  photo: PublicPhoto;
+  profileUsername: string;
+}) {
+  return <PhotoCard photo={photo} profileUsername={profileUsername} showViews={false} showLikes={false} />;
 }
 
 function PeopleRow({
@@ -211,7 +198,7 @@ function ProfileContent({
   if (activeTab === 'achievements') {
     return (
       <section className="container py-10">
-        <div className="rounded-[24px] border border-dashed border-white/10 bg-white/5 p-8 text-center text-white/60">
+        <div className="rounded border border-dashed border-white/10 bg-white/5 p-8 text-center text-white/60">
           Upcoming achievements message will appear here.
         </div>
       </section>
