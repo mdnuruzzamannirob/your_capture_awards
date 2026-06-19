@@ -1,23 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
-import Link from 'next/link';
-import { FaGoogle, FaFacebookF } from 'react-icons/fa';
-import { IoCheckbox, IoCheckboxOutline } from 'react-icons/io5';
-import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+import FormField from '@/components/FormField';
+import LogoName from '@/components/LogoName';
 import {
   SigninFormData,
   signinSchema,
   SignupFormData,
   signupSchema,
 } from '@/lib/schemas/authSchema';
-import { useRouter, useSearchParams } from 'next/navigation';
-import FormField from '@/components/FormField';
-import LogoName from '@/components/LogoName';
 import { useSigninMutation, useSignupMutation } from '@/store/apis/authApi';
+import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+import { FaFacebookF, FaGoogle } from 'react-icons/fa';
+import { IoCheckbox, IoCheckboxOutline } from 'react-icons/io5';
+import { toast } from 'sonner';
 
 const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
   const [showPass, setShowPass] = useState(false);

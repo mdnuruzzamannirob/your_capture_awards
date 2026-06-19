@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { PublicPhoto, PublicProfile } from '@/lib/mock/public-gallery-data';
 import { Camera, ChevronLeft, ChevronRight, Eye, Heart, Trophy, X } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
@@ -49,7 +50,13 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
           >
             <ChevronLeft className="size-12 stroke-[1.6]" />
           </button>
-          <img src={photo.src} alt={photo.alt} className="max-h-screen w-full object-contain" />
+          <Image
+            src={photo.src}
+            alt={photo.alt}
+            className="max-h-screen w-full object-contain"
+            width={800}
+            height={600}
+          />
           <button
             onClick={next}
             aria-label="Next photo"
@@ -81,9 +88,11 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
         <aside className="overflow-y-auto bg-[#f0f1f2] text-slate-900 lg:h-screen">
           <section className="flex items-center justify-between border-b border-slate-300 p-7">
             <Link href={`/profile/${owner.username}`} className="flex items-center gap-4">
-              <img
+              <Image
                 src={owner.avatar}
                 alt={owner.name}
+                width={80}
+                height={80}
                 className="size-20 rounded-full border-4 border-[#d7764f] object-cover"
               />
               <div>
