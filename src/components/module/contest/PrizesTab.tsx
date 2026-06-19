@@ -4,7 +4,6 @@ import AwardCard from '@/components/AwardCard';
 import { TabsContent } from '@/components/ui/tabs';
 
 const PrizesTab = ({ contest, value }: { contest: any; value: string }) => {
-
   return (
     <TabsContent value={value} className="mx-auto w-full max-w-4xl space-y-32">
       {contest?.isMoneyContest ? (

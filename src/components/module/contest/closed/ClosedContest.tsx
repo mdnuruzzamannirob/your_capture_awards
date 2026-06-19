@@ -53,7 +53,9 @@ const ClosedContest = ({ isAuthenticated: propIsAuthenticated = false }: ClosedC
 
     if (page > 1) {
       setAllContests((prev) => {
-        const newContests = closedResult.filter((contest: any) => !prev.some((p) => p.id === contest.id));
+        const newContests = closedResult.filter(
+          (contest: any) => !prev.some((p) => p.id === contest.id),
+        );
         return [...prev, ...newContests];
       });
     }
@@ -101,7 +103,8 @@ const ClosedContest = ({ isAuthenticated: propIsAuthenticated = false }: ClosedC
       {/* Load more trigger */}
       <section className="mt-10 grid min-h-80 grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3">
         <div ref={loadMoreRef} className="col-span-full">
-          {hasMore && isFetching &&
+          {hasMore &&
+            isFetching &&
             [1, 2, 3].map((_, index) => <ClosedContestCardSkeleton key={index} />)}
         </div>
       </section>

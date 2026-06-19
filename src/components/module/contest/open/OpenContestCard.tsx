@@ -57,16 +57,17 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
                   e.stopPropagation();
                   modalRef.current?.open();
                 }}
-                className="bg-foreground text-background rounded px-6 py-2 text-sm font-medium uppercase transition hover:bg-foreground/90"
+                className="bg-foreground text-background hover:bg-foreground/90 rounded px-6 py-2 text-sm font-medium uppercase transition"
               >
                 JOIN
               </button>
-              {((contest?.coin_requirement ?? contest?.coinRequirement) && (contest?.coin_required ?? contest?.coinRequired) > 0) && (
-                <div className="absolute -bottom-2 -right-4 flex items-center gap-1 rounded-full border border-sky-400 bg-white pl-0.5 pr-2 py-0.5 text-[10px] font-bold text-sky-500 shadow-sm select-none">
-                  <div className="h-4 w-4 rounded-full bg-linear-to-tr from-amber-500 to-amber-300 border border-amber-200 animate-pulse" />
-                  <span>{contest?.coin_required ?? contest?.coinRequired}</span>
-                </div>
-              )}
+              {(contest?.coin_requirement ?? contest?.coinRequirement) &&
+                (contest?.coin_required ?? contest?.coinRequired) > 0 && (
+                  <div className="absolute -right-4 -bottom-2 flex items-center gap-1 rounded-full border border-sky-400 bg-white py-0.5 pr-2 pl-0.5 text-[10px] font-bold text-sky-500 shadow-sm select-none">
+                    <div className="h-4 w-4 animate-pulse rounded-full border border-amber-200 bg-linear-to-tr from-amber-500 to-amber-300" />
+                    <span>{contest?.coin_required ?? contest?.coinRequired}</span>
+                  </div>
+                )}
             </div>
           </div>
 

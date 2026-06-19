@@ -188,7 +188,10 @@ export const contestApi = createApi({
     }),
 
     // promote a contest photo
-    promoteContestPhoto: builder.mutation<{ success: boolean; message: string; data?: any }, PromoteContestPhotoPayload>({
+    promoteContestPhoto: builder.mutation<
+      { success: boolean; message: string; data?: any },
+      PromoteContestPhotoPayload
+    >({
       query: ({ contestId, photoId }) => ({
         url: '/contests/photos/promote',
         method: 'POST',
@@ -203,7 +206,10 @@ export const contestApi = createApi({
     }),
 
     // trade a contest photo
-    tradeContestPhoto: builder.mutation<{ success: boolean; message: string; data?: any }, TradeContestPhotoPayload>({
+    tradeContestPhoto: builder.mutation<
+      { success: boolean; message: string; data?: any },
+      TradeContestPhotoPayload
+    >({
       query: ({ contestId, contestPhotoId, newPhotoId, file }) => {
         const formData = new FormData();
         formData.append('contestId', contestId);

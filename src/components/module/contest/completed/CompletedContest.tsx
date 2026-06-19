@@ -89,7 +89,8 @@ const CompletedContest = () => {
       {/* Load more trigger */}
       <section className="mt-10 min-h-80">
         <div ref={loadMoreRef} className="grid grid-cols-1 gap-10">
-          {hasMore && isFetching &&
+          {hasMore &&
+            isFetching &&
             [1, 2].map((_, index) => <OpenContestCardSkeleton key={index} />)}
         </div>
       </section>

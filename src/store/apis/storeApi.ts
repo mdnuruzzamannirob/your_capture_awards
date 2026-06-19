@@ -31,8 +31,5 @@ export const storeApi = createApi({
   }),
 });
 
-export const {
-  useGetStoreStatsQuery,
-  useGetStoreProductsQuery,
-  usePurchaseStoreProductMutation,
-} = storeApi;
+export const { useGetStoreStatsQuery, useGetStoreProductsQuery, usePurchaseStoreProductMutation } =
+  storeApi;

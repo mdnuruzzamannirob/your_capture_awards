@@ -18,14 +18,8 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
-const ResourceValue = ({
-  isLoading,
-  value,
-}: {
-  isLoading: boolean;
-  value: number;
-}) => {
-  if (isLoading) return <Skeleton className="h-3 w-5 bg-black-2-700" />;
+const ResourceValue = ({ isLoading, value }: { isLoading: boolean; value: number }) => {
+  if (isLoading) return <Skeleton className="bg-black-2-700 h-3 w-5" />;
   return <span>{value}</span>;
 };
 
@@ -91,7 +85,7 @@ const UserMenu = () => {
           <button
             type="button"
             onClick={openStore}
-            className="flex w-full items-center justify-between rounded-md border border-black-2-600 px-3 py-2 text-sm transition hover:bg-white/5"
+            className="border-black-2-600 flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-white/5"
           >
             <span className="flex items-center gap-2">
               <IoKeyOutline className="text-primary size-4" />
@@ -113,7 +107,7 @@ const UserMenu = () => {
           <button
             type="button"
             onClick={openStore}
-            className="flex w-full items-center justify-between rounded-md border border-black-2-600 px-3 py-2 text-sm transition hover:bg-white/5"
+            className="border-black-2-600 flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-white/5"
           >
             <span className="text-black-2-300">Coins</span>
             <span className="flex items-center gap-2">

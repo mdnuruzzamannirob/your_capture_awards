@@ -28,8 +28,7 @@ export const authApi = createApi({
             path: '/',
           });
           dispatch(setUser(data.user));
-        } catch (err) {
-        }
+        } catch (err) {}
       },
     }),
 
@@ -52,8 +51,7 @@ export const authApi = createApi({
             path: '/',
           });
           dispatch(setUser(data.user));
-        } catch (err) {
-        }
+        } catch (err) {}
       },
     }),
 
@@ -64,8 +62,7 @@ export const authApi = createApi({
         try {
           const { data } = await queryFulfilled;
           dispatch(setUser(data.data));
-        } catch (err) {
-        }
+        } catch (err) {}
       },
     }),
 
@@ -76,8 +73,7 @@ export const authApi = createApi({
         try {
           await queryFulfilled;
           dispatch(setTempEmail(arg.email));
-        } catch (err) {
-        }
+        } catch (err) {}
       },
     }),
 
@@ -93,8 +89,7 @@ export const authApi = createApi({
             data: { data },
           } = await queryFulfilled;
           dispatch(setTempToken(data?.reset_password_token));
-        } catch (err) {
-        }
+        } catch (err) {}
       },
     }),
 

@@ -103,7 +103,8 @@ const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenConte
       {/* Load more trigger */}
       <section className="mt-10 grid min-h-80 grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3">
         <div ref={loadMoreRef} className="col-span-full">
-          {hasMore && isFetching &&
+          {hasMore &&
+            isFetching &&
             [1, 2, 3].map((_, index) => <OpenContestCardSkeleton key={index} />)}
         </div>
       </section>

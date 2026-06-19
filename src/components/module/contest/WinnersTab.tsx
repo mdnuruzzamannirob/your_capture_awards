@@ -201,7 +201,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
             </h3>
 
             <p className="text-muted-foreground leading-none">
-              {winner?.participant?.user?.location }
+              {winner?.participant?.user?.location}
             </p>
           </div>
         </div>
