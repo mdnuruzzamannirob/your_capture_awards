@@ -1,5 +1,10 @@
 import { PublicPhotoPage } from '@/components/module/public/PublicPhotoPage';
-import { getPhoto, getPhotosForContest, getPhotosForProfile, getProfile } from '@/lib/mock/public-gallery-data';
+import {
+  getPhoto,
+  getPhotosForContest,
+  getPhotosForProfile,
+  getProfile,
+} from '@/lib/mock/public-gallery-data';
 
 type PageProps = {
   params: Promise<{ photoId: string }>;
@@ -16,5 +21,11 @@ export default async function PhotoPage({ params, searchParams }: PageProps) {
       ? getPhotosForContest(query.contest ?? photo.contestId)
       : getPhotosForProfile(query.profile ?? photo.ownerUsername);
 
-  return <PublicPhotoPage activePhoto={photo} owner={owner} slidePhotos={slidePhotos.length ? slidePhotos : [photo]} />;
+  return (
+    <PublicPhotoPage
+      activePhoto={photo}
+      owner={owner}
+      slidePhotos={slidePhotos.length ? slidePhotos : [photo]}
+    />
+  );
 }

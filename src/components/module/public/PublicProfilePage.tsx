@@ -30,7 +30,7 @@ function Stat({
       type="button"
       onClick={onClick}
       className={cn(
-        'h-full px-3 flex flex-col items-center justify-center transition',
+        'flex h-full flex-col items-center justify-center px-3 transition',
         active ? 'bg-primary/10 text-primary' : 'text-black',
       )}
     >
@@ -40,11 +40,7 @@ function Stat({
   );
 }
 
-function MasonryGrid({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function MasonryGrid({ children }: { children: React.ReactNode }) {
   const itemRefs = useRef<Array<HTMLDivElement | null>>([]);
   const [spans, setSpans] = useState<number[]>([]);
   const childrenArray = useMemo(
@@ -69,7 +65,7 @@ function MasonryGrid({
   }, [childrenArray.length]);
 
   return (
-    <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-[10px]">
+    <div className="grid auto-rows-[10px] grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {childrenArray.map((child, index) => (
         <div
           key={index}
@@ -136,29 +132,30 @@ function PhotoCard({
   );
 }
 
-function LikeCard({
-  photo,
-  profileUsername,
-}: {
-  photo: PublicPhoto;
-  profileUsername: string;
-}) {
-  return <PhotoCard photo={photo} profileUsername={profileUsername} showViews={false} showLikes={false} />;
+function LikeCard({ photo, profileUsername }: { photo: PublicPhoto; profileUsername: string }) {
+  return (
+    <PhotoCard
+      photo={photo}
+      profileUsername={profileUsername}
+      showViews={false}
+      showLikes={false}
+    />
+  );
 }
 
-function PeopleRow({
-  person,
-  label,
-}: {
-  person: PublicProfileMini;
-  label: string;
-}) {
+function PeopleRow({ person, label }: { person: PublicProfileMini; label: string }) {
   const [following, setFollowing] = useState(person.isFollowing);
 
   return (
     <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
       <div className="flex min-w-0 items-center gap-3">
-        <Image src={person.avatar} alt={person.name} width={60} height={60} className="size-14 rounded-2xl object-cover" />
+        <Image
+          src={person.avatar}
+          alt={person.name}
+          width={60}
+          height={60}
+          className="size-14 rounded-2xl object-cover"
+        />
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-white">{person.name}</p>
           <p className="truncate text-xs text-white/55">
@@ -207,7 +204,7 @@ function ProfileContent({
 
   if (activeTab === 'followers') {
     return (
-      <section className="container py-10 space-y-4">
+      <section className="container space-y-4 py-10">
         {(profile.followersList ?? []).map((person) => (
           <PeopleRow key={person.username} person={person} label="Follow" />
         ))}
@@ -217,7 +214,7 @@ function ProfileContent({
 
   if (activeTab === 'following') {
     return (
-      <section className="container py-10 space-y-4">
+      <section className="container space-y-4 py-10">
         {(profile.followingList ?? []).map((person) => (
           <PeopleRow key={person.username} person={person} label="Follow" />
         ))}
@@ -229,7 +226,7 @@ function ProfileContent({
     return (
       <section className="container py-10">
         <div className="mb-6 flex items-center justify-between">
-          <h3 className="font-medium uppercase text-white/80">Liked Photos</h3>
+          <h3 className="font-medium text-white/80 uppercase">Liked Photos</h3>
           <p className="text-xs text-white/45">{likedPhotos.length} photos</p>
         </div>
         <MasonryGrid>
@@ -270,7 +267,12 @@ export function PublicProfilePage({ profile, photos }: Props) {
   const tabs = useMemo(() => {
     return [
       { key: 'photos' as const, label: 'Photos', value: photos.length, icon: Trophy },
-      { key: 'achievements' as const, label: 'Achievements', value: profile.achievements, icon: MessageCircleMore },
+      {
+        key: 'achievements' as const,
+        label: 'Achievements',
+        value: profile.achievements,
+        icon: MessageCircleMore,
+      },
       { key: 'followers' as const, label: 'Followers', value: profile.followers, icon: Users },
       { key: 'following' as const, label: 'Following', value: profile.following, icon: BellRing },
     ];
@@ -326,7 +328,11 @@ export function PublicProfilePage({ profile, photos }: Props) {
       <section className="container py-4">
         <div className="flex items-center gap-3 rounded-2xl bg-black px-4 py-2 text-xs text-white/70">
           <Heart className="size-4 text-white" />
-          <span>{activeTab === 'like' ? 'Liked photos you selected' : 'Tap a tab above to switch content'}</span>
+          <span>
+            {activeTab === 'like'
+              ? 'Liked photos you selected'
+              : 'Tap a tab above to switch content'}
+          </span>
         </div>
       </section>
 

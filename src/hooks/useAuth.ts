@@ -62,7 +62,7 @@ export const useAuth = () => {
   });
 
   const isAuthenticated = !!token;
-  const user = isAuthenticated ? authUser ?? meData?.data ?? null : null;
+  const user = isAuthenticated ? (authUser ?? meData?.data ?? null) : null;
 
   return {
     user,

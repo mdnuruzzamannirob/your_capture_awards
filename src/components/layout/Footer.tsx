@@ -32,15 +32,24 @@ const Footer = () => {
         <div className="border-primary hidden h-40 border-r md:block" />
 
         {/* Quick Links Column */}
-        <div className="flex flex-col items-center md:items-start gap-3">
+        <div className="flex flex-col items-center gap-3 md:items-start">
           <h4 className="text-lg font-semibold">Quick Links</h4>
-          <Link href="/about" className="text-sm text-white/60 hover:text-primary transition-colors">
+          <Link
+            href="/about"
+            className="hover:text-primary text-sm text-white/60 transition-colors"
+          >
             About Us
           </Link>
-          <Link href="/terms" className="text-sm text-white/60 hover:text-primary transition-colors">
+          <Link
+            href="/terms"
+            className="hover:text-primary text-sm text-white/60 transition-colors"
+          >
             Terms & Conditions
           </Link>
-          <Link href="/privacy-policy" className="text-sm text-white/60 hover:text-primary transition-colors">
+          <Link
+            href="/privacy-policy"
+            className="hover:text-primary text-sm text-white/60 transition-colors"
+          >
             Privacy Policy
           </Link>
         </div>
