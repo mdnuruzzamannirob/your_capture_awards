@@ -51,13 +51,21 @@ export default function SupportPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-black-2-600 bg-black-2-800/90 p-5 md:p-6">
+          <form
+            onSubmit={handleSubmit}
+            className="border-black-2-600 bg-black-2-800/90 space-y-4 rounded-2xl border p-5 md:p-6"
+          >
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <label className="text-sm text-white/80" htmlFor="name">
                   Name
                 </label>
-                <Input id="name" name="name" required className="border-black-2-600 bg-black-2-900" />
+                <Input
+                  id="name"
+                  name="name"
+                  required
+                  className="border-black-2-600 bg-black-2-900"
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm text-white/80" htmlFor="email">
@@ -92,19 +100,23 @@ export default function SupportPage() {
                 id="message"
                 name="message"
                 required
-                className="min-h-40 border-black-2-600 bg-black-2-900"
+                className="border-black-2-600 bg-black-2-900 min-h-40"
                 placeholder="Write your message here"
               />
             </div>
             <div className="flex justify-end">
-              <Button type="submit" disabled={submitting} className="bg-primary text-black hover:bg-primary/90">
+              <Button
+                type="submit"
+                disabled={submitting}
+                className="bg-primary hover:bg-primary/90 text-black"
+              >
                 {submitting ? 'Sending...' : 'Send message'}
               </Button>
             </div>
           </form>
         </div>
 
-        <aside className="space-y-4 rounded-2xl border border-black-2-600 bg-black-2-800/90 p-5 md:p-6">
+        <aside className="border-black-2-600 bg-black-2-800/90 space-y-4 rounded-2xl border p-5 md:p-6">
           <h2 className="text-xl font-semibold text-white">Other details</h2>
           <div className="space-y-3 text-sm text-white/65">
             <p>Email: support@yourcaptureawards.com</p>

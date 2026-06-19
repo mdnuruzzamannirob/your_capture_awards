@@ -45,11 +45,11 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
           </div>
         </div>
 
-        <div className="border-r mr-10"></div>
+        <div className="mr-10 border-r"></div>
 
         <div className="col-span-2 flex-3">
-          <h1 className="text-3xl font-light mb-6">
-            <span className="font-semibold text-primary">{contest?.title}</span> Challenge
+          <h1 className="mb-6 text-3xl font-light">
+            <span className="text-primary font-semibold">{contest?.title}</span> Challenge
           </h1>
           <TipTapViewer content={contest?.description} />
         </div>

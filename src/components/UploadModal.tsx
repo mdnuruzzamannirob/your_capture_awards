@@ -338,20 +338,20 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               {uploadSource === 'computer' ? (
                 <>
                   {preview ? (
-                    <div className="flex justify-center items-center py-2">
+                    <div className="flex items-center justify-center py-2">
                       <Image
                         src={preview}
                         alt="Preview"
                         width={400}
                         height={300}
                         onClick={() => fileInputRef.current?.click()}
-                        className="max-h-72 w-auto object-contain cursor-pointer rounded-xl border border-dashed border-primary transition hover:opacity-90"
+                        className="border-primary max-h-72 w-auto cursor-pointer rounded-xl border border-dashed object-contain transition hover:opacity-90"
                       />
                     </div>
                   ) : (
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="border-primary hover:bg-primary/5 flex h-48 w-80 mx-auto flex-col items-center justify-center gap-3 rounded-xl border border-dashed transition"
+                      className="border-primary hover:bg-primary/5 mx-auto flex h-48 w-80 flex-col items-center justify-center gap-3 rounded-xl border border-dashed transition"
                     >
                       <UploadCloud className="text-primary" size={40} />
                       <p className="text-sm">Choose photo from computer</p>
@@ -368,7 +368,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               ) : (
                 uploadSource === 'profile' && (
                   <div className="space-y-5">
-                    <div className="flex flex-wrap gap-0 max-h-64 scrollbar-thin overflow-y-auto justify-start items-start">
+                    <div className="flex max-h-64 scrollbar-thin flex-wrap items-start justify-start gap-0 overflow-y-auto">
                       {isPhotosLoading
                         ? [1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
                             <Skeleton className="bg-black-2-600 h-28 w-28" key={item} />
@@ -378,7 +378,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                               key={index}
                               type="button"
                               onClick={() => imageSelectHandler(photo)}
-                              className="overflow-hidden relative h-28 hover:opacity-90 transition"
+                              className="relative h-28 overflow-hidden transition hover:opacity-90"
                             >
                               <Image
                                 src={photo.url}
@@ -390,16 +390,16 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                             </button>
                           ))}
                     </div>
-                     {selectedImages.length > 0 && (
+                    {selectedImages.length > 0 && (
                       <div className="border-black-2-500 flex flex-wrap gap-0 border-t pt-5">
-                        <h4 className="w-full mb-2 flex items-center gap-2 text-sm text-white/80">
+                        <h4 className="mb-2 flex w-full items-center gap-2 text-sm text-white/80">
                           <IoImagesOutline className="size-4" /> Selected Images
                         </h4>
                         {selectedImages?.slice(0, 4)?.map((img, i) => (
                           <div
                             aria-hidden="true"
                             key={i}
-                            className="group relative overflow-hidden h-20"
+                            className="group relative h-20 overflow-hidden"
                           >
                             <Image
                               src={img.url}
@@ -409,7 +409,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                               className="h-full w-auto object-contain transition group-hover:brightness-40"
                             />
 
-                            <div className="absolute inset-0 flex flex-col justify-center items-center">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center">
                               <button
                                 type="button"
                                 onClick={() =>
@@ -417,7 +417,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                                     selectedImages.filter((image) => image.url !== img.url),
                                   )
                                 }
-                                className="flex items-center justify-center text-red-500 opacity-0 transition-all duration-300 group-hover:opacity-100 bg-black/60 p-1.5 rounded-full"
+                                className="flex items-center justify-center rounded-full bg-black/60 p-1.5 text-red-500 opacity-0 transition-all duration-300 group-hover:opacity-100"
                               >
                                 <AiOutlineDelete className="size-4" />
                               </button>
@@ -474,7 +474,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
             }
           }}
         >
-          <DialogContent className="border-black-2-600 border-2 sm:max-w-2xl min-h-100 max-h-[85vh] overflow-y-auto scrollbar-thin flex flex-col justify-between">
+          <DialogContent className="border-black-2-600 flex max-h-[85vh] min-h-100 scrollbar-thin flex-col justify-between overflow-y-auto border-2 sm:max-w-2xl">
             <DialogTitle>
               {(modalContentType === 'choose' || modalContentType === 'select') && (
                 <button
@@ -499,15 +499,19 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         </Dialog>
 
         <Dialog open={showCoinConfirm} onOpenChange={setShowCoinConfirm}>
-          <DialogContent className="border-black-2-600 border-2 max-w-sm text-center p-6 space-y-6">
+          <DialogContent className="border-black-2-600 max-w-sm space-y-6 border-2 p-6 text-center">
             <div className="flex flex-col items-center justify-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 shadow-inner">
-                <div className="h-8 w-8 rounded-full bg-linear-to-tr from-amber-500 to-amber-300 border border-amber-200 animate-pulse" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-amber-500/20 bg-amber-500/10 text-amber-500 shadow-inner">
+                <div className="h-8 w-8 animate-pulse rounded-full border border-amber-200 bg-linear-to-tr from-amber-500 to-amber-300" />
               </div>
-              <DialogTitle className="text-xl font-bold uppercase text-foreground">Coin Required</DialogTitle>
+              <DialogTitle className="text-foreground text-xl font-bold uppercase">
+                Coin Required
+              </DialogTitle>
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Joining this contest requires <span className="text-primary font-bold">{requiredCoins}</span> coins. Would you like to proceed?
+              Joining this contest requires{' '}
+              <span className="text-primary font-bold">{requiredCoins}</span> coins. Would you like
+              to proceed?
             </p>
             <div className="flex items-center justify-center gap-4 pt-2">
               <button

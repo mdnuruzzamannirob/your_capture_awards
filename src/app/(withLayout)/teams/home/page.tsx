@@ -50,11 +50,7 @@ export default function TeamPage() {
   const { user } = useAuth();
   const currentUserId = user?.id || '';
 
-  const {
-    data: teamData,
-    isLoading: isTeamLoading,
-    isError: isTeamError,
-  } = useGetMyTeamQuery();
+  const { data: teamData, isLoading: isTeamLoading, isError: isTeamError } = useGetMyTeamQuery();
   const { data: requestsData } = useGetPendingRequestsQuery(teamData?.data?.team?.id || '', {
     skip: !teamData?.data?.team?.id,
   });
