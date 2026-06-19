@@ -13,7 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { FaFacebookF, FaGoogle } from 'react-icons/fa';
 import { IoCheckbox, IoCheckboxOutline } from 'react-icons/io5';
@@ -37,6 +37,11 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
 
   const signupForm = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
+  });
+
+  const agreeValue = useWatch({
+    control: signupForm.control,
+    name: 'agree',
   });
 
   const signInSubmit = async (data: SigninFormData) => {
@@ -302,7 +307,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-100 select-none">
           <input type="checkbox" id="agree" className="sr-only" {...signupForm.register('agree')} />
           <span className="mt-0.5 shrink-0">
-            {signupForm.watch('agree') ? (
+            {agreeValue ? (
               <IoCheckbox className="text-primary size-5" />
             ) : (
               <IoCheckboxOutline className="text-primary size-5" />
