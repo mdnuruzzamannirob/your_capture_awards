@@ -88,7 +88,6 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
 
         const required = type === 'boost' ? (stats?.boost ?? 0) : (stats?.swap ?? 0);
         if (required <= 0) {
-
           openStore();
           return;
         }
@@ -284,7 +283,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
             {/* ── STEP 1: Select contest photo ───────────────────────────── */}
             {step === 'selectContestPhoto' && (
               <div className="space-y-5">
-                <div className="grid max-h-105 scrollbar-thin items-start grid-cols-2 gap-3 overflow-y-auto pr-1 md:grid-cols-3">
+                <div className="grid max-h-105 scrollbar-thin grid-cols-2 items-start gap-3 overflow-y-auto pr-1 md:grid-cols-3">
                   {currentContestPhotos.map((photo) => {
                     const isSelected = selectedContestPhotoId === photo.id;
                     return (

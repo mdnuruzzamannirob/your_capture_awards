@@ -54,8 +54,7 @@ export default async function RootLayout({
         <ThemeProvider>
           <ReduxProvider>
             <StoreModalProvider>
-              {children}{' '}
-              <StoreModal />
+              {children} <StoreModal />
               <Toaster
                 expand
                 richColors

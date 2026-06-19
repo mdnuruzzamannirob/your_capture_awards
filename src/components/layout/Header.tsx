@@ -26,7 +26,7 @@ const ResourceValue = ({
   value: number;
   className?: string;
 }) => {
-  if (isLoading) return <Skeleton className={cn('h-3 w-5 bg-black-2-700', className)} />;
+  if (isLoading) return <Skeleton className={cn('bg-black-2-700 h-3 w-5', className)} />;
   return <span>{value}</span>;
 };
 
@@ -42,7 +42,10 @@ const Navbar = () => {
 
   useLayoutEffect(() => setMounted(true), []);
 
-  const menuLinks = useMemo(() => (isAuthenticated ? loggedInNavLinks : navLinks), [isAuthenticated]);
+  const menuLinks = useMemo(
+    () => (isAuthenticated ? loggedInNavLinks : navLinks),
+    [isAuthenticated],
+  );
 
   if (!mounted) return null;
 
@@ -53,7 +56,7 @@ const Navbar = () => {
           <Sidebar />
           <LogoName className="max-lg:w-44" />
 
-          <ul className="font-kumbh ml-3 hidden flex-1 items-center uppercase justify-center gap-5 select-none lg:flex">
+          <ul className="font-kumbh ml-3 hidden flex-1 items-center justify-center gap-5 uppercase select-none lg:flex">
             {menuLinks.map((link, index) => {
               const href = link.href;
               const isActive =

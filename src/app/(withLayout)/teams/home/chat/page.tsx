@@ -161,7 +161,9 @@ export default function TeamChatPage() {
   }, []);
 
   const sortMessages = useCallback((items: ChatMessage[]) => {
-    return [...items].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    return [...items].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    );
   }, []);
 
   const appendIncomingMessage = useCallback((message: ChatMessage) => {
@@ -180,29 +182,35 @@ export default function TeamChatPage() {
     [appendIncomingMessage],
   );
 
-  const uploadFile = useCallback(async (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
+  const uploadFile = useCallback(
+    async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
 
-    const response = await fetch(`${socketBaseUrl}/api/v1/chats/upload`, {
-      method: 'POST',
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      body: formData,
-    });
+      const response = await fetch(`${socketBaseUrl}/api/v1/chats/upload`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: formData,
+      });
 
-    if (!response.ok) {
-      throw new Error('Failed to upload file');
-    }
+      if (!response.ok) {
+        throw new Error('Failed to upload file');
+      }
 
-    const result = (await response.json()) as { success?: boolean; data?: { url?: string; fileUrl?: string } };
-    const fileUrl = result?.data?.fileUrl || result?.data?.url;
+      const result = (await response.json()) as {
+        success?: boolean;
+        data?: { url?: string; fileUrl?: string };
+      };
+      const fileUrl = result?.data?.fileUrl || result?.data?.url;
 
-    if (!fileUrl) {
-      throw new Error('Upload response did not include a file URL');
-    }
+      if (!fileUrl) {
+        throw new Error('Upload response did not include a file URL');
+      }
 
-    return fileUrl;
-  }, [socketBaseUrl, token]);
+      return fileUrl;
+    },
+    [socketBaseUrl, token],
+  );
 
   const loadTeamMessages = useCallback(
     (socket: Socket, currentTeamId: string, targetPage = 1, appendOlder = false) => {
@@ -215,50 +223,56 @@ export default function TeamChatPage() {
         };
       }
 
-      socket.emit('get_team_messages', { teamId: currentTeamId, page: targetPage, limit }, (response: TeamMessagesResponse) => {
-        if (!response?.success) {
-          toast.error(response?.message || 'Failed to load team messages');
-          setIsLoadingOlder(false);
-          return;
-        }
-
-        const incomingMessages = sortMessages(normalizeMessages(response));
-        const meta = response.meta;
-
-        setHasMoreOlder(meta?.hasNextPage ?? incomingMessages.length === limit);
-
-        if (appendOlder) {
-          const container = scrollContainerRef.current;
-
-          setMessages((prev) => {
-            const merged = [...incomingMessages, ...prev];
-            const deduped = merged.filter((item, index, array) => array.findIndex((entry) => entry.id === item.id) === index);
-            return sortMessages(deduped);
-          });
-
-          requestAnimationFrame(() => {
-            if (container && olderScrollStateRef.current) {
-              const nextHeight = container.scrollHeight;
-              const { top, height } = olderScrollStateRef.current;
-              container.scrollTop = nextHeight - height + top;
-              const isAwayFromBottom =
-                container.scrollHeight - container.scrollTop - container.clientHeight > 96;
-              isAtBottomRef.current = !isAwayFromBottom;
-            }
-            olderScrollStateRef.current = null;
-            isPrependingOlderRef.current = false;
-            skipNextAutoScrollRef.current = true;
-            setPage(meta?.page ?? targetPage);
+      socket.emit(
+        'get_team_messages',
+        { teamId: currentTeamId, page: targetPage, limit },
+        (response: TeamMessagesResponse) => {
+          if (!response?.success) {
+            toast.error(response?.message || 'Failed to load team messages');
             setIsLoadingOlder(false);
-          });
-          return;
-        }
+            return;
+          }
 
-        setMessages(incomingMessages);
-        setPage(meta?.page ?? targetPage);
-        setInitialLoaded(true);
-        requestAnimationFrame(() => scrollToBottom('auto'));
-      });
+          const incomingMessages = sortMessages(normalizeMessages(response));
+          const meta = response.meta;
+
+          setHasMoreOlder(meta?.hasNextPage ?? incomingMessages.length === limit);
+
+          if (appendOlder) {
+            const container = scrollContainerRef.current;
+
+            setMessages((prev) => {
+              const merged = [...incomingMessages, ...prev];
+              const deduped = merged.filter(
+                (item, index, array) => array.findIndex((entry) => entry.id === item.id) === index,
+              );
+              return sortMessages(deduped);
+            });
+
+            requestAnimationFrame(() => {
+              if (container && olderScrollStateRef.current) {
+                const nextHeight = container.scrollHeight;
+                const { top, height } = olderScrollStateRef.current;
+                container.scrollTop = nextHeight - height + top;
+                const isAwayFromBottom =
+                  container.scrollHeight - container.scrollTop - container.clientHeight > 96;
+                isAtBottomRef.current = !isAwayFromBottom;
+              }
+              olderScrollStateRef.current = null;
+              isPrependingOlderRef.current = false;
+              skipNextAutoScrollRef.current = true;
+              setPage(meta?.page ?? targetPage);
+              setIsLoadingOlder(false);
+            });
+            return;
+          }
+
+          setMessages(incomingMessages);
+          setPage(meta?.page ?? targetPage);
+          setInitialLoaded(true);
+          requestAnimationFrame(() => scrollToBottom('auto'));
+        },
+      );
     },
     [limit, normalizeMessages, scrollToBottom, sortMessages],
   );
@@ -267,11 +281,18 @@ export default function TeamChatPage() {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    if (container.scrollTop < 24 && socketRef.current && teamId && hasMoreOlder && !isLoadingOlder) {
+    if (
+      container.scrollTop < 24 &&
+      socketRef.current &&
+      teamId &&
+      hasMoreOlder &&
+      !isLoadingOlder
+    ) {
       void loadTeamMessages(socketRef.current, teamId, page + 1, true);
     }
 
-    const isAwayFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight > 96;
+    const isAwayFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight > 96;
     isAtBottomRef.current = !isAwayFromBottom;
     setShowScrollButton(isAwayFromBottom);
   }, [hasMoreOlder, isLoadingOlder, loadTeamMessages, page, teamId]);
@@ -408,7 +429,8 @@ export default function TeamChatPage() {
   }, [handleNewMessage, loadTeamMessages, socketBaseUrl, teamId, token]);
 
   useEffect(() => {
-    if (messages.length === 0 || !initialLoaded || isLoadingOlder || isPrependingOlderRef.current) return;
+    if (messages.length === 0 || !initialLoaded || isLoadingOlder || isPrependingOlderRef.current)
+      return;
     if (skipNextAutoScrollRef.current) {
       skipNextAutoScrollRef.current = false;
       return;
@@ -439,7 +461,9 @@ export default function TeamChatPage() {
       const currentTime = new Date(message.createdAt).getTime();
       const lastTime = lastMessage ? new Date(lastMessage.createdAt).getTime() : 0;
       const canMerge =
-        !!lastGroup && lastGroup.senderId === message.senderId && currentTime - lastTime <= 1 * 60 * 1000;
+        !!lastGroup &&
+        lastGroup.senderId === message.senderId &&
+        currentTime - lastTime <= 1 * 60 * 1000;
 
       if (canMerge) {
         lastGroup.messages.push(message);
@@ -503,8 +527,8 @@ export default function TeamChatPage() {
   }
 
   return (
-    <section className="margin-user container flex h-[calc(100dvh-110px)] min-w-0 flex-col py-6 overflow-x-hidden">
-      <div className="relative flex min-h-0 flex-1 min-w-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0d0f14]/95 shadow-[0_18px_50px_rgba(0,0,0,0.22)]">
+    <section className="margin-user container flex h-[calc(100dvh-110px)] min-w-0 flex-col overflow-x-hidden py-6">
+      <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0d0f14]/95 shadow-[0_18px_50px_rgba(0,0,0,0.22)]">
         <div className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-white/10 bg-[#0d0f14]/95 px-4 py-3 backdrop-blur">
           <div className="flex min-w-0 items-center gap-3">
             <Avatar className="size-10 shrink-0 border border-white/10">
@@ -527,7 +551,7 @@ export default function TeamChatPage() {
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="flex flex-1 min-w-0 flex-col gap-4 overflow-y-auto overflow-x-hidden px-4 py-5 scrollbar-thin"
+          className="flex min-w-0 flex-1 scrollbar-thin flex-col gap-4 overflow-x-hidden overflow-y-auto px-4 py-5"
         >
           {groupedMessages.length === 0 ? (
             <div className="flex min-h-70 flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/3 text-center">
@@ -541,7 +565,10 @@ export default function TeamChatPage() {
               return (
                 <div
                   key={group.id}
-                  className={cn('flex min-w-0 items-end gap-3', isMine ? 'flex-row-reverse' : 'flex-row')}
+                  className={cn(
+                    'flex min-w-0 items-end gap-3',
+                    isMine ? 'flex-row-reverse' : 'flex-row',
+                  )}
                 >
                   <Avatar className="size-9 shrink-0 border border-white/10">
                     <AvatarImage src={group.sender.avatar ?? undefined} alt={senderName} />
@@ -557,7 +584,7 @@ export default function TeamChatPage() {
 
                   <div
                     className={cn(
-                      'flex min-w-0 max-w-[min(78%,100%)] flex-col gap-1',
+                      'flex max-w-[min(78%,100%)] min-w-0 flex-col gap-1',
                       isMine ? 'items-end' : 'items-start',
                     )}
                   >
@@ -604,7 +631,7 @@ export default function TeamChatPage() {
                                           href={message.fileUrl}
                                           target="_blank"
                                           rel="noreferrer"
-                                          className="min-w-0 break-all font-medium underline decoration-white/30 underline-offset-4 hover:decoration-white"
+                                          className="min-w-0 font-medium break-all underline decoration-white/30 underline-offset-4 hover:decoration-white"
                                         >
                                           {getFileLabel(message.fileUrl)}
                                         </a>
@@ -612,7 +639,9 @@ export default function TeamChatPage() {
                                     )}
                                   </>
                                 )}
-                                {message.message && <p className="text-sm text-white/85">{message.message}</p>}
+                                {message.message && (
+                                  <p className="text-sm text-white/85">{message.message}</p>
+                                )}
                               </div>
                             ) : (
                               <p className="wrap-break-word">{message.message}</p>
@@ -644,9 +673,16 @@ export default function TeamChatPage() {
             <div className="mb-3 flex min-w-0 items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm">
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium text-white">{pendingFile.name}</p>
-                <p className="text-xs text-white/50">{Math.round(pendingFile.size / 1024)} KB selected</p>
+                <p className="text-xs text-white/50">
+                  {Math.round(pendingFile.size / 1024)} KB selected
+                </p>
               </div>
-              <Button variant="ghost" size="sm" className="text-white/60 hover:text-white" onClick={() => setPendingFile(null)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-white/60 hover:text-white"
+                onClick={() => setPendingFile(null)}
+              >
                 Remove
               </Button>
             </div>
@@ -675,7 +711,7 @@ export default function TeamChatPage() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder="Write a message to your team..."
-                className="h-11 border-white/10 bg-white/5 text-white placeholder:text-white/35 focus-visible:ring-primary/40"
+                className="focus-visible:ring-primary/40 h-11 border-white/10 bg-white/5 text-white placeholder:text-white/35"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -687,11 +723,15 @@ export default function TeamChatPage() {
 
             <Button
               type="button"
-              className="h-11 shrink-0 bg-primary px-4 text-white hover:bg-primary/90"
+              className="bg-primary hover:bg-primary/90 h-11 shrink-0 px-4 text-white"
               disabled={isSending || (!draft.trim() && !pendingFile)}
               onClick={() => void handleSubmit()}
             >
-              {isSending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+              {isSending ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Send className="size-4" />
+              )}
               <span className="ml-2 hidden sm:inline">{pendingFile ? 'Send file' : 'Send'}</span>
             </Button>
           </div>
@@ -700,13 +740,15 @@ export default function TeamChatPage() {
         <div
           className={cn(
             'pointer-events-none absolute bottom-20 left-1/2 -translate-x-1/2 transition duration-200',
-            showScrollButton ? 'pointer-events-auto translate-y-0 opacity-100' : 'translate-y-2 opacity-0',
+            showScrollButton
+              ? 'pointer-events-auto translate-y-0 opacity-100'
+              : 'translate-y-2 opacity-0',
           )}
         >
           <button
             type="button"
             onClick={() => scrollToBottom()}
-            className="flex size-9 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-black/30 transition active:scale-95"
+            className="bg-primary flex size-9 items-center justify-center rounded-full text-white shadow-lg shadow-black/30 transition active:scale-95"
           >
             <ArrowDown className="size-4" />
           </button>
@@ -716,10 +758,10 @@ export default function TeamChatPage() {
   );
 }
 
-function MessageState({ isReady }: { isReady: boolean| string }) {
+function MessageState({ isReady }: { isReady: boolean | string }) {
   return (
     <div className="max-w-sm px-4">
-      <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-primary/12 text-primary">
+      <div className="bg-primary/12 text-primary mx-auto flex size-12 items-center justify-center rounded-2xl">
         <Send className="size-5" />
       </div>
       <p className="mt-4 text-lg font-semibold text-white">No messages yet</p>
