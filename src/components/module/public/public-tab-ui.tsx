@@ -52,42 +52,46 @@ export function TabErrorState({
 }
 
 export function TabLoadingCard() {
+  return <PhotoGridLoadingState count={1} />;
+}
+
+export function PhotoGridLoadingState({ count = 8 }: { count?: number }) {
   return (
-    <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5">
-      <div className="relative h-28 animate-pulse bg-slate-200 sm:h-32" />
+    <div className="grid gap-1 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))] xl:[grid-template-columns:repeat(auto-fit,minmax(320px,1fr))]">
+      {Array.from({ length: count }).map((_, index) => (
+        <div key={index} className="overflow-hidden rounded-2xl bg-zinc-900 shadow-lg ring-1 ring-white/10">
+          <div className="relative h-[22rem] animate-pulse bg-zinc-800 sm:h-[28rem]" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/60 to-transparent" />
+          <div className="absolute top-3 right-3 size-8 rounded-full bg-zinc-700 animate-pulse" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function CardSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-2xl bg-zinc-900 shadow-lg ring-1 ring-white/10">
+      <div className="relative h-28 animate-pulse bg-zinc-800 sm:h-32" />
       <div className="px-4 pb-4 text-center">
-        <div className="-mt-12 mx-auto size-24 rounded-full bg-slate-200 ring-4 ring-white animate-pulse" />
-        <div className="mx-auto mt-3 h-5 w-32 rounded bg-slate-200 animate-pulse" />
-        <div className="mx-auto mt-2 h-4 w-20 rounded bg-slate-200 animate-pulse" />
-        <div className="mx-auto mt-3 h-9 w-28 rounded-md bg-slate-200 animate-pulse" />
+        <div className="-mt-12 mx-auto size-24 rounded-full bg-zinc-700 ring-4 ring-zinc-900 animate-pulse" />
+        <div className="mx-auto mt-3 h-5 w-28 rounded bg-zinc-700 animate-pulse" />
+        <div className="mx-auto mt-2 h-4 w-20 rounded bg-zinc-700 animate-pulse" />
+        <div className="mx-auto mt-3 h-9 w-28 rounded-md bg-zinc-700 animate-pulse" />
       </div>
     </div>
   );
 }
 
 export function GridLoadingState({ count = 6 }: { count?: number }) {
-  return (
-    <div className="grid gap-1 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))] xl:[grid-template-columns:repeat(auto-fit,minmax(320px,1fr))]">
-      {Array.from({ length: count }).map((_, index) => (
-        <TabLoadingCard key={index} />
-      ))}
-    </div>
-  );
+  return <PhotoGridLoadingState count={count} />;
 }
 
 export function PeopleLoadingState({ count = 4 }: { count?: number }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: count }).map((_, index) => (
-        <div key={index} className="overflow-hidden rounded-2xl bg-zinc-900 shadow-lg ring-1 ring-white/10">
-          <div className="relative h-28 animate-pulse bg-zinc-800 sm:h-32" />
-          <div className="px-4 pb-4 text-center">
-            <div className="-mt-12 mx-auto size-24 rounded-full bg-zinc-700 ring-4 ring-zinc-900 animate-pulse" />
-            <div className="mx-auto mt-3 h-5 w-28 rounded bg-zinc-700 animate-pulse" />
-            <div className="mx-auto mt-2 h-4 w-20 rounded bg-zinc-700 animate-pulse" />
-            <div className="mx-auto mt-3 h-9 w-28 rounded-md bg-zinc-700 animate-pulse" />
-          </div>
-        </div>
+        <CardSkeleton key={index} />
       ))}
     </div>
   );

@@ -17,22 +17,22 @@ function PersonCard({ person }: { person: PublicProfileMini }) {
   const cover = (person as PublicProfileMini & { cover?: string }).cover ?? person.avatar;
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-zinc-900 shadow-lg ring-1 ring-white/10">
-      <div className="relative h-28 bg-zinc-800 sm:h-32">
+    <div className="overflow-hidden rounded-2xl bg-zinc-950 shadow-lg ring-1 ring-white/10">
+      <div className="relative h-24 bg-zinc-800 sm:h-28">
         <Image src={cover} alt={`${person.name} cover`} fill className="object-cover" />
-        <div className="absolute inset-0 bg-linear-to-t from-black/55 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/10 to-transparent" />
       </div>
       <div className="px-4 pb-4 text-center">
-        <div className="-mt-12 mx-auto size-24 overflow-hidden rounded-full border-4 border-zinc-900 bg-zinc-800 shadow-lg">
+        <div className="-mt-10 mx-auto size-24 overflow-hidden rounded-full border-4 border-zinc-950 bg-zinc-800 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]">
           <Image src={person.avatar} alt={person.name} width={96} height={96} className="size-full object-cover" />
         </div>
-        <p className="mt-2 text-lg font-semibold text-white">{person.name}</p>
-        <p className="text-sm text-white/50">{person.country}</p>
+        <p className="mt-2 text-[17px] font-semibold leading-tight text-white">{person.name}</p>
+        <p className="text-sm leading-tight text-white/50">{person.country}</p>
         <button
           type="button"
           onClick={() => setFollowing((prev) => !prev)}
           className={cn(
-            'mt-3 inline-flex items-center gap-2 rounded-md px-5 py-2 text-sm font-semibold transition',
+            'mt-3 inline-flex items-center gap-2 rounded-md px-5 py-2 text-sm font-semibold transition shadow-md',
             following ? 'bg-primary text-white' : 'bg-sky-500 text-white',
           )}
         >
@@ -84,7 +84,7 @@ const FollowingTabContent = ({ username }: Props) => {
       {loading && people.length === 0 ? (
         <PeopleLoadingState count={4} />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
           {people.map((person) => (
             <PersonCard key={person.username} person={person} />
           ))}
