@@ -29,6 +29,7 @@ export type PublicProfile = {
   country: string;
   avatar: string;
   cover: string;
+  photosCount: number;
   rank: string;
   level: number;
   points: number;
@@ -58,6 +59,7 @@ export const publicProfiles: PublicProfile[] = [
       'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80',
     cover:
       'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=85',
+    photosCount: 2,
     rank: 'Master',
     level: 8,
     points: 1123020,
@@ -95,6 +97,7 @@ export const publicProfiles: PublicProfile[] = [
       'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=240&q=80',
     cover:
       'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1800&q=85',
+    photosCount: 2,
     rank: 'Elite',
     level: 6,
     points: 684220,
