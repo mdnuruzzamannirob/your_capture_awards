@@ -3,7 +3,7 @@
 import { PublicProfileMini } from '@/lib/mock/public-gallery-data';
 import { fetchFollowers } from '@/lib/mock/public-profile-tab-data';
 import { cn } from '@/utils/cn';
-import { UserPlus } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { PeopleLoadingState, TabErrorState, TabSectionHeader } from './public-tab-ui';
@@ -14,29 +14,55 @@ type Props = {
 
 function PersonCard({ person }: { person: PublicProfileMini }) {
   const [following, setFollowing] = useState(person.isFollowing);
-  const cover = (person as PublicProfileMini & { cover?: string }).cover ?? person.avatar;
+
+  const cover =
+    (person as any).cover ??
+    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80';
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-zinc-950 shadow-lg ring-1 ring-white/10">
-      <div className="relative h-24 bg-zinc-800 sm:h-28">
+    <div className="overflow-hidden rounded-lg border border-zinc-800/80 bg-zinc-900/40 shadow-lg backdrop-blur-xs">
+      {/* Banner */}
+      <div className="relative h-24 bg-zinc-800">
         <Image src={cover} alt={`${person.name} cover`} fill className="object-cover" />
-        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/10 to-transparent" />
+
+        {/* Banner bottom fade */}
+        <div className="absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-zinc-950 via-zinc-950/70 to-transparent" />
       </div>
-      <div className="px-4 pb-4 text-center">
-        <div className="-mt-10 mx-auto size-24 overflow-hidden rounded-full border-4 border-zinc-950 bg-zinc-800 shadow-[0_0_0_1px_rgba(255,255,255,0.08)]">
-          <Image src={person.avatar} alt={person.name} width={96} height={96} className="size-full object-cover" />
+
+      {/* Move content UP */}
+      <div className="relative z-20 -mt-6 px-4 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="relative z-30 size-16 shrink-0 overflow-hidden rounded-full border-2 border-zinc-800 bg-zinc-900 shadow-md">
+            <Image
+              src={person.avatar}
+              alt={person.name}
+              width={64}
+              height={64}
+              className="size-full object-cover"
+            />
+          </div>
+
+          <div className="min-w-0 flex-1 pt-2">
+            <p className="hover:text-primary truncate font-semibold text-white transition">
+              {person.name}
+            </p>
+
+            <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-zinc-500">
+              <MapPin size={14} className="shrink-0" /> {person.country}
+            </p>
+          </div>
         </div>
-        <p className="mt-2 text-[17px] font-semibold leading-tight text-white">{person.name}</p>
-        <p className="text-sm leading-tight text-white/50">{person.country}</p>
+
         <button
           type="button"
           onClick={() => setFollowing((prev) => !prev)}
           className={cn(
-            'mt-3 inline-flex items-center gap-2 rounded-md px-5 py-2 text-sm font-semibold transition shadow-md',
-            following ? 'bg-primary text-white' : 'bg-sky-500 text-white',
+            'mt-5 inline-flex w-full items-center justify-center rounded-sm py-2 text-sm font-semibold transition',
+            following
+              ? 'bg-zinc-850 bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
+              : 'bg-primary hover:bg-primary/90 text-white',
           )}
         >
-          <UserPlus className="size-4" />
           {following ? 'Following' : 'Follow'}
         </button>
       </div>
@@ -78,13 +104,13 @@ const FollowersTabContent = ({ username }: Props) => {
   }, [username]);
 
   return (
-    <section className="container py-10">
+    <section className="container py-6">
       <TabSectionHeader title="Followers" />
       {error ? <TabErrorState title="Unable to load followers" description={error} /> : null}
       {loading && people.length === 0 ? (
         <PeopleLoadingState count={4} />
       ) : (
-        <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-2 gap-6 md:grid-cols-3 xl:grid-cols-4">
           {people.map((person) => (
             <PersonCard key={person.username} person={person} />
           ))}
