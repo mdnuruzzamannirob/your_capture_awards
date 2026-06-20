@@ -46,7 +46,7 @@ const AchievementsTabContent = ({ username }: Props) => {
   }, [username]);
 
   return (
-    <section className="container py-10">
+    <section className="container py-6">
       <TabSectionHeader title="Achievements" />
       {error ? <TabErrorState title="Unable to load achievements" description={error} /> : null}
       {loading ? (
