@@ -2,7 +2,7 @@
 
 import { PublicPhoto } from '@/lib/mock/public-gallery-data';
 import { cn } from '@/utils/cn';
-import { Eye, Heart, Trophy } from 'lucide-react';
+import { Eye, Heart, Vote } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
@@ -36,11 +36,11 @@ export function PhotoCard({
 
   return (
     <div
-      className="group relative overflow-hidden rounded-none border border-zinc-800/40 bg-zinc-900 shadow-md transition-all duration-300 hover:border-zinc-700/80 hover:shadow-xl"
+      className="group relative overflow-hidden rounded-sm bg-zinc-900 shadow-md transition-all duration-300 hover:border-zinc-700/80 hover:shadow-xl"
       style={{
-        height: '240px', // Fallback/default height, responsive height is handled via CSS classes
+        height: '300px', // Fallback/default height, responsive height is handled via CSS classes
         flexGrow: aspect,
-        flexBasis: `${aspect * 160}px`,
+        flexBasis: `${aspect * 200}px`,
       }}
     >
       <Link
@@ -77,14 +77,18 @@ export function PhotoCard({
       {/* Hover Information overlay */}
       {showMetrics && (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 p-3 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
-          <div className="flex items-center justify-between text-xs font-semibold text-white/90">
-            <span className="inline-flex items-center gap-1 rounded-md border border-white/5 bg-black/50 px-2 py-1 backdrop-blur-xs">
-              <Trophy className="size-3 text-amber-400" />
+          <div className="flex items-center flex-wrap gap-3 text-sm font-semibold text-white/90">
+            <span className="inline-flex items-center gap-1">
+              <Vote size={18} />
               {photo.votes.toLocaleString()}
             </span>
-            <span className="inline-flex items-center gap-1 rounded-md border border-white/5 bg-black/50 px-2 py-1 backdrop-blur-xs">
-              <Eye className="size-3 text-sky-400" />
+            <span className="inline-flex items-center gap-1">
+              <Eye size={18} />
               {photo.views.toLocaleString()}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Heart size={18} />
+              {photo.likes.toLocaleString()}
             </span>
           </div>
         </div>
