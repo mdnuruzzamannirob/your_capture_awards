@@ -1,19 +1,17 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { toast } from 'sonner';
 import { ChevronLeft } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 // Subcomponents
+import { PhotoError } from './photo/PhotoError';
+import { PhotoSkeleton } from './photo/PhotoSkeleton';
 import { PhotoViewer } from './photo/PhotoViewer';
+import { Comment, SidebarComments } from './photo/SidebarComments';
 import { SidebarHeader } from './photo/SidebarHeader';
 import { SidebarMetrics } from './photo/SidebarMetrics';
-import { SidebarComments, Comment } from './photo/SidebarComments';
-import { SidebarDetails } from './photo/SidebarDetails';
-import { SidebarLabels } from './photo/SidebarLabels';
-import { PhotoSkeleton } from './photo/PhotoSkeleton';
-import { PhotoError } from './photo/PhotoError';
 
 import { PublicPhoto, PublicProfile } from '@/lib/mock/public-gallery-data';
 import { cn } from '@/utils/cn';
@@ -36,7 +34,7 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
   const [profileOwner, setProfileOwner] = useState<PublicProfile>(owner);
   const [slides, setSlides] = useState<PublicPhoto[]>(slidePhotos);
   const [comments, setComments] = useState<Comment[]>([]);
-  
+
   const [liked, setLiked] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,7 +43,7 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
   // Sync index of currentPhoto in slides
   const activeIndex = Math.max(
     0,
-    slides.findIndex((p) => p.id === currentPhotoId)
+    slides.findIndex((p) => p.id === currentPhotoId),
   );
 
   // Derive back path from search parameters
@@ -70,14 +68,14 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
         profile: profileParam,
         contest: contestParam,
       });
-      
+
       const res = await fetch(`/api/photo/${photoId}?${queryParams.toString()}`);
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.message || 'Failed to load photo metadata.');
       }
       const data = await res.json();
-      
+
       setPhoto(data.photo);
       setProfileOwner(data.owner);
       setSlides(data.slidePhotos);
@@ -196,10 +194,10 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white overflow-hidden">
+    <main className="min-h-screen overflow-hidden bg-zinc-950 text-white">
       <div className="flex h-screen flex-col lg:flex-row">
         {/* Left Column: Image Viewer Section (Fixed) */}
-        <section className="relative flex flex-1 items-center justify-center bg-black h-[60vh] lg:h-full min-w-0">
+        <section className="relative flex h-[60vh] min-w-0 flex-1 items-center justify-center bg-black lg:h-full">
           <PhotoViewer
             photo={photo}
             slidePhotos={slides}
@@ -215,7 +213,7 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
           {!isSidebarOpen && (
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="absolute right-4 top-1/2 z-20 flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white text-zinc-950 shadow-2xl hover:bg-zinc-100 transition-transform duration-200 active:scale-90"
+              className="absolute top-1/2 right-4 z-20 flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white text-zinc-950 shadow-2xl transition-transform duration-200 hover:bg-zinc-100 active:scale-90"
               title="Expand sidebar details"
             >
               <ChevronLeft className="size-6 stroke-[3.5]" />
@@ -226,8 +224,8 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
         {/* Right Column: Scrollable Detail Panel */}
         <aside
           className={cn(
-            'flex flex-col bg-zinc-100 text-zinc-900 border-l border-zinc-200 shrink-0 h-[40vh] lg:h-full transition-all duration-300 ease-in-out',
-            isSidebarOpen ? 'w-full lg:w-[435px]' : 'w-0 lg:w-0 overflow-hidden border-l-0'
+            'flex h-[40vh] shrink-0 flex-col border-l border-zinc-200 bg-zinc-100 text-zinc-900 transition-all duration-300 ease-in-out lg:h-full',
+            isSidebarOpen ? 'w-full lg:w-108.75' : 'w-0 overflow-hidden border-l-0 lg:w-0',
           )}
         >
           {/* Header Panel */}
@@ -239,7 +237,7 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
           />
 
           {/* Scrollable details wrapper */}
-          <div className="flex-1 overflow-y-auto min-h-0 bg-white">
+          <div className="min-h-0 flex-1 overflow-y-auto bg-white">
             {/* Statistics */}
             <SidebarMetrics
               votes={photo.votes}
@@ -249,7 +247,7 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
             />
 
             {/* Photo description */}
-            <section className="border-b border-zinc-200 bg-white p-6">
+            {/* <section className="border-b border-zinc-200 bg-white p-6">
               {photo.contestName && (
                 <p className="text-[10px] font-bold text-[#2995f3] uppercase tracking-widest leading-none mb-1.5">
                   {photo.contestName}
@@ -263,7 +261,7 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
                   {photo.alt}
                 </p>
               )}
-            </section>
+            </section> */}
 
             {/* Comments Thread */}
             <SidebarComments
@@ -273,15 +271,15 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
             />
 
             {/* Camera Parameters Details */}
-            <SidebarDetails
+            {/* <SidebarDetails
               camera={photo.camera}
               aperture={photo.aperture}
               shutter={photo.shutter}
               iso={photo.iso}
-            />
+            /> */}
 
             {/* Categorization Badges */}
-            <SidebarLabels labels={photo.labels} />
+            {/* <SidebarLabels labels={photo.labels} /> */}
           </div>
         </aside>
       </div>
