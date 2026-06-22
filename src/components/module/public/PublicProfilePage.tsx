@@ -75,9 +75,9 @@ export function PublicProfilePage({ profile }: Props) {
   const [activeTab, setActiveTab] = useState<TabKey>('photos');
   const [isFollowing, setIsFollowing] = useState(true);
 
-  const totalVotes = useMemo(() => {
-    return 145800; // Mock total votes
-  }, []);
+  // const totalVotes = useMemo(() => {
+  //   return 145800; // Mock total votes
+  // }, []);
 
   const tabs: TabConfig[] = useMemo(
     () => [
