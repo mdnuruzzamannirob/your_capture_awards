@@ -71,7 +71,7 @@ export function SidebarComments({
 
       {/* Main Comment Box */}
       <form onSubmit={handleSubmitComment} className="mb-6">
-        <div className="relative border border-zinc-800 bg-zinc-900 p-2 focus-within:border-zinc-700">
+        <div className="relative border border-zinc-800 bg-zinc-900 p-2 focus-within:border-zinc-700 rounded-md">
           <textarea
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
@@ -83,7 +83,7 @@ export function SidebarComments({
             <Button
               type="submit"
               size="sm"
-              className="h-8 bg-[#2995f3] px-5 text-xs font-bold text-white transition-colors duration-200 hover:bg-[#1a85e2]"
+              className="bg-primary hover:bg-primary/90 h-8 px-5 text-xs font-medium text-white transition-colors duration-200 rounded-sm"
               disabled={!commentText.trim() || isSubmitting}
             >
               {isSubmitting ? 'SUBMITTING...' : 'SUBMIT'}
