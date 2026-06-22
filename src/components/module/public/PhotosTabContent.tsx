@@ -77,13 +77,11 @@ const PhotosTabContent = ({ username, title = 'Uploaded Photos' }: Props) => {
       {error ? <TabErrorState title="Unable to load photos" description={error} /> : null}
       {loading && photos.length === 0 ? <GridLoadingState count={8} /> : null}
       {!loading || photos.length > 0 ? (
-        <div className="overflow-hidden rounded-2xl">
-          <div className="flex flex-wrap gap-1.5 sm:gap-2">
-            {photos.map((photo) => (
-              <PhotoCard key={photo.id} photo={photo} profileUsername={username} />
-            ))}
-            <div style={{ flexGrow: 9999999, flexBasis: '240px' }} className="h-0" />
-          </div>
+        <div className="flex flex-wrap gap-1">
+          {photos.map((photo) => (
+            <PhotoCard key={photo.id} photo={photo} profileUsername={username} />
+          ))}
+          <div style={{ flexGrow: 9999999, flexBasis: '240px' }} className="h-0" />
         </div>
       ) : null}
     </section>
