@@ -33,7 +33,7 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
   );
 
   return (
-    <main className="min-h-screen bg-black text-white lg:h-screen lg:overflow-hidden">
+    <main className="margin min-h-screen bg-zinc-950 text-white">
       <div className="grid min-h-screen lg:grid-cols-[1fr_435px]">
         <section className="relative flex min-h-[62vh] items-center justify-center bg-black lg:min-h-screen">
           <Link
