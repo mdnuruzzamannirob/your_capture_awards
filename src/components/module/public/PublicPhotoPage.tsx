@@ -198,7 +198,7 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
   };
 
   if (isLoading) {
-    return <PhotoSkeleton />;
+    return <PhotoSkeleton isSidebarOpen={isSidebarOpen} />;
   }
 
   if (error) {
@@ -215,7 +215,7 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
     <main className="min-h-screen overflow-hidden bg-zinc-950 text-white">
       <div className="flex h-screen flex-col lg:flex-row">
         {/* Left Column: Image Viewer Section (Fixed) */}
-        <section className="relative flex h-[60vh] min-w-0 flex-1 items-center justify-center bg-black lg:h-full">
+        <section className="relative flex h-screen w-full min-w-0 flex-1 items-center justify-center bg-black lg:h-full">
           <PhotoViewer
             photo={photo}
             slidePhotos={slides}
@@ -238,10 +238,11 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
             // Desktop styling (side pane)
             'lg:static lg:z-auto lg:h-full lg:shrink-0 lg:border-l',
             isSidebarOpen ? 'lg:w-108.75' : 'lg:w-0 lg:overflow-hidden lg:border-l-0',
-            // Mobile/Tablet styling (full screen overlay)
+            // Mobile/Tablet styling (full screen drawer overlay)
+            'fixed inset-y-0 right-0 z-50 w-full h-full lg:static lg:inset-auto lg:z-auto',
             isSidebarOpen
-              ? 'fixed inset-0 z-50 h-full w-full'
-              : 'fixed h-0 w-0 -translate-x-full overflow-hidden lg:translate-x-0',
+              ? 'translate-x-0 opacity-100'
+              : 'translate-x-full opacity-0 pointer-events-none lg:translate-x-0 lg:opacity-100 lg:pointer-events-auto',
           )}
         >
           {/* Header Panel */}
