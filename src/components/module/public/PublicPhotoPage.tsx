@@ -1,6 +1,5 @@
 'use client';
 
-import { ChevronLeft } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -62,7 +61,7 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
     setIsLoading(true);
     setError(null);
     try {
-      // 1. Fetch photo & owner info
+      // Fetch photo & owner info
       const queryParams = new URLSearchParams({
         source,
         profile: profileParam,
@@ -80,13 +79,12 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
       setProfileOwner(data.owner);
       setSlides(data.slidePhotos);
 
-      // 2. Fetch comments separately to demonstrate full API integration
+      // Fetch comments from simulated backend REST API
       const commentsRes = await fetch(`/api/photo/${photoId}/comments`);
       if (commentsRes.ok) {
         const commentsData = await commentsRes.json();
         setComments(commentsData.comments);
       } else {
-        // Fallback to comments embedded in photo details if comments API fails
         setComments(data.photo.comments || []);
       }
     } catch (err: any) {
@@ -179,6 +177,26 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
     }
   };
 
+  // Delete comment action
+  const handleDeleteComment = async (commentId: string) => {
+    try {
+      const response = await fetch(`/api/photo/${currentPhotoId}/comments?commentId=${commentId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete comment.');
+      }
+
+      const data = await response.json();
+      setComments(data.comments);
+      toast.success('Comment deleted.');
+    } catch (err) {
+      toast.error('Could not delete comment. Please try again.');
+      throw err;
+    }
+  };
+
   if (isLoading) {
     return <PhotoSkeleton />;
   }
@@ -207,25 +225,23 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
             onIndexChange={handleIndexChange}
             isLiked={liked}
             onToggleLike={handleToggleLike}
+            backUrl={backUrl}
+            isSidebarOpen={isSidebarOpen}
+            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           />
-
-          {/* Floating trigger to restore sidebar if collapsed */}
-          {!isSidebarOpen && (
-            <button
-              onClick={() => setIsSidebarOpen(true)}
-              className="absolute top-1/2 right-4 z-20 flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white text-zinc-950 shadow-2xl transition-transform duration-200 hover:bg-zinc-100 active:scale-90"
-              title="Expand sidebar details"
-            >
-              <ChevronLeft className="size-6 stroke-[3.5]" />
-            </button>
-          )}
         </section>
 
-        {/* Right Column: Scrollable Detail Panel */}
+        {/* Right Column: Scrollable Detail Panel (Styled in premium Dark Mode) */}
         <aside
           className={cn(
-            'flex h-[40vh] shrink-0 flex-col border-l border-zinc-200 bg-zinc-100 text-zinc-900 transition-all duration-300 ease-in-out lg:h-full',
-            isSidebarOpen ? 'w-full lg:w-108.75' : 'w-0 overflow-hidden border-l-0 lg:w-0',
+            'flex flex-col border-zinc-800 bg-zinc-950 text-zinc-100 transition-all duration-300 ease-in-out',
+            // Desktop styling (side pane)
+            'lg:static lg:z-auto lg:h-full lg:shrink-0 lg:border-l',
+            isSidebarOpen ? 'lg:w-108.75' : 'lg:w-0 lg:overflow-hidden lg:border-l-0',
+            // Mobile/Tablet styling (full screen overlay)
+            isSidebarOpen
+              ? 'fixed inset-0 z-50 h-full w-full'
+              : 'fixed h-0 w-0 -translate-x-full overflow-hidden lg:translate-x-0',
           )}
         >
           {/* Header Panel */}
@@ -233,11 +249,10 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
             owner={profileOwner}
             isSidebarOpen={isSidebarOpen}
             onToggleSidebar={() => setIsSidebarOpen(false)}
-            backUrl={backUrl}
           />
 
           {/* Scrollable details wrapper */}
-          <div className="min-h-0 flex-1 overflow-y-auto bg-white">
+          <div className="min-h-0 flex-1 scrollbar-thin overflow-y-auto bg-zinc-950">
             {/* Statistics */}
             <SidebarMetrics
               votes={photo.votes}
@@ -247,17 +262,17 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
             />
 
             {/* Photo description */}
-            {/* <section className="border-b border-zinc-200 bg-white p-6">
+            {/* <section className="border-b border-zinc-800 bg-zinc-950 p-6">
               {photo.contestName && (
                 <p className="text-[10px] font-bold text-[#2995f3] uppercase tracking-widest leading-none mb-1.5">
                   {photo.contestName}
                 </p>
               )}
-              <h2 className="text-xl font-black text-zinc-900 leading-tight">
+              <h2 className="text-xl font-black text-zinc-100 leading-tight">
                 {photo.title}
               </h2>
               {photo.alt && (
-                <p className="text-xs font-semibold text-zinc-500 mt-2 leading-relaxed">
+                <p className="text-xs font-semibold text-zinc-400 mt-2 leading-relaxed">
                   {photo.alt}
                 </p>
               )}
@@ -268,6 +283,7 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
               photoId={currentPhotoId}
               comments={comments}
               onAddComment={handleAddComment}
+              onDeleteComment={handleDeleteComment}
             />
 
             {/* Camera Parameters Details */}

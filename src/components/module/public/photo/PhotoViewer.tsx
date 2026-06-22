@@ -2,8 +2,17 @@
 
 import { PublicPhoto } from '@/lib/mock/public-gallery-data';
 import { cn } from '@/utils/cn';
-import { ChevronLeft, ChevronRight, Heart, Maximize2, Minimize2 } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  EllipsisVertical,
+  Heart,
+  Maximize2,
+  Minimize2,
+  X,
+} from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 interface PhotoViewerProps {
@@ -15,6 +24,9 @@ interface PhotoViewerProps {
   onIndexChange: (idx: number) => void;
   isLiked: boolean;
   onToggleLike: () => void;
+  backUrl: string;
+  isSidebarOpen: boolean;
+  onToggleSidebar: () => void;
 }
 
 export function PhotoViewer({
@@ -26,6 +38,9 @@ export function PhotoViewer({
   onIndexChange,
   isLiked,
   onToggleLike,
+  backUrl,
+  isSidebarOpen,
+  onToggleSidebar,
 }: PhotoViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
@@ -112,8 +127,23 @@ export function PhotoViewer({
         isFullscreen ? 'h-screen w-screen p-0' : 'h-[60vh] w-full lg:h-screen',
       )}
     >
-      {/* Social share panel */}
-      {/* <SharePanel /> */}
+      {/* Top-Left Exit Close Button (closes page and goes back to profile/contest) */}
+      {!isFullscreen && (
+        <Link
+          href={backUrl}
+          className="absolute top-6 left-6 z-20 grid size-10 place-items-center rounded-full border border-white/10 bg-black/40 text-white transition-colors duration-150 hover:bg-black/60"
+          title="Exit and return to gallery"
+        >
+          <X className="size-5 stroke-[2.5]" />
+        </Link>
+      )}
+
+      {/* Floating social share panel - shifted down to avoid overlapping the exit close button */}
+      {/* {!isFullscreen && (
+        <div className="absolute top-14 left-0 z-20">
+          <SharePanel />
+        </div>
+      )} */}
 
       {/* Floating Close Cross overlay if in browser fullscreen */}
       {isFullscreen && (
@@ -129,12 +159,12 @@ export function PhotoViewer({
       {/* Love/Favorite Overlay Button */}
       <button
         onClick={onToggleLike}
-        className="absolute top-6 right-6 z-20 grid size-12 cursor-pointer place-items-center text-white drop-shadow-lg transition-transform duration-200 active:scale-95"
+        className="absolute top-6 right-20 z-20 grid size-10 cursor-pointer place-items-center rounded-full border border-white/10 bg-black/40 text-white drop-shadow-lg transition-transform duration-200 hover:bg-black/60 active:scale-95"
         title={isLiked ? 'Unlike photo' : 'Like photo'}
       >
         <Heart
           className={cn(
-            'size-10 stroke-[1.6] transition-all duration-300',
+            'size-5 stroke-2 transition-all duration-300',
             isLiked
               ? 'scale-110 fill-red-500 text-red-500'
               : 'text-white hover:scale-105 hover:text-red-400',
@@ -142,11 +172,22 @@ export function PhotoViewer({
         />
       </button>
 
+      {/* Top-Right Toggle Sidebar details/comments button (next to love button) */}
+      {!isFullscreen && (
+        <button
+          onClick={onToggleSidebar}
+          className="absolute top-6 right-6 z-20 grid size-10 place-items-center rounded-full border border-white/10 bg-black/40 text-white transition-colors duration-150 hover:bg-black/60"
+          title={isSidebarOpen ? 'Hide comments & details' : 'Show comments & details'}
+        >
+          <EllipsisVertical className="size-5" />
+        </button>
+      )}
+
       {/* Left Chevron Navigation */}
       {slidePhotos.length > 1 && (
         <button
           onClick={onPrev}
-          className="absolute left-4 z-20 grid size-16 cursor-pointer place-items-center rounded-full bg-black/5 text-white transition-all duration-200 outline-none hover:scale-105 hover:bg-black/20"
+          className="absolute left-4 z-10 grid size-16 cursor-pointer place-items-center rounded-full bg-black/5 text-white transition-all duration-200 outline-none hover:scale-105 hover:bg-black/20"
           aria-label="Previous photo"
         >
           <ChevronLeft className="size-14 stroke-[1.2]" />
@@ -154,7 +195,7 @@ export function PhotoViewer({
       )}
 
       {/* Central Image View */}
-      <div className="relative flex size-full items-center justify-center overflow-hidden p-8 lg:p-12">
+      <div className="relative flex size-full items-center justify-center overflow-hidden">
         {/* Simple fading slide transition container */}
         <div
           key={photo.id}
@@ -175,7 +216,7 @@ export function PhotoViewer({
       {slidePhotos.length > 1 && (
         <button
           onClick={onNext}
-          className="absolute right-4 z-20 grid size-16 cursor-pointer place-items-center rounded-full bg-black/5 text-white transition-all duration-200 outline-none hover:scale-105 hover:bg-black/20"
+          className="absolute right-4 z-10 grid size-16 cursor-pointer place-items-center rounded-full bg-black/5 text-white transition-all duration-200 outline-none hover:scale-105 hover:bg-black/20"
           aria-label="Next photo"
         >
           <ChevronRight className="size-14 stroke-[1.2]" />
@@ -192,7 +233,7 @@ export function PhotoViewer({
       </button>
 
       {/* Bottom slide index dots indicator */}
-      {slidePhotos.length > 1 && (
+      {/* {slidePhotos.length > 1 && (
         <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2 rounded-full border border-white/5 bg-black/20 px-3 py-1.5 backdrop-blur-xs">
           {slidePhotos.map((item, itemIndex) => (
             <button
@@ -208,7 +249,7 @@ export function PhotoViewer({
             />
           ))}
         </div>
-      )}
+      )} */}
     </div>
   );
 }

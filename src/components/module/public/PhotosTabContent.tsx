@@ -82,6 +82,7 @@ const PhotosTabContent = ({ username, title = 'Uploaded Photos' }: Props) => {
             {photos.map((photo) => (
               <PhotoCard key={photo.id} photo={photo} profileUsername={username} />
             ))}
+            <div style={{ flexGrow: 9999999, flexBasis: '240px' }} className="h-0" />
           </div>
         </div>
       ) : null}
