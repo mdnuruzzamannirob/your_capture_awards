@@ -35,7 +35,8 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
   const [comments, setComments] = useState<Comment[]>([]);
 
   const [liked, setLiked] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Start sidebar closed on mobile (<lg), open on desktop
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -94,6 +95,11 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
       setIsLoading(false);
     }
   };
+
+  // Set initial sidebar state based on screen width (runs once on mount)
+  useEffect(() => {
+    setIsSidebarOpen(window.innerWidth >= 1024);
+  }, []);
 
   // Run fetch when photo ID changes
   useEffect(() => {
