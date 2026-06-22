@@ -16,7 +16,7 @@ export function PhotoSkeleton({ isSidebarOpen = true }: { isSidebarOpen?: boolea
       {/* Right: Sidebar placeholder — mirrors the exact same classes as the real <aside> in PublicPhotoPage */}
       <aside
         className={cn(
-          'flex flex-col border-zinc-800 bg-zinc-950 text-zinc-100 transition-all duration-300 ease-in-out',
+          'flex flex-col border-zinc-800 bg-zinc-950 text-zinc-100',
           // Desktop: static side pane
           'lg:static lg:z-auto lg:h-full lg:shrink-0 lg:border-l',
           isSidebarOpen ? 'lg:w-108.75' : 'lg:w-0 lg:overflow-hidden lg:border-l-0',
