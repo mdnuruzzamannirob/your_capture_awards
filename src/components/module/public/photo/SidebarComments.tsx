@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { CornerDownRight, MessageSquare, Reply } from 'lucide-react';
-import { cn } from '@/utils/cn';
+import { CornerDownRight, Reply } from 'lucide-react';
+import { useState } from 'react';
 
 export interface Comment {
   id: string;
@@ -59,7 +58,7 @@ export function SidebarComments({ photoId, comments, onAddComment }: SidebarComm
 
   return (
     <section className="border-b border-zinc-200 bg-white p-6">
-      <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4">
+      <h4 className="mb-4 text-xs font-bold tracking-wider text-zinc-400 uppercase">
         Comments ({countAllComments(comments)})
       </h4>
 
@@ -70,14 +69,14 @@ export function SidebarComments({ photoId, comments, onAddComment }: SidebarComm
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             placeholder="Write a comment"
-            className="min-h-[80px] w-full resize-none bg-transparent px-2 py-1 text-sm text-zinc-800 outline-hidden placeholder:text-zinc-400"
+            className="min-h-20 w-full resize-none bg-transparent px-2 py-1 text-sm text-zinc-800 outline-hidden placeholder:text-zinc-400"
             disabled={isSubmitting}
           />
           <div className="mt-2 flex justify-end border-t border-zinc-100 pt-2">
             <Button
               type="submit"
               size="sm"
-              className="bg-[#2995f3] hover:bg-[#1a85e2] text-white text-xs font-bold px-5 h-8 transition-colors duration-200"
+              className="h-8 bg-[#2995f3] px-5 text-xs font-bold text-white transition-colors duration-200 hover:bg-[#1a85e2]"
               disabled={!commentText.trim() || isSubmitting}
             >
               {isSubmitting ? 'SUBMITTING...' : 'SUBMIT'}
@@ -89,7 +88,7 @@ export function SidebarComments({ photoId, comments, onAddComment }: SidebarComm
       {/* Comments List */}
       <div className="space-y-5">
         {comments.length === 0 ? (
-          <p className="text-center text-xs font-medium text-zinc-400 py-4">
+          <p className="py-4 text-center text-xs font-medium text-zinc-400">
             No comments yet. Be the first to comment!
           </p>
         ) : (
@@ -135,20 +134,20 @@ function CommentNode({
     <div className="group/node text-sm">
       <div className="flex gap-3">
         {/* Author Avatar Initial Placeholder */}
-        <div className="grid size-9 shrink-0 place-items-center rounded-full bg-zinc-100 border border-zinc-200 text-xs font-black text-zinc-600 uppercase shadow-xs">
+        <div className="grid size-9 shrink-0 place-items-center rounded-full border border-zinc-200 bg-zinc-100 text-xs font-black text-zinc-600 uppercase shadow-xs">
           {comment.author.substring(0, 2)}
         </div>
 
         {/* Comment Contents */}
         <div className="flex-1">
-          <div className="bg-zinc-50/65 rounded-lg px-3 py-2 border border-zinc-100">
-            <span className="font-bold text-zinc-800 mr-2">{comment.author}</span>
-            <span className="text-zinc-600 leading-relaxed break-words">{comment.text}</span>
+          <div className="rounded-lg border border-zinc-100 bg-zinc-50/65 px-3 py-2">
+            <span className="mr-2 font-bold text-zinc-800">{comment.author}</span>
+            <span className="leading-relaxed wrap-break-word text-zinc-600">{comment.text}</span>
           </div>
 
           <div className="mt-1.5 flex items-center gap-3 px-1 text-xs">
             <span className="font-medium text-zinc-400">{comment.time}</span>
-            
+
             <button
               onClick={() => {
                 if (isReplying) {
@@ -158,7 +157,7 @@ function CommentNode({
                   setReplyText('');
                 }
               }}
-              className="inline-flex items-center gap-1 font-bold text-[#2995f3] hover:text-[#1a85e2] transition-colors duration-150"
+              className="inline-flex items-center gap-1 font-bold text-[#2995f3] transition-colors duration-150 hover:text-[#1a85e2]"
             >
               <Reply className="size-3" />
               reply
@@ -175,7 +174,7 @@ function CommentNode({
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder={`Reply to ${comment.author}...`}
-                className="min-h-[60px] w-full resize-none bg-transparent px-2 py-1 text-sm text-zinc-800 outline-hidden placeholder:text-zinc-400"
+                className="min-h-15 w-full resize-none bg-transparent px-2 py-1 text-sm text-zinc-800 outline-hidden placeholder:text-zinc-400"
                 disabled={isSubmitting}
                 autoFocus
               />
@@ -185,7 +184,7 @@ function CommentNode({
                   size="sm"
                   variant="ghost"
                   onClick={() => setReplyingToId(null)}
-                  className="text-xs h-7 text-zinc-400 hover:text-zinc-600"
+                  className="h-7 text-xs text-zinc-400 hover:text-zinc-600"
                   disabled={isSubmitting}
                 >
                   Cancel
@@ -193,7 +192,7 @@ function CommentNode({
                 <Button
                   type="submit"
                   size="sm"
-                  className="bg-[#2995f3] hover:bg-[#1a85e2] text-white text-xs font-bold px-3 h-7"
+                  className="h-7 bg-[#2995f3] px-3 text-xs font-bold text-white hover:bg-[#1a85e2]"
                   disabled={!replyText.trim() || isSubmitting}
                 >
                   Reply
@@ -204,10 +203,10 @@ function CommentNode({
 
           {/* Nested Replies Rendering */}
           {comment.replies && comment.replies.length > 0 && (
-            <div className="mt-3 pl-4 border-l-2 border-zinc-100 space-y-4">
+            <div className="mt-3 space-y-4 border-l-2 border-zinc-100 pl-4">
               {comment.replies.map((reply) => (
                 <div key={reply.id} className="flex gap-2 text-xs">
-                  <CornerDownRight className="size-4 shrink-0 text-zinc-300 mt-1" />
+                  <CornerDownRight className="mt-1 size-4 shrink-0 text-zinc-300" />
                   <div className="flex-1">
                     <CommentNode
                       comment={reply}

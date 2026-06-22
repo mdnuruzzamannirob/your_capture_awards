@@ -1,11 +1,10 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
-import Image from 'next/image';
-import { ChevronLeft, ChevronRight, Heart, Maximize2, Minimize2 } from 'lucide-react';
 import { PublicPhoto } from '@/lib/mock/public-gallery-data';
-import { SharePanel } from './SharePanel';
 import { cn } from '@/utils/cn';
+import { ChevronLeft, ChevronRight, Heart, Maximize2, Minimize2 } from 'lucide-react';
+import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 
 interface PhotoViewerProps {
   photo: PublicPhoto;
@@ -87,7 +86,7 @@ export function PhotoViewer({
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
-    
+
     const touch = e.changedTouches[0];
     if (!touch) return;
 
@@ -109,18 +108,18 @@ export function PhotoViewer({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       className={cn(
-        'relative flex flex-1 flex-col items-center justify-center bg-zinc-950 text-white select-none transition-all duration-300',
-        isFullscreen ? 'h-screen w-screen p-0' : 'h-[60vh] lg:h-screen w-full'
+        'relative flex flex-1 flex-col items-center justify-center bg-zinc-950 text-white transition-all duration-300 select-none',
+        isFullscreen ? 'h-screen w-screen p-0' : 'h-[60vh] w-full lg:h-screen',
       )}
     >
       {/* Social share panel */}
-      <SharePanel />
+      {/* <SharePanel /> */}
 
       {/* Floating Close Cross overlay if in browser fullscreen */}
       {isFullscreen && (
         <button
           onClick={toggleFullscreen}
-          className="absolute top-6 right-20 z-30 grid size-10 place-items-center rounded-full bg-black/40 border border-white/10 hover:bg-black/60 text-white cursor-pointer transition-colors duration-150"
+          className="absolute top-6 right-20 z-30 grid size-10 cursor-pointer place-items-center rounded-full border border-white/10 bg-black/40 text-white transition-colors duration-150 hover:bg-black/60"
           title="Exit Fullscreen"
         >
           <Minimize2 className="size-5" />
@@ -135,8 +134,10 @@ export function PhotoViewer({
       >
         <Heart
           className={cn(
-            'size-10 transition-all duration-300 stroke-[1.6]',
-            isLiked ? 'fill-red-500 text-red-500 scale-110' : 'text-white hover:text-red-400 hover:scale-105'
+            'size-10 stroke-[1.6] transition-all duration-300',
+            isLiked
+              ? 'scale-110 fill-red-500 text-red-500'
+              : 'text-white hover:scale-105 hover:text-red-400',
           )}
         />
       </button>
@@ -145,7 +146,7 @@ export function PhotoViewer({
       {slidePhotos.length > 1 && (
         <button
           onClick={onPrev}
-          className="absolute left-4 z-20 grid size-16 cursor-pointer place-items-center rounded-full bg-black/5 hover:bg-black/20 text-white hover:scale-105 transition-all duration-200 outline-none"
+          className="absolute left-4 z-20 grid size-16 cursor-pointer place-items-center rounded-full bg-black/5 text-white transition-all duration-200 outline-none hover:scale-105 hover:bg-black/20"
           aria-label="Previous photo"
         >
           <ChevronLeft className="size-14 stroke-[1.2]" />
@@ -153,13 +154,16 @@ export function PhotoViewer({
       )}
 
       {/* Central Image View */}
-      <div className="relative flex size-full items-center justify-center p-8 lg:p-12 overflow-hidden">
+      <div className="relative flex size-full items-center justify-center overflow-hidden p-8 lg:p-12">
         {/* Simple fading slide transition container */}
-        <div key={photo.id} className="relative size-full animate-fade-in flex items-center justify-center">
+        <div
+          key={photo.id}
+          className="animate-fade-in relative flex size-full items-center justify-center"
+        >
           <Image
             src={photo.src}
             alt={photo.alt || photo.title}
-            className="pointer-events-none max-h-full max-w-full object-contain select-none transition-transform duration-300"
+            className="pointer-events-none max-h-full max-w-full object-contain transition-transform duration-300 select-none"
             width={1200}
             height={900}
             priority
@@ -171,7 +175,7 @@ export function PhotoViewer({
       {slidePhotos.length > 1 && (
         <button
           onClick={onNext}
-          className="absolute right-4 z-20 grid size-16 cursor-pointer place-items-center rounded-full bg-black/5 hover:bg-black/20 text-white hover:scale-105 transition-all duration-200 outline-none"
+          className="absolute right-4 z-20 grid size-16 cursor-pointer place-items-center rounded-full bg-black/5 text-white transition-all duration-200 outline-none hover:scale-105 hover:bg-black/20"
           aria-label="Next photo"
         >
           <ChevronRight className="size-14 stroke-[1.2]" />
@@ -181,7 +185,7 @@ export function PhotoViewer({
       {/* Fullscreen Button overlay (bottom-right) */}
       <button
         onClick={toggleFullscreen}
-        className="absolute bottom-6 right-6 z-20 grid size-10 cursor-pointer place-items-center rounded-full bg-black/30 hover:bg-black/60 border border-white/5 text-white transition-all duration-150"
+        className="absolute right-6 bottom-6 z-20 grid size-10 cursor-pointer place-items-center rounded-full border border-white/5 bg-black/30 text-white transition-all duration-150 hover:bg-black/60"
         title="Toggle Fullscreen"
       >
         {isFullscreen ? <Minimize2 className="size-5" /> : <Maximize2 className="size-5" />}
@@ -189,7 +193,7 @@ export function PhotoViewer({
 
       {/* Bottom slide index dots indicator */}
       {slidePhotos.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2 bg-black/20 px-3 py-1.5 rounded-full backdrop-blur-xs border border-white/5">
+        <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2 rounded-full border border-white/5 bg-black/20 px-3 py-1.5 backdrop-blur-xs">
           {slidePhotos.map((item, itemIndex) => (
             <button
               key={item.id}
@@ -197,8 +201,8 @@ export function PhotoViewer({
               className={cn(
                 'cursor-pointer transition-all duration-300',
                 itemIndex === index
-                  ? 'h-1.5 w-6 bg-white rounded-full'
-                  : 'size-1.5 bg-white/40 hover:bg-white/70 rounded-full'
+                  ? 'h-1.5 w-6 rounded-full bg-white'
+                  : 'size-1.5 rounded-full bg-white/40 hover:bg-white/70',
               )}
               aria-label={`Go to slide ${itemIndex + 1}`}
             />
