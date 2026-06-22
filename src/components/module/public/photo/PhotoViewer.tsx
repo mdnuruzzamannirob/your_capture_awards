@@ -146,7 +146,7 @@ export function PhotoViewer({
       )} */}
 
       {/* Floating Close Cross overlay if in browser fullscreen */}
-      {isFullscreen && (
+      {/* {isFullscreen && (
         <button
           onClick={toggleFullscreen}
           className="absolute top-6 right-20 z-30 grid size-10 cursor-pointer place-items-center rounded-full border border-white/10 bg-black/40 text-white transition-colors duration-150 hover:bg-black/60"
@@ -154,7 +154,7 @@ export function PhotoViewer({
         >
           <Minimize2 className="size-5" />
         </button>
-      )}
+      )} */}
 
       {/* Love/Favorite Overlay Button */}
       <button
