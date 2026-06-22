@@ -1,10 +1,10 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-// Subcomponents
+// Sub components
 import { PhotoError } from './photo/PhotoError';
 import { PhotoSkeleton } from './photo/PhotoSkeleton';
 import { PhotoViewer } from './photo/PhotoViewer';
@@ -98,13 +98,16 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
     }
   };
 
-  // On mobile (<lg), close sidebar immediately (transitionReady=false so no animation).
-  // On desktop, isSidebarOpen stays true — no state change, no animation.
-  // After first paint, enable transitions for future user interactions.
-  useEffect(() => {
+  // useLayoutEffect runs synchronously before browser paint — sets sidebar state with zero flash/animation
+  // Desktop: isSidebarOpen stays true (no change) | Mobile: closes instantly before first paint
+  useLayoutEffect(() => {
     if (window.innerWidth < 1024) {
       setIsSidebarOpen(false);
     }
+  }, []);
+
+  // Enable CSS transitions only AFTER the initial sidebar position has been painted
+  useEffect(() => {
     const frame = requestAnimationFrame(() => {
       setTransitionReady(true);
     });
