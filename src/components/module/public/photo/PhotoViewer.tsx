@@ -124,7 +124,7 @@ export function PhotoViewer({
       onTouchEnd={handleTouchEnd}
       className={cn(
         'relative flex flex-1 flex-col items-center justify-center bg-zinc-950 text-white transition-all duration-300 select-none',
-        isFullscreen ? 'h-screen w-screen p-0' : 'h-[60vh] w-full lg:h-screen',
+        isFullscreen ? 'h-screen w-screen p-0' : 'h-full w-full',
       )}
     >
       {/* Top-Left Exit Close Button (closes page and goes back to profile/contest) */}
