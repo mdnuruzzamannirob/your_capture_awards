@@ -29,21 +29,24 @@ function VoteIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-export function SidebarMetrics({ votes, views, likes, achievements }: SidebarMetricsProps) {
+export function SidebarMetrics({ votes, views, likes }: SidebarMetricsProps) {
   return (
-    <section className="grid grid-cols-3 border-b border-zinc-200 bg-white py-6 text-center">
+    <section className="grid grid-cols-3 border-b border-zinc-800 bg-zinc-950 py-6 text-center">
       <MetricItem
-        icon={<VoteIcon className="size-6 text-zinc-500" />}
+        icon={<VoteIcon className="size-6 text-zinc-400" />}
         value={votes}
         label="Votes"
       />
-      <MetricItem icon={<Eye className="size-6 text-zinc-500" />} value={views} label="Views" />
-      <MetricItem icon={<Heart className="size-6 text-zinc-500" />} value={likes} label="Likes" />
-      {/* <MetricItem
-        icon={<Trophy className="size-6 text-zinc-500" />}
-        value={achievements}
-        label="Achievements"
-      /> */}
+      <MetricItem
+        icon={<Eye className="size-6 text-zinc-400" />}
+        value={views}
+        label="Views"
+      />
+      <MetricItem
+        icon={<Heart className="size-6 text-zinc-400" />}
+        value={likes}
+        label="Likes"
+      />
     </section>
   );
 }
@@ -60,8 +63,8 @@ function MetricItem({
   return (
     <div className="flex flex-col items-center">
       <div className="mb-1.5 flex h-7 items-center justify-center">{icon}</div>
-      <p className="text-sm leading-none font-black text-zinc-900">{value.toLocaleString()}</p>
-      <p className="mt-1.5 text-[9px] leading-none font-bold tracking-wider text-zinc-400 uppercase">
+      <p className="text-sm leading-none font-black text-zinc-100">{value.toLocaleString()}</p>
+      <p className="mt-1.5 text-[9px] leading-none font-bold tracking-wider text-zinc-500 uppercase">
         {label}
       </p>
     </div>
