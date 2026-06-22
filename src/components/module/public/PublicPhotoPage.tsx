@@ -37,6 +37,8 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
   const [liked, setLiked] = useState(false);
   // Start sidebar closed on mobile (<lg), open on desktop
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // Prevents transition animation on initial render — only enable after first paint
+  const [transitionReady, setTransitionReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -96,9 +98,15 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
     }
   };
 
-  // Set initial sidebar state based on screen width (runs once on mount)
+  // Set initial sidebar state based on screen width, then enable transitions after first paint
   useEffect(() => {
+    // Set correct open/close state immediately (no animation yet)
     setIsSidebarOpen(window.innerWidth >= 1024);
+    // Enable transitions only after the initial state has been painted
+    const frame = requestAnimationFrame(() => {
+      setTransitionReady(true);
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   // Run fetch when photo ID changes
@@ -240,7 +248,9 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
         {/* Right Column: Scrollable Detail Panel (Styled in premium Dark Mode) */}
         <aside
           className={cn(
-            'flex flex-col border-zinc-800 bg-zinc-950 text-zinc-100 transition-all duration-300 ease-in-out',
+            'flex flex-col border-zinc-800 bg-zinc-950 text-zinc-100',
+            // Only enable transition after first paint to avoid animation on initial render
+            transitionReady && 'transition-all duration-300 ease-in-out',
             // Desktop styling (side pane)
             'lg:static lg:z-auto lg:h-full lg:shrink-0 lg:border-l',
             isSidebarOpen ? 'lg:w-108.75' : 'lg:w-0 lg:overflow-hidden lg:border-l-0',
