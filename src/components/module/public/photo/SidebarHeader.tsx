@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { PublicProfile } from '@/lib/mock/public-gallery-data';
 import { cn } from '@/utils/cn';
 import { X } from 'lucide-react';
@@ -42,18 +41,17 @@ export function SidebarHeader({ owner, isSidebarOpen, onToggleSidebar }: Sidebar
               <Link href={`/profile/${owner.username}`}>{owner.username}</Link>
             </h3>
             <p className="mt-0.5 text-xs font-semibold text-zinc-500">{owner.country}</p>
-            <Button
-              size="sm"
+            <button
               onClick={() => setIsFollowing(!isFollowing)}
               className={cn(
-                'mt-2 h-7 px-4 text-xs font-bold transition-all duration-200',
+                'inline-flex mt-1.5 shrink-0 cursor-pointer items-center justify-center gap-1.5 self-center rounded-sm px-3 py-1.5 text-xs font-semibold transition select-none',
                 isFollowing
-                  ? 'bg-zinc-850 border border-zinc-700 text-zinc-300 hover:bg-zinc-800'
-                  : 'bg-[#2995f3] text-white hover:bg-[#1a85e2]',
+                  ? 'bg-zinc-850 bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
+                  : 'bg-primary hover:bg-primary/90 text-white',
               )}
             >
               {isFollowing ? 'FOLLOWING' : 'FOLLOW'}
-            </Button>
+            </button>
           </div>
         </div>
 
