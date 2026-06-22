@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Camera, Timer, Aperture, ChevronUp, ChevronDown } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { Aperture, Camera, ChevronDown, ChevronUp, Timer } from 'lucide-react';
+import { useState } from 'react';
 
 interface SidebarDetailsProps {
   camera: string;
@@ -76,11 +76,9 @@ export function SidebarDetails({
       {/* Collapsible Trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between px-6 py-4 hover:bg-zinc-50 transition-colors duration-150"
+        className="flex w-full items-center justify-between px-6 py-4 transition-colors duration-150 hover:bg-zinc-50"
       >
-        <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-          Details
-        </span>
+        <span className="text-xs font-bold tracking-wider text-zinc-400 uppercase">Details</span>
         {isOpen ? (
           <ChevronUp className="size-4 text-zinc-400" />
         ) : (
@@ -91,40 +89,46 @@ export function SidebarDetails({
       {/* Details list */}
       <div
         className={cn(
-          'overflow-hidden transition-all duration-300 ease-in-out px-6',
-          isOpen ? 'max-h-[300px] pb-6 opacity-100' : 'max-h-0 pb-0 opacity-0'
+          'overflow-hidden px-6 transition-all duration-300 ease-in-out',
+          isOpen ? 'max-h-75 pb-6 opacity-100' : 'max-h-0 pb-0 opacity-0',
         )}
       >
-        <div className="grid grid-cols-2 gap-3 mt-1">
+        <div className="mt-1 grid grid-cols-2 gap-3">
           {/* Camera Info */}
           {camera && (
-            <div className="col-span-2 flex items-center gap-3 bg-zinc-50 border border-zinc-100 rounded-md p-3">
-              <Camera className="size-5 text-zinc-400 shrink-0" />
+            <div className="col-span-2 flex items-center gap-3 rounded-md border border-zinc-100 bg-zinc-50 p-3">
+              <Camera className="size-5 shrink-0 text-zinc-400" />
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">Camera</span>
-                <span className="text-xs font-bold text-zinc-700 leading-tight">{camera}</span>
+                <span className="text-[10px] font-bold tracking-wide text-zinc-400 uppercase">
+                  Camera
+                </span>
+                <span className="text-xs leading-tight font-bold text-zinc-700">{camera}</span>
               </div>
             </div>
           )}
 
           {/* ISO Info */}
           {iso && (
-            <div className="flex items-center gap-2.5 bg-zinc-50 border border-zinc-100 rounded-md p-3">
-              <IsoIcon className="size-5 text-zinc-400 shrink-0" />
+            <div className="flex items-center gap-2.5 rounded-md border border-zinc-100 bg-zinc-50 p-3">
+              <IsoIcon className="size-5 shrink-0 text-zinc-400" />
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">ISO</span>
-                <span className="text-xs font-bold text-zinc-700 leading-tight">{iso}</span>
+                <span className="text-[10px] font-bold tracking-wide text-zinc-400 uppercase">
+                  ISO
+                </span>
+                <span className="text-xs leading-tight font-bold text-zinc-700">{iso}</span>
               </div>
             </div>
           )}
 
           {/* Shutter Info */}
           {shutter && (
-            <div className="flex items-center gap-2.5 bg-zinc-50 border border-zinc-100 rounded-md p-3">
-              <Timer className="size-5 text-zinc-400 shrink-0" />
+            <div className="flex items-center gap-2.5 rounded-md border border-zinc-100 bg-zinc-50 p-3">
+              <Timer className="size-5 shrink-0 text-zinc-400" />
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">Shutter</span>
-                <span className="text-xs font-bold text-zinc-700 leading-tight">
+                <span className="text-[10px] font-bold tracking-wide text-zinc-400 uppercase">
+                  Shutter
+                </span>
+                <span className="text-xs leading-tight font-bold text-zinc-700">
                   {shutter.includes('/') ? shutter : `${shutter} sec`}
                 </span>
               </div>
@@ -133,12 +137,16 @@ export function SidebarDetails({
 
           {/* Aperture Info */}
           {aperture && (
-            <div className="flex items-center gap-2.5 bg-zinc-50 border border-zinc-100 rounded-md p-3">
-              <Aperture className="size-5 text-zinc-400 shrink-0" />
+            <div className="flex items-center gap-2.5 rounded-md border border-zinc-100 bg-zinc-50 p-3">
+              <Aperture className="size-5 shrink-0 text-zinc-400" />
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">Aperture</span>
-                <span className="text-xs font-bold text-zinc-700 leading-tight">
-                  {aperture.toLowerCase().startsWith('f/') ? aperture.toUpperCase() : `F${aperture}`}
+                <span className="text-[10px] font-bold tracking-wide text-zinc-400 uppercase">
+                  Aperture
+                </span>
+                <span className="text-xs leading-tight font-bold text-zinc-700">
+                  {aperture.toLowerCase().startsWith('f/')
+                    ? aperture.toUpperCase()
+                    : `F${aperture}`}
                 </span>
               </div>
             </div>
@@ -146,11 +154,13 @@ export function SidebarDetails({
 
           {/* Focal Length Info */}
           {focalLength && (
-            <div className="flex items-center gap-2.5 bg-zinc-50 border border-zinc-100 rounded-md p-3">
-              <FocalLengthIcon className="size-5 text-zinc-400 shrink-0" />
+            <div className="flex items-center gap-2.5 rounded-md border border-zinc-100 bg-zinc-50 p-3">
+              <FocalLengthIcon className="size-5 shrink-0 text-zinc-400" />
               <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">Focal Length</span>
-                <span className="text-xs font-bold text-zinc-700 leading-tight">{focalLength}</span>
+                <span className="text-[10px] font-bold tracking-wide text-zinc-400 uppercase">
+                  Focal Length
+                </span>
+                <span className="text-xs leading-tight font-bold text-zinc-700">{focalLength}</span>
               </div>
             </div>
           )}
