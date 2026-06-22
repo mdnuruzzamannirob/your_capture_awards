@@ -1,212 +1,290 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { PublicPhoto, PublicProfile } from '@/lib/mock/public-gallery-data';
-import { Camera, ChevronLeft, ChevronRight, Eye, Heart, Trophy, X } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
+import { ChevronLeft } from 'lucide-react';
 
-type Props = {
+// Subcomponents
+import { PhotoViewer } from './photo/PhotoViewer';
+import { SidebarHeader } from './photo/SidebarHeader';
+import { SidebarMetrics } from './photo/SidebarMetrics';
+import { SidebarComments, Comment } from './photo/SidebarComments';
+import { SidebarDetails } from './photo/SidebarDetails';
+import { SidebarLabels } from './photo/SidebarLabels';
+import { PhotoSkeleton } from './photo/PhotoSkeleton';
+import { PhotoError } from './photo/PhotoError';
+
+import { PublicPhoto, PublicProfile } from '@/lib/mock/public-gallery-data';
+import { cn } from '@/utils/cn';
+
+interface Props {
   activePhoto: PublicPhoto;
   owner: PublicProfile;
   slidePhotos: PublicPhoto[];
-};
+}
 
 export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
-  const startIndex = Math.max(
-    0,
-    slidePhotos.findIndex((photo) => photo.id === activePhoto.id),
-  );
-  const [index, setIndex] = useState(startIndex);
+  const searchParams = useSearchParams();
+  const source = searchParams.get('source') || '';
+  const profileParam = searchParams.get('profile') || '';
+  const contestParam = searchParams.get('contest') || '';
+
+  // App state
+  const [currentPhotoId, setCurrentPhotoId] = useState(activePhoto.id);
+  const [photo, setPhoto] = useState<PublicPhoto>(activePhoto);
+  const [profileOwner, setProfileOwner] = useState<PublicProfile>(owner);
+  const [slides, setSlides] = useState<PublicPhoto[]>(slidePhotos);
+  const [comments, setComments] = useState<Comment[]>([]);
+  
   const [liked, setLiked] = useState(false);
-  const [comment, setComment] = useState('');
-  const [localComments, setLocalComments] = useState(activePhoto.comments);
-  const photo = slidePhotos[index] ?? activePhoto;
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const next = () => setIndex((current) => (current + 1) % slidePhotos.length);
-  const prev = () => setIndex((current) => (current - 1 + slidePhotos.length) % slidePhotos.length);
-
-  const comments = useMemo(
-    () => (photo.id === activePhoto.id ? localComments : photo.comments),
-    [activePhoto.id, localComments, photo],
+  // Sync index of currentPhoto in slides
+  const activeIndex = Math.max(
+    0,
+    slides.findIndex((p) => p.id === currentPhotoId)
   );
+
+  // Derive back path from search parameters
+  const backUrl = (() => {
+    if (source === 'contest' && (contestParam || photo.contestId)) {
+      return `/contest/${contestParam || photo.contestId}`;
+    }
+    if (source === 'profile' && (profileParam || photo.ownerUsername)) {
+      return `/profile/${profileParam || photo.ownerUsername}`;
+    }
+    return `/profile/${photo.ownerUsername}`;
+  })();
+
+  // Fetch photo details & comments from API
+  const fetchPhotoData = async (photoId: string, isRetry = false) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // 1. Fetch photo & owner info
+      const queryParams = new URLSearchParams({
+        source,
+        profile: profileParam,
+        contest: contestParam,
+      });
+      
+      const res = await fetch(`/api/photo/${photoId}?${queryParams.toString()}`);
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to load photo metadata.');
+      }
+      const data = await res.json();
+      
+      setPhoto(data.photo);
+      setProfileOwner(data.owner);
+      setSlides(data.slidePhotos);
+
+      // 2. Fetch comments separately to demonstrate full API integration
+      const commentsRes = await fetch(`/api/photo/${photoId}/comments`);
+      if (commentsRes.ok) {
+        const commentsData = await commentsRes.json();
+        setComments(commentsData.comments);
+      } else {
+        // Fallback to comments embedded in photo details if comments API fails
+        setComments(data.photo.comments || []);
+      }
+    } catch (err: any) {
+      console.error('Error fetching photo:', err);
+      setError(err.message || 'Failed to connect to the server.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Run fetch when photo ID changes
+  useEffect(() => {
+    fetchPhotoData(currentPhotoId);
+  }, [currentPhotoId]);
+
+  // Update address bar path dynamically during slides
+  const updateAddressBar = (photoId: string) => {
+    const searchString = window.location.search;
+    const newPath = `/photo/${photoId}${searchString}`;
+    window.history.replaceState(null, '', newPath);
+  };
+
+  // Slide navigation handlers
+  const handleNext = () => {
+    if (slides.length <= 1) return;
+    const nextIndex = (activeIndex + 1) % slides.length;
+    const nextPhoto = slides[nextIndex];
+    if (nextPhoto) {
+      setCurrentPhotoId(nextPhoto.id);
+      updateAddressBar(nextPhoto.id);
+    }
+  };
+
+  const handlePrev = () => {
+    if (slides.length <= 1) return;
+    const prevIndex = (activeIndex - 1 + slides.length) % slides.length;
+    const prevPhoto = slides[prevIndex];
+    if (prevPhoto) {
+      setCurrentPhotoId(prevPhoto.id);
+      updateAddressBar(prevPhoto.id);
+    }
+  };
+
+  const handleIndexChange = (index: number) => {
+    const selectedPhoto = slides[index];
+    if (selectedPhoto) {
+      setCurrentPhotoId(selectedPhoto.id);
+      updateAddressBar(selectedPhoto.id);
+    }
+  };
+
+  // Favorite toggle action
+  const handleToggleLike = () => {
+    setLiked((prev) => {
+      const nextState = !prev;
+      if (nextState) {
+        toast.success('Added to favorites!');
+      } else {
+        toast.info('Removed from favorites.');
+      }
+      return nextState;
+    });
+  };
+
+  // Add a new comment or reply
+  const handleAddComment = async (text: string, parentId?: string) => {
+    try {
+      const response = await fetch(`/api/photo/${currentPhotoId}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          author: 'Visitor',
+          text,
+          parentId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to post comment.');
+      }
+
+      const data = await response.json();
+      setComments(data.comments);
+      toast.success(parentId ? 'Reply submitted!' : 'Comment added!');
+    } catch (err) {
+      toast.error('Could not submit comment. Please try again.');
+      throw err;
+    }
+  };
+
+  if (isLoading) {
+    return <PhotoSkeleton />;
+  }
+
+  if (error) {
+    return (
+      <PhotoError
+        message={error}
+        onRetry={() => fetchPhotoData(currentPhotoId, true)}
+        backUrl={backUrl}
+      />
+    );
+  }
 
   return (
-    <main className="margin min-h-screen bg-zinc-950 text-white">
-      <div className="grid min-h-screen lg:grid-cols-[1fr_435px]">
-        <section className="relative flex min-h-[62vh] items-center justify-center bg-black lg:min-h-screen">
-          <Link
-            href={`/profile/${owner.username}`}
-            className="absolute top-4 left-4 z-20 grid size-11 place-items-center bg-white/10 text-white backdrop-blur"
-          >
-            <X className="size-6" />
-          </Link>
-
-          <button
-            onClick={prev}
-            aria-label="Previous photo"
-            className="absolute left-3 z-20 grid size-14 place-items-center text-white md:left-7"
-          >
-            <ChevronLeft className="size-12 stroke-[1.6]" />
-          </button>
-          <Image
-            src={photo.src}
-            alt={photo.alt}
-            className="max-h-screen w-full object-contain"
-            width={800}
-            height={600}
+    <main className="min-h-screen bg-zinc-950 text-white overflow-hidden">
+      <div className="flex h-screen flex-col lg:flex-row">
+        {/* Left Column: Image Viewer Section (Fixed) */}
+        <section className="relative flex flex-1 items-center justify-center bg-black h-[60vh] lg:h-full min-w-0">
+          <PhotoViewer
+            photo={photo}
+            slidePhotos={slides}
+            index={activeIndex}
+            onPrev={handlePrev}
+            onNext={handleNext}
+            onIndexChange={handleIndexChange}
+            isLiked={liked}
+            onToggleLike={handleToggleLike}
           />
-          <button
-            onClick={next}
-            aria-label="Next photo"
-            className="absolute right-3 z-20 grid size-14 place-items-center text-white md:right-7"
-          >
-            <ChevronRight className="size-12 stroke-[1.6]" />
-          </button>
 
-          <button
-            onClick={() => setLiked((value) => !value)}
-            aria-label="Like photo"
-            className="absolute top-6 right-7 z-20 grid size-14 place-items-center text-white"
-          >
-            <Heart className={liked ? 'size-12 fill-red-500 text-red-500' : 'size-12'} />
-          </button>
-
-          <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">
-            {slidePhotos.map((item, itemIndex) => (
-              <button
-                key={item.id}
-                onClick={() => setIndex(itemIndex)}
-                aria-label={`Show ${item.title}`}
-                className={itemIndex === index ? 'h-2 w-8 bg-white' : 'size-2 bg-white/45'}
-              />
-            ))}
-          </div>
+          {/* Floating trigger to restore sidebar if collapsed */}
+          {!isSidebarOpen && (
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="absolute right-4 top-1/2 z-20 flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white text-zinc-950 shadow-2xl hover:bg-zinc-100 transition-transform duration-200 active:scale-90"
+              title="Expand sidebar details"
+            >
+              <ChevronLeft className="size-6 stroke-[3.5]" />
+            </button>
+          )}
         </section>
 
-        <aside className="overflow-y-auto bg-[#f0f1f2] text-slate-900 lg:h-screen">
-          <section className="flex items-center justify-between border-b border-slate-300 p-7">
-            <Link href={`/profile/${owner.username}`} className="flex items-center gap-4">
-              <Image
-                src={owner.avatar}
-                alt={owner.name}
-                width={80}
-                height={80}
-                className="size-20 rounded-full border-4 border-[#d7764f] object-cover"
-              />
-              <div>
-                <h1 className="text-xl font-black">{owner.name}</h1>
-                <p className="text-sm text-slate-500">{owner.country}</p>
-                <Button size="sm" className="mt-2 h-7 bg-sky-600 text-xs hover:bg-sky-700">
-                  Follow
-                </Button>
-              </div>
-            </Link>
-            <div className="grid size-20 place-items-center rounded-full border-2 border-slate-700 bg-white text-center text-sm font-black uppercase">
-              {owner.rank}
-            </div>
-          </section>
+        {/* Right Column: Scrollable Detail Panel */}
+        <aside
+          className={cn(
+            'flex flex-col bg-zinc-100 text-zinc-900 border-l border-zinc-200 shrink-0 h-[40vh] lg:h-full transition-all duration-300 ease-in-out',
+            isSidebarOpen ? 'w-full lg:w-[435px]' : 'w-0 lg:w-0 overflow-hidden border-l-0'
+          )}
+        >
+          {/* Header Panel */}
+          <SidebarHeader
+            owner={profileOwner}
+            isSidebarOpen={isSidebarOpen}
+            onToggleSidebar={() => setIsSidebarOpen(false)}
+            backUrl={backUrl}
+          />
 
-          <section className="grid grid-cols-4 border-b border-slate-300 p-6 text-center">
-            <Metric icon={<Camera />} value={photo.votes} label="Votes" />
-            <Metric icon={<Eye />} value={photo.views} label="Views" />
-            <Metric icon={<Heart />} value={photo.likes + (liked ? 1 : 0)} label="Likes" />
-            <Metric icon={<Trophy />} value={photo.achievements} label="Awards" />
-          </section>
+          {/* Scrollable details wrapper */}
+          <div className="flex-1 overflow-y-auto min-h-0 bg-white">
+            {/* Statistics */}
+            <SidebarMetrics
+              votes={photo.votes}
+              views={photo.views}
+              likes={photo.likes + (liked ? 1 : 0)}
+              achievements={photo.achievements}
+            />
 
-          <section className="border-b border-slate-300 p-7">
-            <p className="text-xs font-bold text-sky-600 uppercase">{photo.contestName}</p>
-            <h2 className="mt-1 text-2xl font-black">{photo.title}</h2>
-            <p className="mt-2 text-sm text-slate-500">{photo.alt}</p>
-          </section>
+            {/* Photo description */}
+            <section className="border-b border-zinc-200 bg-white p-6">
+              {photo.contestName && (
+                <p className="text-[10px] font-bold text-[#2995f3] uppercase tracking-widest leading-none mb-1.5">
+                  {photo.contestName}
+                </p>
+              )}
+              <h2 className="text-xl font-black text-zinc-900 leading-tight">
+                {photo.title}
+              </h2>
+              {photo.alt && (
+                <p className="text-xs font-semibold text-zinc-500 mt-2 leading-relaxed">
+                  {photo.alt}
+                </p>
+              )}
+            </section>
 
-          <section className="border-b border-slate-300 p-7">
-            <h3 className="text-lg font-black uppercase">Comments ({comments.length})</h3>
-            <div className="mt-5 space-y-4">
-              {comments.map((item) => (
-                <div key={item.id} className="flex gap-3 text-sm">
-                  <div className="grid size-9 shrink-0 place-items-center rounded-full bg-sky-100 font-black text-sky-700">
-                    {item.author.charAt(0)}
-                  </div>
-                  <div>
-                    <p>
-                      <span className="font-bold">{item.author}</span> {item.text}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-400">{item.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <form
-              className="mt-5"
-              onSubmit={(event) => {
-                event.preventDefault();
-                if (!comment.trim()) return;
-                setLocalComments((items) => [
-                  ...items,
-                  {
-                    id: crypto.randomUUID(),
-                    author: 'Public Visitor',
-                    text: comment.trim(),
-                    time: 'just now',
-                  },
-                ]);
-                setComment('');
-              }}
-            >
-              <textarea
-                value={comment}
-                onChange={(event) => setComment(event.target.value)}
-                placeholder="Write a comment"
-                className="h-24 w-full resize-none border border-slate-300 bg-white p-3 text-sm outline-none focus:border-sky-500"
-              />
-              <div className="mt-2 flex justify-end">
-                <Button size="sm" className="h-8 bg-sky-600 text-xs uppercase hover:bg-sky-700">
-                  Submit
-                </Button>
-              </div>
-            </form>
-          </section>
+            {/* Comments Thread */}
+            <SidebarComments
+              photoId={currentPhotoId}
+              comments={comments}
+              onAddComment={handleAddComment}
+            />
 
-          <section className="border-b border-slate-300 p-7">
-            <h3 className="text-lg font-black uppercase">Details</h3>
-            <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-600">
-              {[photo.camera, photo.aperture, photo.shutter, photo.iso].map((item) => (
-                <div key={item} className="border border-slate-200 bg-white px-3 py-2">
-                  {item}
-                </div>
-              ))}
-            </div>
-          </section>
+            {/* Camera Parameters Details */}
+            <SidebarDetails
+              camera={photo.camera}
+              aperture={photo.aperture}
+              shutter={photo.shutter}
+              iso={photo.iso}
+            />
 
-          <section className="p-7">
-            <h3 className="text-lg font-black uppercase">Labels</h3>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {photo.labels.map((label) => (
-                <span
-                  key={label}
-                  className="rounded-full bg-white px-4 py-2 text-sm text-slate-700"
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
-          </section>
+            {/* Categorization Badges */}
+            <SidebarLabels labels={photo.labels} />
+          </div>
         </aside>
       </div>
     </main>
-  );
-}
-
-function Metric({ icon, value, label }: { icon: React.ReactNode; value: number; label: string }) {
-  return (
-    <div>
-      <div className="mx-auto mb-1 grid size-7 place-items-center text-slate-700 [&_svg]:size-6">
-        {icon}
-      </div>
-      <p className="text-lg font-black">{value.toLocaleString()}</p>
-      <p className="text-xs text-slate-500 uppercase">{label}</p>
-    </div>
   );
 }

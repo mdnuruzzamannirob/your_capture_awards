@@ -15,7 +15,7 @@ type Props = {
   profile: PublicProfile;
 };
 
-type TabKey = 'photos' | 'like' | 'achievements' | 'followers' | 'following';
+type TabKey = 'photos' | 'likes' | 'achievements' | 'followers' | 'following';
 
 type TabConfig = {
   key: TabKey;
@@ -64,7 +64,7 @@ function ProfileContent({ activeTab, profile }: { activeTab: TabKey; profile: Pu
     return <FollowingTabContent username={profile.username} />;
   }
 
-  if (activeTab === 'like') {
+  if (activeTab === 'likes') {
     return <LikeTabContent username={profile.username} />;
   }
 
@@ -82,7 +82,7 @@ export function PublicProfilePage({ profile }: Props) {
   const tabs: TabConfig[] = useMemo(
     () => [
       { key: 'photos' as const, label: 'Photos', value: profile.photosCount },
-      { key: 'like' as const, label: 'Like', value: profile.likedPhotoIds?.length ?? 0 },
+      { key: 'likes' as const, label: 'Likes', value: profile.likedPhotoIds?.length ?? 0 },
       { key: 'achievements' as const, label: 'Achievements', value: profile.achievements },
       { key: 'followers' as const, label: 'Followers', value: profile.followers },
       { key: 'following' as const, label: 'Following', value: profile.following },
