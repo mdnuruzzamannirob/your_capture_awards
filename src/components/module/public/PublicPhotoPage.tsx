@@ -35,8 +35,8 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
   const [comments, setComments] = useState<Comment[]>([]);
 
   const [liked, setLiked] = useState(false);
-  // Start sidebar closed on mobile (<lg), open on desktop
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // SSR-safe default: open. On mobile we close it in useEffect (before transitions are enabled).
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   // Prevents transition animation on initial render — only enable after first paint
   const [transitionReady, setTransitionReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -98,11 +98,13 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
     }
   };
 
-  // Set initial sidebar state based on screen width, then enable transitions after first paint
+  // On mobile (<lg), close sidebar immediately (transitionReady=false so no animation).
+  // On desktop, isSidebarOpen stays true — no state change, no animation.
+  // After first paint, enable transitions for future user interactions.
   useEffect(() => {
-    // Set correct open/close state immediately (no animation yet)
-    setIsSidebarOpen(window.innerWidth >= 1024);
-    // Enable transitions only after the initial state has been painted
+    if (window.innerWidth < 1024) {
+      setIsSidebarOpen(false);
+    }
     const frame = requestAnimationFrame(() => {
       setTransitionReady(true);
     });
