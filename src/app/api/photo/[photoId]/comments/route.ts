@@ -112,3 +112,49 @@ function findCommentById(comments: Comment[], id: string): Comment | null {
   }
   return null;
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ photoId: string }> }
+) {
+  const { photoId } = await params;
+  const searchParams = request.nextUrl.searchParams;
+  const commentId = searchParams.get('commentId');
+
+  if (!commentId) {
+    return NextResponse.json(
+      { message: 'Comment ID is required.' },
+      { status: 400 }
+    );
+  }
+
+  try {
+    let comments = getCommentsForPhoto(photoId);
+    comments = deleteCommentById(comments, commentId);
+    commentsCache[photoId] = comments;
+    return NextResponse.json({ success: true, comments });
+  } catch (error: any) {
+    return NextResponse.json(
+      { message: error.message || 'Failed to delete comment.' },
+      { status: 500 }
+    );
+  }
+}
+
+// Helper to recursively delete a comment by ID from comments array
+function deleteCommentById(comments: Comment[], id: string): Comment[] {
+  // Filter out the comment if it matches the ID
+  const filtered = comments.filter((c) => c.id !== id);
+  
+  // For the remaining comments, recursively filter their replies
+  return filtered.map((c) => {
+    if (c.replies && c.replies.length > 0) {
+      return {
+        ...c,
+        replies: deleteCommentById(c.replies, id),
+      };
+    }
+    return c;
+  });
+}
+
