@@ -215,7 +215,7 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
     <main className="min-h-screen overflow-hidden bg-zinc-950 text-white">
       <div className="flex h-screen flex-col lg:flex-row">
         {/* Left Column: Image Viewer Section (Fixed) */}
-        <section className="relative flex h-screen w-full min-w-0 flex-1 items-center justify-center bg-black lg:h-full">
+        <section className="relative flex h-full w-full min-w-0 flex-1 items-center justify-center overflow-hidden bg-black">
           <PhotoViewer
             photo={photo}
             slidePhotos={slides}
