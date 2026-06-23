@@ -4,7 +4,6 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-// Sub components
 import { PhotoError } from './photo/PhotoError';
 import { PhotoSkeleton } from './photo/PhotoSkeleton';
 import { PhotoViewer } from './photo/PhotoViewer';
@@ -12,228 +11,208 @@ import { Comment, SidebarComments } from './photo/SidebarComments';
 import { SidebarHeader } from './photo/SidebarHeader';
 import { SidebarMetrics } from './photo/SidebarMetrics';
 
-import { PublicPhoto, PublicProfile } from '@/lib/mock/public-gallery-data';
 import { cn } from '@/utils/cn';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { clearSwiperPhotos } from '@/store/slices/profileSlice';
+import { useLazyGetMyPhotoDetailsQuery, useLazyGetPublicPhotoDetailsQuery } from '@/store/apis/profileApi';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Props {
-  activePhoto: PublicPhoto;
-  owner: PublicProfile;
-  slidePhotos: PublicPhoto[];
+  photoId: string;
 }
 
-export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
+export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
   const searchParams = useSearchParams();
   const source = searchParams.get('source') || '';
-  const profileParam = searchParams.get('profile') || '';
+  const profileParam = searchParams.get('profile') || ''; // username or userId passed from profile page
+  const ownerIdParam = searchParams.get('ownerId') || ''; // userId of the photo owner
   const contestParam = searchParams.get('contest') || '';
 
-  // App state
-  const [currentPhotoId, setCurrentPhotoId] = useState(activePhoto.id);
-  const [photo, setPhoto] = useState<PublicPhoto>(activePhoto);
-  const [profileOwner, setProfileOwner] = useState<PublicProfile>(owner);
-  const [slides, setSlides] = useState<PublicPhoto[]>(slidePhotos);
-  const [comments, setComments] = useState<Comment[]>([]);
+  const dispatch = useAppDispatch();
+  const { user: currentUser } = useAuth();
 
+  // Swiper photos from Redux (set by PortfolioCard / PhotoCard on click for slide navigation)
+  const swiperPhotos = useAppSelector((state) => state.profile.swiperPhotos);
+
+  // App state
+  const [currentPhotoId, setCurrentPhotoId] = useState(initialPhotoId);
+  const [photo, setPhoto] = useState<any>(null);
+  const [profileOwner, setProfileOwner] = useState<any>(null);
+  const [slides, setSlides] = useState<any[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [liked, setLiked] = useState(false);
-  // SSR-safe default: open. On mobile we close it in useEffect (before transitions are enabled).
+  const [ownerIsFollowed, setOwnerIsFollowed] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  // Prevents transition animation on initial render — only enable after first paint
   const [transitionReady, setTransitionReady] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Sync index of currentPhoto in slides
-  const activeIndex = Math.max(
-    0,
-    slides.findIndex((p) => p.id === currentPhotoId),
-  );
+  // Determine if viewing own photo (by ownerId param or by photo.userId after load)
+  const isOwnPhoto =
+    !!currentUser?.id &&
+    (ownerIdParam === currentUser.id || photo?.userId === currentUser.id);
 
-  // Derive back path from search parameters
+  // Active index in slides
+  const activeIndex = Math.max(0, slides.findIndex((p) => p.id === currentPhotoId));
+
+  // Back URL derivation
   const backUrl = (() => {
-    if (source === 'contest' && (contestParam || photo.contestId)) {
+    if (source === 'contest' && (contestParam || photo?.contestId)) {
       return `/contest/${contestParam || photo.contestId}`;
     }
-    if (source === 'profile' && (profileParam || photo.ownerUsername)) {
-      return `/profile/${profileParam || photo.ownerUsername}`;
+    if (source === 'profile' && (profileParam || ownerIdParam)) {
+      // if isOwn, back to own profile page
+      if (isOwnPhoto) return '/profile';
+      return `/profile/${profileParam || ownerIdParam}`;
     }
-    return `/profile/${photo.ownerUsername}`;
+    return profileParam ? `/profile/${profileParam}` : '/';
   })();
 
-  // Fetch photo details & comments from API
-  const fetchPhotoData = async (photoId: string, isRetry = false) => {
-    setIsLoading(true);
+  // RTK Lazy queries
+  const [fetchMyPhotoDetails, { isLoading: isLoadingOwn }] = useLazyGetMyPhotoDetailsQuery();
+  const [fetchPublicPhotoDetails, { isLoading: isLoadingPublic }] = useLazyGetPublicPhotoDetailsQuery();
+  const isLoading = isLoadingOwn || isLoadingPublic;
+
+  // Load photo data — chooses own vs public API based on ownership
+  const loadPhotoData = async (photoId: string) => {
     setError(null);
+
+    // Determine ownership from URL param (available immediately before photo loads)
+    const viewingOwn = !!currentUser?.id && ownerIdParam === currentUser.id;
+
     try {
-      // Fetch photo & owner info
-      const queryParams = new URLSearchParams({
-        source,
-        profile: profileParam,
-        contest: contestParam,
-      });
-
-      const res = await fetch(`/api/photo/${photoId}?${queryParams.toString()}`);
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to load photo metadata.');
-      }
-      const data = await res.json();
-
-      setPhoto(data.photo);
-      setProfileOwner(data.owner);
-      setSlides(data.slidePhotos);
-
-      // Fetch comments from simulated backend REST API
-      const commentsRes = await fetch(`/api/photo/${photoId}/comments`);
-      if (commentsRes.ok) {
-        const commentsData = await commentsRes.json();
-        setComments(commentsData.comments);
+      if (viewingOwn) {
+        // Own photo: GET /profiles/photos/:photoId
+        const result = await fetchMyPhotoDetails(photoId).unwrap();
+        const { photo: photoData, comments: photoComments } = result.data;
+        setPhoto(photoData);
+        // For own photos the owner is embedded in photo.user
+        setProfileOwner(photoData.user ?? null);
+        setLiked(photoData.isLiked ?? false);
+        // Own photo — no follow button needed
+        setOwnerIsFollowed(false);
+        if (photoComments) setComments(photoComments);
       } else {
-        setComments(data.photo.comments || []);
+        // Public photo: GET /profiles/users/:ownerId/photos/:photoId
+        const ownerId = ownerIdParam || photo?.userId || '';
+        if (!ownerId) {
+          setError('Could not determine photo owner. Please navigate back and try again.');
+          return;
+        }
+        const result = await fetchPublicPhotoDetails({ id: ownerId, photoId }).unwrap();
+        const { photo: photoData, photoOwner, comments: photoComments } = result.data;
+        setPhoto(photoData);
+        setProfileOwner(photoOwner ?? null);
+        setLiked(photoData.isLiked ?? false);
+        setOwnerIsFollowed(photoOwner?.isFollowed ?? false);
+        if (photoComments) setComments(photoComments);
       }
     } catch (err: any) {
-      console.error('Error fetching photo:', err);
-      setError(err.message || 'Failed to connect to the server.');
-    } finally {
-      setIsLoading(false);
+      const msg = err?.data?.message || err?.message || 'Failed to load photo.';
+      setError(msg);
     }
   };
 
-  // useLayoutEffect runs synchronously before browser paint — sets sidebar state with zero flash/animation
-  // Desktop: isSidebarOpen stays true (no change) | Mobile: closes instantly before first paint
-  useLayoutEffect(() => {
-    if (window.innerWidth < 1024) {
-      setIsSidebarOpen(false);
+  // On mount: initialise slides from Redux swiper state
+  useEffect(() => {
+    if (swiperPhotos.length > 0) {
+      setSlides(swiperPhotos);
+      const seed = swiperPhotos.find((p) => p.id === initialPhotoId) || swiperPhotos[0];
+      if (seed) setPhoto((prev: any) => prev ?? seed);
     }
+  }, []); // run only on mount
+
+  // Fetch full details when photo ID changes
+  useEffect(() => {
+    loadPhotoData(currentPhotoId);
+  }, [currentPhotoId]);
+
+  // SSR-safe: close sidebar on mobile
+  useLayoutEffect(() => {
+    if (window.innerWidth < 1024) setIsSidebarOpen(false);
   }, []);
 
-  // Enable CSS transitions only AFTER the initial sidebar position has been painted
+  // Enable CSS transitions after first paint
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      setTransitionReady(true);
-    });
+    const frame = requestAnimationFrame(() => setTransitionReady(true));
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  // Run fetch when photo ID changes
-  useEffect(() => {
-    fetchPhotoData(currentPhotoId);
-  }, [currentPhotoId]);
-
-  // Update address bar path dynamically during slides
+  // Update address bar during slide navigation
   const updateAddressBar = (photoId: string) => {
-    const searchString = window.location.search;
-    const newPath = `/photo/${photoId}${searchString}`;
+    const newPath = `/photo/${photoId}${window.location.search}`;
     window.history.replaceState(null, '', newPath);
   };
 
-  // Slide navigation handlers
   const handleNext = () => {
     if (slides.length <= 1) return;
-    const nextIndex = (activeIndex + 1) % slides.length;
-    const nextPhoto = slides[nextIndex];
-    if (nextPhoto) {
-      setCurrentPhotoId(nextPhoto.id);
-      updateAddressBar(nextPhoto.id);
-    }
+    const next = slides[(activeIndex + 1) % slides.length];
+    if (next) { setCurrentPhotoId(next.id); updateAddressBar(next.id); }
   };
 
   const handlePrev = () => {
     if (slides.length <= 1) return;
-    const prevIndex = (activeIndex - 1 + slides.length) % slides.length;
-    const prevPhoto = slides[prevIndex];
-    if (prevPhoto) {
-      setCurrentPhotoId(prevPhoto.id);
-      updateAddressBar(prevPhoto.id);
-    }
+    const prev = slides[(activeIndex - 1 + slides.length) % slides.length];
+    if (prev) { setCurrentPhotoId(prev.id); updateAddressBar(prev.id); }
   };
 
   const handleIndexChange = (index: number) => {
-    const selectedPhoto = slides[index];
-    if (selectedPhoto) {
-      setCurrentPhotoId(selectedPhoto.id);
-      updateAddressBar(selectedPhoto.id);
-    }
+    const selected = slides[index];
+    if (selected) { setCurrentPhotoId(selected.id); updateAddressBar(selected.id); }
   };
 
-  // Favorite toggle action
   const handleToggleLike = () => {
     setLiked((prev) => {
-      const nextState = !prev;
-      if (nextState) {
-        toast.success('Added to favorites!');
-      } else {
-        toast.info('Removed from favorites.');
-      }
-      return nextState;
+      const next = !prev;
+      toast[next ? 'success' : 'info'](next ? 'Added to favorites!' : 'Removed from favorites.');
+      return next;
     });
   };
 
-  // Add a new comment or reply
+  const handleToggleFollow = () => {
+    setOwnerIsFollowed((prev) => {
+      const next = !prev;
+      const name = profileOwner?.fullName || profileOwner?.username || 'this user';
+      toast[next ? 'success' : 'info'](next ? `Following ${name}` : `Unfollowed ${name}`);
+      return next;
+    });
+  };
+
   const handleAddComment = async (text: string, parentId?: string) => {
     try {
-      const response = await fetch(`/api/photo/${currentPhotoId}/comments`, {
+      const res = await fetch(`/api/photo/${currentPhotoId}/comments`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          author: 'Visitor',
-          text,
-          parentId,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ author: 'Visitor', text, parentId }),
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to post comment.');
-      }
-
-      const data = await response.json();
+      if (!res.ok) throw new Error('Failed to post comment.');
+      const data = await res.json();
       setComments(data.comments);
       toast.success(parentId ? 'Reply submitted!' : 'Comment added!');
-    } catch (err) {
+    } catch {
       toast.error('Could not submit comment. Please try again.');
-      throw err;
     }
   };
 
-  // Delete comment action
   const handleDeleteComment = async (commentId: string) => {
     try {
-      const response = await fetch(`/api/photo/${currentPhotoId}/comments?commentId=${commentId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete comment.');
-      }
-
-      const data = await response.json();
+      const res = await fetch(`/api/photo/${currentPhotoId}/comments?commentId=${commentId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete comment.');
+      const data = await res.json();
       setComments(data.comments);
       toast.success('Comment deleted.');
-    } catch (err) {
+    } catch {
       toast.error('Could not delete comment. Please try again.');
-      throw err;
     }
   };
 
-  if (isLoading) {
-    return <PhotoSkeleton isSidebarOpen={isSidebarOpen} />;
-  }
-
-  if (error) {
-    return (
-      <PhotoError
-        message={error}
-        onRetry={() => fetchPhotoData(currentPhotoId, true)}
-        backUrl={backUrl}
-      />
-    );
-  }
+  if (isLoading && !photo) return <PhotoSkeleton isSidebarOpen={isSidebarOpen} />;
+  if (error) return <PhotoError message={error} onRetry={() => loadPhotoData(currentPhotoId)} backUrl={backUrl} />;
+  if (!photo) return <PhotoSkeleton isSidebarOpen={isSidebarOpen} />;
 
   return (
     <main className="min-h-screen overflow-hidden bg-zinc-950 text-white">
       <div className="flex h-screen flex-col lg:flex-row">
-        {/* Left Column: Image Viewer Section (Fixed) */}
+        {/* Left: Photo Viewer */}
         <section className="relative flex h-full w-full min-w-0 flex-1 items-center justify-center overflow-hidden bg-black">
           <PhotoViewer
             photo={photo}
@@ -247,77 +226,47 @@ export function PublicPhotoPage({ activePhoto, owner, slidePhotos }: Props) {
             backUrl={backUrl}
             isSidebarOpen={isSidebarOpen}
             onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+            isOwnPhoto={isOwnPhoto}
           />
         </section>
 
-        {/* Right Column: Scrollable Detail Panel (Styled in premium Dark Mode) */}
+        {/* Right: Detail Sidebar */}
         <aside
           className={cn(
             'flex flex-col border-zinc-800 bg-zinc-950 text-zinc-100',
-            // Only enable transition after first paint to avoid animation on initial render
             transitionReady && 'transition-all duration-300 ease-in-out',
-            // Desktop styling (side pane)
             'lg:static lg:z-auto lg:h-full lg:shrink-0 lg:border-l',
             isSidebarOpen ? 'lg:w-108.75' : 'lg:w-0 lg:overflow-hidden lg:border-l-0',
-            // Mobile/Tablet styling (full screen drawer overlay)
             'fixed inset-y-0 right-0 z-50 w-full h-full lg:static lg:inset-auto lg:z-auto',
             isSidebarOpen
               ? 'translate-x-0 opacity-100'
               : 'translate-x-full opacity-0 pointer-events-none lg:translate-x-0 lg:opacity-100 lg:pointer-events-auto',
           )}
         >
-          {/* Header Panel */}
-          <SidebarHeader
-            owner={profileOwner}
-            isSidebarOpen={isSidebarOpen}
-            onToggleSidebar={() => setIsSidebarOpen(false)}
-          />
-
-          {/* Scrollable details wrapper */}
-          <div className="min-h-0 flex-1 scrollbar-thin overflow-y-auto bg-zinc-950">
-            {/* Statistics */}
-            <SidebarMetrics
-              votes={photo.votes}
-              views={photo.views}
-              likes={photo.likes + (liked ? 1 : 0)}
-              achievements={photo.achievements}
+          {profileOwner && (
+            <SidebarHeader
+              owner={profileOwner}
+              isSidebarOpen={isSidebarOpen}
+              onToggleSidebar={() => setIsSidebarOpen(false)}
+              isOwnPhoto={isOwnPhoto}
+              isFollowed={ownerIsFollowed}
+              onToggleFollow={handleToggleFollow}
             />
+          )}
 
-            {/* Photo description */}
-            {/* <section className="border-b border-zinc-800 bg-zinc-950 p-6">
-              {photo.contestName && (
-                <p className="text-[10px] font-bold text-[#2995f3] uppercase tracking-widest leading-none mb-1.5">
-                  {photo.contestName}
-                </p>
-              )}
-              <h2 className="text-xl font-black text-zinc-100 leading-tight">
-                {photo.title}
-              </h2>
-              {photo.alt && (
-                <p className="text-xs font-semibold text-zinc-400 mt-2 leading-relaxed">
-                  {photo.alt}
-                </p>
-              )}
-            </section> */}
-
-            {/* Comments Thread */}
+          <div className="min-h-0 flex-1 scrollbar-thin overflow-y-auto bg-zinc-950">
+            <SidebarMetrics
+              votes={photo.totalVotes ?? photo.votes ?? 0}
+              views={photo.views ?? 0}
+              likes={(photo.likes ?? 0) + (liked ? 1 : 0)}
+              achievements={photo.contestUpload?.length ?? photo.achievememnts?.length ?? 0}
+            />
             <SidebarComments
               photoId={currentPhotoId}
               comments={comments}
               onAddComment={handleAddComment}
               onDeleteComment={handleDeleteComment}
             />
-
-            {/* Camera Parameters Details */}
-            {/* <SidebarDetails
-              camera={photo.camera}
-              aperture={photo.aperture}
-              shutter={photo.shutter}
-              iso={photo.iso}
-            /> */}
-
-            {/* Categorization Badges */}
-            {/* <SidebarLabels labels={photo.labels} /> */}
           </div>
         </aside>
       </div>
