@@ -222,7 +222,7 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
   return (
     <main className="margin min-h-screen bg-zinc-950 text-white">
       {/* Banner */}
-      <section className="relative h-60 w-full overflow-hidden bg-zinc-900 md:h-80">
+      <section className="relative h-60 w-full overflow-hidden bg-zinc-900 md:h-96">
         {isLoading && !profile ? (
           <div className="size-full animate-pulse bg-zinc-900/60" />
         ) : !coverError && profile?.cover ? (
