@@ -1,6 +1,5 @@
 'use client';
 
-import { PublicPhoto } from '@/lib/mock/public-gallery-data';
 import { cn } from '@/utils/cn';
 import {
   ChevronLeft,
@@ -16,8 +15,8 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 interface PhotoViewerProps {
-  photo: PublicPhoto;
-  slidePhotos: PublicPhoto[];
+  photo: any;
+  slidePhotos: any[];
   index: number;
   onPrev: () => void;
   onNext: () => void;
@@ -27,6 +26,7 @@ interface PhotoViewerProps {
   backUrl: string;
   isSidebarOpen: boolean;
   onToggleSidebar: () => void;
+  isOwnPhoto?: boolean;
 }
 
 export function PhotoViewer({
@@ -41,7 +41,11 @@ export function PhotoViewer({
   backUrl,
   isSidebarOpen,
   onToggleSidebar,
+  isOwnPhoto = false,
 }: PhotoViewerProps) {
+  // Support both real API photos (photo.url) and mock photos (photo.src)
+  const photoSrc = photo.url || photo.src || '';
+  const photoAlt = photo.alt || photo.title || 'photo';
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -156,21 +160,23 @@ export function PhotoViewer({
         </button>
       )} */}
 
-      {/* Love/Favorite Overlay Button */}
-      <button
-        onClick={onToggleLike}
-        className="absolute top-6 right-20 z-20 grid size-10 cursor-pointer place-items-center rounded-full border border-white/10 bg-black/40 text-white drop-shadow-lg transition-transform duration-200 hover:bg-black/60 active:scale-95"
-        title={isLiked ? 'Unlike photo' : 'Like photo'}
-      >
-        <Heart
-          className={cn(
-            'size-5 stroke-2 transition-all duration-300',
-            isLiked
-              ? 'scale-110 fill-red-500 text-red-500'
-              : 'text-white hover:scale-105 hover:text-red-400',
-          )}
-        />
-      </button>
+      {/* Love/Favorite Overlay Button — hidden for own photos */}
+      {!isOwnPhoto && (
+        <button
+          onClick={onToggleLike}
+          className="absolute top-6 right-20 z-20 grid size-10 cursor-pointer place-items-center rounded-full border border-white/10 bg-black/40 text-white drop-shadow-lg transition-transform duration-200 hover:bg-black/60 active:scale-95"
+          title={isLiked ? 'Unlike photo' : 'Like photo'}
+        >
+          <Heart
+            className={cn(
+              'size-5 stroke-2 transition-all duration-300',
+              isLiked
+                ? 'scale-110 fill-red-500 text-red-500'
+                : 'text-white hover:scale-105 hover:text-red-400',
+            )}
+          />
+        </button>
+      )}
 
       {/* Top-Right Toggle Sidebar details/comments button (next to love button) */}
       {!isFullscreen && (
@@ -201,14 +207,17 @@ export function PhotoViewer({
           key={photo.id}
           className="animate-fade-in relative flex size-full items-center justify-center"
         >
-          <Image
-            src={photo.src}
-            alt={photo.alt || photo.title}
-            className="pointer-events-none max-h-full max-w-full object-contain transition-transform duration-300 select-none"
-            width={1200}
-            height={900}
-            priority
-          />
+          {photoSrc ? (
+            <Image
+              src={photoSrc.replace(/\\/g, '/')}
+              alt={photoAlt}
+              fill
+              className="pointer-events-none object-contain transition-transform duration-300 select-none"
+              priority
+            />
+          ) : (
+            <div className="flex size-full items-center justify-center text-zinc-650 text-sm">No Image</div>
+          )}
         </div>
       </div>
 

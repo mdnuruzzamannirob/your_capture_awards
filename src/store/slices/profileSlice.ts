@@ -4,6 +4,7 @@ import { ProfileState, Photo, Stats } from '../types/profileTypes';
 const initialState: ProfileState = {
   photos: [],
   stats: null,
+  swiperPhotos: [],
   achievements: null,
 };
 
@@ -36,8 +37,17 @@ const profileSlice = createSlice({
     setAchievements: (state, action: PayloadAction<string>) => {
       //   state.tempToken = action.payload;
     },
+
+    setSwiperPhotos: (state, action: PayloadAction<any[]>) => {
+      state.swiperPhotos = action.payload;
+    },
+
+    clearSwiperPhotos: (state) => {
+      state.swiperPhotos = [];
+    },
   },
 });
 
-export const { setPhotos, setPhoto, deletePhoto, setStats, setAchievements } = profileSlice.actions;
+export const { setPhotos, setPhoto, deletePhoto, setStats, setAchievements, setSwiperPhotos, clearSwiperPhotos } =
+  profileSlice.actions;
 export default profileSlice.reducer;

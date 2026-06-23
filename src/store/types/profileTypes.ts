@@ -33,5 +33,6 @@ export type Stats = {
 export type ProfileState = {
   photos: Photo[];
   stats: Stats | null;
+  swiperPhotos: any[];
   achievements: any | null;
 };

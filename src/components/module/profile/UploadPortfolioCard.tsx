@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, DragEvent, ChangeEvent, KeyboardEvent } from 'react';
-import Image from 'next/image';
-import { LucideCloudUpload, X } from 'lucide-react';
-import { cn } from '@/utils/cn';
-import { toast } from 'sonner';
 import { useCreatePhotoMutation } from '@/store/apis/profileApi';
+import { cn } from '@/utils/cn';
+import { LucideCloudUpload, X } from 'lucide-react';
+import Image from 'next/image';
+import { ChangeEvent, DragEvent, KeyboardEvent, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function UploadPortfolioCard() {
   const [file, setFile] = useState<File | null>(null);
@@ -72,7 +72,7 @@ export default function UploadPortfolioCard() {
       onDragOver={handleDragOver}
       onClick={() => document.getElementById('fileInput')?.click()}
       onKeyDown={handleKeyPress}
-      className="group border-primary/60 hover:border-primary hover:bg-primary/5 focus:ring-primary/40 hover:shadow-primary/10 relative flex min-h-44 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed bg-white/5 p-2 text-white/60 shadow-lg ring-1 shadow-black/20 ring-white/10 transition duration-300 hover:-translate-y-1 hover:shadow-2xl focus:ring-2 focus:outline-none active:scale-[0.98]"
+      className="group border-primary/60 hover:border-primary hover:bg-primary/5 focus:ring-primary/40 hover:shadow-primary/10 relative flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed bg-white/5 p-2 text-white/60 shadow-lg ring-1 shadow-black/20 ring-white/10 transition duration-300 hover:shadow-2xl focus:ring-2 focus:outline-none"
     >
       <input type="file" id="fileInput" className="hidden" onChange={handleFileChange} />
 

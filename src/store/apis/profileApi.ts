@@ -71,6 +71,36 @@ export const profileApi = createApi({
         } catch {}
       },
     }),
+
+    // Own photo details: GET /profiles/photos/:photoId
+    // Returns: { data: { photo: { ...Photo, user: {...}, isLiked, isFollowed }, votes, comments, achievements } }
+    getMyPhotoDetails: builder.query<
+      { data: { photo: any; votes: number; comments: any[]; achievememnts: any[] } },
+      string
+    >({
+      query: (photoId) => `/profiles/photos/${photoId}`,
+    }),
+
+    getOtherUserProfile: builder.query<{ data: any }, string>({
+      query: (id) => `/profiles/users/${id}/profile`,
+    }),
+
+    getOtherUserPhotos: builder.query<{ data: Photo[]; meta?: any }, { id: string; page?: number; limit?: number }>({
+      query: ({ id, page = 1, limit = 10 }) => `/profiles/users/${id}?page=${page}&limit=${limit}`,
+    }),
+
+    getOtherUserStats: builder.query<{ data: Stats }, string>({
+      query: (id) => `/profiles/users/${id}/stats`,
+    }),
+
+    // Public photo details: GET /profiles/users/:id/photos/:photoId
+    // Returns: { data: { photo: { ...Photo, isLiked }, photoOwner: { ...user, isFollowed }, votes, comments } }
+    getPublicPhotoDetails: builder.query<
+      { data: { photo: any; photoOwner: any; votes: number; comments: any[]; commentsMeta?: any; achievememnts: any[] } },
+      { id: string; photoId: string }
+    >({
+      query: ({ id, photoId }) => `/profiles/users/${id}/photos/${photoId}`,
+    }),
   }),
 });
 
@@ -79,4 +109,11 @@ export const {
   useGetPhotosQuery,
   useGetStatsQuery,
   useDeletePhotoMutation,
+  useGetMyPhotoDetailsQuery,
+  useLazyGetMyPhotoDetailsQuery,
+  useGetOtherUserProfileQuery,
+  useGetOtherUserPhotosQuery,
+  useGetOtherUserStatsQuery,
+  useGetPublicPhotoDetailsQuery,
+  useLazyGetPublicPhotoDetailsQuery,
 } = profileApi;

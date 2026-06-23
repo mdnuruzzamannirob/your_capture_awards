@@ -76,7 +76,7 @@ export default function AvatarDialog() {
       <DialogTrigger asChild>
         <button
           onClick={() => setOpen(true)}
-          className="group border-foreground bg-primary/10 relative flex size-24 items-center justify-center overflow-hidden rounded-full border-4 sm:size-32 md:size-40"
+          className="group border-foreground bg-primary/10 relative flex size-full items-center justify-center overflow-hidden rounded-full"
         >
           {user?.avatar ? (
             <>
@@ -100,24 +100,24 @@ export default function AvatarDialog() {
       </DialogTrigger>
 
       {/* Dialog Content */}
-      <DialogContent className="bg-background/95 border border-gray-700 backdrop-blur sm:max-w-106.25">
+      <DialogContent className="bg-zinc-950/95 border border-zinc-800 backdrop-blur-md sm:max-w-md text-white">
         <DialogHeader>
-          <DialogTitle>{user?.avatar ? 'Edit Avatar' : 'Add Avatar'}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-xl font-bold text-white">{user?.avatar ? 'Edit Avatar' : 'Add Avatar'}</DialogTitle>
+          <DialogDescription className="text-zinc-400 text-sm">
             {user?.avatar
               ? 'Change or remove your current avatar.'
               : 'Upload a profile picture to personalize your account.'}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-2">
+        <div className="grid gap-4 py-4">
           {/* Image Preview / Upload */}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className={cn(
-              'relative flex h-80 w-full cursor-pointer items-center justify-center overflow-hidden rounded-md border border-dashed border-gray-500 text-sm text-gray-400 transition hover:bg-gray-800/40',
-              error && 'border-destructive text-destructive',
+              'relative flex h-60 w-60 mx-auto cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zinc-700 bg-zinc-900/50 hover:bg-zinc-900 hover:border-zinc-500 transition duration-300 text-sm text-zinc-450',
+              error && 'border-red-500 text-red-500',
             )}
           >
             {preview ? (
@@ -125,7 +125,10 @@ export default function AvatarDialog() {
             ) : user?.avatar ? (
               <Image src={user.avatar} alt="Current Avatar" fill className="object-cover" />
             ) : (
-              <span>Click to select image</span>
+              <div className="flex flex-col items-center gap-2">
+                <FiPlus className="size-8 text-zinc-500" />
+                <span>Click to select image</span>
+              </div>
             )}
           </button>
 
@@ -137,14 +140,14 @@ export default function AvatarDialog() {
             className="hidden"
           />
 
-          {error && <p className="text-destructive text-xs">{error}</p>}
+          {error && <p className="text-red-500 text-center text-xs mt-1">{error}</p>}
         </div>
 
-        <DialogFooter className="flex justify-between">
+        <DialogFooter className="flex justify-end gap-2">
           <DialogClose asChild>
             <button
               type="button"
-              className="rounded-md border border-gray-600 px-3 py-1.5 text-sm hover:bg-gray-800/50"
+              className="rounded-lg border border-zinc-800 bg-zinc-900/55 px-4 py-2 text-sm text-zinc-350 hover:bg-zinc-900 transition"
             >
               Cancel
             </button>
@@ -154,7 +157,7 @@ export default function AvatarDialog() {
             type="button"
             disabled={isUpdating}
             onClick={handleSave}
-            className="bg-primary/80 text-background hover:bg-primary/90 rounded-md px-4 py-1.5 text-sm disabled:opacity-50"
+            className="bg-primary hover:bg-primary/95 text-white rounded-lg px-5 py-2 text-sm font-semibold transition disabled:opacity-50"
           >
             {isUpdating ? 'Saving...' : user?.avatar ? 'Save changes' : 'Add Avatar'}
           </button>

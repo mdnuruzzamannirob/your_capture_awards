@@ -1,18 +1,32 @@
 'use client';
 
-import { PublicProfile } from '@/lib/mock/public-gallery-data';
 import { cn } from '@/utils/cn';
 import { MapPin } from 'lucide-react';
 import Image from 'next/image';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AchievementsTabContent from './AchievementsTabContent';
 import FollowersTabContent from './FollowersTabContent';
 import FollowingTabContent from './FollowingTabContent';
 import LikeTabContent from './LikeTabContent';
 import PhotosTabContent from './PhotosTabContent';
 
+import { useAuth } from '@/hooks/useAuth';
+import {
+  useGetOtherUserPhotosQuery,
+  useGetOtherUserProfileQuery,
+  useGetOtherUserStatsQuery,
+  useGetPhotosQuery,
+  useGetStatsQuery,
+} from '@/store/apis/profileApi';
+import { useAppSelector } from '@/store/hooks';
+
+import { toast } from 'sonner';
+import AddCoverDialog from '../profile/AddCoverDialog';
+import AvatarDialog from '../profile/AvatarDialog';
+
 type Props = {
-  profile: PublicProfile;
+  isOwn?: boolean;
+  userId?: string;
 };
 
 type TabKey = 'photos' | 'likes' | 'achievements' | 'followers' | 'following';
@@ -39,11 +53,13 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={cn(
-        'relative flex h-full flex-1 cursor-pointer flex-col items-center justify-center px-5 transition duration-200 outline-none select-none',
-        active ? 'bg-primary text-white' : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300',
+        'relative flex h-full min-w-20 flex-1 cursor-pointer flex-col items-center justify-center px-5 transition duration-200 outline-none select-none',
+        active
+          ? 'bg-primary font-bold text-white'
+          : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300',
       )}
     >
-      <span className="leading-tight">{value.toLocaleString()}</span>
+      <span className="text-sm leading-tight">{value.toLocaleString()}</span>
       <span className="text-[10px] font-semibold tracking-wider whitespace-nowrap uppercase">
         {label}
       </span>
@@ -51,63 +67,182 @@ function TabButton({
   );
 }
 
-function ProfileContent({ activeTab, profile }: { activeTab: TabKey; profile: PublicProfile }) {
+function ProfileContent({
+  activeTab,
+  profile,
+  isOwn,
+  userId,
+  photos,
+  isLoading,
+}: {
+  activeTab: TabKey;
+  profile: any;
+  isOwn: boolean;
+  userId?: string;
+  photos: any[];
+  isLoading: boolean;
+}) {
+  const username = profile?.username || profile?.id || '';
+
   if (activeTab === 'achievements') {
-    return <AchievementsTabContent username={profile.username} />;
+    return <AchievementsTabContent username={username} />;
   }
 
   if (activeTab === 'followers') {
-    return <FollowersTabContent username={profile.username} />;
+    return <FollowersTabContent username={username} />;
   }
 
   if (activeTab === 'following') {
-    return <FollowingTabContent username={profile.username} />;
+    return <FollowingTabContent username={username} />;
   }
 
   if (activeTab === 'likes') {
-    return <LikeTabContent username={profile.username} />;
+    return <LikeTabContent username={username} />;
   }
 
-  return <PhotosTabContent username={profile.username} />;
+  return (
+    <PhotosTabContent
+      username={username}
+      isOwn={isOwn}
+      photos={photos}
+      isLoading={isLoading}
+      userId={userId}
+    />
+  );
 }
 
-export function PublicProfilePage({ profile }: Props) {
+export function PublicProfilePage({ isOwn = false, userId }: Props) {
   const [activeTab, setActiveTab] = useState<TabKey>('photos');
-  const [isFollowing, setIsFollowing] = useState(true);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [coverError, setCoverError] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
-  // const totalVotes = useMemo(() => {
-  //   return 145800; // Mock total votes
-  // }, []);
+  const { user: currentUser } = useAuth();
+  const targetUserId = isOwn ? currentUser?.id : userId;
 
-  const tabs: TabConfig[] = useMemo(
-    () => [
-      { key: 'photos' as const, label: 'Photos', value: profile.photosCount },
-      { key: 'likes' as const, label: 'Likes', value: profile.likedPhotoIds?.length ?? 0 },
-      { key: 'achievements' as const, label: 'Achievements', value: profile.achievements },
-      { key: 'followers' as const, label: 'Followers', value: profile.followers },
-      { key: 'following' as const, label: 'Following', value: profile.following },
-    ],
-    [
-      profile.photosCount,
-      profile.likedPhotoIds,
-      profile.achievements,
-      profile.followers,
-      profile.following,
-    ],
+  // 1. Fetch Stats and Photos for Own Profile
+  const { data: ownStatsData, isLoading: isOwnStatsLoading } = useGetStatsQuery(undefined, {
+    skip: !isOwn,
+  });
+  const { isLoading: isOwnPhotosLoading } = useGetPhotosQuery(undefined, {
+    skip: !isOwn,
+  });
+  const ownPhotos = useAppSelector((state) => state.profile.photos);
+
+  // 2. Fetch Profile, Stats and Photos for Other User Profile
+  const { data: otherProfileData, isLoading: isOtherProfileLoading } = useGetOtherUserProfileQuery(
+    targetUserId || '',
+    {
+      skip: isOwn || !targetUserId,
+    },
   );
+  const { data: otherStatsData, isLoading: isOtherStatsLoading } = useGetOtherUserStatsQuery(
+    targetUserId || '',
+    {
+      skip: isOwn || !targetUserId,
+    },
+  );
+  const { data: otherPhotosData, isLoading: isOtherPhotosLoading } = useGetOtherUserPhotosQuery(
+    { id: targetUserId || '', page: 1, limit: 50 },
+    { skip: isOwn || !targetUserId },
+  );
+
+  // 3. Resolve active data
+  const profile = isOwn ? currentUser : (otherProfileData?.data ?? null);
+  const stats = isOwn ? ownStatsData?.data : otherStatsData?.data;
+  const photos = isOwn ? ownPhotos : (otherPhotosData?.data ?? []);
+
+  // Resolved joined team: for own profile from currentUser, for public from API data
+  const joinedTeam = (profile as any)?.joinedTeam ?? null;
+
+  const isLoading = isOwn
+    ? isOwnStatsLoading || isOwnPhotosLoading
+    : isOtherProfileLoading || isOtherStatsLoading || isOtherPhotosLoading;
+
+  // Sync follow state from API (isFollowed is in otherProfileData.data)
+  useEffect(() => {
+    const isFollowedFromApi = otherProfileData?.data?.isFollowed;
+    if (!isOwn && isFollowedFromApi !== undefined) {
+      setIsFollowing(isFollowedFromApi);
+    }
+  }, [otherProfileData?.data?.isFollowed, isOwn]);
+
+  const fullName =
+    profile?.fullName ||
+    (profile?.firstName && profile?.lastName ? `${profile.firstName} ${profile.lastName}` : '') ||
+    profile?.name ||
+    'Name not found';
+
+  const handleToggleFollow = () => {
+    setIsFollowing((prev) => {
+      const next = !prev;
+      if (next) {
+        toast.success(`You started following ${fullName}`);
+      } else {
+        toast.info(`You unfollowed ${fullName}`);
+      }
+      return next;
+    });
+  };
+
+  const tabs = useMemo(() => {
+    const list: TabConfig[] = [
+      {
+        key: 'photos' as const,
+        label: 'Photos',
+        value: (stats as any)?.userPhotos || (stats as any)?.photosCount || photos.length || 0,
+      },
+    ];
+
+    if (isOwn) {
+      list.push({ key: 'likes' as const, label: 'Likes', value: (stats as any)?.likes || 0 });
+    }
+
+    list.push(
+      {
+        key: 'achievements' as const,
+        label: 'Achievements',
+        value: (stats as any)?.achievements || 0,
+      },
+      {
+        key: 'followers' as const,
+        label: 'Followers',
+        value: (stats as any)?.followers || (stats as any)?.follower || 0,
+      },
+      {
+        key: 'following' as const,
+        label: 'Following',
+        value: (stats as any)?.followings || (stats as any)?.following || 0,
+      },
+    );
+
+    return list;
+  }, [isOwn, stats, photos.length]);
 
   return (
     <main className="margin min-h-screen bg-zinc-950 text-white">
       {/* Banner */}
-      <section className="relative h-60 w-full overflow-hidden md:h-80">
-        <Image
-          src={profile.cover}
-          alt={`${profile.name} cover`}
-          width={2000}
-          height={384}
-          priority
-          className="size-full object-cover opacity-80"
-        />
+      <section className="relative h-60 w-full overflow-hidden bg-zinc-900 md:h-80">
+        {!coverError && profile?.cover ? (
+          <Image
+            src={profile.cover}
+            alt={`${fullName} cover`}
+            width={2000}
+            height={384}
+            priority
+            className="size-full object-cover opacity-80"
+            onError={() => setCoverError(true)}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-zinc-900 text-zinc-500">
+            <p>No cover photo</p>
+          </div>
+        )}
+        {isOwn && (
+          <div className="absolute top-5 right-5 z-20">
+            <AddCoverDialog />
+          </div>
+        )}
         <div className="absolute inset-0 bg-linear-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
       </section>
 
@@ -119,13 +254,27 @@ export function PublicProfilePage({ profile }: Props) {
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               {/* Avatar */}
               <div className="relative -mt-20 shrink-0">
-                <Image
-                  src={profile.avatar}
-                  alt={profile.name}
-                  width={112}
-                  height={112}
-                  className="size-28 rounded-full border-4 border-black bg-zinc-800 object-cover shadow-2xl sm:size-34"
-                />
+                {isOwn ? (
+                  <div className="group/avatar relative size-28 overflow-hidden rounded-full border-4 border-black bg-zinc-800 object-cover shadow-2xl sm:size-34">
+                    <AvatarDialog />
+                  </div>
+                ) : (
+                  <div className="relative size-28 overflow-hidden rounded-full border-4 border-black bg-zinc-800 shadow-2xl sm:size-34">
+                    {!avatarError && profile?.avatar ? (
+                      <Image
+                        src={profile.avatar}
+                        alt={fullName}
+                        fill
+                        className="object-cover"
+                        onError={() => setAvatarError(true)}
+                      />
+                    ) : (
+                      <div className="flex size-full items-center justify-center text-xs text-zinc-500">
+                        No Avatar
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* User Details Group */}
@@ -133,47 +282,63 @@ export function PublicProfilePage({ profile }: Props) {
                 {/* Name, Location, Votes stacked in Column */}
                 <div className="flex shrink-0 flex-col justify-center">
                   <h1 className="mb-1.5 leading-tight font-bold tracking-tight text-white sm:text-lg">
-                    {profile.name}
+                    {fullName}
                   </h1>
                   <div className="space-y-1">
                     <span className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400">
                       <MapPin className="size-3.5 text-zinc-500" />
-                      {profile.country}
+                      {profile?.location || profile?.country || 'Bangladesh'}
                     </span>
-                    {/* <span className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400">
-                      <Vote className="text-primary size-3.5" />
-                      {totalVotes.toLocaleString()} Votes
-                    </span> */}
                   </div>
                 </div>
 
                 {/* Vertical Divider 1 */}
-                <div className="hidden h-10 w-px shrink-0 self-center bg-zinc-700/50 sm:block" />
+                {/* Team Group — from API joinedTeam, with conditional divider */}
+                {joinedTeam?.team ? (
+                  <>
+                    <div className="hidden h-10 w-px shrink-0 self-center bg-zinc-700/50 sm:block" />
+                    <a
+                      href={`/teams/${joinedTeam.team.id || joinedTeam.team.slug || ''}`}
+                      className="group/team flex shrink-0 cursor-pointer items-center gap-2.5 self-center transition hover:opacity-80"
+                    >
+                      {joinedTeam.team.badge ? (
+                        <Image
+                          src={joinedTeam.team.badge}
+                          alt={joinedTeam.team.name}
+                          width={40}
+                          height={40}
+                          className="size-10 rounded-full border border-zinc-700 bg-zinc-800 object-cover transition group-hover/team:border-zinc-500"
+                        />
+                      ) : (
+                        <div className="flex size-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 text-xs font-bold text-zinc-200 transition group-hover/team:border-zinc-500">
+                          {joinedTeam.team.name?.slice(0, 2).toUpperCase() || 'T'}
+                        </div>
+                      )}
+                      <span className="text-sm font-semibold text-zinc-200 transition group-hover/team:text-white">
+                        {joinedTeam.team.name}
+                      </span>
+                    </a>
+                  </>
+                ) : null}
 
-                {/* Team Group */}
-                <div className="flex shrink-0 items-center gap-2.5 self-center">
-                  <div className="bg-zinc-850 flex size-10 items-center justify-center rounded-full border border-zinc-800 bg-blue-500 text-xs font-bold text-zinc-200">
-                    SM
-                  </div>
-                  <span className="text-sm font-semibold text-zinc-200">Shutter Masters</span>
-                </div>
-
-                {/* Vertical Divider 2 */}
-                <div className="hidden h-10 w-px shrink-0 self-center bg-zinc-700/50 sm:block" />
-
-                {/* Follow Button */}
-                <button
-                  type="button"
-                  onClick={() => setIsFollowing(!isFollowing)}
-                  className={cn(
-                    'inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 self-center rounded-sm px-5 py-2 text-xs font-semibold transition select-none',
-                    isFollowing
-                      ? 'bg-zinc-850 bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
-                      : 'bg-primary hover:bg-primary/90 text-white',
-                  )}
-                >
-                  {isFollowing ? 'Following' : 'Follow'}
-                </button>
+                {/* Follow Button — public profile only, with conditional divider */}
+                {!isOwn && (
+                  <>
+                    <div className="hidden h-10 w-px shrink-0 self-center bg-zinc-700/50 sm:block" />
+                    <button
+                      type="button"
+                      onClick={handleToggleFollow}
+                      className={cn(
+                        'inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 self-center rounded-sm px-5 py-2 text-xs font-semibold transition select-none',
+                        isFollowing
+                          ? 'bg-zinc-850 bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
+                          : 'bg-primary hover:bg-primary/90 text-white',
+                      )}
+                    >
+                      {isFollowing ? 'Following' : 'Follow'}
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
@@ -196,7 +361,14 @@ export function PublicProfilePage({ profile }: Props) {
       </section>
 
       {/* Tab Content */}
-      <ProfileContent activeTab={activeTab} profile={profile} />
+      <ProfileContent
+        activeTab={activeTab}
+        profile={profile}
+        isOwn={isOwn}
+        userId={userId}
+        photos={photos}
+        isLoading={isLoading}
+      />
     </main>
   );
 }

@@ -1,13 +1,7 @@
-import PortfolioSection from '@/components/module/profile/PortfolioSection';
-import ProfileHeader from '@/components/module/profile/ProfileHeader';
+import { PublicProfilePage } from '@/components/module/public/PublicProfilePage';
 
 const ProfilePage = async () => {
-  return (
-    <>
-      <ProfileHeader />
-      <PortfolioSection />
-    </>
-  );
+  return <PublicProfilePage isOwn={true} />;
 };
 
 export default ProfilePage;
