@@ -6,12 +6,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 interface SidebarHeaderProps {
-  owner: any;
+  owner?: any;
   isSidebarOpen: boolean;
   onToggleSidebar: () => void;
   isOwnPhoto?: boolean;
   isFollowed?: boolean;
   onToggleFollow?: () => void;
+  isLoading?: boolean;
 }
 
 export function SidebarHeader({
@@ -21,7 +22,31 @@ export function SidebarHeader({
   isOwnPhoto = false,
   isFollowed = false,
   onToggleFollow,
+  isLoading = false,
 }: SidebarHeaderProps) {
+  if (isLoading || !owner) {
+    return (
+      <div className="relative flex border-b border-zinc-800 bg-zinc-950 text-zinc-100 animate-pulse">
+        <div className="flex flex-1 items-center justify-between p-6 pr-12">
+          <div className="flex items-center gap-4">
+            <div className="size-14 rounded-full bg-zinc-800 md:size-16" />
+            <div className="space-y-2">
+              <div className="h-4 w-28 rounded bg-zinc-800" />
+              <div className="h-3 w-16 rounded bg-zinc-800" />
+              <div className="h-7 w-20 rounded bg-zinc-800 mt-1.5" />
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={onToggleSidebar}
+          className="absolute top-4 right-4 z-10 grid size-8 place-items-center rounded-full text-zinc-500 hover:bg-zinc-900"
+        >
+          <X className="size-5 stroke-[2.5]" />
+        </button>
+      </div>
+    );
+  }
+
   // Resolve display name: prefer fullName, then firstName + lastName, then username
   const ownerAvatar = owner?.avatar || '';
   const ownerDisplayName =
