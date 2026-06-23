@@ -10,103 +10,131 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { ImageCropper } from '@/components/ui/ImageCropper';
 import { useAuth } from '@/hooks/useAuth';
 import { useGetMeQuery } from '@/store/apis/authApi';
 import { useUpdateAvatarMutation } from '@/store/apis/userApi';
-import { cn } from '@/utils/cn';
 import Image from 'next/image';
 import { ChangeEvent, useRef, useState } from 'react';
 import { FiEdit2, FiPlus } from 'react-icons/fi';
 import { toast } from 'sonner';
 
+type Step = 'idle' | 'crop' | 'preview';
+
 export default function AvatarDialog() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [step, setStep] = useState<Step>('idle');
 
+  // Raw file selected by user (before crop)
+  const [rawSrc, setRawSrc] = useState<string | null>(null);
+  const [rawFile, setRawFile] = useState<File | null>(null);
+
+  // Cropped result
+  const [croppedFile, setCroppedFile] = useState<File | null>(null);
+  const [croppedPreview, setCroppedPreview] = useState<string | null>(null);
+
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [updateAvatar, { isLoading: isUpdating }] = useUpdateAvatarMutation();
   const { refetch: triggerGetMe } = useGetMeQuery();
 
-  // --- handle file change ---
+  const resetState = () => {
+    revokePreview(croppedPreview);
+    setStep('idle');
+    setRawSrc(null);
+    setRawFile(null);
+    setCroppedFile(null);
+    setCroppedPreview(null);
+    setError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const revokePreview = (previewUrl: string | null) => {
+    if (previewUrl?.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
+  };
+
+  const handleOpenChange = (val: boolean) => {
+    setOpen(val);
+    if (!val) resetState();
+  };
+
+  const openFilePicker = () => {
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    fileInputRef.current?.click();
+  };
+
+  // --- File select ---
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
+    setError(null);
 
     // 1. Format validation
-    const allowedFormats = ['image/jpeg', 'image/jpg', 'image/png'];
+    const allowedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
     if (!allowedFormats.includes(selected.type)) {
-      setError('Allowed formats: JPG, JPEG, PNG.');
+      setError('Allowed formats: JPG, JPEG, PNG, AVIF, WebP.');
       return;
     }
 
-    // 2. File size validation
-    const minSize = 20 * 1024; // 20 KB
-    const maxSize = 1 * 1024 * 1024; // 1 MB
+    // 2. File size validation (20 KB – 5 MB)
+    const minSize = 20 * 1024;
+    const maxSize = 5 * 1024 * 1024;
     if (selected.size < minSize) {
-      setError('File size too small. Minimum size required is 20 KB.');
+      setError('File too small — minimum size is 20 KB.');
       return;
     }
     if (selected.size > maxSize) {
-      setError('File size too large. Maximum size allowed is 1 MB.');
+      setError('File too large — maximum size is 5 MB.');
       return;
     }
 
-    // 3. Resolution and Aspect Ratio validation
-    const img = new window.Image();
-    img.src = URL.createObjectURL(selected);
-    img.onload = () => {
-      const width = img.width;
-      const height = img.height;
-      URL.revokeObjectURL(img.src);
-
-      if (width < 180 || height < 180) {
-        setError('Minimum resolution required is 180x180 pixels.');
-        return;
-      }
-      if (width > 1000 || height > 1000) {
-        setError('Maximum resolution allowed is 1000x1000 pixels.');
-        return;
-      }
-      if (width !== height) {
-        setError('Strict 1:1 Aspect Ratio is required (Recommended: 500x500 pixels).');
-        return;
-      }
-
-      setFile(selected);
-      setPreview(URL.createObjectURL(selected));
-      setError(null);
-    };
-    img.onerror = () => {
-      setError('Failed to load image for validation.');
-    };
+    // Show crop step
+    setRawFile(selected);
+    setRawSrc(URL.createObjectURL(selected));
+    setStep('crop');
+    e.currentTarget.value = '';
   };
 
-  // --- handle save (add/edit) ---
+  // --- Crop confirmed ---
+  const handleCropConfirm = (file: File, preview: string) => {
+    revokePreview(croppedPreview);
+    setCroppedFile(file);
+    setCroppedPreview(preview);
+    setStep('preview');
+  };
+
+  // --- Crop cancelled (go back to idle) ---
+  const handleCropCancel = () => {
+    setRawSrc(null);
+    setRawFile(null);
+    revokePreview(croppedPreview);
+    setStep('idle');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  // --- Save avatar ---
   const handleSave = async () => {
-    if (!file) return setError('Please select an image first.');
+    if (!croppedFile) return setError('Please select and crop an image first.');
 
     const formData = new FormData();
-    formData.append('avatar', file);
+    formData.append('avatar', croppedFile);
 
     try {
       await updateAvatar(formData).unwrap();
       await triggerGetMe().unwrap();
       toast.success(user?.avatar ? 'Avatar updated successfully!' : 'Avatar added successfully!');
       setOpen(false);
-      setFile(null);
-      setPreview(null);
+      resetState();
     } catch (err: any) {
-      toast.error(err.message || err.data.message || 'Something went wrong.');
+      toast.error(err?.data?.message || err?.message || 'Something went wrong.');
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      {/* Avatar Image / Add Button */}
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      {/* Avatar trigger */}
       <DialogTrigger asChild>
         <button
           onClick={() => setOpen(true)}
@@ -133,45 +161,96 @@ export default function AvatarDialog() {
         </button>
       </DialogTrigger>
 
-      {/* Dialog Content */}
-      <DialogContent className="border border-zinc-800 bg-zinc-950/95 text-white backdrop-blur-md sm:max-w-md">
+      <DialogContent className="border border-zinc-800 bg-zinc-950/95 text-white backdrop-blur-md sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white">
             {user?.avatar ? 'Edit Avatar' : 'Add Avatar'}
           </DialogTitle>
           <DialogDescription className="text-sm text-zinc-400">
-            {user?.avatar
-              ? 'Change or remove your current avatar.'
-              : 'Upload a profile picture to personalize your account.'}
+            {user?.avatar ? 'Update your square profile photo.' : 'Upload a square profile photo.'}
           </DialogDescription>
+
+          {/* Requirements */}
+          <div className="mt-3 flex flex-wrap gap-2">
+            {[
+              { icon: '🖼', text: 'JPG · PNG · AVIF · WebP' },
+              { icon: '⚖️', text: '20 KB - 5 MB' },
+              { icon: '⬜', text: 'Square crop' },
+            ].map(({ icon, text }) => (
+              <span key={text} className="inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 px-2.5 py-1 text-[11px] font-medium text-zinc-400">
+                <span>{icon}</span>{text}
+              </span>
+            ))}
+          </div>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          {/* Image Preview / Upload */}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className={cn(
-              'text-zinc-450 relative mx-auto flex h-60 w-60 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zinc-700 bg-zinc-900/50 text-sm transition duration-300 hover:border-zinc-500 hover:bg-zinc-900',
-              error && 'border-red-500 text-red-500',
-            )}
-          >
-            {preview ? (
-              <Image src={preview} alt="Preview" fill className="object-cover" />
-            ) : user?.avatar ? (
-              <Image src={user.avatar} alt="Current Avatar" fill className="object-cover" />
-            ) : (
-              <div className="flex flex-col items-center gap-2">
-                <FiPlus className="size-8 text-zinc-500" />
-                <span>Click to select image</span>
+        <div className="grid gap-4 py-2">
+          {/* Step: idle — show upload area or current avatar */}
+          {step === 'idle' && (
+            <button
+              type="button"
+            onClick={openFilePicker}
+              className="text-zinc-450 relative mx-auto flex h-60 w-60 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zinc-700 bg-zinc-900/50 text-sm transition duration-300 hover:border-zinc-500 hover:bg-zinc-900"
+            >
+              {croppedPreview ? (
+                <Image src={croppedPreview} alt="Preview" fill className="object-cover" />
+              ) : user?.avatar ? (
+                <Image src={user.avatar} alt="Current Avatar" fill className="object-cover" />
+              ) : (
+                <div className="flex flex-col items-center gap-2 text-zinc-500">
+                  <FiPlus className="size-8" />
+                  <span className="text-xs">Click to select image</span>
+                </div>
+              )}
+            </button>
+          )}
+
+          {/* Step: crop */}
+          {step === 'crop' && rawSrc && rawFile && (
+            <ImageCropper
+              src={rawSrc}
+              aspectRatio={1}
+              targetWidth={500}
+              targetHeight={500}
+              originalFile={rawFile}
+              title="Crop photo"
+              description="Drag or resize the frame."
+              shape="square"
+              onCrop={handleCropConfirm}
+              onCancel={handleCropCancel}
+            />
+          )}
+
+          {/* Step: preview — show cropped result */}
+          {step === 'preview' && croppedPreview && (
+            <div className="flex flex-col items-center gap-3">
+              <div className="relative size-52 overflow-hidden rounded-full border-4 border-zinc-700 shadow-xl">
+                <Image src={croppedPreview} alt="Cropped Preview" fill className="object-cover" />
               </div>
-            )}
-          </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCroppedFile(null);
+                  setStep('crop');
+                }}
+                className="text-xs text-zinc-400 underline underline-offset-2 hover:text-zinc-200"
+              >
+                Crop again
+              </button>
+              <button
+                type="button"
+                onClick={openFilePicker}
+                className="text-xs text-zinc-400 underline underline-offset-2 hover:text-zinc-200"
+              >
+                Choose a different image
+              </button>
+            </div>
+          )}
 
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
             onChange={handleFileChange}
             className="hidden"
           />
@@ -179,25 +258,28 @@ export default function AvatarDialog() {
           {error && <p className="mt-1 text-center text-xs text-red-500">{error}</p>}
         </div>
 
-        <DialogFooter className="flex justify-end gap-2">
-          <DialogClose asChild>
+        {/* Footer — only shown in idle/preview steps (crop has its own buttons) */}
+        {step !== 'crop' && (
+          <DialogFooter className="flex justify-end gap-2">
+            <DialogClose asChild>
+              <button
+                type="button"
+                className="text-zinc-350 rounded-lg border border-zinc-800 bg-zinc-900/55 px-4 py-2 text-sm transition hover:bg-zinc-900"
+              >
+                Cancel
+              </button>
+            </DialogClose>
+
             <button
               type="button"
-              className="text-zinc-350 rounded-lg border border-zinc-800 bg-zinc-900/55 px-4 py-2 text-sm transition hover:bg-zinc-900"
+              disabled={isUpdating || step !== 'preview'}
+              onClick={handleSave}
+              className="bg-primary hover:bg-primary/95 rounded-lg px-5 py-2 text-sm font-semibold text-white transition disabled:opacity-50"
             >
-              Cancel
+              {isUpdating ? 'Saving...' : user?.avatar ? 'Save changes' : 'Add Avatar'}
             </button>
-          </DialogClose>
-
-          <button
-            type="button"
-            disabled={isUpdating}
-            onClick={handleSave}
-            className="bg-primary hover:bg-primary/95 rounded-lg px-5 py-2 text-sm font-semibold text-white transition disabled:opacity-50"
-          >
-            {isUpdating ? 'Saving...' : user?.avatar ? 'Save changes' : 'Add Avatar'}
-          </button>
-        </DialogFooter>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

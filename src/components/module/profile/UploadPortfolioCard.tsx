@@ -4,11 +4,13 @@ import { useCreatePhotoMutation } from '@/store/apis/profileApi';
 import { cn } from '@/utils/cn';
 import { LucideCloudUpload, X } from 'lucide-react';
 import Image from 'next/image';
-import { ChangeEvent, DragEvent, KeyboardEvent, useState } from 'react';
+import { ChangeEvent, DragEvent, KeyboardEvent, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+
 
 export default function UploadPortfolioCard() {
   const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState('');
   const [uploading, setUploading] = useState(false);
   const [isError, setIsError] = useState<boolean>(false);
 
@@ -25,6 +27,8 @@ export default function UploadPortfolioCard() {
       await createPhoto(formData).unwrap();
 
       setFile(null);
+      if (previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
+      setPreviewUrl('');
     } catch (err: any) {
       setIsError(true);
       toast.error(err.message || err.data?.message || 'Something went wrong!');
@@ -34,50 +38,44 @@ export default function UploadPortfolioCard() {
   };
 
   const validateAndUpload = (selectedFile: File) => {
-    // 1. Format validation: Strictly JPG, JPEG
-    const allowedFormats = ['image/jpeg', 'image/jpg'];
+    // 1. Format
+    const allowedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
     if (!allowedFormats.includes(selectedFile.type)) {
-      toast.error('Allowed formats: Strictly JPG, JPEG.');
+      toast.error('Format not supported. Use JPG, PNG, WebP or AVIF.');
       return;
     }
 
-    // 2. File size validation
-    const minSize = 500 * 1024; // 500 KB
-    const maxSize = 10 * 1024 * 1024; // 10 MB
+    // 2. File size (100 KB – 10 MB)
+    const minSize = 100 * 1024;
+    const maxSize = 10 * 1024 * 1024;
     if (selectedFile.size < minSize) {
-      toast.error('File size too small. Minimum size required is 500 KB.');
+      toast.error('File too small — minimum 100 KB.');
       return;
     }
     if (selectedFile.size > maxSize) {
-      toast.error('File size too large. Maximum size allowed is 10 MB.');
+      toast.error('File too large — maximum 10 MB.');
       return;
     }
 
-    // 3. Resolution validation
+    // 3. Resolution check (min 800 px on longest edge)
     const img = new window.Image();
-    img.src = URL.createObjectURL(selectedFile);
+    const tempUrl = URL.createObjectURL(selectedFile);
+    img.src = tempUrl;
     img.onload = () => {
-      const width = img.width;
-      const height = img.height;
-      URL.revokeObjectURL(img.src);
-
-      const longestEdge = Math.max(width, height);
-      const shortestEdge = Math.min(width, height);
-
-      if (longestEdge < 1920) {
-        toast.error('Minimum resolution: 1920 pixels on the longest edge.');
+      URL.revokeObjectURL(tempUrl);
+      const longestEdge = Math.max(img.width, img.height);
+      if (longestEdge < 800) {
+        toast.error('Resolution too low — longest edge must be at least 800 px.');
         return;
       }
-      if (longestEdge > 6000 || shortestEdge > 4000) {
-        toast.error('Maximum resolution: 6000x4000 pixels (24MP).');
-        return;
-      }
-
+      // Upload original file as-is — no re-encoding, no resizing
       setFile(selectedFile);
+      setPreviewUrl(URL.createObjectURL(selectedFile));
       uploadToServer(selectedFile);
     };
     img.onerror = () => {
-      toast.error('Failed to load image for validation.');
+      URL.revokeObjectURL(tempUrl);
+      toast.error('Could not read image file.');
     };
   };
 
@@ -106,8 +104,16 @@ export default function UploadPortfolioCard() {
 
   const removeFile = () => {
     setFile(null);
+    if (previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl('');
     setIsError(false);
   };
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   return (
     <div
@@ -124,11 +130,14 @@ export default function UploadPortfolioCard() {
 
       {/* Empty state */}
       {!file && !uploading && (
-        <div className="flex size-full flex-col items-center justify-center text-center">
-          <LucideCloudUpload className="size-10" />
-          <p className="font-medium text-white/60">Drag & drop your file</p>
-          <p className="leading-3 font-medium text-white/60">or</p>
-          <span className="text-primary mt-2 text-sm group-hover:underline">Browse file</span>
+        <div className="flex size-full flex-col items-center justify-center text-center p-3">
+          <LucideCloudUpload className="size-8 text-primary mb-2" />
+          <p className="font-semibold text-white/70 text-xs">Drop or browse</p>
+          <span className="text-primary mt-1 text-xs font-semibold group-hover:underline">Choose file</span>
+          <div className="mt-3 flex flex-col items-center gap-1 border-t border-zinc-800/60 pt-2 w-full max-w-[180px]">
+            <span className="text-[10px] text-zinc-500">JPG · PNG · AVIF · WebP</span>
+            <span className="text-[10px] text-zinc-500">100 KB – 10 MB</span>
+          </div>
         </div>
       )}
 
@@ -146,7 +155,7 @@ export default function UploadPortfolioCard() {
           <div className="relative w-full flex-1 overflow-hidden rounded-lg bg-white/20">
             {file.type.startsWith('image/') ? (
               <Image
-                src={URL.createObjectURL(file)}
+                src={previewUrl}
                 alt={file.name}
                 fill
                 className="min-h-20 object-cover"
