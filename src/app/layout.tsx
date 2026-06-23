@@ -2,11 +2,11 @@ import { Toaster } from '@/components/ui/sonner';
 import { cn } from '@/utils/cn';
 import type { Metadata } from 'next';
 import { Kumbh_Sans } from 'next/font/google';
+import AuthRedirectHandler from '../components/module/auth/AuthRedirectHandler';
 import StoreModal from '../components/module/store/StoreModal';
 import ReduxProvider from '../providers/ReduxProvider';
 import { StoreModalProvider } from '../providers/StoreModalProvider';
 import ThemeProvider from '../providers/ThemeProvider';
-import AuthRedirectHandler from '../components/module/auth/AuthRedirectHandler';
 import '../styles/globals.css';
 
 const kumbhSans = Kumbh_Sans({
@@ -60,7 +60,7 @@ export default async function RootLayout({
               <Toaster
                 expand
                 richColors
-                position="bottom-right"
+                position="top-center"
                 swipeDirections={['bottom', 'left', 'right', 'top']}
                 duration={3000}
               />
