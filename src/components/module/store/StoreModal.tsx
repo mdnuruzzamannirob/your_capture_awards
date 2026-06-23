@@ -279,48 +279,24 @@ const StoreModal = () => {
         className="border-black-2-600 bg-background flex max-h-[95vh] max-w-[95vw] flex-col gap-0 overflow-hidden border-2 p-0 sm:max-w-4xl"
       >
         {/* ── Header ── */}
-        <DialogHeader className="relative shrink-0 border-b border-white/5 px-5 py-3.5 sm:px-6">
-          {/* Title — left */}
-          <DialogTitle className="absolute top-1/2 left-5 -translate-y-1/2 font-semibold tracking-wide sm:left-6">
-            Store
-          </DialogTitle>
-
-          {/* Stats pill — centered */}
-          <div className="flex justify-center">
-            <div className="flex h-9 items-stretch overflow-hidden rounded-xl border border-white/8 bg-white/5 backdrop-blur-sm">
+        <DialogHeader className="relative shrink-0 border-b border-white/5 px-4 py-3 sm:px-6 sm:py-3.5">
+          {/* Mobile: stacked layout */}
+          <div className="flex flex-col items-center gap-2 sm:hidden">
+            <DialogTitle className="text-sm font-semibold tracking-wide">Store</DialogTitle>
+            <div className="flex h-8 items-stretch overflow-hidden rounded-lg border border-white/8 bg-white/5">
               {[
+                { icon: <IoKeyOutline className="text-primary size-3" />, value: stats?.key ?? 0, label: 'Keys' },
+                { icon: <MdOutlineCameraswitch className="text-primary size-3 rotate-90" />, value: stats?.swap ?? 0, label: 'Trades' },
+                { icon: <AiOutlineThunderbolt className="text-primary size-3" />, value: stats?.boost ?? 0, label: 'Charges' },
                 {
-                  icon: <IoKeyOutline className="text-primary size-3.5" />,
-                  value: stats?.key ?? 0,
-                  label: 'Keys',
-                },
-                {
-                  icon: <MdOutlineCameraswitch className="text-primary size-3.5 rotate-90" />,
-                  value: stats?.swap ?? 0,
-                  label: 'Trades',
-                },
-                {
-                  icon: <AiOutlineThunderbolt className="text-primary size-3.5" />,
-                  value: stats?.boost ?? 0,
-                  label: 'Charges',
-                },
-                {
-                  icon: (
-                    <Image
-                      src="/icons/dollar.png"
-                      alt="Coins"
-                      width={14}
-                      height={14}
-                      className="object-contain"
-                    />
-                  ),
+                  icon: <Image src="/icons/dollar.png" alt="Coins" width={12} height={12} className="object-contain" />,
                   value: stats?.coins ?? 0,
                   label: 'Coins',
                 },
               ].map((item, i) => (
                 <div key={i} className="flex items-center" title={item.label}>
-                  {i > 0 && <div className="my-2 w-px bg-white/8" />}
-                  <div className="flex items-center gap-1 px-2.5 text-xs font-medium text-white/80 sm:px-3">
+                  {i > 0 && <div className="my-1.5 w-px bg-white/8" />}
+                  <div className="flex items-center gap-1 px-2 text-[11px] font-medium text-white/80">
                     {item.icon}
                     <ResourceValue loading={isStatsLoading} value={item.value} />
                   </div>
@@ -328,7 +304,37 @@ const StoreModal = () => {
               ))}
             </div>
           </div>
+
+          {/* sm+: Title absolute-left, stats centered */}
+          <div className="hidden sm:block">
+            <DialogTitle className="absolute top-1/2 left-6 -translate-y-1/2 font-semibold tracking-wide">
+              Store
+            </DialogTitle>
+            <div className="flex justify-center">
+              <div className="flex h-9 items-stretch overflow-hidden rounded-xl border border-white/8 bg-white/5 backdrop-blur-sm">
+                {[
+                  { icon: <IoKeyOutline className="text-primary size-3.5" />, value: stats?.key ?? 0, label: 'Keys' },
+                  { icon: <MdOutlineCameraswitch className="text-primary size-3.5 rotate-90" />, value: stats?.swap ?? 0, label: 'Trades' },
+                  { icon: <AiOutlineThunderbolt className="text-primary size-3.5" />, value: stats?.boost ?? 0, label: 'Charges' },
+                  {
+                    icon: <Image src="/icons/dollar.png" alt="Coins" width={14} height={14} className="object-contain" />,
+                    value: stats?.coins ?? 0,
+                    label: 'Coins',
+                  },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center" title={item.label}>
+                    {i > 0 && <div className="my-2 w-px bg-white/8" />}
+                    <div className="flex items-center gap-1.5 px-3 text-xs font-medium text-white/80">
+                      {item.icon}
+                      <ResourceValue loading={isStatsLoading} value={item.value} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </DialogHeader>
+
 
         {/* ── Body — scrollable ── */}
         <div className="flex-1 scrollbar-thin overflow-x-hidden overflow-y-auto p-4 sm:p-5">
