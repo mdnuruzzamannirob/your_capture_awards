@@ -39,8 +39,6 @@ export function ImageCropper({
   onCrop,
   onCancel,
   originalFile,
-  title = 'Crop image',
-  description,
 }: ImageCropperProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
