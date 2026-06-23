@@ -6,6 +6,7 @@ import StoreModal from '../components/module/store/StoreModal';
 import ReduxProvider from '../providers/ReduxProvider';
 import { StoreModalProvider } from '../providers/StoreModalProvider';
 import ThemeProvider from '../providers/ThemeProvider';
+import AuthRedirectHandler from '../components/module/auth/AuthRedirectHandler';
 import '../styles/globals.css';
 
 const kumbhSans = Kumbh_Sans({
@@ -54,6 +55,7 @@ export default async function RootLayout({
         <ThemeProvider>
           <ReduxProvider>
             <StoreModalProvider>
+              <AuthRedirectHandler />
               {children} <StoreModal />
               <Toaster
                 expand
