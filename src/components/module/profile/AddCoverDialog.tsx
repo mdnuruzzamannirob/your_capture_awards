@@ -135,8 +135,9 @@ export default function AddCoverDialog() {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <button className="flex size-8 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/80 text-white shadow-lg transition duration-200 hover:scale-105 hover:bg-zinc-800 lg:size-9">
+        <button className="inline-flex items-center gap-2 rounded-sm border border-zinc-700 bg-zinc-900/90 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition-all duration-200 hover:border-zinc-600 hover:bg-zinc-800 active:scale-[0.98]">
           <FiEdit2 className="size-4" />
+          <span>Change Banner</span>
         </button>
       </DialogTrigger>
 
@@ -189,7 +190,7 @@ export default function AddCoverDialog() {
               }}
               onDragLeave={() => setIsDragging(false)}
               className={[
-                'group relative flex h-48 w-full cursor-pointer items-center justify-center overflow-hidden rounded border-2 text-left transition-all duration-300',
+                'group relative flex aspect-21/9 w-full cursor-pointer items-center justify-center overflow-hidden rounded border-2 text-left transition-all duration-300',
                 isDragging
                   ? 'border-primary bg-primary/8 shadow-[inset_0_0_30px_-10px_rgba(252,102,0,0.12)]'
                   : displaySrc
@@ -249,12 +250,10 @@ export default function AddCoverDialog() {
           {step === 'crop' && rawSrc && rawFile && (
             <ImageCropper
               src={rawSrc}
-              aspectRatio={16 / 9}
+              aspectRatio={21 / 9}
               targetWidth={1920}
               targetHeight={1080}
               originalFile={rawFile}
-              title="Frame your cover"
-              description="Move the frame to choose which part of the image to use as your banner. Scroll to resize, drag corners to adjust."
               shape="banner"
               onCrop={handleCropConfirm}
               onCancel={handleCropCancel}
@@ -265,7 +264,7 @@ export default function AddCoverDialog() {
           {step === 'preview' && croppedPreview && (
             <div className="flex flex-col items-center gap-3">
               <div className="relative w-full overflow-hidden rounded shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)] ring-1 ring-white/10">
-                <div className="relative h-48 w-full">
+                <div className="relative aspect-21/9 w-full">
                   <Image src={croppedPreview} alt="Cover preview" fill className="object-cover" />
                 </div>
                 <div className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]" />
