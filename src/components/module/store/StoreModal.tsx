@@ -163,8 +163,8 @@ const CoinCard = ({
           {offer.title}
         </p>
         <div className="flex items-center gap-1">
-          <Image src="/icons/dollar.png" alt="" width={20} height={20} className="object-contain" />
-          <span className="text-2xl font-bold text-white">{offer.quantity ?? 0}</span>
+          <Image src="/icons/dollar.png" alt="" width={18} height={18} className="object-contain" />
+          <span className="text-lg font-semibold text-white">{offer.quantity ?? 0}</span>
         </div>
       </div>
 
@@ -173,7 +173,7 @@ const CoinCard = ({
         type="button"
         onClick={() => onPurchase(offer)}
         disabled={isPurchasing}
-        className="bg-primary/90 text-background hover:bg-primary mt-2 w-full rounded-lg py-1.5 text-xs font-bold transition-colors duration-150 disabled:opacity-50"
+        className="bg-primary/90 text-foreground hover:bg-primary mt-2 w-full rounded-sm py-1.5 text-xs font-bold transition-colors duration-150 disabled:opacity-50"
       >
         {formatMoney(offer.amount, offer.currency)}
       </button>
@@ -208,15 +208,9 @@ const BundleCard = ({
         type="button"
         onClick={() => onPurchase(bundle)}
         disabled={isPurchasing}
-        className="bg-primary/90 text-background hover:bg-primary mt-2 flex w-full items-center justify-center gap-1 rounded-lg py-1.5 text-xs font-bold transition-colors duration-150 disabled:opacity-50"
+        className="bg-primary/90 text-foreground hover:bg-primary mt-2 flex w-full items-center justify-center gap-1 rounded-sm py-1.5 text-xs font-bold transition-colors duration-150 disabled:opacity-50"
       >
-        <Image
-          src="/icons/dollar.png"
-          alt=""
-          width={12}
-          height={12}
-          className="object-contain brightness-0 invert"
-        />
+        <Image src="/icons/dollar.png" alt="" width={12} height={12} className="object-contain" />
         {bundle.amount} coin
       </button>
     </div>
@@ -287,7 +281,7 @@ const StoreModal = () => {
         {/* ── Header ── */}
         <DialogHeader className="relative shrink-0 border-b border-white/5 px-5 py-3.5 sm:px-6">
           {/* Title — left */}
-          <DialogTitle className="absolute top-1/2 left-5 -translate-y-1/2 text-base font-semibold tracking-wide sm:left-6">
+          <DialogTitle className="absolute top-1/2 left-5 -translate-y-1/2 font-semibold tracking-wide sm:left-6">
             Store
           </DialogTitle>
 
