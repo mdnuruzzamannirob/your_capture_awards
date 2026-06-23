@@ -243,16 +243,15 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
               : 'translate-x-full opacity-0 pointer-events-none lg:translate-x-0 lg:opacity-100 lg:pointer-events-auto',
           )}
         >
-          {profileOwner && (
-            <SidebarHeader
-              owner={profileOwner}
-              isSidebarOpen={isSidebarOpen}
-              onToggleSidebar={() => setIsSidebarOpen(false)}
-              isOwnPhoto={isOwnPhoto}
-              isFollowed={ownerIsFollowed}
-              onToggleFollow={handleToggleFollow}
-            />
-          )}
+          <SidebarHeader
+            owner={profileOwner}
+            isSidebarOpen={isSidebarOpen}
+            onToggleSidebar={() => setIsSidebarOpen(false)}
+            isOwnPhoto={isOwnPhoto}
+            isFollowed={ownerIsFollowed}
+            onToggleFollow={handleToggleFollow}
+            isLoading={isLoading && !profileOwner}
+          />
 
           <div className="min-h-0 flex-1 scrollbar-thin overflow-y-auto bg-zinc-950">
             <SidebarMetrics
@@ -266,6 +265,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
               comments={comments}
               onAddComment={handleAddComment}
               onDeleteComment={handleDeleteComment}
+              isLoading={isLoading}
             />
           </div>
         </aside>
