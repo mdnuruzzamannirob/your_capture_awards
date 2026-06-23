@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, ChangeEvent, useRef } from 'react';
-import { FiEdit2 } from 'react-icons/fi';
+import { FiEdit2, FiPlus } from 'react-icons/fi';
 import {
   Dialog,
   DialogContent,
@@ -60,30 +60,33 @@ export default function AddCoverDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="absolute top-5 right-5 flex size-8 items-center justify-center rounded-full border bg-white/10 shadow transition hover:bg-white/20 lg:size-9">
+        <button className="flex size-8 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/80 text-white shadow-lg transition duration-200 hover:bg-zinc-800 hover:scale-105 lg:size-9">
           <FiEdit2 className="size-4" />
         </button>
       </DialogTrigger>
 
-      <DialogContent className="border-black-2-600 sm:max-w-106.25">
+      <DialogContent className="bg-zinc-950/95 border border-zinc-800 backdrop-blur-md sm:max-w-xl text-white">
         <DialogHeader>
-          <DialogTitle>Add Cover Photo</DialogTitle>
-          <DialogDescription>Upload a new cover image for your profile.</DialogDescription>
+          <DialogTitle className="text-xl font-bold text-white">Add Cover Photo</DialogTitle>
+          <DialogDescription className="text-zinc-400 text-sm">Upload a new cover image for your profile.</DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-2">
+        <div className="grid gap-4 py-4">
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className={cn(
-              'relative flex h-40 w-full cursor-pointer items-center justify-center overflow-hidden rounded-md border border-dashed border-gray-400 text-sm text-gray-500',
-              error && 'border-destructive text-destructive',
+              'relative flex h-52 w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-zinc-700 bg-zinc-900/50 hover:bg-zinc-900 hover:border-zinc-500 transition duration-300 text-sm text-zinc-400',
+              error && 'border-red-500 text-red-500',
             )}
           >
             {preview ? (
               <Image src={preview} alt="Cover Preview" fill className="object-cover" />
             ) : (
-              <span>No image selected</span>
+              <div className="flex flex-col items-center gap-2">
+                <FiPlus className="size-8 text-zinc-500" />
+                <span>Click to select cover image</span>
+              </div>
             )}
           </button>
 
@@ -92,15 +95,16 @@ export default function AddCoverDialog() {
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className="hidden" // hide the input
+            className="hidden"
           />
+          {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex gap-2">
           <DialogClose asChild>
             <button
               type="button"
-              className="border-black-2-600 rounded-md border px-3 py-1.5 text-sm hover:bg-white/10"
+              className="rounded-lg border border-zinc-800 bg-zinc-900/55 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-900 transition"
             >
               Cancel
             </button>
@@ -110,7 +114,7 @@ export default function AddCoverDialog() {
             type="button"
             disabled={isLoading}
             onClick={handleSubmit}
-            className="rounded-md bg-white/10 px-4 py-1.5 text-sm hover:bg-white/20 disabled:opacity-50"
+            className="rounded-lg bg-primary hover:bg-primary/95 px-5 py-2 text-sm font-semibold text-white transition disabled:opacity-50"
           >
             {isLoading ? 'Saving...' : 'Save changes'}
           </button>
