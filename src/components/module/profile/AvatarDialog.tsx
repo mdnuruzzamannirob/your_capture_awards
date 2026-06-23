@@ -234,7 +234,7 @@ export default function AvatarDialog() {
                   onClick={openFilePicker}
                   className="group/link flex items-center gap-1.5 text-[11px] text-zinc-500 transition-colors hover:text-zinc-300"
                 >
-                  <FiUpload className="size-3 transition-transform group-hover/link:-translate-y-0.5" />
+                  <FiUpload className="size-3 transition-transform" />
                   Choose a different photo
                 </button>
               )}
