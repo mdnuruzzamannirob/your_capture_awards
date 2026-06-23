@@ -63,23 +63,16 @@ const ResourceValue = ({ loading, value }: { loading: boolean; value: number }) 
 };
 
 const ProductImage = ({ product }: { product: StoreProduct }) => {
-  if (product.image) {
-    return (
-      <Image
-        src={product.image}
-        alt={product.title}
-        width={160}
-        height={120}
-        className="h-28 w-full rounded-xl object-cover"
-      />
-    );
-  }
   return (
     <div className="relative flex h-28 items-center justify-center overflow-hidden rounded-xl">
       <div className="from-primary/20 via-primary/5 absolute inset-0 bg-linear-to-br to-transparent" />
-      <div className="bg-primary/10 ring-primary/30 relative flex h-14 w-14 items-center justify-center rounded-full ring-1 ring-offset-1 ring-offset-transparent">
-        <span className="text-primary text-3xl leading-none font-semibold">C</span>
-      </div>
+      <Image
+        src="/icons/dollar.png"
+        alt="Dollar Icon"
+        width={56}
+        height={56}
+        className="relative h-14 w-14 object-contain"
+      />
     </div>
   );
 };
@@ -182,8 +175,14 @@ const CoinCard = ({
           <p className="text-xs font-medium tracking-widest text-white/40 uppercase">
             {offer.title}
           </p>
-          <div className="flex items-baseline justify-center gap-1">
-            <span className="text-primary text-sm leading-none font-semibold">C</span>
+          <div className="flex items-center justify-center gap-1">
+            <Image
+              src="/icons/dollar.png"
+              alt="Dollar Icon"
+              width={16}
+              height={16}
+              className="object-contain"
+            />
             <span className="text-3xl font-semibold text-white">{offer.quantity ?? 0}</span>
           </div>
           {offer.description && (
@@ -244,7 +243,13 @@ const BundleCard = ({
         className="bg-primary/90 text-background hover:bg-primary mt-3 w-full overflow-hidden rounded-xl py-2 text-center text-sm font-semibold transition-all duration-200 hover:shadow-[0_0_18px_rgba(var(--primary-rgb),0.35)] disabled:opacity-50"
       >
         <span className="flex items-center justify-center gap-1">
-          <span className="text-background/70 text-xs leading-none font-semibold">C</span>
+          <Image
+            src="/icons/dollar.png"
+            alt="Dollar Icon"
+            width={12}
+            height={12}
+            className="object-contain brightness-0 invert"
+          />
           {bundle.amount} coin
         </span>
       </button>
@@ -307,7 +312,7 @@ const StoreModal = () => {
       >
         {/* Header */}
         <DialogHeader className="border-b border-white/5 px-5 py-4 sm:px-6">
-          <div className="grid grid-cols-3 items-center gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 pr-8 sm:pr-0">
             <div className="text-left">
               <DialogTitle className="text-lg font-semibold tracking-wide">Store</DialogTitle>
             </div>
@@ -329,14 +334,20 @@ const StoreModal = () => {
                   },
                   {
                     icon: (
-                      <span className="text-primary text-sm leading-none font-semibold">C</span>
+                      <Image
+                        src="/icons/dollar.png"
+                        alt="Dollar"
+                        width={16}
+                        height={16}
+                        className="object-contain"
+                      />
                     ),
                     value: stats?.coins ?? 0,
                   },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center">
                     {i > 0 && <div className="my-2 w-px bg-white/8" />}
-                    <div className="flex items-center gap-1.5 px-3 text-sm text-white/80">
+                    <div className="flex items-center gap-1 px-2 text-xs sm:gap-1.5 sm:px-3 sm:text-sm text-white/80">
                       {item.icon}
                       <ResourceValue loading={isStatsLoading} value={item.value} />
                     </div>
@@ -344,13 +355,11 @@ const StoreModal = () => {
                 ))}
               </div>
             </div>
-
-            <div />
           </div>
         </DialogHeader>
 
         {/* Body */}
-        <div className="grid scrollbar-thin gap-8 overflow-y-auto p-4 sm:p-6">
+        <div className="grid scrollbar-thin gap-8 overflow-y-auto overflow-x-hidden p-4 sm:p-6">
           {isStatsError && (
             <div className="border-destructive/30 bg-destructive/10 rounded-xl border px-3 py-2 text-center text-sm">
               Could not load your current store balance.
@@ -358,7 +367,7 @@ const StoreModal = () => {
           )}
 
           {/* ── Coins Section ── */}
-          <section className="space-y-4">
+          <section className="space-y-4 w-full min-w-0 overflow-hidden">
             <div>
               <h3 className="text-center text-2xl font-semibold tracking-tight">Coins</h3>
               <p className="text-muted-foreground text-center text-sm">
@@ -367,18 +376,11 @@ const StoreModal = () => {
             </div>
 
             {productsLoading ? (
-              <Carousel opts={{ align: 'start', loop: false }} className="w-full">
-                <CarouselContent className="-ml-3">
-                  {Array.from({ length: 3 }).map((_, index) => (
-                    <CarouselItem
-                      key={index}
-                      className="basis-full pl-3 select-none sm:basis-1/2 md:basis-1/3 lg:basis-1/3"
-                    >
-                      <CoinCardSkeleton />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <CoinCardSkeleton key={index} />
+                ))}
+              </div>
             ) : coinOffers.length ? (
               <Carousel opts={{ align: 'start', loop: false }} className="w-full">
                 <CarouselContent className="-ml-3">
@@ -408,7 +410,7 @@ const StoreModal = () => {
           </section>
 
           {/* ── Bundles Section ── */}
-          <section className="space-y-4">
+          <section className="space-y-4 w-full min-w-0 overflow-hidden">
             <div>
               <h3 className="text-center text-2xl font-semibold tracking-tight">Bundles</h3>
               <p className="text-muted-foreground text-center text-sm">
@@ -417,18 +419,11 @@ const StoreModal = () => {
             </div>
 
             {productsLoading ? (
-              <Carousel opts={{ align: 'start', loop: false }} className="w-full">
-                <CarouselContent className="-ml-3">
-                  {Array.from({ length: 6 }).map((_, index) => (
-                    <CarouselItem
-                      key={index}
-                      className="basis-full pl-3 select-none sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
-                    >
-                      <BundleCardSkeleton />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <BundleCardSkeleton key={index} />
+                ))}
+              </div>
             ) : bundleOffers.length ? (
               <Carousel opts={{ align: 'start', loop: false }} className="w-full">
                 <CarouselContent className="-ml-3">
