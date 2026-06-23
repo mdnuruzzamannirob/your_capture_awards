@@ -1,23 +1,23 @@
 'use client';
 
-import { useState, ChangeEvent, useRef } from 'react';
-import Image from 'next/image';
-import { toast } from 'sonner';
-import { FiEdit2, FiPlus } from 'react-icons/fi';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from '@/components/ui/dialog';
-import { cn } from '@/utils/cn';
 import { useAuth } from '@/hooks/useAuth';
 import { useGetMeQuery } from '@/store/apis/authApi';
 import { useUpdateAvatarMutation } from '@/store/apis/userApi';
+import { cn } from '@/utils/cn';
+import Image from 'next/image';
+import { ChangeEvent, useRef, useState } from 'react';
+import { FiEdit2, FiPlus } from 'react-icons/fi';
+import { toast } from 'sonner';
 
 export default function AvatarDialog() {
   const { user } = useAuth();
@@ -36,19 +36,53 @@ export default function AvatarDialog() {
     const selected = e.target.files?.[0];
     if (!selected) return;
 
-    if (!selected.type.startsWith('image/')) {
-      setError('Please select a valid image file.');
+    // 1. Format validation
+    const allowedFormats = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowedFormats.includes(selected.type)) {
+      setError('Allowed formats: JPG, JPEG, PNG.');
       return;
     }
 
-    if (selected.size > 3 * 1024 * 1024) {
-      setError('File size too large. Max 3MB allowed.');
+    // 2. File size validation
+    const minSize = 20 * 1024; // 20 KB
+    const maxSize = 1 * 1024 * 1024; // 1 MB
+    if (selected.size < minSize) {
+      setError('File size too small. Minimum size required is 20 KB.');
+      return;
+    }
+    if (selected.size > maxSize) {
+      setError('File size too large. Maximum size allowed is 1 MB.');
       return;
     }
 
-    setFile(selected);
-    setPreview(URL.createObjectURL(selected));
-    setError(null);
+    // 3. Resolution and Aspect Ratio validation
+    const img = new window.Image();
+    img.src = URL.createObjectURL(selected);
+    img.onload = () => {
+      const width = img.width;
+      const height = img.height;
+      URL.revokeObjectURL(img.src);
+
+      if (width < 180 || height < 180) {
+        setError('Minimum resolution required is 180x180 pixels.');
+        return;
+      }
+      if (width > 1000 || height > 1000) {
+        setError('Maximum resolution allowed is 1000x1000 pixels.');
+        return;
+      }
+      if (width !== height) {
+        setError('Strict 1:1 Aspect Ratio is required (Recommended: 500x500 pixels).');
+        return;
+      }
+
+      setFile(selected);
+      setPreview(URL.createObjectURL(selected));
+      setError(null);
+    };
+    img.onerror = () => {
+      setError('Failed to load image for validation.');
+    };
   };
 
   // --- handle save (add/edit) ---
@@ -76,7 +110,7 @@ export default function AvatarDialog() {
       <DialogTrigger asChild>
         <button
           onClick={() => setOpen(true)}
-          className="group border-foreground bg-primary/10 relative flex size-full items-center justify-center overflow-hidden rounded-full"
+          className="group border-foreground relative flex size-full items-center justify-center overflow-hidden rounded-full bg-zinc-800"
         >
           {user?.avatar ? (
             <>
@@ -91,7 +125,7 @@ export default function AvatarDialog() {
               </div>
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center text-sm text-gray-400">
+            <div className="flex flex-col items-center justify-center bg-zinc-800 text-sm text-gray-400">
               <FiPlus className="mb-1 size-6" />
               <span>Add Avatar</span>
             </div>
@@ -100,10 +134,12 @@ export default function AvatarDialog() {
       </DialogTrigger>
 
       {/* Dialog Content */}
-      <DialogContent className="bg-zinc-950/95 border border-zinc-800 backdrop-blur-md sm:max-w-md text-white">
+      <DialogContent className="border border-zinc-800 bg-zinc-950/95 text-white backdrop-blur-md sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-white">{user?.avatar ? 'Edit Avatar' : 'Add Avatar'}</DialogTitle>
-          <DialogDescription className="text-zinc-400 text-sm">
+          <DialogTitle className="text-xl font-bold text-white">
+            {user?.avatar ? 'Edit Avatar' : 'Add Avatar'}
+          </DialogTitle>
+          <DialogDescription className="text-sm text-zinc-400">
             {user?.avatar
               ? 'Change or remove your current avatar.'
               : 'Upload a profile picture to personalize your account.'}
@@ -116,7 +152,7 @@ export default function AvatarDialog() {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className={cn(
-              'relative flex h-60 w-60 mx-auto cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zinc-700 bg-zinc-900/50 hover:bg-zinc-900 hover:border-zinc-500 transition duration-300 text-sm text-zinc-450',
+              'text-zinc-450 relative mx-auto flex h-60 w-60 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zinc-700 bg-zinc-900/50 text-sm transition duration-300 hover:border-zinc-500 hover:bg-zinc-900',
               error && 'border-red-500 text-red-500',
             )}
           >
@@ -140,14 +176,14 @@ export default function AvatarDialog() {
             className="hidden"
           />
 
-          {error && <p className="text-red-500 text-center text-xs mt-1">{error}</p>}
+          {error && <p className="mt-1 text-center text-xs text-red-500">{error}</p>}
         </div>
 
         <DialogFooter className="flex justify-end gap-2">
           <DialogClose asChild>
             <button
               type="button"
-              className="rounded-lg border border-zinc-800 bg-zinc-900/55 px-4 py-2 text-sm text-zinc-350 hover:bg-zinc-900 transition"
+              className="text-zinc-350 rounded-lg border border-zinc-800 bg-zinc-900/55 px-4 py-2 text-sm transition hover:bg-zinc-900"
             >
               Cancel
             </button>
@@ -157,7 +193,7 @@ export default function AvatarDialog() {
             type="button"
             disabled={isUpdating}
             onClick={handleSave}
-            className="bg-primary hover:bg-primary/95 text-white rounded-lg px-5 py-2 text-sm font-semibold transition disabled:opacity-50"
+            className="bg-primary hover:bg-primary/95 rounded-lg px-5 py-2 text-sm font-semibold text-white transition disabled:opacity-50"
           >
             {isUpdating ? 'Saving...' : user?.avatar ? 'Save changes' : 'Add Avatar'}
           </button>
