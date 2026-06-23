@@ -1,12 +1,13 @@
 'use client';
 
-import { PublicPhoto } from '@/lib/mock/public-gallery-data';
 import { cn } from '@/utils/cn';
 import { Eye, Heart, Vote } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAppDispatch } from '@/store/hooks';
+import { setSwiperPhotos } from '@/store/slices/profileSlice';
 
 export const getPhotoAspect = (id: string) => {
   const aspects: Record<string, number> = {
@@ -25,39 +26,60 @@ export function PhotoCard({
   profileUsername,
   isLikedDefault = false,
   showMetrics = true,
+  allPhotos = [],
+  ownerId,
 }: {
-  photo: PublicPhoto;
+  photo: any;
   profileUsername: string;
   isLikedDefault?: boolean;
   showMetrics?: boolean;
+  allPhotos?: any[];
+  ownerId?: string;
 }) {
   const [liked, setLiked] = useState(isLikedDefault);
-  const aspect = getPhotoAspect(photo.id);
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+
+  // Support both real API photos (photo.url) and mock photos (photo.src)
+  const photoSrc = photo.url || photo.src || '';
+  const photoAlt = photo.alt || photo.title || 'photo';
+  const aspectId = photo.id || '';
+  const aspect = getPhotoAspect(aspectId);
+
+  const handleClick = () => {
+    dispatch(setSwiperPhotos(allPhotos.length > 0 ? allPhotos : [photo]));
+    const ownerParam = ownerId || photo.userId || '';
+    router.push(`/photo/${photo.id}?source=profile&profile=${profileUsername}&ownerId=${ownerParam}`);
+  };
 
   return (
     <div
-      className="group relative overflow-hidden rounded-sm bg-zinc-900 shadow-md transition-all duration-300 hover:border-zinc-700/80 hover:shadow-xl"
+      className="group relative overflow-hidden rounded-sm bg-zinc-900 shadow-md transition-all duration-300 hover:border-zinc-700/80 hover:shadow-xl cursor-pointer"
       style={{
-        height: '300px', // Fallback/default height, responsive height is handled via CSS classes
+        height: '300px',
         flexGrow: aspect,
         flexBasis: `${aspect * 200}px`,
       }}
+      onClick={handleClick}
     >
-      <Link
-        href={`/photo/${photo.id}?source=profile&profile=${profileUsername}`}
-        className="relative block size-full"
-      >
-        <Image
-          src={photo.src}
-          alt={photo.alt}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover transition-all duration-700 ease-out group-hover:scale-105"
-        />
+      <div className="relative block size-full">
+        {photoSrc ? (
+          <Image
+            src={photoSrc}
+            alt={photoAlt}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-all duration-700 ease-out group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex size-full items-center justify-center bg-zinc-800 text-zinc-500 text-xs">
+            No Image
+          </div>
+        )}
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-      </Link>
+      </div>
 
-      {/* Heart / Like Button (show/hide or interactive) */}
+      {/* Heart / Like Button */}
       <button
         type="button"
         onClick={(e) => {
@@ -80,15 +102,15 @@ export function PhotoCard({
           <div className="flex items-center flex-wrap gap-3 text-sm font-semibold text-white/90">
             <span className="inline-flex items-center gap-1">
               <Vote size={18} />
-              {photo.votes.toLocaleString()}
+              {(photo.totalVotes ?? photo.votes ?? 0).toLocaleString()}
             </span>
             <span className="inline-flex items-center gap-1">
               <Eye size={18} />
-              {photo.views.toLocaleString()}
+              {(photo.views ?? 0).toLocaleString()}
             </span>
             <span className="inline-flex items-center gap-1">
               <Heart size={18} />
-              {photo.likes.toLocaleString()}
+              {(photo.likes ?? 0).toLocaleString()}
             </span>
           </div>
         </div>
