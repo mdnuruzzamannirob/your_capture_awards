@@ -560,20 +560,18 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                       <div className="flex w-full items-center justify-center overflow-hidden rounded-lg">
                         {/* FIX: use stored selectedUserPhotoUrl directly — no filter needed */}
                         {swapSource === 'profile' && selectedUserPhotoUrl && (
-                          <Image
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
                             src={selectedUserPhotoUrl}
                             alt="Replacement photo"
-                            width={320}
-                            height={220}
                             className="max-h-60 w-auto max-w-full rounded-lg object-contain"
                           />
                         )}
                         {swapSource === 'computer' && preview && (
-                          <Image
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
                             src={preview}
                             alt="Replacement preview"
-                            width={320}
-                            height={220}
                             className="max-h-60 w-auto max-w-full rounded-lg object-contain"
                           />
                         )}
