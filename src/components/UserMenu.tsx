@@ -10,6 +10,7 @@ import { logout } from '@/utils/logout';
 import { FaPlus } from 'react-icons/fa6';
 import { IoKeyOutline } from 'react-icons/io5';
 import { MdOutlineCameraswitch } from 'react-icons/md';
+import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { LogOut, Settings } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -96,7 +97,7 @@ const UserMenu = () => {
               <ResourceValue isLoading={isStatsLoading} value={stats?.swap ?? 0} />
             </span>
             <span className="flex items-center gap-2">
-              <span className="text-primary text-sm font-bold">C</span>
+              <AiOutlineThunderbolt className="text-primary size-4" />
               <ResourceValue isLoading={isStatsLoading} value={stats?.boost ?? 0} />
             </span>
             <span className="bg-primary/90 text-background flex size-8 items-center justify-center rounded-md">
@@ -111,7 +112,13 @@ const UserMenu = () => {
           >
             <span className="text-black-2-300">Coins</span>
             <span className="flex items-center gap-2">
-              <span className="text-primary text-sm font-bold">C</span>
+              <Image
+                src="/icons/dollar.png"
+                alt="Dollar"
+                width={14}
+                height={14}
+                className="object-contain"
+              />
               <ResourceValue isLoading={isStatsLoading} value={stats?.coins ?? 0} />
             </span>
             <span className="bg-primary/90 text-background flex size-8 items-center justify-center rounded-md">
