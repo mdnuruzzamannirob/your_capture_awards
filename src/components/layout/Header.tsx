@@ -14,6 +14,7 @@ import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { FaPlus } from 'react-icons/fa6';
 import { IoKeyOutline } from 'react-icons/io5';
 import { MdOutlineCameraswitch } from 'react-icons/md';
+import Image from 'next/image';
 import LogoName from '../LogoName';
 import Sidebar from './Sidebar';
 
@@ -128,7 +129,13 @@ const Navbar = () => {
                   aria-label="Open coin store"
                 >
                   <div className="flex items-center gap-2 px-2">
-                    <span className="text-primary text-sm leading-none font-bold">C</span>
+                    <Image
+                      src="/icons/dollar.png"
+                      alt="Dollar"
+                      width={16}
+                      height={16}
+                      className="object-contain"
+                    />
                     <ResourceValue
                       isLoading={isStatsLoading}
                       value={stats?.coins ?? 0}
