@@ -12,158 +12,241 @@ import {
   DialogTrigger,
   DialogClose,
 } from '@/components/ui/dialog';
+import { ImageCropper } from '@/components/ui/ImageCropper';
 import Image from 'next/image';
 import { toast } from 'sonner';
-import { cn } from '@/utils/cn';
 import { useGetMeQuery } from '@/store/apis/authApi';
 import { useUpdateCoverMutation } from '@/store/apis/userApi';
 
+type Step = 'idle' | 'crop' | 'preview';
+
 export default function AddCoverDialog() {
   const [open, setOpen] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [step, setStep] = useState<Step>('idle');
 
+  // Raw file before crop
+  const [rawSrc, setRawSrc] = useState<string | null>(null);
+  const [rawFile, setRawFile] = useState<File | null>(null);
+
+  // Cropped result
+  const [croppedFile, setCroppedFile] = useState<File | null>(null);
+  const [croppedPreview, setCroppedPreview] = useState<string | null>(null);
+
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [updateCover, { isLoading }] = useUpdateCoverMutation();
   const { refetch: triggerGetMe } = useGetMeQuery();
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const resetState = () => {
+    revokePreview(croppedPreview);
+    setStep('idle');
+    setRawSrc(null);
+    setRawFile(null);
+    setCroppedFile(null);
+    setCroppedPreview(null);
+    setError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const revokePreview = (previewUrl: string | null) => {
+    if (previewUrl?.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
+  };
+
+  const handleOpenChange = (val: boolean) => {
+    setOpen(val);
+    if (!val) resetState();
+  };
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
+    setError(null);
 
     // 1. Format validation
-    const allowedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const allowedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
     if (!allowedFormats.includes(selected.type)) {
-      setError('Allowed formats: JPG, JPEG, PNG, WebP.');
+      setError('Allowed formats: JPG, JPEG, PNG, WebP, AVIF.');
       return;
     }
 
-    // 2. File size validation
-    const minSize = 50 * 1024; // 50 KB
-    const maxSize = 4 * 1024 * 1024; // 4 MB
+    // 2. File size validation (50 KB – 8 MB)
+    const minSize = 50 * 1024;
+    const maxSize = 8 * 1024 * 1024;
     if (selected.size < minSize) {
-      setError('File size too small. Minimum size required is 50 KB.');
+      setError('File too small — minimum size is 50 KB.');
       return;
     }
     if (selected.size > maxSize) {
-      setError('File size too large. Maximum size allowed is 4 MB.');
+      setError('File too large — maximum size is 8 MB.');
       return;
     }
 
-    // 3. Resolution validation
-    const img = new window.Image();
-    img.src = URL.createObjectURL(selected);
-    img.onload = () => {
-      const width = img.width;
-      const height = img.height;
-      URL.revokeObjectURL(img.src);
+    // Warn if large
+    if (selected.size > 1.5 * 1024 * 1024) {
+      toast.info('Image is over 1.5 MB — we recommend optimizing banners for faster loading.', { duration: 5000 });
+    }
 
-      if (width < 1200 || height < 400) {
-        setError('Minimum resolution required is 1200x400 pixels.');
-        return;
-      }
-      if (width > 3840 || height > 2160) {
-        setError('Maximum resolution allowed is 3840x2160 pixels.');
-        return;
-      }
+    setRawFile(selected);
+    setRawSrc(URL.createObjectURL(selected));
+    setStep('crop');
+    e.currentTarget.value = '';
+  };
 
-      // Check target file size (Under 1.5 MB) and warn
-      if (selected.size > 1.5 * 1024 * 1024) {
-        toast.info('Image size is over 1.5 MB. We recommend optimizing banner images for faster page loading.', { duration: 5000 });
-      }
+  const handleCropConfirm = (file: File, preview: string) => {
+    revokePreview(croppedPreview);
+    setCroppedFile(file);
+    setCroppedPreview(preview);
+    setStep('preview');
+  };
 
-      setFile(selected);
-      setPreview(URL.createObjectURL(selected));
-      setError(null);
-    };
-    img.onerror = () => {
-      setError('Failed to load image for validation.');
-    };
+  const handleCropCancel = () => {
+    setRawSrc(null);
+    setRawFile(null);
+    revokePreview(croppedPreview);
+    setStep('idle');
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleSubmit = async () => {
-    if (!file) return setError('Please select a cover photo first.');
+    if (!croppedFile) return setError('Please select and crop a cover photo first.');
 
     const formData = new FormData();
-    formData.append('cover', file);
+    formData.append('cover', croppedFile);
 
     try {
       await updateCover(formData).unwrap();
       triggerGetMe().unwrap();
-
       toast.success('Cover photo updated successfully!');
-      setFile(null);
-      setPreview(null);
+      resetState();
       setOpen(false);
     } catch (err: any) {
-      toast.error(err.message || err.data.message || 'Something went wrong while uploading.');
+      toast.error(err?.data?.message || err?.message || 'Something went wrong while uploading.');
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <button className="flex size-8 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/80 text-white shadow-lg transition duration-200 hover:bg-zinc-800 hover:scale-105 lg:size-9">
+        <button className="flex size-8 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900/80 text-white shadow-lg transition duration-200 hover:scale-105 hover:bg-zinc-800 lg:size-9">
           <FiEdit2 className="size-4" />
         </button>
       </DialogTrigger>
 
-      <DialogContent className="bg-zinc-950/95 border border-zinc-800 backdrop-blur-md sm:max-w-xl text-white">
+      <DialogContent className="border border-zinc-800 bg-zinc-950/95 text-white backdrop-blur-md sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-white">Add Cover Photo</DialogTitle>
-          <DialogDescription className="text-zinc-400 text-sm">Upload a new cover image for your profile.</DialogDescription>
+          <DialogTitle className="text-xl font-bold text-white">Cover Photo</DialogTitle>
+          <DialogDescription className="text-sm text-zinc-400">
+            Upload a wide banner image.
+          </DialogDescription>
+
+          {/* Requirements */}
+          <div className="mt-3 flex flex-wrap gap-2">
+            {[
+              { icon: '🖼', text: 'JPG · PNG · AVIF · WebP' },
+              { icon: '⚖️', text: '50 KB - 8 MB' },
+              { icon: '🖥', text: '16:9 banner crop' },
+            ].map(({ icon, text }) => (
+              <span key={text} className="inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900/50 px-2.5 py-1 text-[11px] font-medium text-zinc-400">
+                <span>{icon}</span>{text}
+              </span>
+            ))}
+          </div>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className={cn(
-              'relative flex h-52 w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-zinc-700 bg-zinc-900/50 hover:bg-zinc-900 hover:border-zinc-500 transition duration-300 text-sm text-zinc-400',
-              error && 'border-red-500 text-red-500',
-            )}
-          >
-            {preview ? (
-              <Image src={preview} alt="Cover Preview" fill className="object-cover" />
-            ) : (
-              <div className="flex flex-col items-center gap-2">
-                <FiPlus className="size-8 text-zinc-500" />
-                <span>Click to select cover image</span>
+        <div className="grid gap-4 py-2">
+          {/* Step: idle */}
+          {step === 'idle' && (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="relative flex h-36 w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-zinc-700 bg-zinc-900/50 text-sm text-zinc-400 transition duration-300 hover:border-zinc-500 hover:bg-zinc-900"
+            >
+              {croppedPreview ? (
+                <Image src={croppedPreview} alt="Cover Preview" fill className="object-cover" />
+              ) : (
+                <div className="flex flex-col items-center gap-2">
+                  <FiPlus className="size-8 text-zinc-500" />
+                  <span>Click to select cover image</span>
+                </div>
+              )}
+            </button>
+          )}
+
+          {/* Step: crop */}
+          {step === 'crop' && rawSrc && rawFile && (
+            <ImageCropper
+              src={rawSrc}
+              aspectRatio={16 / 9}
+              targetWidth={1920}
+              targetHeight={1080}
+              originalFile={rawFile}
+              title="Crop banner"
+              description="Drag or resize the frame."
+              shape="banner"
+              onCrop={handleCropConfirm}
+              onCancel={handleCropCancel}
+            />
+          )}
+
+          {/* Step: preview */}
+          {step === 'preview' && croppedPreview && (
+            <div className="flex flex-col items-center gap-3">
+              <div className="relative h-36 w-full overflow-hidden rounded-xl border border-zinc-700 shadow-xl">
+                <Image src={croppedPreview} alt="Banner Preview" fill className="object-cover" />
               </div>
-            )}
-          </button>
+              {rawSrc && rawFile && (
+                <button
+                  type="button"
+                  onClick={() => setStep('crop')}
+                  className="text-xs text-zinc-400 underline underline-offset-2 hover:text-zinc-200"
+                >
+                  Crop again
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="text-xs text-zinc-400 underline underline-offset-2 hover:text-zinc-200"
+              >
+                Choose a different image
+              </button>
+            </div>
+          )}
 
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
             onChange={handleFileChange}
             className="hidden"
           />
-          {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+
+          {error && <p className="text-xs text-red-500">{error}</p>}
         </div>
 
-        <DialogFooter className="flex gap-2">
-          <DialogClose asChild>
+        {/* Footer — only in idle/preview steps */}
+        {step !== 'crop' && (
+          <DialogFooter className="flex gap-2">
+            <DialogClose asChild>
+              <button
+                type="button"
+                className="rounded-lg border border-zinc-800 bg-zinc-900/55 px-4 py-2 text-sm text-zinc-300 transition hover:bg-zinc-900"
+              >
+                Cancel
+              </button>
+            </DialogClose>
+
             <button
               type="button"
-              className="rounded-lg border border-zinc-800 bg-zinc-900/55 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-900 transition"
+              disabled={isLoading || step !== 'preview'}
+              onClick={handleSubmit}
+              className="rounded-lg bg-primary px-5 py-2 text-sm font-semibold text-white transition hover:bg-primary/95 disabled:opacity-50"
             >
-              Cancel
+              {isLoading ? 'Saving...' : 'Save changes'}
             </button>
-          </DialogClose>
-
-          <button
-            type="button"
-            disabled={isLoading}
-            onClick={handleSubmit}
-            className="rounded-lg bg-primary hover:bg-primary/95 px-5 py-2 text-sm font-semibold text-white transition disabled:opacity-50"
-          >
-            {isLoading ? 'Saving...' : 'Save changes'}
-          </button>
-        </DialogFooter>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );
