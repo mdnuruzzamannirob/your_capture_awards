@@ -19,6 +19,7 @@ interface SidebarCommentsProps {
   comments: Comment[];
   onAddComment: (text: string, parentId?: string) => Promise<void>;
   onDeleteComment: (commentId: string) => Promise<void>;
+  isLoading?: boolean;
 }
 
 export function SidebarComments({
@@ -26,6 +27,7 @@ export function SidebarComments({
   comments,
   onAddComment,
   onDeleteComment,
+  isLoading = false,
 }: SidebarCommentsProps) {
   const [commentText, setCommentText] = useState('');
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
@@ -94,7 +96,19 @@ export function SidebarComments({
 
       {/* Comments List */}
       <div className="space-y-5">
-        {comments.length === 0 ? (
+        {isLoading && comments.length === 0 ? (
+          <div className="space-y-4 pt-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex gap-3 animate-pulse">
+                <div className="size-9 rounded-full bg-zinc-800 shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-3.5 w-24 rounded bg-zinc-800" />
+                  <div className="h-5 w-full rounded bg-zinc-900" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : comments.length === 0 ? (
           <p className="py-4 text-center text-xs font-medium text-zinc-500">
             No comments yet. Be the first to comment!
           </p>

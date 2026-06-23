@@ -33,19 +33,65 @@ export default function UploadPortfolioCard() {
     }
   };
 
+  const validateAndUpload = (selectedFile: File) => {
+    // 1. Format validation: Strictly JPG, JPEG
+    const allowedFormats = ['image/jpeg', 'image/jpg'];
+    if (!allowedFormats.includes(selectedFile.type)) {
+      toast.error('Allowed formats: Strictly JPG, JPEG.');
+      return;
+    }
+
+    // 2. File size validation
+    const minSize = 500 * 1024; // 500 KB
+    const maxSize = 10 * 1024 * 1024; // 10 MB
+    if (selectedFile.size < minSize) {
+      toast.error('File size too small. Minimum size required is 500 KB.');
+      return;
+    }
+    if (selectedFile.size > maxSize) {
+      toast.error('File size too large. Maximum size allowed is 10 MB.');
+      return;
+    }
+
+    // 3. Resolution validation
+    const img = new window.Image();
+    img.src = URL.createObjectURL(selectedFile);
+    img.onload = () => {
+      const width = img.width;
+      const height = img.height;
+      URL.revokeObjectURL(img.src);
+
+      const longestEdge = Math.max(width, height);
+      const shortestEdge = Math.min(width, height);
+
+      if (longestEdge < 1920) {
+        toast.error('Minimum resolution: 1920 pixels on the longest edge.');
+        return;
+      }
+      if (longestEdge > 6000 || shortestEdge > 4000) {
+        toast.error('Maximum resolution: 6000x4000 pixels (24MP).');
+        return;
+      }
+
+      setFile(selectedFile);
+      uploadToServer(selectedFile);
+    };
+    img.onerror = () => {
+      toast.error('Failed to load image for validation.');
+    };
+  };
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return;
     const selected = e.target.files[0];
-    setFile(selected);
-    uploadToServer(selected); // <-- Trigger upload here
+    validateAndUpload(selected);
   };
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const dropped = e.dataTransfer.files[0];
     if (dropped) {
-      setFile(dropped);
-      uploadToServer(dropped); // <-- Or here
+      validateAndUpload(dropped);
     }
   };
 

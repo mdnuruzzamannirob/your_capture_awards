@@ -223,7 +223,9 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
     <main className="margin min-h-screen bg-zinc-950 text-white">
       {/* Banner */}
       <section className="relative h-60 w-full overflow-hidden bg-zinc-900 md:h-80">
-        {!coverError && profile?.cover ? (
+        {isLoading && !profile ? (
+          <div className="size-full animate-pulse bg-zinc-900/60" />
+        ) : !coverError && profile?.cover ? (
           <Image
             src={profile.cover}
             alt={`${fullName} cover`}
@@ -254,7 +256,9 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               {/* Avatar */}
               <div className="relative -mt-20 shrink-0">
-                {isOwn ? (
+                {isLoading && !profile ? (
+                  <div className="bg-zinc-850 size-28 animate-pulse rounded-full border-4 border-black bg-zinc-800 sm:size-34" />
+                ) : isOwn ? (
                   <div className="group/avatar relative size-28 overflow-hidden rounded-full border-4 border-black bg-zinc-800 object-cover shadow-2xl sm:size-34">
                     <AvatarDialog />
                   </div>
@@ -276,25 +280,40 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                   </div>
                 )}
               </div>
-
+              <div className="flex flex-col gap-2"></div>
               {/* User Details Group */}
               <div className="flex flex-wrap items-center gap-3 md:flex-nowrap">
                 {/* Name, Location, Votes stacked in Column */}
-                <div className="flex shrink-0 flex-col justify-center">
-                  <h1 className="mb-1.5 leading-tight font-bold tracking-tight text-white sm:text-lg">
-                    {fullName}
-                  </h1>
-                  <div className="space-y-1">
-                    <span className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400">
-                      <MapPin className="size-3.5 text-zinc-500" />
-                      {profile?.location || profile?.country || 'Bangladesh'}
-                    </span>
+                {isLoading && !profile ? (
+                  <div className="flex shrink-0 flex-col justify-center gap-2">
+                    <div className="h-6 w-36 animate-pulse rounded bg-zinc-800" />
+                    <div className="h-4 w-24 animate-pulse rounded bg-zinc-800" />
                   </div>
-                </div>
+                ) : (
+                  <div className="flex shrink-0 flex-col justify-center">
+                    <h1 className="mb-1.5 leading-tight font-bold tracking-tight text-white sm:text-lg">
+                      {fullName}
+                    </h1>
+                    <div className="space-y-1">
+                      <span className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400">
+                        <MapPin className="size-3.5 text-zinc-500" />
+                        {profile?.location || profile?.country || 'Bangladesh'}
+                      </span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Vertical Divider 1 */}
                 {/* Team Group — from API joinedTeam, with conditional divider */}
-                {joinedTeam?.team ? (
+                {isLoading && !profile ? (
+                  <>
+                    <div className="hidden h-10 w-px shrink-0 self-center bg-zinc-700/50 sm:block" />
+                    <div className="flex animate-pulse items-center gap-2.5">
+                      <div className="size-10 rounded-full bg-zinc-800" />
+                      <div className="h-4 w-20 rounded bg-zinc-800" />
+                    </div>
+                  </>
+                ) : joinedTeam?.team ? (
                   <>
                     <div className="hidden h-10 w-px shrink-0 self-center bg-zinc-700/50 sm:block" />
                     <a
@@ -322,7 +341,14 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                 ) : null}
 
                 {/* Follow Button — public profile only, with conditional divider */}
-                {!isOwn && (
+                {isLoading && !profile ? (
+                  !isOwn && (
+                    <>
+                      <div className="hidden h-10 w-px shrink-0 self-center bg-zinc-700/50 sm:block" />
+                      <div className="h-8 w-20 animate-pulse rounded bg-zinc-800" />
+                    </>
+                  )
+                ) : !isOwn ? (
                   <>
                     <div className="hidden h-10 w-px shrink-0 self-center bg-zinc-700/50 sm:block" />
                     <button
@@ -338,22 +364,32 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                       {isFollowing ? 'Following' : 'Follow'}
                     </button>
                   </>
-                )}
+                ) : null}
               </div>
             </div>
 
             {/* Right side: Scrollable Modern Tabs Box */}
             <div className="w-full overflow-hidden lg:w-auto">
               <div className="divide-zinc-850 flex h-12 max-w-full scrollbar-none items-center divide-x overflow-x-auto rounded-sm border border-zinc-800 bg-zinc-900/30 shadow-md">
-                {tabs.map((tab) => (
-                  <TabButton
-                    key={tab.key}
-                    label={tab.label}
-                    value={tab.value}
-                    active={activeTab === tab.key}
-                    onClick={() => setActiveTab(tab.key)}
-                  />
-                ))}
+                {isLoading && !stats
+                  ? Array.from({ length: isOwn ? 5 : 4 }).map((_, idx) => (
+                      <div
+                        key={idx}
+                        className="flex h-full min-w-20 flex-1 animate-pulse flex-col items-center justify-center gap-1.5 px-5"
+                      >
+                        <div className="h-4 w-8 rounded bg-zinc-800" />
+                        <div className="h-2 w-12 rounded bg-zinc-800" />
+                      </div>
+                    ))
+                  : tabs.map((tab) => (
+                      <TabButton
+                        key={tab.key}
+                        label={tab.label}
+                        value={tab.value}
+                        active={activeTab === tab.key}
+                        onClick={() => setActiveTab(tab.key)}
+                      />
+                    ))}
               </div>
             </div>
           </div>

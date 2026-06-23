@@ -31,11 +31,56 @@ export default function AddCoverDialog() {
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
-    if (selected) {
+    if (!selected) return;
+
+    // 1. Format validation
+    const allowedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedFormats.includes(selected.type)) {
+      setError('Allowed formats: JPG, JPEG, PNG, WebP.');
+      return;
+    }
+
+    // 2. File size validation
+    const minSize = 50 * 1024; // 50 KB
+    const maxSize = 4 * 1024 * 1024; // 4 MB
+    if (selected.size < minSize) {
+      setError('File size too small. Minimum size required is 50 KB.');
+      return;
+    }
+    if (selected.size > maxSize) {
+      setError('File size too large. Maximum size allowed is 4 MB.');
+      return;
+    }
+
+    // 3. Resolution validation
+    const img = new window.Image();
+    img.src = URL.createObjectURL(selected);
+    img.onload = () => {
+      const width = img.width;
+      const height = img.height;
+      URL.revokeObjectURL(img.src);
+
+      if (width < 1200 || height < 400) {
+        setError('Minimum resolution required is 1200x400 pixels.');
+        return;
+      }
+      if (width > 3840 || height > 2160) {
+        setError('Maximum resolution allowed is 3840x2160 pixels.');
+        return;
+      }
+
+      // Check target file size (Under 1.5 MB) and warn
+      if (selected.size > 1.5 * 1024 * 1024) {
+        toast.info('Image size is over 1.5 MB. We recommend optimizing banner images for faster page loading.', { duration: 5000 });
+      }
+
       setFile(selected);
       setPreview(URL.createObjectURL(selected));
       setError(null);
-    }
+    };
+    img.onerror = () => {
+      setError('Failed to load image for validation.');
+    };
   };
 
   const handleSubmit = async () => {
