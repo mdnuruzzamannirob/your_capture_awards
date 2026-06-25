@@ -80,8 +80,8 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
   const [fetchPublicPhotoDetails, { isLoading: isLoadingPublic }] = useLazyGetPublicPhotoDetailsQuery();
   const isLoading = isLoadingOwn || isLoadingPublic;
 
-  const [toggleLike] = useToggleLikeMutation();
-  const [toggleFollow] = useToggleFollowMutation();
+  const [toggleLike, { isLoading: isLiking }] = useToggleLikeMutation();
+  const [toggleFollow, { isLoading: isFollowToggling }] = useToggleFollowMutation();
 
   // Load photo data — chooses own vs public API based on ownership
   const loadPhotoData = async (photoId: string) => {
@@ -172,17 +172,14 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
   };
 
   const handleToggleLike = async () => {
+    if (isLiking) return;
     try {
       const res = await toggleLike(currentPhotoId).unwrap();
       if (res.success) {
-        setLiked((prev) => {
-          const next = !prev;
-          toast[next ? 'success' : 'info'](next ? 'Added to favorites!' : 'Removed from favorites.');
-          return next;
-        });
+        setLiked((prev) => !prev);
       }
     } catch (err: any) {
-      toast.error(err?.data?.message || 'Failed to update like status');
+      console.error('Failed to update like status:', err);
     }
   };
 
@@ -192,15 +189,10 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
     try {
       const res = await toggleFollow({ userId: targetUserId }).unwrap();
       if (res.success) {
-        setOwnerIsFollowed((prev) => {
-          const next = !prev;
-          const name = profileOwner?.fullName || profileOwner?.username || 'this user';
-          toast[next ? 'success' : 'info'](next ? `Following ${name}` : `Unfollowed ${name}`);
-          return next;
-        });
+        setOwnerIsFollowed((prev) => !prev);
       }
     } catch (err: any) {
-      toast.error(err?.data?.message || 'Failed to update follow status');
+      console.error('Failed to update follow status:', err);
     }
   };
 
@@ -249,11 +241,13 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
             onNext={handleNext}
             onIndexChange={handleIndexChange}
             isLiked={liked}
+            isLiking={isLiking}
             onToggleLike={handleToggleLike}
             backUrl={backUrl}
             isSidebarOpen={isSidebarOpen}
             onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
             isOwnPhoto={isOwnPhoto}
+            isImageLoading={isLoading}
           />
         </section>
 
@@ -278,6 +272,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
             isFollowed={ownerIsFollowed}
             onToggleFollow={handleToggleFollow}
             isLoading={isLoading && !profileOwner}
+            isFollowToggling={isFollowToggling}
           />
 
           <div className="min-h-0 flex-1 scrollbar-thin overflow-y-auto bg-zinc-950">

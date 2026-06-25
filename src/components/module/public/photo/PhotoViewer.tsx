@@ -6,6 +6,7 @@ import {
   ChevronRight,
   EllipsisVertical,
   Heart,
+  Loader2,
   Maximize2,
   Minimize2,
   X,
@@ -22,11 +23,13 @@ interface PhotoViewerProps {
   onNext: () => void;
   onIndexChange: (idx: number) => void;
   isLiked: boolean;
+  isLiking?: boolean;
   onToggleLike: () => void;
   backUrl: string;
   isSidebarOpen: boolean;
   onToggleSidebar: () => void;
   isOwnPhoto?: boolean;
+  isImageLoading?: boolean;
 }
 
 export function PhotoViewer({
@@ -37,11 +40,13 @@ export function PhotoViewer({
   onNext,
   onIndexChange,
   isLiked,
+  isLiking = false,
   onToggleLike,
   backUrl,
   isSidebarOpen,
   onToggleSidebar,
   isOwnPhoto = false,
+  isImageLoading = false,
 }: PhotoViewerProps) {
   // Support both real API photos (photo.url) and mock photos (photo.src)
   const photoSrc = photo.url || photo.src || '';
@@ -164,17 +169,22 @@ export function PhotoViewer({
       {!isOwnPhoto && (
         <button
           onClick={onToggleLike}
-          className="absolute top-6 right-20 z-20 grid size-10 cursor-pointer place-items-center rounded-full border border-white/10 bg-black/40 text-white drop-shadow-lg transition-transform duration-200 hover:bg-black/60 active:scale-95"
+          disabled={isLiking}
+          className="absolute top-6 right-20 z-20 grid size-10 cursor-pointer place-items-center rounded-full border border-white/10 bg-black/40 text-white drop-shadow-lg transition-transform duration-200 hover:bg-black/60 active:scale-95 disabled:cursor-wait disabled:opacity-70"
           title={isLiked ? 'Unlike photo' : 'Like photo'}
         >
-          <Heart
-            className={cn(
-              'size-5 stroke-2 transition-all duration-300',
-              isLiked
-                ? 'scale-110 fill-red-500 text-red-500'
-                : 'text-white hover:scale-105 hover:text-red-400',
-            )}
-          />
+          {isLiking ? (
+            <Loader2 className="size-5 animate-spin text-white" />
+          ) : (
+            <Heart
+              className={cn(
+                'size-5 stroke-2 transition-all duration-300',
+                isLiked
+                  ? 'scale-110 fill-red-500 text-red-500'
+                  : 'text-white hover:scale-105 hover:text-red-400',
+              )}
+            />
+          )}
         </button>
       )}
 
@@ -219,6 +229,13 @@ export function PhotoViewer({
             <div className="flex size-full items-center justify-center text-zinc-650 text-sm">No Image</div>
           )}
         </div>
+
+        {/* Image-only loading spinner overlay — shown during prev/next API calls */}
+        {isImageLoading && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-xs">
+            <Loader2 className="size-12 animate-spin text-white/70" />
+          </div>
+        )}
       </div>
 
       {/* Right Chevron Navigation */}

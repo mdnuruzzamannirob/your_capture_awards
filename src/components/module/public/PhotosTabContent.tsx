@@ -1,7 +1,6 @@
 'use client';
 
-import { fetchPublicPhotos } from '@/lib/mock/public-profile-tab-data';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { PhotoCard, TabErrorState, TabSectionHeader } from './public-tab-ui';
 
 import UploadPortfolioCard from '../profile/UploadPortfolioCard';
@@ -25,53 +24,13 @@ const PhotosTabContent = ({
   isLoading = false,
   userId
 }: Props) => {
-  const [mockPhotos, setMockPhotos] = useState<any[]>([]);
-  const [mockLoading, setMockLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [photoFilter, setPhotoFilter] = useState('like');
 
-  useEffect(() => {
-    // Only fetch mock photos if not loading real public profile photos
-    if (initialPhotos.length > 0 || isLoading) {
-      setMockLoading(false);
-      return;
-    }
-
-    let cancelled = false;
-    const controller = new AbortController();
-
-    const run = async () => {
-      setMockLoading(true);
-      setError(null);
-
-      try {
-        const nextPhotos = await fetchPublicPhotos(username, controller.signal);
-        if (!cancelled) {
-          setMockPhotos(nextPhotos);
-        }
-      } catch (err) {
-        if (!cancelled && !(err instanceof DOMException && err.name === 'AbortError')) {
-          setError('Photos could not be loaded right now.');
-        }
-      } finally {
-        if (!cancelled) {
-          setMockLoading(false);
-        }
-      }
-    };
-
-    run();
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-    };
-  }, [username, initialPhotos.length, isLoading]);
-
   const photoOptions = ['like', 'view', 'vote'];
 
-  const photosList = initialPhotos.length > 0 ? initialPhotos : mockPhotos;
-  const isPhotosLoading = isLoading || (initialPhotos.length === 0 && mockLoading);
+  const photosList = initialPhotos;
+  const isPhotosLoading = isLoading;
 
   return (
     <section className="container py-6">
