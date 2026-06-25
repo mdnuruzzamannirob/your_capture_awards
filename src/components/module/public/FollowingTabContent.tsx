@@ -1,8 +1,9 @@
 'use client';
 
 import { cn } from '@/utils/cn';
-import { MapPin } from 'lucide-react';
+import { MapPin, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { PeopleLoadingState, TabErrorState, TabSectionHeader } from './public-tab-ui';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,7 +20,7 @@ function PersonCard({ item }: { item: any }) {
   const followingUser = item.following;
   const followingId = followingUser?.id || item.followingId;
   const { user: currentUser } = useAuth();
-  const [toggleFollow] = useToggleFollowMutation();
+  const [toggleFollow, { isLoading: isToggling }] = useToggleFollowMutation();
   const [following, setFollowing] = useState(true);
 
   const isMe = followingId === currentUser?.id;
@@ -58,7 +59,10 @@ function PersonCard({ item }: { item: any }) {
       {/* Move content UP */}
       <div className="relative z-20 -mt-6 px-4 pb-4">
         <div className="flex items-center gap-3">
-          <div className="relative z-30 size-16 shrink-0 overflow-hidden rounded-full border-2 border-zinc-800 bg-zinc-900 shadow-md">
+          <Link
+            href={`/profile/${followingId}`}
+            className="relative z-30 size-16 shrink-0 overflow-hidden rounded-full border-2 border-zinc-800 bg-zinc-900 shadow-md transition hover:opacity-80"
+          >
             {avatar ? (
               <Image
                 src={avatar}
@@ -72,12 +76,15 @@ function PersonCard({ item }: { item: any }) {
                 NO AVATAR
               </div>
             )}
-          </div>
+          </Link>
 
           <div className="min-w-0 flex-1 pt-2">
-            <p className="hover:text-primary truncate font-semibold text-white transition">
+            <Link
+              href={`/profile/${followingId}`}
+              className="hover:text-primary block truncate font-semibold text-white transition"
+            >
               {name}
-            </p>
+            </Link>
 
             <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-zinc-500">
               <MapPin size={14} className="shrink-0" /> {country}
@@ -89,14 +96,21 @@ function PersonCard({ item }: { item: any }) {
           <button
             type="button"
             onClick={handleFollowToggle}
+            disabled={isToggling}
             className={cn(
-              'mt-5 inline-flex w-full items-center justify-center rounded-sm py-2 text-sm font-semibold transition',
+              'mt-5 inline-flex w-full items-center justify-center rounded-sm py-2 text-sm font-semibold transition cursor-pointer disabled:cursor-wait disabled:opacity-80',
               following
                 ? 'bg-zinc-850 bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
                 : 'bg-primary hover:bg-primary/90 text-white',
             )}
           >
-            {following ? 'Following' : 'Follow'}
+            {isToggling ? (
+              <Loader2 className="size-4 animate-spin text-white" />
+            ) : following ? (
+              'Following'
+            ) : (
+              'Follow'
+            )}
           </button>
         )}
       </div>
@@ -170,7 +184,7 @@ const FollowingTabContent = ({ username, userId, isOwn = false }: Props) => {
   };
 
   const { loadMoreRef } = useInfiniteScroll({
-    hasMore,
+    hasMore: hasMore && page > 1,
     isLoading: isFetching,
     onLoadMore: loadMore,
   });

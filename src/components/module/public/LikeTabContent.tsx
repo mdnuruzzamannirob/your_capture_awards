@@ -85,7 +85,7 @@ const LikeTabContent = ({ username, title = 'Liked Photos' }: Props) => {
   };
 
   const { loadMoreRef } = useInfiniteScroll({
-    hasMore,
+    hasMore: hasMore && page > 1,
     isLoading: isFetching,
     onLoadMore: loadMore,
   });

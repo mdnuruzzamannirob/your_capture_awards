@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/utils/cn';
-import { MapPin } from 'lucide-react';
+import { MapPin, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import AchievementsTabContent from './AchievementsTabContent';
@@ -168,7 +168,7 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
     }
   }, [otherProfileData?.data?.isFollowed, isOwn]);
 
-  const [toggleFollow] = useToggleFollowMutation();
+  const [toggleFollow, { isLoading: isFollowToggling }] = useToggleFollowMutation();
   const targetMongoId = profile?.id;
 
   const handleToggleFollow = async () => {
@@ -176,18 +176,10 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
     try {
       const res = await toggleFollow({ userId: targetMongoId }).unwrap();
       if (res.success) {
-        setIsFollowing((prev) => {
-          const next = !prev;
-          if (next) {
-            toast.success(`You started following ${fullName}`);
-          } else {
-            toast.info(`You unfollowed ${fullName}`);
-          }
-          return next;
-        });
+        setIsFollowing((prev) => !prev);
       }
     } catch (err: any) {
-      toast.error(err?.data?.message || 'Failed to update follow status');
+      console.error('Failed to update follow status:', err);
     }
   };
 
@@ -366,14 +358,21 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                     <button
                       type="button"
                       onClick={handleToggleFollow}
+                      disabled={isFollowToggling}
                       className={cn(
-                        'inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 self-center rounded-sm px-5 py-2 text-xs font-semibold transition select-none',
+                        'inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 self-center rounded-sm px-5 py-2 text-xs font-semibold transition select-none disabled:cursor-wait disabled:opacity-80',
                         isFollowing
                           ? 'bg-zinc-850 bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
                           : 'bg-primary hover:bg-primary/90 text-white',
                       )}
                     >
-                      {isFollowing ? 'Following' : 'Follow'}
+                      {isFollowToggling ? (
+                        <Loader2 className="size-3.5 animate-spin" />
+                      ) : isFollowing ? (
+                        'Following'
+                      ) : (
+                        'Follow'
+                      )}
                     </button>
                   </>
                 ) : null}

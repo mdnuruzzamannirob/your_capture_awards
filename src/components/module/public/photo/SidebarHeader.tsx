@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/utils/cn';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -13,6 +13,7 @@ interface SidebarHeaderProps {
   isFollowed?: boolean;
   onToggleFollow?: () => void;
   isLoading?: boolean;
+  isFollowToggling?: boolean;
 }
 
 export function SidebarHeader({
@@ -23,6 +24,7 @@ export function SidebarHeader({
   isFollowed = false,
   onToggleFollow,
   isLoading = false,
+  isFollowToggling = false,
 }: SidebarHeaderProps) {
   if (isLoading || !owner) {
     return (
@@ -93,14 +95,21 @@ export function SidebarHeader({
               <button
                 type="button"
                 onClick={onToggleFollow}
+                disabled={isFollowToggling}
                 className={cn(
-                  'inline-flex mt-1.5 shrink-0 cursor-pointer items-center justify-center gap-1.5 self-center rounded-sm px-3 py-1.5 text-xs font-semibold transition select-none',
+                  'inline-flex mt-1.5 shrink-0 cursor-pointer items-center justify-center gap-1.5 self-center rounded-sm px-3 py-1.5 text-xs font-semibold transition select-none disabled:cursor-wait disabled:opacity-80',
                   isFollowed
                     ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
                     : 'bg-primary hover:bg-primary/90 text-white',
                 )}
               >
-                {isFollowed ? 'FOLLOWING' : 'FOLLOW'}
+                {isFollowToggling ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : isFollowed ? (
+                  'FOLLOWING'
+                ) : (
+                  'FOLLOW'
+                )}
               </button>
             )}
           </div>
