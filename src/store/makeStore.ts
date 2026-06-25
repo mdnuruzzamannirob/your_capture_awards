@@ -7,6 +7,7 @@ import { storeApi } from '@/store/apis/storeApi';
 import { teamApi } from '@/store/apis/teamApi';
 import { userApi } from '@/store/apis/userApi';
 import { sitePolicyApi } from '@/store/apis/sitePolicyApi';
+import { socialApi } from '@/store/apis/socialApi';
 import authReducer from '@/store/slices/authSlice';
 import profileReducer from '@/store/slices/profileSlice';
 import { configureStore } from '@reduxjs/toolkit';
@@ -25,6 +26,7 @@ export const makeStore = (preloadedState = {}) => {
       [supportApi.reducerPath]: supportApi.reducer,
       [discoverApi.reducerPath]: discoverApi.reducer,
       [sitePolicyApi.reducerPath]: sitePolicyApi.reducer,
+      [socialApi.reducerPath]: socialApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
@@ -39,6 +41,7 @@ export const makeStore = (preloadedState = {}) => {
         supportApi.middleware,
         discoverApi.middleware,
         sitePolicyApi.middleware,
+        socialApi.middleware,
       ),
     preloadedState,
     devTools: process.env.NODE_ENV !== 'production',

@@ -14,8 +14,9 @@ import { SidebarMetrics } from './photo/SidebarMetrics';
 import { cn } from '@/utils/cn';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { clearSwiperPhotos } from '@/store/slices/profileSlice';
-import { useLazyGetMyPhotoDetailsQuery, useLazyGetPublicPhotoDetailsQuery } from '@/store/apis/profileApi';
 import { useAuth } from '@/hooks/useAuth';
+import { useToggleFollowMutation, useToggleLikeMutation } from '@/store/apis/socialApi';
+import { useLazyGetMyPhotoDetailsQuery, useLazyGetPublicPhotoDetailsQuery } from '@/store/apis/profileApi';
 
 interface Props {
   photoId: string;
@@ -59,18 +60,28 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
     if (source === 'contest' && (contestParam || photo?.contestId)) {
       return `/contest/${contestParam || photo.contestId}`;
     }
-    if (source === 'profile' && (profileParam || ownerIdParam)) {
-      // if isOwn, back to own profile page
-      if (isOwnPhoto) return '/profile';
+    if (source === 'profile') {
+      if (isOwnPhoto || profileParam === currentUser?.id || profileParam === currentUser?.username) {
+        return '/profile';
+      }
       return `/profile/${profileParam || ownerIdParam}`;
     }
-    return profileParam ? `/profile/${profileParam}` : '/';
+    if (profileParam) {
+      if (profileParam === currentUser?.id || profileParam === currentUser?.username) {
+        return '/profile';
+      }
+      return `/profile/${profileParam}`;
+    }
+    return '/';
   })();
 
   // RTK Lazy queries
   const [fetchMyPhotoDetails, { isLoading: isLoadingOwn }] = useLazyGetMyPhotoDetailsQuery();
   const [fetchPublicPhotoDetails, { isLoading: isLoadingPublic }] = useLazyGetPublicPhotoDetailsQuery();
   const isLoading = isLoadingOwn || isLoadingPublic;
+
+  const [toggleLike] = useToggleLikeMutation();
+  const [toggleFollow] = useToggleFollowMutation();
 
   // Load photo data — chooses own vs public API based on ownership
   const loadPhotoData = async (photoId: string) => {
@@ -160,21 +171,37 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
     if (selected) { setCurrentPhotoId(selected.id); updateAddressBar(selected.id); }
   };
 
-  const handleToggleLike = () => {
-    setLiked((prev) => {
-      const next = !prev;
-      toast[next ? 'success' : 'info'](next ? 'Added to favorites!' : 'Removed from favorites.');
-      return next;
-    });
+  const handleToggleLike = async () => {
+    try {
+      const res = await toggleLike(currentPhotoId).unwrap();
+      if (res.success) {
+        setLiked((prev) => {
+          const next = !prev;
+          toast[next ? 'success' : 'info'](next ? 'Added to favorites!' : 'Removed from favorites.');
+          return next;
+        });
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || 'Failed to update like status');
+    }
   };
 
-  const handleToggleFollow = () => {
-    setOwnerIsFollowed((prev) => {
-      const next = !prev;
-      const name = profileOwner?.fullName || profileOwner?.username || 'this user';
-      toast[next ? 'success' : 'info'](next ? `Following ${name}` : `Unfollowed ${name}`);
-      return next;
-    });
+  const handleToggleFollow = async () => {
+    const targetUserId = profileOwner?.id;
+    if (!targetUserId) return;
+    try {
+      const res = await toggleFollow({ userId: targetUserId }).unwrap();
+      if (res.success) {
+        setOwnerIsFollowed((prev) => {
+          const next = !prev;
+          const name = profileOwner?.fullName || profileOwner?.username || 'this user';
+          toast[next ? 'success' : 'info'](next ? `Following ${name}` : `Unfollowed ${name}`);
+          return next;
+        });
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || 'Failed to update follow status');
+    }
   };
 
   const handleAddComment = async (text: string, parentId?: string) => {

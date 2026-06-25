@@ -83,14 +83,17 @@ export const profileApi = createApi({
 
     getOtherUserProfile: builder.query<{ data: any }, string>({
       query: (id) => `/profiles/users/${id}/profile`,
+      providesTags: (result, error, id) => [{ type: 'Stats' as const, id }],
     }),
 
     getOtherUserPhotos: builder.query<{ data: Photo[]; meta?: any }, { id: string; page?: number; limit?: number }>({
       query: ({ id, page = 1, limit = 10 }) => `/profiles/users/${id}?page=${page}&limit=${limit}`,
+      providesTags: ['Photos'],
     }),
 
     getOtherUserStats: builder.query<{ data: Stats }, string>({
       query: (id) => `/profiles/users/${id}/stats`,
+      providesTags: ['Stats'],
     }),
 
     // Public photo details: GET /profiles/users/:id/photos/:photoId

@@ -33,7 +33,7 @@ const PortfolioCard = ({
 
   const [deletePhoto, { isLoading }] = useDeletePhotoMutation();
 
-  const imageUrl = item.url.replace(/\\/g, '/');
+  const imageUrl = item?.url?.replace(/\\/g, '/');
   const aspect = getAspect(item.id);
 
   const handleDelete = async (id: string) => {

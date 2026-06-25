@@ -1,68 +1,128 @@
 'use client';
 
-import { PublicPhoto } from '@/lib/mock/public-gallery-data';
-import { fetchLikedPhotos } from '@/lib/mock/public-profile-tab-data';
 import { useEffect, useState } from 'react';
 import { GridLoadingState, PhotoCard, TabErrorState, TabSectionHeader } from './public-tab-ui';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { useLazyGetLikedPhotosQuery } from '@/store/apis/socialApi';
 
 type Props = {
   username: string;
+  userId?: string;
+  isOwn?: boolean;
   title?: string;
 };
 
 const LikeTabContent = ({ username, title = 'Liked Photos' }: Props) => {
-  const [photos, setPhotos] = useState<PublicPhoto[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [photos, setPhotos] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [triggerGetLikedPhotos, { isFetching }] = useLazyGetLikedPhotosQuery();
+
   useEffect(() => {
-    let cancelled = false;
-    const controller = new AbortController();
+    let active = true;
+    setPhotos([]);
+    setPage(1);
+    setHasMore(true);
+    setError(null);
 
-    const run = async () => {
-      setLoading(true);
-      setError(null);
-
+    const fetchInitial = async () => {
       try {
-        const nextPhotos = await fetchLikedPhotos(username, controller.signal);
-        if (!cancelled) setPhotos(nextPhotos);
-      } catch (err) {
-        if (!cancelled && !(err instanceof DOMException && err.name === 'AbortError')) {
-          setError('Liked photos could not be loaded.');
+        const res = await triggerGetLikedPhotos({
+          page: 1,
+          limit: 12,
+        }).unwrap();
+
+        if (active) {
+          if (res.success) {
+            // Extract the nested photo object
+            const fetched = (res.data || []).map((item: any) => ({
+              ...item.photo,
+              isLiked: true,
+            }));
+            setPhotos(fetched);
+            setHasMore(res.meta?.hasNextPage ?? false);
+            setPage(2);
+          } else {
+            setError(res.message || 'Failed to load liked photos.');
+          }
         }
-      } finally {
-        if (!cancelled) setLoading(false);
+      } catch (err: any) {
+        if (active) {
+          setError(err?.data?.message || err?.message || 'Failed to load liked photos.');
+        }
       }
     };
 
-    run();
+    fetchInitial();
 
     return () => {
-      cancelled = true;
-      controller.abort();
+      active = false;
     };
-  }, [username]);
+  }, [username, triggerGetLikedPhotos]);
+
+  const loadMore = async () => {
+    if (isFetching || !hasMore) return;
+    try {
+      const res = await triggerGetLikedPhotos({
+        page,
+        limit: 12,
+      }).unwrap();
+
+      if (res.success) {
+        const fetched = (res.data || []).map((item: any) => ({
+          ...item.photo,
+          isLiked: true,
+        }));
+        setPhotos((prev) => [...prev, ...fetched]);
+        setHasMore(res.meta?.hasNextPage ?? false);
+        setPage((prev) => prev + 1);
+      }
+    } catch (err: any) {
+      console.error('Error fetching more liked photos:', err);
+    }
+  };
+
+  const { loadMoreRef } = useInfiniteScroll({
+    hasMore,
+    isLoading: isFetching,
+    onLoadMore: loadMore,
+  });
 
   return (
     <section className="container py-6">
       <TabSectionHeader title={title} />
       {error ? <TabErrorState title="Unable to load liked photos" description={error} /> : null}
-      {loading && photos.length === 0 ? (
+      {photos.length === 0 && isFetching && page === 1 ? (
         <GridLoadingState count={8} />
       ) : (
-        <div className="overflow-hidden rounded-2xl">
-          <div className="flex flex-wrap gap-1.5 sm:gap-2">
-            {photos.map((photo) => (
-              <PhotoCard
-                key={photo.id}
-                photo={photo}
-                profileUsername={username}
-                isLikedDefault={true}
-              />
-            ))}
-            <div style={{ flexGrow: 9999999, flexBasis: '240px' }} className="h-0" />
+        <>
+          {photos.length === 0 && !isFetching ? (
+            <div className="py-12 text-center text-zinc-500">No liked photos found.</div>
+          ) : (
+            <div className="overflow-hidden rounded-2xl">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                {photos.map((photo) => (
+                  <PhotoCard
+                    key={photo.id}
+                    photo={photo}
+                    profileUsername={username}
+                    isLikedDefault={true}
+                    allPhotos={photos}
+                  />
+                ))}
+                <div style={{ flexGrow: 9999999, flexBasis: '240px' }} className="h-0" />
+              </div>
+            </div>
+          )}
+          {/* Infinite Scroll Trigger */}
+          <div ref={loadMoreRef} className="flex justify-center py-6">
+            {isFetching && page > 1 && (
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            )}
           </div>
-        </div>
+        </>
       )}
     </section>
   );

@@ -8,6 +8,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch } from '@/store/hooks';
 import { setSwiperPhotos } from '@/store/slices/profileSlice';
+import { useToggleLikeMutation } from '@/store/apis/socialApi';
+import { toast } from 'sonner';
 
 export const getPhotoAspect = (id: string) => {
   const aspects: Record<string, number> = {
@@ -39,6 +41,7 @@ export function PhotoCard({
   const [liked, setLiked] = useState(isLikedDefault);
   const router = useRouter();
   const dispatch = useAppDispatch();
+  const [toggleLike] = useToggleLikeMutation();
 
   // Support both real API photos (photo.url) and mock photos (photo.src)
   const photoSrc = photo.url || photo.src || '';
@@ -50,6 +53,22 @@ export function PhotoCard({
     dispatch(setSwiperPhotos(allPhotos.length > 0 ? allPhotos : [photo]));
     const ownerParam = ownerId || photo.userId || '';
     router.push(`/photo/${photo.id}?source=profile&profile=${profileUsername}&ownerId=${ownerParam}`);
+  };
+
+  const handleToggleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const res = await toggleLike(photo.id).unwrap();
+      if (res.success) {
+        setLiked((prev) => {
+          const next = !prev;
+          toast[next ? 'success' : 'info'](next ? 'Added to favorites!' : 'Removed from favorites.');
+          return next;
+        });
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || 'Failed to update like status');
+    }
   };
 
   return (
@@ -82,10 +101,7 @@ export function PhotoCard({
       {/* Heart / Like Button */}
       <button
         type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setLiked(!liked);
-        }}
+        onClick={handleToggleLike}
         className="absolute top-3 right-3 z-10 cursor-pointer rounded-full border border-white/10 bg-black/40 p-2 text-white backdrop-blur-xs transition duration-200 select-none hover:bg-black/60"
       >
         <Heart
