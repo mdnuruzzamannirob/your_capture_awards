@@ -7,15 +7,15 @@ import { useStoreModal } from '@/providers/StoreModalProvider';
 import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { cn } from '@/utils/cn';
 import { logout } from '@/utils/logout';
-import { FaPlus } from 'react-icons/fa6';
-import { IoKeyOutline } from 'react-icons/io5';
-import { MdOutlineCameraswitch } from 'react-icons/md';
-import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { LogOut, Settings } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { AiOutlineThunderbolt } from 'react-icons/ai';
+import { FaPlus } from 'react-icons/fa6';
+import { IoKeyOutline } from 'react-icons/io5';
+import { MdOutlineCameraswitch } from 'react-icons/md';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
@@ -44,7 +44,8 @@ const UserMenu = () => {
     router.push('/signin');
   };
 
-  if (!user || !token) return null;
+  if (!user || !token)
+    return <div className="size-8.5 shrink-0 animate-pulse rounded-full bg-zinc-800"></div>;
 
   const avatar = user?.avatar;
   const fullName = `${user?.firstName || 'Name'} ${user?.lastName || 'Not found'}`;

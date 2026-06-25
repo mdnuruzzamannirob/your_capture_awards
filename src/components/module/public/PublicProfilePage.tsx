@@ -23,6 +23,7 @@ import { useAppSelector } from '@/store/hooks';
 import { toast } from 'sonner';
 import AddCoverDialog from '../profile/AddCoverDialog';
 import AvatarDialog from '../profile/AvatarDialog';
+import { useToggleFollowMutation } from '@/store/apis/socialApi';
 
 type Props = {
   isOwn?: boolean;
@@ -89,15 +90,15 @@ function ProfileContent({
   }
 
   if (activeTab === 'followers') {
-    return <FollowersTabContent username={username} />;
+    return <FollowersTabContent username={username} userId={profile?.id} isOwn={isOwn} />;
   }
 
   if (activeTab === 'following') {
-    return <FollowingTabContent username={username} />;
+    return <FollowingTabContent username={username} userId={profile?.id} isOwn={isOwn} />;
   }
 
   if (activeTab === 'likes') {
-    return <LikeTabContent username={username} />;
+    return <LikeTabContent username={username} userId={profile?.id} isOwn={isOwn} />;
   }
 
   return (
@@ -167,23 +168,34 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
     }
   }, [otherProfileData?.data?.isFollowed, isOwn]);
 
+  const [toggleFollow] = useToggleFollowMutation();
+  const targetMongoId = profile?.id;
+
+  const handleToggleFollow = async () => {
+    if (!targetMongoId) return;
+    try {
+      const res = await toggleFollow({ userId: targetMongoId }).unwrap();
+      if (res.success) {
+        setIsFollowing((prev) => {
+          const next = !prev;
+          if (next) {
+            toast.success(`You started following ${fullName}`);
+          } else {
+            toast.info(`You unfollowed ${fullName}`);
+          }
+          return next;
+        });
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || 'Failed to update follow status');
+    }
+  };
+
   const fullName =
     profile?.fullName ||
     (profile?.firstName && profile?.lastName ? `${profile.firstName} ${profile.lastName}` : '') ||
     profile?.name ||
     'Name not found';
-
-  const handleToggleFollow = () => {
-    setIsFollowing((prev) => {
-      const next = !prev;
-      if (next) {
-        toast.success(`You started following ${fullName}`);
-      } else {
-        toast.info(`You unfollowed ${fullName}`);
-      }
-      return next;
-    });
-  };
 
   const tabs = useMemo(() => {
     const list: TabConfig[] = [
