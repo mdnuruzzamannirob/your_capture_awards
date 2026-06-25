@@ -59,32 +59,38 @@ function PersonCard({ item }: { item: any }) {
       {/* Move content UP */}
       <div className="relative z-20 -mt-6 px-4 pb-4">
         <div className="flex items-center gap-3">
-          <Link
-            href={`/profile/${followingId}`}
-            className="relative z-30 size-16 shrink-0 overflow-hidden rounded-full border-2 border-zinc-800 bg-zinc-900 shadow-md transition hover:opacity-80"
-          >
-            {avatar ? (
-              <Image
-                src={avatar}
-                alt={name}
-                width={64}
-                height={64}
-                className="size-full object-cover"
-              />
-            ) : (
-              <div className="flex size-full items-center justify-center bg-zinc-800 text-[10px] font-bold text-zinc-500">
-                NO AVATAR
-              </div>
-            )}
-          </Link>
-
-          <div className="min-w-0 flex-1 pt-2">
+          {isMe ? (
+            <div className="relative z-30 size-16 shrink-0 overflow-hidden rounded-full border-2 border-zinc-800 bg-zinc-900 shadow-md">
+              {avatar ? (
+                <Image src={avatar} alt={name} width={64} height={64} className="size-full object-cover" />
+              ) : (
+                <div className="flex size-full items-center justify-center bg-zinc-800 text-[10px] font-bold text-zinc-500">NO AVATAR</div>
+              )}
+            </div>
+          ) : (
             <Link
               href={`/profile/${followingId}`}
-              className="hover:text-primary block truncate font-semibold text-white transition"
+              className="relative z-30 size-16 shrink-0 overflow-hidden rounded-full border-2 border-zinc-800 bg-zinc-900 shadow-md transition hover:opacity-80"
             >
-              {name}
+              {avatar ? (
+                <Image src={avatar} alt={name} width={64} height={64} className="size-full object-cover" />
+              ) : (
+                <div className="flex size-full items-center justify-center bg-zinc-800 text-[10px] font-bold text-zinc-500">NO AVATAR</div>
+              )}
             </Link>
+          )}
+
+          <div className="min-w-0 flex-1 pt-2">
+            {isMe ? (
+              <span className="block truncate font-semibold text-white">{name}</span>
+            ) : (
+              <Link
+                href={`/profile/${followingId}`}
+                className="hover:text-primary block truncate font-semibold text-white transition"
+              >
+                {name}
+              </Link>
+            )}
 
             <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-zinc-500">
               <MapPin size={14} className="shrink-0" /> {country}
