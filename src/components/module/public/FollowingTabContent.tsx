@@ -32,7 +32,6 @@ function PersonCard({ item }: { item: any }) {
         setFollowing((prev: boolean) => !prev);
       }
     } catch (err: any) {
-      console.error('Failed to toggle follow status:', err);
     }
   };
 
@@ -185,7 +184,6 @@ const FollowingTabContent = ({ username, userId, isOwn = false }: Props) => {
         setPage((prev) => prev + 1);
       }
     } catch (err: any) {
-      console.error('Error fetching more following:', err);
     }
   };
 

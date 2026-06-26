@@ -80,7 +80,6 @@ const LikeTabContent = ({ username, title = 'Liked Photos' }: Props) => {
         setPage((prev) => prev + 1);
       }
     } catch (err: any) {
-      console.error('Error fetching more liked photos:', err);
     }
   };
 

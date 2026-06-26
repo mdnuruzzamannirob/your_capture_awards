@@ -179,7 +179,6 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
         setLiked((prev) => !prev);
       }
     } catch (err: any) {
-      console.error('Failed to update like status:', err);
     }
   };
 
@@ -192,7 +191,6 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
         setOwnerIsFollowed((prev) => !prev);
       }
     } catch (err: any) {
-      console.error('Failed to update follow status:', err);
     }
   };
 
