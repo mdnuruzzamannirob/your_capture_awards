@@ -178,8 +178,7 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
       if (res.success) {
         setIsFollowing((prev) => !prev);
       }
-    } catch (err: any) {
-    }
+    } catch (err: any) {}
   };
 
   const fullName =

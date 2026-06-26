@@ -18,7 +18,7 @@ function getCommentsForPhoto(photoId: string): Comment[] {
   if (commentsCache[photoId]) {
     return commentsCache[photoId];
   }
-  
+
   const photo = getPhoto(photoId);
   if (!photo) return [];
 
@@ -37,7 +37,7 @@ function getCommentsForPhoto(photoId: string): Comment[] {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ photoId: string }> }
+  { params }: { params: Promise<{ photoId: string }> },
 ) {
   const { photoId } = await params;
   const comments = getCommentsForPhoto(photoId);
@@ -46,10 +46,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ photoId: string }> }
+  { params }: { params: Promise<{ photoId: string }> },
 ) {
   const { photoId } = await params;
-  
+
   try {
     const body = await request.json();
     const { author, text, parentId } = body;
@@ -57,7 +57,7 @@ export async function POST(
     if (!author || !text) {
       return NextResponse.json(
         { message: 'Author and text are required fields.' },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -94,7 +94,7 @@ export async function POST(
   } catch (error: any) {
     return NextResponse.json(
       { message: error.message || 'Failed to submit comment.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -115,17 +115,14 @@ function findCommentById(comments: Comment[], id: string): Comment | null {
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ photoId: string }> }
+  { params }: { params: Promise<{ photoId: string }> },
 ) {
   const { photoId } = await params;
   const searchParams = request.nextUrl.searchParams;
   const commentId = searchParams.get('commentId');
 
   if (!commentId) {
-    return NextResponse.json(
-      { message: 'Comment ID is required.' },
-      { status: 400 }
-    );
+    return NextResponse.json({ message: 'Comment ID is required.' }, { status: 400 });
   }
 
   try {
@@ -136,7 +133,7 @@ export async function DELETE(
   } catch (error: any) {
     return NextResponse.json(
       { message: error.message || 'Failed to delete comment.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -145,7 +142,7 @@ export async function DELETE(
 function deleteCommentById(comments: Comment[], id: string): Comment[] {
   // Filter out the comment if it matches the ID
   const filtered = comments.filter((c) => c.id !== id);
-  
+
   // For the remaining comments, recursively filter their replies
   return filtered.map((c) => {
     if (c.replies && c.replies.length > 0) {
@@ -157,4 +154,3 @@ function deleteCommentById(comments: Comment[], id: string): Comment[] {
     return c;
   });
 }
-

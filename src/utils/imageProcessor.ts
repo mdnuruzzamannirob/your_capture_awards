@@ -18,16 +18,16 @@ export function processImage(file: File, options: CropResizeOptions): Promise<Fi
     img.src = URL.createObjectURL(file);
     img.onload = () => {
       URL.revokeObjectURL(img.src);
-      
+
       const sourceWidth = img.width;
       const sourceHeight = img.height;
-      
+
       // Calculate crop area if aspect ratio is specified
       let sX = 0;
       let sY = 0;
       let sWidth = sourceWidth;
       let sHeight = sourceHeight;
-      
+
       if (options.aspectRatio) {
         const currentAspect = sourceWidth / sourceHeight;
         if (currentAspect > options.aspectRatio) {
@@ -40,11 +40,11 @@ export function processImage(file: File, options: CropResizeOptions): Promise<Fi
           sY = (sourceHeight - sHeight) / 2;
         }
       }
-      
+
       // Calculate target dimensions
       let dWidth = sWidth;
       let dHeight = sHeight;
-      
+
       if (options.targetWidth && options.targetHeight) {
         dWidth = options.targetWidth;
         dHeight = options.targetHeight;
@@ -60,7 +60,7 @@ export function processImage(file: File, options: CropResizeOptions): Promise<Fi
           dHeight = options.maxHeight;
           dWidth = dWidth * ratio;
         }
-        
+
         // Enforce minimum boundaries
         if (options.minWidth && dWidth < options.minWidth) {
           const ratio = options.minWidth / dWidth;
@@ -73,39 +73,43 @@ export function processImage(file: File, options: CropResizeOptions): Promise<Fi
           dWidth = dWidth * ratio;
         }
       }
-      
+
       // Draw to canvas
       const canvas = document.createElement('canvas');
       canvas.width = Math.round(dWidth);
       canvas.height = Math.round(dHeight);
-      
+
       const ctx = canvas.getContext('2d');
       if (!ctx) {
         reject(new Error('Failed to get 2D context'));
         return;
       }
-      
+
       // Use premium image rendering settings
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
-      
+
       ctx.drawImage(img, sX, sY, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
-      
+
       // Export back as File
       const mimeType = file.type || 'image/jpeg';
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          reject(new Error('Failed to generate image blob'));
-          return;
-        }
-        
-        const processedFile = new File([blob], file.name, {
-          type: mimeType,
-          lastModified: Date.now(),
-        });
-        
-        resolve(processedFile);
-      }, mimeType, 0.92); // 92% quality jpeg/webp
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error('Failed to generate image blob'));
+            return;
+          }
+
+          const processedFile = new File([blob], file.name, {
+            type: mimeType,
+            lastModified: Date.now(),
+          });
+
+          resolve(processedFile);
+        },
+        mimeType,
+        0.92,
+      ); // 92% quality jpeg/webp
     };
     img.onerror = () => {
       reject(new Error('Failed to load image file'));

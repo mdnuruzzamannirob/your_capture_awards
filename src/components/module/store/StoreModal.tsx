@@ -285,11 +285,31 @@ const StoreModal = () => {
             <DialogTitle className="text-sm font-semibold tracking-wide">Store</DialogTitle>
             <div className="flex h-8 items-stretch overflow-hidden rounded-lg border border-white/8 bg-white/5">
               {[
-                { icon: <IoKeyOutline className="text-primary size-3" />, value: stats?.key ?? 0, label: 'Keys' },
-                { icon: <MdOutlineCameraswitch className="text-primary size-3 rotate-90" />, value: stats?.swap ?? 0, label: 'Trades' },
-                { icon: <AiOutlineThunderbolt className="text-primary size-3" />, value: stats?.boost ?? 0, label: 'Charges' },
                 {
-                  icon: <Image src="/icons/dollar.png" alt="Coins" width={12} height={12} className="object-contain" />,
+                  icon: <IoKeyOutline className="text-primary size-3" />,
+                  value: stats?.key ?? 0,
+                  label: 'Keys',
+                },
+                {
+                  icon: <MdOutlineCameraswitch className="text-primary size-3 rotate-90" />,
+                  value: stats?.swap ?? 0,
+                  label: 'Trades',
+                },
+                {
+                  icon: <AiOutlineThunderbolt className="text-primary size-3" />,
+                  value: stats?.boost ?? 0,
+                  label: 'Charges',
+                },
+                {
+                  icon: (
+                    <Image
+                      src="/icons/dollar.png"
+                      alt="Coins"
+                      width={12}
+                      height={12}
+                      className="object-contain"
+                    />
+                  ),
                   value: stats?.coins ?? 0,
                   label: 'Coins',
                 },
@@ -313,11 +333,31 @@ const StoreModal = () => {
             <div className="flex justify-center">
               <div className="flex h-9 items-stretch overflow-hidden rounded-xl border border-white/8 bg-white/5 backdrop-blur-sm">
                 {[
-                  { icon: <IoKeyOutline className="text-primary size-3.5" />, value: stats?.key ?? 0, label: 'Keys' },
-                  { icon: <MdOutlineCameraswitch className="text-primary size-3.5 rotate-90" />, value: stats?.swap ?? 0, label: 'Trades' },
-                  { icon: <AiOutlineThunderbolt className="text-primary size-3.5" />, value: stats?.boost ?? 0, label: 'Charges' },
                   {
-                    icon: <Image src="/icons/dollar.png" alt="Coins" width={14} height={14} className="object-contain" />,
+                    icon: <IoKeyOutline className="text-primary size-3.5" />,
+                    value: stats?.key ?? 0,
+                    label: 'Keys',
+                  },
+                  {
+                    icon: <MdOutlineCameraswitch className="text-primary size-3.5 rotate-90" />,
+                    value: stats?.swap ?? 0,
+                    label: 'Trades',
+                  },
+                  {
+                    icon: <AiOutlineThunderbolt className="text-primary size-3.5" />,
+                    value: stats?.boost ?? 0,
+                    label: 'Charges',
+                  },
+                  {
+                    icon: (
+                      <Image
+                        src="/icons/dollar.png"
+                        alt="Coins"
+                        width={14}
+                        height={14}
+                        className="object-contain"
+                      />
+                    ),
                     value: stats?.coins ?? 0,
                     label: 'Coins',
                   },
@@ -334,7 +374,6 @@ const StoreModal = () => {
             </div>
           </div>
         </DialogHeader>
-
 
         {/* ── Body — scrollable ── */}
         <div className="flex-1 scrollbar-thin overflow-x-hidden overflow-y-auto p-4 sm:p-5">

@@ -63,10 +63,7 @@ export const socialApi = createApi({
       providesTags: ['Likes'],
     }),
 
-    toggleLike: builder.mutation<
-      { success: boolean; message: string; data: any },
-      string
-    >({
+    toggleLike: builder.mutation<{ success: boolean; message: string; data: any }, string>({
       query: (photoId) => ({
         url: `/likes/photos/${photoId}`,
         method: 'POST',

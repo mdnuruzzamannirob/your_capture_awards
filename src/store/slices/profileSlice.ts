@@ -48,6 +48,13 @@ const profileSlice = createSlice({
   },
 });
 
-export const { setPhotos, setPhoto, deletePhoto, setStats, setAchievements, setSwiperPhotos, clearSwiperPhotos } =
-  profileSlice.actions;
+export const {
+  setPhotos,
+  setPhoto,
+  deletePhoto,
+  setStats,
+  setAchievements,
+  setSwiperPhotos,
+  clearSwiperPhotos,
+} = profileSlice.actions;
 export default profileSlice.reducer;

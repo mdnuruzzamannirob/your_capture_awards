@@ -52,7 +52,7 @@ const PortfolioCard = ({
 
   return (
     <article
-      className="group relative overflow-hidden rounded-sm bg-zinc-900 shadow-md transition-all duration-300 hover:shadow-xl cursor-pointer"
+      className="group relative cursor-pointer overflow-hidden rounded-sm bg-zinc-900 shadow-md transition-all duration-300 hover:shadow-xl"
       style={{
         height: '300px',
         flexGrow: aspect,
@@ -70,7 +70,7 @@ const PortfolioCard = ({
           onError={() => setImgError((prev) => ({ ...prev, [item.id]: true }))}
         />
       ) : (
-        <div className="flex size-full items-center justify-center bg-zinc-800 text-zinc-500 text-xs">
+        <div className="flex size-full items-center justify-center bg-zinc-800 text-xs text-zinc-500">
           No Image
         </div>
       )}
@@ -93,8 +93,8 @@ const PortfolioCard = ({
       )}
 
       {/* Stats overlay (bottom) */}
-      <div className="absolute inset-x-0 bottom-0 translate-y-2 p-3 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 pointer-events-none">
-        <div className="flex items-center flex-wrap gap-3 text-sm font-semibold text-white/90">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 p-3 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
+        <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-white/90">
           <span className="inline-flex items-center gap-1">
             <Trophy size={18} />
             {(item.totalVotes ?? 0).toLocaleString()}

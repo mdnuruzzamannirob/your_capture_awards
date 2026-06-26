@@ -16,7 +16,10 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { clearSwiperPhotos } from '@/store/slices/profileSlice';
 import { useAuth } from '@/hooks/useAuth';
 import { useToggleFollowMutation, useToggleLikeMutation } from '@/store/apis/socialApi';
-import { useLazyGetMyPhotoDetailsQuery, useLazyGetPublicPhotoDetailsQuery } from '@/store/apis/profileApi';
+import {
+  useLazyGetMyPhotoDetailsQuery,
+  useLazyGetPublicPhotoDetailsQuery,
+} from '@/store/apis/profileApi';
 
 interface Props {
   photoId: string;
@@ -49,11 +52,13 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
 
   // Determine if viewing own photo (by ownerId param or by photo.userId after load)
   const isOwnPhoto =
-    !!currentUser?.id &&
-    (ownerIdParam === currentUser.id || photo?.userId === currentUser.id);
+    !!currentUser?.id && (ownerIdParam === currentUser.id || photo?.userId === currentUser.id);
 
   // Active index in slides
-  const activeIndex = Math.max(0, slides.findIndex((p) => p.id === currentPhotoId));
+  const activeIndex = Math.max(
+    0,
+    slides.findIndex((p) => p.id === currentPhotoId),
+  );
 
   // Back URL derivation
   const backUrl = (() => {
@@ -61,7 +66,11 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
       return `/contest/${contestParam || photo.contestId}`;
     }
     if (source === 'profile') {
-      if (isOwnPhoto || profileParam === currentUser?.id || profileParam === currentUser?.username) {
+      if (
+        isOwnPhoto ||
+        profileParam === currentUser?.id ||
+        profileParam === currentUser?.username
+      ) {
         return '/profile';
       }
       return `/profile/${profileParam || ownerIdParam}`;
@@ -77,7 +86,8 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
 
   // RTK Lazy queries
   const [fetchMyPhotoDetails, { isLoading: isLoadingOwn }] = useLazyGetMyPhotoDetailsQuery();
-  const [fetchPublicPhotoDetails, { isLoading: isLoadingPublic }] = useLazyGetPublicPhotoDetailsQuery();
+  const [fetchPublicPhotoDetails, { isLoading: isLoadingPublic }] =
+    useLazyGetPublicPhotoDetailsQuery();
   const isLoading = isLoadingOwn || isLoadingPublic;
 
   const [toggleLike, { isLoading: isLiking }] = useToggleLikeMutation();
@@ -157,18 +167,27 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
   const handleNext = () => {
     if (slides.length <= 1) return;
     const next = slides[(activeIndex + 1) % slides.length];
-    if (next) { setCurrentPhotoId(next.id); updateAddressBar(next.id); }
+    if (next) {
+      setCurrentPhotoId(next.id);
+      updateAddressBar(next.id);
+    }
   };
 
   const handlePrev = () => {
     if (slides.length <= 1) return;
     const prev = slides[(activeIndex - 1 + slides.length) % slides.length];
-    if (prev) { setCurrentPhotoId(prev.id); updateAddressBar(prev.id); }
+    if (prev) {
+      setCurrentPhotoId(prev.id);
+      updateAddressBar(prev.id);
+    }
   };
 
   const handleIndexChange = (index: number) => {
     const selected = slides[index];
-    if (selected) { setCurrentPhotoId(selected.id); updateAddressBar(selected.id); }
+    if (selected) {
+      setCurrentPhotoId(selected.id);
+      updateAddressBar(selected.id);
+    }
   };
 
   const handleToggleLike = async () => {
@@ -178,8 +197,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
       if (res.success) {
         setLiked((prev) => !prev);
       }
-    } catch (err: any) {
-    }
+    } catch (err: any) {}
   };
 
   const handleToggleFollow = async () => {
@@ -190,8 +208,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
       if (res.success) {
         setOwnerIsFollowed((prev) => !prev);
       }
-    } catch (err: any) {
-    }
+    } catch (err: any) {}
   };
 
   const handleAddComment = async (text: string, parentId?: string) => {
@@ -212,7 +229,9 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
 
   const handleDeleteComment = async (commentId: string) => {
     try {
-      const res = await fetch(`/api/photo/${currentPhotoId}/comments?commentId=${commentId}`, { method: 'DELETE' });
+      const res = await fetch(`/api/photo/${currentPhotoId}/comments?commentId=${commentId}`, {
+        method: 'DELETE',
+      });
       if (!res.ok) throw new Error('Failed to delete comment.');
       const data = await res.json();
       setComments(data.comments);
@@ -223,7 +242,10 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
   };
 
   if (isLoading && !photo) return <PhotoSkeleton isSidebarOpen={isSidebarOpen} />;
-  if (error) return <PhotoError message={error} onRetry={() => loadPhotoData(currentPhotoId)} backUrl={backUrl} />;
+  if (error)
+    return (
+      <PhotoError message={error} onRetry={() => loadPhotoData(currentPhotoId)} backUrl={backUrl} />
+    );
   if (!photo) return <PhotoSkeleton isSidebarOpen={isSidebarOpen} />;
 
   return (
@@ -256,10 +278,10 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
             transitionReady && 'transition-all duration-300 ease-in-out',
             'lg:static lg:z-auto lg:h-full lg:shrink-0 lg:border-l',
             isSidebarOpen ? 'lg:w-108.75' : 'lg:w-0 lg:overflow-hidden lg:border-l-0',
-            'fixed inset-y-0 right-0 z-50 w-full h-full lg:static lg:inset-auto lg:z-auto',
+            'fixed inset-y-0 right-0 z-50 h-full w-full lg:static lg:inset-auto lg:z-auto',
             isSidebarOpen
               ? 'translate-x-0 opacity-100'
-              : 'translate-x-full opacity-0 pointer-events-none lg:translate-x-0 lg:opacity-100 lg:pointer-events-auto',
+              : 'pointer-events-none translate-x-full opacity-0 lg:pointer-events-auto lg:translate-x-0 lg:opacity-100',
           )}
         >
           <SidebarHeader

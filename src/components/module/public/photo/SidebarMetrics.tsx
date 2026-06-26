@@ -37,16 +37,8 @@ export function SidebarMetrics({ votes, views, likes }: SidebarMetricsProps) {
         value={votes}
         label="Votes"
       />
-      <MetricItem
-        icon={<Eye className="size-6 text-zinc-400" />}
-        value={views}
-        label="Views"
-      />
-      <MetricItem
-        icon={<Heart className="size-6 text-zinc-400" />}
-        value={likes}
-        label="Likes"
-      />
+      <MetricItem icon={<Eye className="size-6 text-zinc-400" />} value={views} label="Views" />
+      <MetricItem icon={<Heart className="size-6 text-zinc-400" />} value={likes} label="Likes" />
     </section>
   );
 }

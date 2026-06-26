@@ -71,7 +71,7 @@ export function SidebarComments({
 
       {/* Main Comment Box */}
       <form onSubmit={handleSubmitComment} className="mb-6">
-        <div className="relative border border-zinc-800 bg-zinc-900 p-2 focus-within:border-zinc-700 rounded-md">
+        <div className="relative rounded-md border border-zinc-800 bg-zinc-900 p-2 focus-within:border-zinc-700">
           <textarea
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
@@ -83,7 +83,7 @@ export function SidebarComments({
             <Button
               type="submit"
               size="sm"
-              className="bg-primary hover:bg-primary/90 h-8 px-5 text-xs font-medium text-white transition-colors duration-200 rounded-sm"
+              className="bg-primary hover:bg-primary/90 h-8 rounded-sm px-5 text-xs font-medium text-white transition-colors duration-200"
               disabled={!commentText.trim() || isSubmitting}
             >
               {isSubmitting ? 'SUBMITTING...' : 'SUBMIT'}
@@ -97,8 +97,8 @@ export function SidebarComments({
         {isLoading && comments.length === 0 ? (
           <div className="space-y-4 pt-2">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="flex gap-3 animate-pulse">
-                <div className="size-9 rounded-full bg-zinc-800 shrink-0" />
+              <div key={i} className="flex animate-pulse gap-3">
+                <div className="size-9 shrink-0 rounded-full bg-zinc-800" />
                 <div className="flex-1 space-y-1.5">
                   <div className="h-3.5 w-24 rounded bg-zinc-800" />
                   <div className="h-5 w-full rounded bg-zinc-900" />

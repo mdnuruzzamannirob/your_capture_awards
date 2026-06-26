@@ -31,13 +31,14 @@ function PersonCard({ item }: { item: any }) {
       if (res.success) {
         setFollowing((prev: boolean) => !prev);
       }
-    } catch (err: any) {
-    }
+    } catch (err: any) {}
   };
 
   const name =
     follower?.fullName ||
-    (follower?.firstName && follower?.lastName ? `${follower.firstName} ${follower.lastName}` : '') ||
+    (follower?.firstName && follower?.lastName
+      ? `${follower.firstName} ${follower.lastName}`
+      : '') ||
     'User';
   const avatar = follower?.avatar || '';
   const country = follower?.location || follower?.country || 'Bangladesh';
@@ -61,9 +62,17 @@ function PersonCard({ item }: { item: any }) {
           {isMe ? (
             <div className="relative z-30 size-16 shrink-0 overflow-hidden rounded-full border-2 border-zinc-800 bg-zinc-900 shadow-md">
               {avatar ? (
-                <Image src={avatar} alt={name} width={64} height={64} className="size-full object-cover" />
+                <Image
+                  src={avatar}
+                  alt={name}
+                  width={64}
+                  height={64}
+                  className="size-full object-cover"
+                />
               ) : (
-                <div className="flex size-full items-center justify-center bg-zinc-800 text-[10px] font-bold text-zinc-500">NO AVATAR</div>
+                <div className="flex size-full items-center justify-center bg-zinc-800 text-[10px] font-bold text-zinc-500">
+                  NO AVATAR
+                </div>
               )}
             </div>
           ) : (
@@ -72,9 +81,17 @@ function PersonCard({ item }: { item: any }) {
               className="relative z-30 size-16 shrink-0 overflow-hidden rounded-full border-2 border-zinc-800 bg-zinc-900 shadow-md transition hover:opacity-80"
             >
               {avatar ? (
-                <Image src={avatar} alt={name} width={64} height={64} className="size-full object-cover" />
+                <Image
+                  src={avatar}
+                  alt={name}
+                  width={64}
+                  height={64}
+                  className="size-full object-cover"
+                />
               ) : (
-                <div className="flex size-full items-center justify-center bg-zinc-800 text-[10px] font-bold text-zinc-500">NO AVATAR</div>
+                <div className="flex size-full items-center justify-center bg-zinc-800 text-[10px] font-bold text-zinc-500">
+                  NO AVATAR
+                </div>
               )}
             </Link>
           )}
@@ -103,7 +120,7 @@ function PersonCard({ item }: { item: any }) {
             onClick={handleFollowToggle}
             disabled={isToggling}
             className={cn(
-              'mt-5 inline-flex w-full items-center justify-center rounded-sm py-2 text-sm font-semibold transition cursor-pointer disabled:cursor-wait disabled:opacity-80',
+              'mt-5 inline-flex w-full cursor-pointer items-center justify-center rounded-sm py-2 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-80',
               following
                 ? 'bg-zinc-850 bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
                 : 'bg-primary hover:bg-primary/90 text-white',
@@ -183,8 +200,7 @@ const FollowersTabContent = ({ username, userId, isOwn = false }: Props) => {
         setHasMore(res.meta?.hasNextPage ?? false);
         setPage((prev) => prev + 1);
       }
-    } catch (err: any) {
-    }
+    } catch (err: any) {}
   };
 
   const { loadMoreRef } = useInfiniteScroll({
@@ -213,7 +229,7 @@ const FollowersTabContent = ({ username, userId, isOwn = false }: Props) => {
           {/* Infinite Scroll Trigger */}
           <div ref={loadMoreRef} className="flex justify-center py-6">
             {isFetching && page > 1 && (
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" />
             )}
           </div>
         </>

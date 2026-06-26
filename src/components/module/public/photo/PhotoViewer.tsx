@@ -65,8 +65,7 @@ export function PhotoViewer({
       } else {
         await document.exitFullscreen();
       }
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   // Listen to fullscreen changes to update state
@@ -225,7 +224,9 @@ export function PhotoViewer({
               priority
             />
           ) : (
-            <div className="flex size-full items-center justify-center text-zinc-650 text-sm">No Image</div>
+            <div className="text-zinc-650 flex size-full items-center justify-center text-sm">
+              No Image
+            </div>
           )}
         </div>
 

@@ -22,7 +22,7 @@ const PhotosTabContent = ({
   isOwn = false,
   photos: initialPhotos = [],
   isLoading = false,
-  userId
+  userId,
 }: Props) => {
   const [error, setError] = useState<string | null>(null);
   const [photoFilter, setPhotoFilter] = useState('like');
@@ -101,12 +101,7 @@ const PhotosTabContent = ({
           )}
           {photosList.map((photo) =>
             isOwn ? (
-              <PortfolioCard
-                key={photo.id}
-                item={photo}
-                isOwn={true}
-                allPhotos={photosList}
-              />
+              <PortfolioCard key={photo.id} item={photo} isOwn={true} allPhotos={photosList} />
             ) : (
               <PhotoCard
                 key={photo.id}
@@ -115,7 +110,7 @@ const PhotosTabContent = ({
                 allPhotos={photosList}
                 ownerId={userId}
               />
-            )
+            ),
           )}
           <div style={{ flexGrow: 9999999, flexBasis: '240px' }} className="h-0" />
         </div>

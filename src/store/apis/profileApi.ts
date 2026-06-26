@@ -86,7 +86,10 @@ export const profileApi = createApi({
       providesTags: (result, error, id) => [{ type: 'Stats' as const, id }],
     }),
 
-    getOtherUserPhotos: builder.query<{ data: Photo[]; meta?: any }, { id: string; page?: number; limit?: number }>({
+    getOtherUserPhotos: builder.query<
+      { data: Photo[]; meta?: any },
+      { id: string; page?: number; limit?: number }
+    >({
       query: ({ id, page = 1, limit = 10 }) => `/profiles/users/${id}?page=${page}&limit=${limit}`,
       providesTags: ['Photos'],
     }),
@@ -99,7 +102,16 @@ export const profileApi = createApi({
     // Public photo details: GET /profiles/users/:id/photos/:photoId
     // Returns: { data: { photo: { ...Photo, isLiked }, photoOwner: { ...user, isFollowed }, votes, comments } }
     getPublicPhotoDetails: builder.query<
-      { data: { photo: any; photoOwner: any; votes: number; comments: any[]; commentsMeta?: any; achievememnts: any[] } },
+      {
+        data: {
+          photo: any;
+          photoOwner: any;
+          votes: number;
+          comments: any[];
+          commentsMeta?: any;
+          achievememnts: any[];
+        };
+      },
       { id: string; photoId: string }
     >({
       query: ({ id, photoId }) => `/profiles/users/${id}/photos/${photoId}`,

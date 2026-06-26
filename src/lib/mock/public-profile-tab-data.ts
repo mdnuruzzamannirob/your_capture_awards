@@ -19,8 +19,14 @@ const publicProfileTabData: Record<
   }
 > = {
   'shane-stucky': {
-    photos: { data: publicPhotos.filter((photo) => photo.ownerUsername === 'shane-stucky'), delayMs: 900 },
-    liked: { data: publicPhotos.filter((photo) => ['coastal-glow', 'bright-smile'].includes(photo.id)), delayMs: 1200 },
+    photos: {
+      data: publicPhotos.filter((photo) => photo.ownerUsername === 'shane-stucky'),
+      delayMs: 900,
+    },
+    liked: {
+      data: publicPhotos.filter((photo) => ['coastal-glow', 'bright-smile'].includes(photo.id)),
+      delayMs: 1200,
+    },
     followers: {
       data: [
         {
@@ -52,9 +58,17 @@ const publicProfileTabData: Record<
       delayMs: 1300,
     },
   },
-  'sahinsiraj360': {
-    photos: { data: publicPhotos.filter((photo) => photo.ownerUsername === 'sahinsiraj360'), delayMs: 900 },
-    liked: { data: publicPhotos.filter((photo) => ['sunflower-flight', 'coastal-glow', 'little-king'].includes(photo.id)), delayMs: 1200 },
+  sahinsiraj360: {
+    photos: {
+      data: publicPhotos.filter((photo) => photo.ownerUsername === 'sahinsiraj360'),
+      delayMs: 900,
+    },
+    liked: {
+      data: publicPhotos.filter((photo) =>
+        ['sunflower-flight', 'coastal-glow', 'little-king'].includes(photo.id),
+      ),
+      delayMs: 1200,
+    },
     followers: {
       data: [
         {

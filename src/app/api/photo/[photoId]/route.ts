@@ -8,10 +8,10 @@ import {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ photoId: string }> }
+  { params }: { params: Promise<{ photoId: string }> },
 ) {
   const { photoId } = await params;
-  
+
   // Simulate network latency of 1 second (so skeleton is visible)
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -25,17 +25,17 @@ export async function GET(
   if (triggerError) {
     return NextResponse.json(
       { message: 'Simulated API failure for error state testing.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
   try {
     const photo = getPhoto(photoId);
-    
+
     if (!photo || photo.id !== photoId) {
       return NextResponse.json(
         { message: `Photo with ID "${photoId}" not found.` },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -61,7 +61,7 @@ export async function GET(
   } catch (error: any) {
     return NextResponse.json(
       { message: error.message || 'An error occurred while fetching photo data.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
