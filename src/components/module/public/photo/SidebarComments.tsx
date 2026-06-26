@@ -43,7 +43,6 @@ export function SidebarComments({
       await onAddComment(commentText.trim());
       setCommentText('');
     } catch (err) {
-      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
@@ -59,7 +58,6 @@ export function SidebarComments({
       setReplyText('');
       setReplyingToId(null);
     } catch (err) {
-      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
@@ -164,7 +162,6 @@ function CommentNode({
     try {
       await onDelete(comment.id);
     } catch (err) {
-      console.error(err);
       setIsDeleting(false);
     }
   };

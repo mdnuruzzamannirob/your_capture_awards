@@ -63,7 +63,6 @@ export function PhotoCard({
         setLiked((prev) => !prev);
       }
     } catch (err: any) {
-      console.error('Failed to update like status:', err);
     }
   };
 

@@ -66,7 +66,6 @@ export function PhotoViewer({
         await document.exitFullscreen();
       }
     } catch (err) {
-      console.error('Error toggling fullscreen:', err);
     }
   };
 
@@ -90,7 +89,7 @@ export function PhotoViewer({
       } else if (e.key === 'ArrowRight') {
         onNext();
       } else if (e.key === 'Escape' && document.fullscreenElement) {
-        document.exitFullscreen().catch(console.error);
+        document.exitFullscreen().catch();
       }
     };
 

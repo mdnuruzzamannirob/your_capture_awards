@@ -179,7 +179,6 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
         setIsFollowing((prev) => !prev);
       }
     } catch (err: any) {
-      console.error('Failed to update follow status:', err);
     }
   };
 
