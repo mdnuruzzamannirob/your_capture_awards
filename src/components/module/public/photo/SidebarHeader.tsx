@@ -28,14 +28,14 @@ export function SidebarHeader({
 }: SidebarHeaderProps) {
   if (isLoading || !owner) {
     return (
-      <div className="relative flex border-b border-zinc-800 bg-zinc-950 text-zinc-100 animate-pulse">
+      <div className="relative flex animate-pulse border-b border-zinc-800 bg-zinc-950 text-zinc-100">
         <div className="flex flex-1 items-center justify-between p-6 pr-12">
           <div className="flex items-center gap-4">
             <div className="size-14 rounded-full bg-zinc-800 md:size-16" />
             <div className="space-y-2">
               <div className="h-4 w-28 rounded bg-zinc-800" />
               <div className="h-3 w-16 rounded bg-zinc-800" />
-              <div className="h-7 w-20 rounded bg-zinc-800 mt-1.5" />
+              <div className="mt-1.5 h-7 w-20 rounded bg-zinc-800" />
             </div>
           </div>
         </div>
@@ -97,7 +97,7 @@ export function SidebarHeader({
                 onClick={onToggleFollow}
                 disabled={isFollowToggling}
                 className={cn(
-                  'inline-flex mt-1.5 shrink-0 cursor-pointer items-center justify-center gap-1.5 self-center rounded-sm px-3 py-1.5 text-xs font-semibold transition select-none disabled:cursor-wait disabled:opacity-80',
+                  'mt-1.5 inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 self-center rounded-sm px-3 py-1.5 text-xs font-semibold transition select-none disabled:cursor-wait disabled:opacity-80',
                   isFollowed
                     ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
                     : 'bg-primary hover:bg-primary/90 text-white',

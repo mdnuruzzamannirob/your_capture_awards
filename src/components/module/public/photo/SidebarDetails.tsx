@@ -90,7 +90,7 @@ export function SidebarDetails({
       <div
         className={cn(
           'overflow-hidden px-6 transition-all duration-300 ease-in-out',
-          isOpen ? 'max-h-75 pb-6 opacity-100' : 'max-h-0 pb-0 opacity-0'
+          isOpen ? 'max-h-75 pb-6 opacity-100' : 'max-h-0 pb-0 opacity-0',
         )}
       >
         <div className="mt-1 grid grid-cols-2 gap-3">

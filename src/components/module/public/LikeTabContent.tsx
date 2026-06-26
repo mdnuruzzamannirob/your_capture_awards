@@ -79,8 +79,7 @@ const LikeTabContent = ({ username, title = 'Liked Photos' }: Props) => {
         setHasMore(res.meta?.hasNextPage ?? false);
         setPage((prev) => prev + 1);
       }
-    } catch (err: any) {
-    }
+    } catch (err: any) {}
   };
 
   const { loadMoreRef } = useInfiniteScroll({
@@ -118,7 +117,7 @@ const LikeTabContent = ({ username, title = 'Liked Photos' }: Props) => {
           {/* Infinite Scroll Trigger */}
           <div ref={loadMoreRef} className="flex justify-center py-6">
             {isFetching && page > 1 && (
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" />
             )}
           </div>
         </>

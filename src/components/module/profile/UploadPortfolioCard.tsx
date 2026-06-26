@@ -7,7 +7,6 @@ import Image from 'next/image';
 import { ChangeEvent, DragEvent, KeyboardEvent, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-
 export default function UploadPortfolioCard() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState('');
@@ -130,11 +129,13 @@ export default function UploadPortfolioCard() {
 
       {/* Empty state */}
       {!file && !uploading && (
-        <div className="flex size-full flex-col items-center justify-center text-center p-3">
-          <LucideCloudUpload className="size-8 text-primary mb-2" />
-          <p className="font-semibold text-white/70 text-xs">Drop or browse</p>
-          <span className="text-primary mt-1 text-xs font-semibold group-hover:underline">Choose file</span>
-          <div className="mt-3 flex flex-col items-center gap-1 border-t border-zinc-800/60 pt-2 w-full max-w-[180px]">
+        <div className="flex size-full flex-col items-center justify-center p-3 text-center">
+          <LucideCloudUpload className="text-primary mb-2 size-8" />
+          <p className="text-xs font-semibold text-white/70">Drop or browse</p>
+          <span className="text-primary mt-1 text-xs font-semibold group-hover:underline">
+            Choose file
+          </span>
+          <div className="mt-3 flex w-full max-w-45 flex-col items-center gap-1 border-t border-zinc-800/60 pt-2">
             <span className="text-[10px] text-zinc-500">JPG · PNG · AVIF · WebP</span>
             <span className="text-[10px] text-zinc-500">100 KB – 10 MB</span>
           </div>
@@ -154,12 +155,7 @@ export default function UploadPortfolioCard() {
         <div className="relative flex size-full flex-col items-center justify-between">
           <div className="relative w-full flex-1 overflow-hidden rounded-lg bg-white/20">
             {file.type.startsWith('image/') ? (
-              <Image
-                src={previewUrl}
-                alt={file.name}
-                fill
-                className="min-h-20 object-cover"
-              />
+              <Image src={previewUrl} alt={file.name} fill className="min-h-20 object-cover" />
             ) : (
               <div className="flex size-full min-h-20 items-center justify-center bg-white/20 text-sm text-gray-300">
                 {file.name}

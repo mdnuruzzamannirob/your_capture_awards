@@ -24,7 +24,7 @@ export function PhotoSkeleton({ isSidebarOpen = true }: { isSidebarOpen?: boolea
           'fixed inset-y-0 right-0 z-50 h-full w-full lg:static lg:inset-auto lg:z-auto',
           isSidebarOpen
             ? 'translate-x-0 opacity-100'
-            : 'translate-x-full opacity-0 pointer-events-none lg:translate-x-0 lg:opacity-100 lg:pointer-events-auto',
+            : 'pointer-events-none translate-x-full opacity-0 lg:pointer-events-auto lg:translate-x-0 lg:opacity-100',
         )}
       >
         {/* Header skeleton */}
