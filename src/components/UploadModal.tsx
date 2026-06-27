@@ -10,10 +10,11 @@ import {
 } from '@/store/apis/contestApi';
 import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { PhotoToContestPayload } from '@/store/types/contestTypes';
+import { compressImage } from '@/utils/compressImage';
 import { ArrowLeft, UploadCloud } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { AiOutlineDelete } from 'react-icons/ai';
 import { FaRegUser } from 'react-icons/fa';
 import { HiOutlineDesktopComputer } from 'react-icons/hi';
@@ -74,17 +75,39 @@ function ProfilePhotoJustifiedPicker({
     targetHeight: 150,
     gap: 2,
   });
+
+  const mockSkeletons = useMemo(() => {
+    return Array.from({ length: 8 }).map((_, i) => ({ id: `skeleton-${i}` }));
+  }, []);
+
+  const { containerRef: skeletonRef, rows: skeletonRows } = useJustifiedLayout({
+    items: mockSkeletons,
+    targetHeight: 150,
+    gap: 2,
+  });
+
   const selectedUrls = new Set(selectedImages.map((i) => i.url));
 
   if (isPhotosLoading) {
     return (
-      <div className="flex max-h-64 scrollbar-thin flex-wrap gap-0.5 overflow-y-auto">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+      <div
+        ref={skeletonRef}
+        className="max-h-64 w-full scrollbar-thin overflow-x-hidden overflow-y-auto"
+      >
+        {skeletonRows.map((row, rowIndex) => (
           <div
-            key={item}
-            className="bg-black-2-600 animate-pulse rounded"
-            style={{ height: 150, width: 150 }}
-          />
+            key={rowIndex}
+            className="mb-0.5 flex"
+            style={{ height: `${row.height}px`, gap: '2px' }}
+          >
+            {row.items.map(({ item: s, width, height }) => (
+              <div
+                key={s.id}
+                className="bg-black-2-600 animate-pulse rounded"
+                style={{ width: `${width}px`, height: `${height}px`, flexShrink: 0 }}
+              />
+            ))}
+          </div>
         ))}
       </div>
     );
@@ -99,7 +122,10 @@ function ProfilePhotoJustifiedPicker({
   }
 
   return (
-    <div ref={containerRef} className="max-h-64 w-full scrollbar-thin overflow-y-auto overflow-x-hidden">
+    <div
+      ref={containerRef}
+      className="max-h-64 w-full scrollbar-thin overflow-x-hidden overflow-y-auto"
+    >
       {rows.map((row, rowIndex) => (
         <div
           key={rowIndex}
@@ -253,9 +279,9 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       if (!imgFile) return;
 
       // 1. Format validation: Strictly JPG, JPEG
-      const allowedFormats = ['image/jpeg', 'image/jpg'];
+      const allowedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
       if (!allowedFormats.includes(imgFile.type)) {
-        toast.error('Allowed formats: Strictly JPG, JPEG.');
+        toast.error('Allowed formats: Strictly JPG, JPEG, PNG, WebP.');
         return;
       }
 
@@ -326,7 +352,11 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         if (uploadSource === 'computer') {
           if (!file) throw new Error('No file selected');
 
-          payload = { contestId, photo: file };
+          toast.loading('Compressing and preparing image...', { id: 'upload-progress' });
+          const compressedFile = await compressImage(file);
+          toast.dismiss('upload-progress');
+
+          payload = { contestId, photo: compressedFile };
         } else if (uploadSource === 'profile') {
           if (selectedImages.length === 0) throw new Error('No image selected');
           payload = { contestId, photoIds: selectedImages.map((item) => item.id) };

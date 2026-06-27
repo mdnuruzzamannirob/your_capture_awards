@@ -16,6 +16,7 @@ import type { ActiveTeamMatch, AvailableTeamContest, TeamMember } from '@/store/
 import { Match, MatchPhoto, MatchTeam } from '@/types/match';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { compressImage } from '@/utils/compressImage';
 
 const PAGE_SIZE = 10;
 type MatchModalAction = 'start' | 'join' | 'submit';
@@ -271,10 +272,14 @@ export default function TeamMatchPage() {
         return;
       }
 
+      const filesToUpload = payload.file
+        ? [await compressImage(payload.file)]
+        : undefined;
+
       await startMatchAuto({
         teamId,
         contestId: selectedContest.id,
-        files: payload.file ? [payload.file] : undefined,
+        files: filesToUpload,
         photoIds: payload.photoIds,
       }).unwrap();
 

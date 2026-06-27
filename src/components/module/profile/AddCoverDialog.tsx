@@ -17,6 +17,7 @@ import Image from 'next/image';
 import { ChangeEvent, useRef, useState } from 'react';
 import { FiEdit2, FiImage, FiUpload } from 'react-icons/fi';
 import { toast } from 'sonner';
+import { compressImage } from '@/utils/compressImage';
 
 type Step = 'idle' | 'crop' | 'preview';
 
@@ -116,7 +117,8 @@ export default function AddCoverDialog() {
     if (!croppedFile)
       return setError('No image selected. Please upload and crop a cover photo first.');
     const formData = new FormData();
-    formData.append('cover', croppedFile);
+    const fileToUpload = await compressImage(croppedFile);
+    formData.append('cover', fileToUpload);
     try {
       await updateCover(formData).unwrap();
       triggerGetMe().unwrap();

@@ -17,6 +17,7 @@ import Image from 'next/image';
 import { ChangeEvent, useRef, useState } from 'react';
 import { FiCamera, FiEdit2, FiUpload } from 'react-icons/fi';
 import { toast } from 'sonner';
+import { compressImage } from '@/utils/compressImage';
 
 type Step = 'idle' | 'crop' | 'preview';
 
@@ -103,7 +104,8 @@ export default function AvatarDialog() {
   const handleSave = async () => {
     if (!croppedFile) return setError('No image selected. Please upload and crop a photo first.');
     const formData = new FormData();
-    formData.append('avatar', croppedFile);
+    const fileToUpload = await compressImage(croppedFile);
+    formData.append('avatar', fileToUpload);
     try {
       await updateAvatar(formData).unwrap();
       await triggerGetMe().unwrap();

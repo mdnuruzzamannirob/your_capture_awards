@@ -13,6 +13,7 @@ import {
 } from '@/store/apis/contestApi';
 import { storeApi, useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { cn } from '@/utils/cn';
+import { compressImage } from '@/utils/compressImage';
 import { ArrowLeft, UploadCloud } from 'lucide-react';
 import Image from 'next/image';
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
@@ -315,7 +316,10 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
               toast.error('Please upload a replacement image.');
               return;
             }
-            payload.file = replacementFile;
+            toast.loading('Compressing image...', { id: 'trade-compress' });
+            const compressedReplacement = await compressImage(replacementFile);
+            toast.dismiss('trade-compress');
+            payload.file = compressedReplacement;
           } else {
             toast.error('Please choose a swap source.');
             return;
