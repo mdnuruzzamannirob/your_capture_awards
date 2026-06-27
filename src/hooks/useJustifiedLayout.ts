@@ -42,7 +42,7 @@ export function useJustifiedLayout<T extends { url?: string; src?: string; id?: 
     if (!containerEl) return;
 
     const measure = () => {
-      const w = containerEl.getBoundingClientRect().width || containerEl.offsetWidth;
+      const w = containerEl.clientWidth || containerEl.getBoundingClientRect().width || containerEl.offsetWidth;
       if (w > 0) {
         setContainerWidth(w);
       }
@@ -54,7 +54,8 @@ export function useJustifiedLayout<T extends { url?: string; src?: string; id?: 
     // ResizeObserver keeps it reactive on layout changes / sidebar toggles
     const observer = new ResizeObserver((entries) => {
       if (entries[0]) {
-        const w = entries[0].contentRect.width;
+        // Use clientWidth to ensure scrollbars are excluded, fallback to contentRect
+        const w = containerEl.clientWidth || entries[0].contentRect.width;
         if (w > 0) setContainerWidth(w);
       }
     });
@@ -69,7 +70,7 @@ export function useJustifiedLayout<T extends { url?: string; src?: string; id?: 
       cancelAnimationFrame(raf);
       clearTimeout(timeoutId);
     };
-  }, [containerEl, items]);
+  }, [containerEl]);
 
   // Helper: initial aspect ratio guess (before the image loads)
   const getInitialAspect = useCallback((item: T): number => {
