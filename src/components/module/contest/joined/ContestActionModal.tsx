@@ -65,7 +65,7 @@ function ContestPhotoJustifiedPicker({
   }
 
   return (
-    <div ref={containerRef} className="max-h-105 w-full scrollbar-thin overflow-y-auto">
+    <div ref={containerRef} className="max-h-105 w-full scrollbar-thin overflow-y-auto overflow-x-hidden">
       {rows.map((row, rowIndex) => (
         <div key={rowIndex} className="mb-1 flex" style={{ height: `${row.height}px`, gap: '4px' }}>
           {row.items.map(({ item: photo, width, height }) => {
@@ -137,8 +137,16 @@ function TradePhotoJustifiedPicker({
     );
   }
 
+  if (!photos || photos.length === 0) {
+    return (
+      <div className="border-black-2-600 text-muted-foreground rounded-xl border border-dashed p-6 text-center text-sm">
+        No profile photos available. Please upload some photos first.
+      </div>
+    );
+  }
+
   return (
-    <div ref={containerRef} className="max-h-64 w-full scrollbar-thin overflow-y-auto">
+    <div ref={containerRef} className="max-h-64 w-full scrollbar-thin overflow-y-auto overflow-x-hidden">
       {rows.map((row, rowIndex) => (
         <div
           key={rowIndex}

@@ -161,7 +161,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
           <DialogTitle />
         </VisuallyHidden>
 
-        <div className="relative size-full flex-1 scrollbar-thin overflow-y-auto">
+        <div className="relative size-full flex-1 scrollbar-thin overflow-y-auto overflow-x-hidden">
           {isLoading ? (
             <div className="flex flex-wrap gap-0.5 p-0.5">
               {[...Array(16)].map((_, i) => {
