@@ -79,6 +79,7 @@ export const profileApi = createApi({
       string
     >({
       query: (photoId) => `/profiles/photos/${photoId}`,
+      providesTags: (result, error, photoId) => [{ type: 'Photos', id: photoId }],
     }),
 
     getOtherUserProfile: builder.query<{ data: any }, string>({
@@ -115,6 +116,7 @@ export const profileApi = createApi({
       { id: string; photoId: string }
     >({
       query: ({ id, photoId }) => `/profiles/users/${id}/photos/${photoId}`,
+      providesTags: (result, error, { photoId }) => [{ type: 'Photos', id: photoId }],
     }),
   }),
 });

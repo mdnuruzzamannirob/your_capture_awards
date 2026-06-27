@@ -1,25 +1,25 @@
 'use client';
 
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import Image from 'next/image';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { HiOutlineDesktopComputer } from 'react-icons/hi';
-import { FaRegUser } from 'react-icons/fa';
-import { toast } from 'sonner';
-import { ArrowLeft, UploadCloud } from 'lucide-react';
-import { IoImagesOutline } from 'react-icons/io5';
-import { AiOutlineDelete } from 'react-icons/ai';
-import { PhotoToContestPayload } from '@/store/types/contestTypes';
-import { Skeleton } from './ui/skeleton';
-import { useRouter } from 'next/navigation';
-import TipTapViewer from './custom/tiptap-editor/TipTapViewer';
 import { useAuth } from '@/hooks/useAuth';
+import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
+import { useStoreModal } from '@/providers/StoreModalProvider';
 import {
   useCreatePhotoToContestMutation,
   useLazyGetUserPhotosQuery,
 } from '@/store/apis/contestApi';
-import { useStoreModal } from '@/providers/StoreModalProvider';
 import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
+import { PhotoToContestPayload } from '@/store/types/contestTypes';
+import { ArrowLeft, UploadCloud } from 'lucide-react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { AiOutlineDelete } from 'react-icons/ai';
+import { FaRegUser } from 'react-icons/fa';
+import { HiOutlineDesktopComputer } from 'react-icons/hi';
+import { IoImagesOutline } from 'react-icons/io5';
+import { toast } from 'sonner';
+import TipTapViewer from './custom/tiptap-editor/TipTapViewer';
 
 export type ModalContentType = 'preview' | 'choose' | 'select';
 export type UploadSource = 'computer' | 'profile';
@@ -55,6 +55,83 @@ interface UploadModalProps {
     file?: File;
     profileImageUrl?: string | { id: string; url: string }[];
   }) => Promise<void>;
+}
+
+// ── Helper: Profile photo picker with Justified Layout ───────────────────────
+function ProfilePhotoJustifiedPicker({
+  photos,
+  isPhotosLoading,
+  selectedImages,
+  onSelect,
+}: {
+  photos: { id: string; url: string }[];
+  isPhotosLoading: boolean;
+  selectedImages: { id: string; url: string }[];
+  onSelect: (photo: { id: string; url: string }) => void;
+}) {
+  const { containerRef, rows } = useJustifiedLayout({
+    items: photos.map((p) => ({ ...p })),
+    targetHeight: 150,
+    gap: 2,
+  });
+  const selectedUrls = new Set(selectedImages.map((i) => i.url));
+
+  if (isPhotosLoading) {
+    return (
+      <div className="flex max-h-64 scrollbar-thin flex-wrap gap-0.5 overflow-y-auto">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+          <div
+            key={item}
+            className="bg-black-2-600 animate-pulse rounded"
+            style={{ height: 150, width: 150 }}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div ref={containerRef} className="max-h-64 w-full scrollbar-thin overflow-y-auto">
+      {rows.map((row, rowIndex) => (
+        <div
+          key={rowIndex}
+          className="mb-0.5 flex"
+          style={{ height: `${row.height}px`, gap: '2px' }}
+        >
+          {row.items.map(({ item: photo, width, height }) => {
+            const isSelected = selectedUrls.has(photo.url);
+            return (
+              <button
+                key={photo.id}
+                type="button"
+                onClick={() => onSelect(photo)}
+                className="relative shrink-0 overflow-hidden transition hover:opacity-90"
+                style={{
+                  width: `${width}px`,
+                  height: `${height}px`,
+                  outline: isSelected ? '2px solid var(--color-primary, #a855f7)' : 'none',
+                  outlineOffset: '-2px',
+                }}
+              >
+                <Image
+                  src={photo.url}
+                  alt="profile photo"
+                  fill
+                  sizes="200px"
+                  className="object-cover"
+                />
+                {isSelected && (
+                  <span className="bg-primary absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-black shadow">
+                    ✓
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
@@ -102,7 +179,10 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const [createPhotoToContest, { isLoading }] = useCreatePhotoToContestMutation();
     const [isCustomSubmitting, setIsCustomSubmitting] = useState(false);
     const [trigger, { data, isLoading: isPhotosLoading }] = useLazyGetUserPhotosQuery();
-    const photos = (data?.data ?? []) as { id: string; url: string }[];
+    const photos = (Array.isArray(data?.data) ? data.data : (data?.data?.data ?? [])) as {
+      id: string;
+      url: string;
+    }[];
     const isSubmitting = isLoading || isCustomSubmitting;
     const resolvedSubmitLabel =
       submitLabel ?? (type === 'join' ? 'Join' : type === 'upload' ? 'Upload' : 'Submit');
@@ -410,28 +490,12 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               ) : (
                 uploadSource === 'profile' && (
                   <div className="space-y-5">
-                    <div className="flex max-h-64 scrollbar-thin flex-wrap items-start justify-start gap-0 overflow-y-auto">
-                      {isPhotosLoading
-                        ? [1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
-                            <Skeleton className="bg-black-2-600 h-28 w-28" key={item} />
-                          ))
-                        : photos?.map((photo, index) => (
-                            <button
-                              key={index}
-                              type="button"
-                              onClick={() => imageSelectHandler(photo)}
-                              className="relative h-28 overflow-hidden transition hover:opacity-90"
-                            >
-                              <Image
-                                src={photo.url}
-                                alt={`profile-${index}`}
-                                width={200}
-                                height={112}
-                                className="h-full w-auto object-contain"
-                              />
-                            </button>
-                          ))}
-                    </div>
+                    <ProfilePhotoJustifiedPicker
+                      photos={photos}
+                      isPhotosLoading={isPhotosLoading}
+                      selectedImages={selectedImages}
+                      onSelect={imageSelectHandler}
+                    />
                     {selectedImages.length > 0 && (
                       <div className="border-black-2-500 flex flex-wrap gap-0 border-t pt-5">
                         <h4 className="mb-2 flex w-full items-center gap-2 text-sm text-white/80">

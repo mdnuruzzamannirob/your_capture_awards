@@ -4,11 +4,11 @@ import { cn } from '@/utils/cn';
 import { MapPin, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { PeopleLoadingState, TabErrorState, TabSectionHeader } from './public-tab-ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { useLazyGetFollowersQuery, useToggleFollowMutation } from '@/store/apis/socialApi';
+import { useLazyGetFollowersQuery, useToggleFollowMutation, useGetFollowingsQuery } from '@/store/apis/socialApi';
 
 type Props = {
   username: string;
@@ -16,12 +16,16 @@ type Props = {
   isOwn?: boolean;
 };
 
-function PersonCard({ item }: { item: any }) {
+function PersonCard({ item, isFollowedByMe }: { item: any; isFollowedByMe: boolean }) {
   const follower = item.follower;
   const followerId = follower?.id || item.followerId;
   const { user: currentUser } = useAuth();
   const [toggleFollow, { isLoading: isToggling }] = useToggleFollowMutation();
-  const [following, setFollowing] = useState(item.isFollowedByMe);
+  const [following, setFollowing] = useState(isFollowedByMe);
+
+  useEffect(() => {
+    setFollowing(isFollowedByMe);
+  }, [isFollowedByMe]);
 
   const isMe = followerId === currentUser?.id;
 
@@ -146,7 +150,16 @@ const FollowersTabContent = ({ username, userId, isOwn = false }: Props) => {
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const { user: currentUser } = useAuth();
   const [triggerGetFollowers, { isFetching }] = useLazyGetFollowersQuery();
+  const { data: myFollowings } = useGetFollowingsQuery(
+    { page: 1, limit: 100 },
+    { skip: !currentUser }
+  );
+
+  const myFollowingIds = useMemo(() => {
+    return new Set((myFollowings?.data || []).map((f: any) => f.following?.id || f.followingId));
+  }, [myFollowings]);
 
   useEffect(() => {
     let active = true;
@@ -221,9 +234,12 @@ const FollowersTabContent = ({ username, userId, isOwn = false }: Props) => {
             <div className="py-12 text-center text-zinc-500">No followers found.</div>
           ) : (
             <div className="grid grid-cols-2 gap-6 md:grid-cols-3 xl:grid-cols-4">
-              {people.map((item) => (
-                <PersonCard key={item.id} item={item} />
-              ))}
+              {people.map((item) => {
+                const fid = item.follower?.id || item.followerId;
+                return (
+                  <PersonCard key={item.id} item={item} isFollowedByMe={myFollowingIds.has(fid)} />
+                );
+              })}
             </div>
           )}
           {/* Infinite Scroll Trigger */}

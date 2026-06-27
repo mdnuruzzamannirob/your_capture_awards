@@ -3,6 +3,7 @@
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
+import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
 import { useStoreModal } from '@/providers/StoreModalProvider';
 import {
   TradeContestPhotoPayload,
@@ -39,6 +40,147 @@ type ContestActionModalProps = {
 const getErrorMessage = (error: any, fallback: string) =>
   error?.data?.message || error?.message || fallback;
 
+// ── Helper: Contest photo picker with Justified Layout ───────────────────────
+function ContestPhotoJustifiedPicker({
+  photos,
+  selectedId,
+  onSelect,
+}: {
+  photos: { id: string; url: string }[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+}) {
+  const { containerRef, rows } = useJustifiedLayout({
+    items: photos.map((p) => ({ ...p })),
+    targetHeight: 150,
+    gap: 4,
+  });
+
+  if (!photos.length) {
+    return (
+      <div className="border-black-2-600 text-muted-foreground rounded-xl border border-dashed p-6 text-center text-sm">
+        No contest photos available for this contest.
+      </div>
+    );
+  }
+
+  return (
+    <div ref={containerRef} className="max-h-105 w-full scrollbar-thin overflow-y-auto">
+      {rows.map((row, rowIndex) => (
+        <div key={rowIndex} className="mb-1 flex" style={{ height: `${row.height}px`, gap: '4px' }}>
+          {row.items.map(({ item: photo, width, height }) => {
+            const isSelected = selectedId === photo.id;
+            return (
+              <button
+                key={photo.id}
+                type="button"
+                onClick={() => onSelect(photo.id)}
+                className="group relative shrink-0 overflow-hidden rounded-xl transition hover:opacity-90"
+                style={{
+                  width: `${width}px`,
+                  height: `${height}px`,
+                  outline: isSelected
+                    ? '3px solid var(--color-primary, #a855f7)'
+                    : '1px solid rgba(255,255,255,0.1)',
+                  outlineOffset: '-3px',
+                }}
+              >
+                <Image
+                  src={photo.url}
+                  alt="Contest photo"
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-cover transition group-hover:scale-[1.02]"
+                />
+                <span
+                  className={cn(
+                    'absolute top-2 right-2 rounded-full px-2 py-0.5 text-[10px] font-medium transition',
+                    isSelected ? 'bg-primary text-black' : 'bg-black/60 text-white/80',
+                  )}
+                >
+                  {isSelected ? '✓ Selected' : 'Select'}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Helper: Trade profile photo picker with Justified Layout ─────────────────
+function TradePhotoJustifiedPicker({
+  photos,
+  isLoading,
+  selectedId,
+  onSelect,
+}: {
+  photos: { id: string; url: string }[];
+  isLoading: boolean;
+  selectedId: string;
+  onSelect: (photo: { id: string; url: string }) => void;
+}) {
+  const { containerRef, rows } = useJustifiedLayout({
+    items: photos.map((p) => ({ ...p })),
+    targetHeight: 150,
+    gap: 2,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex max-h-64 scrollbar-thin flex-wrap gap-0.5 overflow-y-auto">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+          <Skeleton key={item} className="bg-black-2-600" style={{ height: 150, width: 150 }} />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div ref={containerRef} className="max-h-64 w-full scrollbar-thin overflow-y-auto">
+      {rows.map((row, rowIndex) => (
+        <div
+          key={rowIndex}
+          className="mb-0.5 flex"
+          style={{ height: `${row.height}px`, gap: '2px' }}
+        >
+          {row.items.map(({ item: photo, width, height }) => {
+            const isSelected = selectedId === photo.id;
+            return (
+              <button
+                key={photo.id}
+                type="button"
+                onClick={() => onSelect(photo)}
+                className="relative shrink-0 overflow-hidden transition hover:opacity-90"
+                style={{
+                  width: `${width}px`,
+                  height: `${height}px`,
+                  outline: isSelected ? '3px solid var(--color-primary, #a855f7)' : undefined,
+                  outlineOffset: '-3px',
+                }}
+              >
+                <Image
+                  src={photo.url}
+                  alt="profile photo"
+                  fill
+                  sizes="200px"
+                  className="object-cover"
+                />
+                {isSelected && (
+                  <span className="bg-primary absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-black shadow">
+                    ✓
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalProps>(
   ({ contestId, contestTitle, contestPhotos = [], onSuccess }, ref) => {
     const dispatch = useDispatch();
@@ -71,7 +213,10 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
       () => contestPhotos.filter((photo) => photo?.id),
       [contestPhotos],
     );
-    const uploadedPhotos = (userPhotos?.data ?? []) as { id: string; url: string }[];
+    const uploadedPhotos = (Array.isArray(userPhotos?.data) ? userPhotos.data : (userPhotos?.data?.data ?? [])) as {
+      id: string;
+      url: string;
+    }[];
 
     // ── Open ─────────────────────────────────────────────────────────────
     useImperativeHandle(ref, () => ({
@@ -283,49 +428,11 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
             {/* ── STEP 1: Select contest photo ───────────────────────────── */}
             {step === 'selectContestPhoto' && (
               <div className="space-y-5">
-                <div className="grid max-h-105 scrollbar-thin grid-cols-2 items-start gap-3 overflow-y-auto pr-1 md:grid-cols-3">
-                  {currentContestPhotos.map((photo) => {
-                    const isSelected = selectedContestPhotoId === photo.id;
-                    return (
-                      <button
-                        key={photo.id}
-                        type="button"
-                        onClick={() => setSelectedContestPhotoId(photo.id)}
-                        // FIX: negative outlineOffset keeps indicator inside the element,
-                        // so overflow-hidden on the button never clips it
-                        style={{
-                          outline: isSelected
-                            ? '3px solid var(--color-primary, #a855f7)'
-                            : '1px solid rgba(255,255,255,0.1)',
-                          outlineOffset: '-3px',
-                        }}
-                        className="group relative overflow-hidden rounded-xl transition hover:opacity-90"
-                      >
-                        <Image
-                          src={photo.url}
-                          alt="Contest photo"
-                          width={320}
-                          height={220}
-                          className="h-40 w-full object-cover transition group-hover:scale-[1.02]"
-                        />
-                        <span
-                          className={cn(
-                            'absolute top-2 right-2 rounded-full px-2 py-0.5 text-[10px] font-medium transition',
-                            isSelected ? 'bg-primary text-black' : 'bg-black/60 text-white/80',
-                          )}
-                        >
-                          {isSelected ? '✓ Selected' : 'Select'}
-                        </span>
-                      </button>
-                    );
-                  })}
-
-                  {!currentContestPhotos.length && (
-                    <div className="border-black-2-600 text-muted-foreground col-span-full rounded-xl border border-dashed p-6 text-center text-sm">
-                      No contest photos available for this contest.
-                    </div>
-                  )}
-                </div>
+                <ContestPhotoJustifiedPicker
+                  photos={currentContestPhotos}
+                  selectedId={selectedContestPhotoId}
+                  onSelect={setSelectedContestPhotoId}
+                />
 
                 {/* footer */}
                 <div className="border-black-2-500 flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
@@ -451,50 +558,15 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                   </>
                 ) : (
                   swapSource === 'profile' && (
-                    <div className="flex max-h-64 scrollbar-thin flex-wrap items-start justify-start gap-0 overflow-y-auto">
-                      {isPhotosLoading
-                        ? [1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
-                            <Skeleton className="bg-black-2-600 h-28 w-28" key={item} />
-                          ))
-                        : uploadedPhotos.map((photo, index) => {
-                            const isSelected = selectedUserPhotoId === photo.id;
-                            return (
-                              <button
-                                key={index}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedUserPhotoId(photo.id);
-                                  setSelectedUserPhotoUrl(photo.url); // FIX: save URL in state
-                                }}
-                                // FIX: negative outlineOffset keeps ring inside the element —
-                                // gap-0 grid so ring-offset would bleed into neighbors
-                                style={
-                                  isSelected
-                                    ? {
-                                        outline: '3px solid var(--color-primary, #a855f7)',
-                                        outlineOffset: '-3px',
-                                      }
-                                    : undefined
-                                }
-                                className="relative h-28 overflow-hidden transition hover:opacity-90"
-                              >
-                                <Image
-                                  src={photo.url}
-                                  alt={`profile-${index}`}
-                                  width={200}
-                                  height={112}
-                                  className="h-full w-auto object-contain"
-                                />
-                                {/* checkmark badge */}
-                                {isSelected && (
-                                  <span className="bg-primary absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-black shadow">
-                                    ✓
-                                  </span>
-                                )}
-                              </button>
-                            );
-                          })}
-                    </div>
+                    <TradePhotoJustifiedPicker
+                      photos={uploadedPhotos}
+                      isLoading={isPhotosLoading}
+                      selectedId={selectedUserPhotoId}
+                      onSelect={(photo) => {
+                        setSelectedUserPhotoId(photo.id);
+                        setSelectedUserPhotoUrl(photo.url);
+                      }}
+                    />
                   )
                 )}
 

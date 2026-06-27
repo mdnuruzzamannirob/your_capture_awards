@@ -8,6 +8,7 @@ import { teamApi } from '@/store/apis/teamApi';
 import { userApi } from '@/store/apis/userApi';
 import { sitePolicyApi } from '@/store/apis/sitePolicyApi';
 import { socialApi } from '@/store/apis/socialApi';
+import { commentsApi } from '@/store/apis/commentsApi';
 import authReducer from '@/store/slices/authSlice';
 import profileReducer from '@/store/slices/profileSlice';
 import { configureStore } from '@reduxjs/toolkit';
@@ -27,6 +28,7 @@ export const makeStore = (preloadedState = {}) => {
       [discoverApi.reducerPath]: discoverApi.reducer,
       [sitePolicyApi.reducerPath]: sitePolicyApi.reducer,
       [socialApi.reducerPath]: socialApi.reducer,
+      [commentsApi.reducerPath]: commentsApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
@@ -42,6 +44,7 @@ export const makeStore = (preloadedState = {}) => {
         discoverApi.middleware,
         sitePolicyApi.middleware,
         socialApi.middleware,
+        commentsApi.middleware,
       ),
     preloadedState,
     devTools: process.env.NODE_ENV !== 'production',

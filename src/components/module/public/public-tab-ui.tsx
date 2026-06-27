@@ -29,6 +29,7 @@ export function PhotoCard({
   showMetrics = true,
   allPhotos = [],
   ownerId,
+  style,
 }: {
   photo: any;
   profileUsername: string;
@@ -36,6 +37,7 @@ export function PhotoCard({
   showMetrics?: boolean;
   allPhotos?: any[];
   ownerId?: string;
+  style?: React.CSSProperties;
 }) {
   const [liked, setLiked] = useState(isLikedDefault);
   const router = useRouter();
@@ -70,7 +72,7 @@ export function PhotoCard({
   return (
     <div
       className="group relative cursor-pointer overflow-hidden rounded-sm bg-zinc-900 shadow-md transition-all duration-300 hover:border-zinc-700/80 hover:shadow-xl"
-      style={{
+      style={style || {
         height: '300px',
         flexGrow: aspect,
         flexBasis: `${aspect * 200}px`,

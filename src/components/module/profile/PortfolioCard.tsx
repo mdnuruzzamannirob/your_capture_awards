@@ -21,10 +21,12 @@ const PortfolioCard = ({
   item,
   isOwn = true,
   allPhotos = [],
+  style,
 }: {
   item: Photo;
   isOwn?: boolean;
   allPhotos?: Photo[];
+  style?: React.CSSProperties;
 }) => {
   const [imgError, setImgError] = useState<Record<string, boolean>>({});
   const router = useRouter();
@@ -53,7 +55,7 @@ const PortfolioCard = ({
   return (
     <article
       className="group relative cursor-pointer overflow-hidden rounded-sm bg-zinc-900 shadow-md transition-all duration-300 hover:shadow-xl"
-      style={{
+      style={style || {
         height: '300px',
         flexGrow: aspect,
         flexBasis: `${aspect * 200}px`,

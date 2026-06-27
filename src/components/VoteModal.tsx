@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 import { useCreateVoteMutation, useLazyGetContestPhotosQuery } from '@/store/apis/contestApi';
 
+import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
 import { toast } from 'sonner';
 
 export interface VoteModalRef {
@@ -147,6 +148,12 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
     }
   };
 
+  const { containerRef, rows } = useJustifiedLayout({
+    items: photos.map((p) => ({ ...p })),
+    targetHeight: 350,
+    gap: 2,
+  });
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="border-black-2-600 flex h-[95vh] max-h-[95vh] w-[95vw] max-w-[95vw] flex-col overflow-hidden border-2 p-0 sm:max-h-[95vh] sm:max-w-[95vw]">
@@ -156,59 +163,80 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
 
         <div className="relative size-full flex-1 scrollbar-thin overflow-y-auto">
           {isLoading ? (
-            <div className="columns-2 gap-0.5 sm:columns-3 lg:columns-4">
-              {[...Array(16)].map((_, i) => (
-                <div key={i} className="mb-0.5 overflow-hidden rounded">
-                  <Skeleton className="bg-black-2-600 aspect-square w-full" />
-                </div>
-              ))}
+            <div className="flex flex-wrap gap-0.5 p-0.5">
+              {[...Array(16)].map((_, i) => {
+                const aspects = [1.3, 0.8, 1.5, 1.0, 1.8, 1.2, 0.9, 1.6];
+                const a = aspects[i % aspects.length];
+                return (
+                  <Skeleton
+                    key={i}
+                    className="bg-black-2-600 rounded"
+                    style={{ height: 350, width: 350 * a, flexShrink: 0 }}
+                  />
+                );
+              })}
             </div>
           ) : photos.length > 0 ? (
             <>
-              <div className="columns-2 gap-0.5 sm:columns-3 lg:columns-4">
-                {photos.map((img, index) => {
-                  const selected = selectedIds.includes(img.id);
-
-                  return (
-                    <div
-                      key={img.id}
-                      className="group relative mb-0.5 break-inside-avoid overflow-hidden rounded"
-                    >
-                      <button onClick={() => toggleVote(img.id)} className="block h-full w-full">
-                        <Image
-                          src={img.url}
-                          alt={`Vote Image ${index + 1}`}
-                          width={500}
-                          height={500}
-                          className="h-auto w-full rounded bg-black transition duration-300 group-hover:opacity-90"
-                        />
-
-                        {selected && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-[2px] transition">
+              <div ref={containerRef} className="w-full">
+                {rows.map((row, rowIndex) => (
+                  <div
+                    key={rowIndex}
+                    className="mb-0.5 flex"
+                    style={{ height: `${row.height}px`, gap: '2px' }}
+                  >
+                    {row.items.map(({ item: img, width, height }) => {
+                      const selected = selectedIds.includes(img.id);
+                      return (
+                        <div
+                          key={img.id}
+                          className="group relative shrink-0 overflow-hidden rounded"
+                          style={{ width: `${width}px`, height: `${height}px` }}
+                        >
+                          <button
+                            onClick={() => toggleVote(img.id)}
+                            className="block h-full w-full"
+                          >
                             <Image
-                              src="/icons/voting-power.png"
-                              alt="voted"
-                              width={150}
-                              height={150}
-                              className="size-1/2 object-contain opacity-90 drop-shadow-lg"
+                              src={img.url}
+                              alt={`Vote Image`}
+                              fill
+                              sizes="(max-width: 768px) 50vw, 25vw"
+                              className="rounded bg-black object-cover transition duration-300 group-hover:opacity-90"
                             />
-                          </div>
-                        )}
-                      </button>
-                    </div>
-                  );
-                })}
+
+                            {selected && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-[2px] transition">
+                                <Image
+                                  src="/icons/voting-power.png"
+                                  alt="voted"
+                                  width={150}
+                                  height={150}
+                                  className="size-1/2 object-contain opacity-90 drop-shadow-lg"
+                                />
+                              </div>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
 
               {isFetching && (
-                <div className="p-2">
-                  <div className="columns-2 gap-0.5 sm:columns-3 lg:columns-4">
-                    {[...Array(4)].map((_, i) => (
-                      <div key={i} className="mb-0.5 overflow-hidden rounded">
-                        <Skeleton className="bg-black-2-600 aspect-square w-full" />
-                      </div>
-                    ))}
-                  </div>
+                <div className="flex flex-wrap gap-0.5 p-0.5">
+                  {[...Array(4)].map((_, i) => {
+                    const aspects = [1.3, 0.8, 1.5, 1.0];
+                    const a = aspects[i % aspects.length];
+                    return (
+                      <Skeleton
+                        key={i}
+                        className="bg-black-2-600 rounded"
+                        style={{ height: 200, width: 200 * a, flexShrink: 0 }}
+                      />
+                    );
+                  })}
                 </div>
               )}
 
