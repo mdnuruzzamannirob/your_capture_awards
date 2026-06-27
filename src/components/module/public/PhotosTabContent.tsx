@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { PhotoCard, TabErrorState, TabSectionHeader } from './public-tab-ui';
 
 import UploadPortfolioCard from '../profile/UploadPortfolioCard';
 import PortfolioCard from '../profile/PortfolioCard';
 import SkeletonCard from '../profile/SkeletonCard';
+import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
 
 type Props = {
   username: string;
@@ -31,6 +32,12 @@ const PhotosTabContent = ({
 
   const photosList = initialPhotos;
   const isPhotosLoading = isLoading;
+
+  const { containerRef, rows } = useJustifiedLayout({
+    items: photosList.map((p) => ({ ...p, url: p.url || p.src })),
+    targetHeight: 350,
+    gap: 4,
+  });
 
   return (
     <section className="container py-6">
@@ -90,29 +97,45 @@ const PhotosTabContent = ({
       ) : null}
 
       {!isPhotosLoading || photosList.length > 0 ? (
-        <div className="flex flex-wrap gap-1">
+        <div ref={containerRef} className="w-full">
+          {/* Upload card row (own profile only) — shown above the justified grid */}
           {isOwn && (
             <div
-              style={{ flexGrow: 1.4, flexBasis: '280px', height: '300px', minHeight: '220px' }}
+              style={{ height: '220px', marginBottom: '4px' }}
               className="overflow-hidden rounded-sm"
             >
               <UploadPortfolioCard />
             </div>
           )}
-          {photosList.map((photo) =>
-            isOwn ? (
-              <PortfolioCard key={photo.id} item={photo} isOwn={true} allPhotos={photosList} />
-            ) : (
-              <PhotoCard
-                key={photo.id}
-                photo={photo}
-                profileUsername={username}
-                allPhotos={photosList}
-                ownerId={userId}
-              />
-            ),
-          )}
-          <div style={{ flexGrow: 9999999, flexBasis: '240px' }} className="h-0" />
+
+          {rows.map((row, rowIndex) => (
+            <div
+              key={rowIndex}
+              className="flex gap-1 mb-1"
+              style={{ height: `${row.height}px` }}
+            >
+              {row.items.map(({ item: photo, width, height }) =>
+                isOwn ? (
+                  <PortfolioCard
+                    key={photo.id}
+                    item={photo}
+                    isOwn={true}
+                    allPhotos={photosList}
+                    style={{ width: `${width}px`, height: `${height}px`, flexShrink: 0 }}
+                  />
+                ) : (
+                  <PhotoCard
+                    key={photo.id}
+                    photo={photo}
+                    profileUsername={username}
+                    allPhotos={photosList}
+                    ownerId={userId}
+                    style={{ width: `${width}px`, height: `${height}px`, flexShrink: 0 }}
+                  />
+                ),
+              )}
+            </div>
+          ))}
         </div>
       ) : null}
     </section>

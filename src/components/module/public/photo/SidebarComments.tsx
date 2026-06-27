@@ -5,13 +5,25 @@ import { cn } from '@/utils/cn';
 import { CornerDownRight, Reply, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
+export interface CommentProvider {
+  id?: string;
+  name?: string;
+  avatar?: string;
+}
+
 export interface Comment {
   id: string;
-  author: string;
+  /** display name — may come from `provider.name` on real API responses */
+  author?: string;
   text: string;
-  time: string;
-  parentId?: string;
+  time?: string;
+  createdAt?: string;
+  photoId?: string | null;
+  parentId?: string | null;
+  providerId?: string;
+  provider?: CommentProvider;
   replies?: Comment[];
+  commentReplies?: Comment[];
 }
 
 interface SidebarCommentsProps {
@@ -19,7 +31,46 @@ interface SidebarCommentsProps {
   comments: Comment[];
   onAddComment: (text: string, parentId?: string) => Promise<void>;
   onDeleteComment: (commentId: string) => Promise<void>;
+  onEditComment?: (commentId: string, text: string) => Promise<void>;
   isLoading?: boolean;
+}
+
+// ── Helper: Format date/time properly ──────────────────────────────────────
+function formatCommentTime(createdAtStr?: string, timeStr?: string): string {
+  if (timeStr && !timeStr.includes('T') && !timeStr.includes('-')) {
+    return timeStr;
+  }
+  const dateStr = createdAtStr || timeStr;
+  if (!dateStr) return '';
+
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr;
+
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHr = Math.floor(diffMin / 60);
+  const diffDays = Math.floor(diffHr / 24);
+
+  if (diffSec < 60) {
+    return 'just now';
+  } else if (diffMin < 60) {
+    return `${diffMin}m ago`;
+  } else if (diffHr < 24) {
+    return `${diffHr}h ago`;
+  } else if (diffDays < 7) {
+    return `${diffDays}d ago`;
+  } else {
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  }
 }
 
 export function SidebarComments({
@@ -27,11 +78,11 @@ export function SidebarComments({
   comments,
   onAddComment,
   onDeleteComment,
+  onEditComment,
   isLoading = false,
 }: SidebarCommentsProps) {
   const [commentText, setCommentText] = useState('');
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmitComment = async (e: React.FormEvent) => {
@@ -42,21 +93,6 @@ export function SidebarComments({
     try {
       await onAddComment(commentText.trim());
       setCommentText('');
-    } catch (err) {
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSubmitReply = async (e: React.FormEvent, parentId: string) => {
-    e.preventDefault();
-    if (!replyText.trim() || isSubmitting) return;
-
-    setIsSubmitting(true);
-    try {
-      await onAddComment(replyText.trim(), parentId);
-      setReplyText('');
-      setReplyingToId(null);
     } catch (err) {
     } finally {
       setIsSubmitting(false);
@@ -77,14 +113,14 @@ export function SidebarComments({
             onChange={(e) => setCommentText(e.target.value)}
             placeholder="Write a comment"
             className="min-h-20 w-full resize-none bg-transparent px-2 py-1 text-sm text-zinc-100 outline-hidden placeholder:text-zinc-500"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isLoading}
           />
           <div className="mt-2 flex justify-end border-t border-zinc-800 pt-2">
             <Button
               type="submit"
               size="sm"
               className="bg-primary hover:bg-primary/90 h-8 rounded-sm px-5 text-xs font-medium text-white transition-colors duration-200"
-              disabled={!commentText.trim() || isSubmitting}
+              disabled={!commentText.trim() || isSubmitting || isLoading}
             >
               {isSubmitting ? 'SUBMITTING...' : 'SUBMIT'}
             </Button>
@@ -118,11 +154,9 @@ export function SidebarComments({
               depth={0}
               replyingToId={replyingToId}
               setReplyingToId={setReplyingToId}
-              replyText={replyText}
-              setReplyText={setReplyText}
-              onSubmitReply={handleSubmitReply}
+              onAddComment={onAddComment}
               onDelete={onDeleteComment}
-              isSubmitting={isSubmitting}
+              onEdit={onEditComment}
             />
           ))
         )}
@@ -137,24 +171,27 @@ function CommentNode({
   depth,
   replyingToId,
   setReplyingToId,
-  replyText,
-  setReplyText,
-  onSubmitReply,
+  onAddComment,
   onDelete,
-  isSubmitting,
+  onEdit,
 }: {
   comment: Comment;
   depth: number;
   replyingToId: string | null;
   setReplyingToId: (id: string | null) => void;
-  replyText: string;
-  setReplyText: (text: string) => void;
-  onSubmitReply: (e: React.FormEvent, parentId: string) => void;
+  onAddComment: (text: string, parentId?: string) => Promise<void>;
   onDelete: (commentId: string) => Promise<void>;
-  isSubmitting: boolean;
+  onEdit?: (commentId: string, text: string) => Promise<void>;
 }) {
-  const isReplying = replyingToId === comment.id;
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(comment.text);
+  const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [replyText, setReplyText] = useState('');
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+
+  const isReplying = replyingToId === comment.id;
 
   const handleDelete = async () => {
     if (isDeleting) return;
@@ -163,6 +200,21 @@ function CommentNode({
       await onDelete(comment.id);
     } catch (err) {
       setIsDeleting(false);
+    }
+  };
+
+  const handleSubmitReply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!replyText.trim() || isSubmittingReply) return;
+
+    setIsSubmittingReply(true);
+    try {
+      await onAddComment(replyText.trim(), comment.id);
+      setReplyText('');
+      setReplyingToId(null);
+    } catch (err) {
+    } finally {
+      setIsSubmittingReply(false);
     }
   };
 
@@ -179,58 +231,130 @@ function CommentNode({
             avatarSize,
           )}
         >
-          {comment.author.substring(0, 2)}
+          {(comment.author || comment.provider?.name || 'User').substring(0, 2)}
         </div>
 
         {/* Comment Contents */}
         <div className="min-w-0 flex-1">
           <div className="rounded-lg border border-zinc-800/80 bg-zinc-900 px-3 py-2">
-            <span className="mr-2 font-bold text-zinc-100">{comment.author}</span>
-            <span className="leading-relaxed wrap-break-word whitespace-pre-wrap text-zinc-300">
-              {comment.text}
-            </span>
+            {isEditing ? (
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!editText.trim() || isSaving) return;
+                  setIsSaving(true);
+                  try {
+                    if (onEdit) {
+                      await onEdit(comment.id, editText.trim());
+                    }
+                    setIsEditing(false);
+                  } catch (err) {
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }}
+                className="mt-1"
+              >
+                <textarea
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  className="w-full min-h-15 resize-none bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-sm text-zinc-100 outline-hidden focus:border-zinc-700"
+                  disabled={isSaving}
+                />
+                <div className="flex justify-end gap-2 mt-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setEditText(comment.text);
+                    }}
+                    className="h-7 text-xs text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200"
+                    disabled={isSaving}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    size="sm"
+                    className="h-7 bg-[#2995f3] px-3 text-xs font-bold text-white hover:bg-[#1a85e2]"
+                    disabled={!editText.trim() || isSaving}
+                  >
+                    {isSaving ? 'Saving...' : 'Save'}
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <>
+                <span className="mr-2 font-bold text-zinc-100">
+                  {comment.author || comment.provider?.name || 'User'}
+                </span>
+                <span className="leading-relaxed wrap-break-word whitespace-pre-wrap text-zinc-300">
+                  {comment.text}
+                </span>
+              </>
+            )}
           </div>
 
           <div className="mt-1.5 flex items-center gap-3 px-1 text-xs">
-            <span className="font-medium text-zinc-500">{comment.time}</span>
+            <span className="font-medium text-zinc-500">
+              {formatCommentTime(comment.createdAt, comment.time)}
+            </span>
 
-            <button
-              onClick={() => {
-                if (isReplying) {
-                  setReplyingToId(null);
-                } else {
-                  setReplyingToId(comment.id);
-                  setReplyText('');
-                }
-              }}
-              className="inline-flex items-center gap-1 font-bold text-[#2995f3] transition-colors duration-150 hover:text-[#1a85e2]"
-            >
-              <Reply className="size-3" />
-              reply
-            </button>
+            {!isEditing && (
+              <button
+                onClick={() => {
+                  if (isReplying) {
+                    setReplyingToId(null);
+                  } else {
+                    setReplyingToId(comment.id);
+                    setReplyText('');
+                  }
+                }}
+                className="inline-flex items-center gap-1 font-bold text-[#2995f3] transition-colors duration-150 hover:text-[#1a85e2]"
+              >
+                <Reply className="size-3" />
+                reply
+              </button>
+            )}
 
-            <button
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="inline-flex items-center gap-1 font-bold text-zinc-500 transition-colors duration-150 hover:text-red-400 disabled:opacity-50"
-            >
-              <Trash2 className="size-3" />
-              {isDeleting ? 'deleting...' : 'delete'}
-            </button>
+            {!isEditing && (
+              <button
+                onClick={() => {
+                  setIsEditing(true);
+                  setEditText(comment.text);
+                }}
+                className="inline-flex items-center gap-1 font-bold text-zinc-500 transition-colors duration-150 hover:text-[#2995f3]"
+              >
+                edit
+              </button>
+            )}
+
+            {!isEditing && (
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="inline-flex items-center gap-1 font-bold text-zinc-500 transition-colors duration-150 hover:text-red-400 disabled:opacity-50"
+              >
+                <Trash2 className="size-3" />
+                {isDeleting ? 'deleting...' : 'delete'}
+              </button>
+            )}
           </div>
 
           {/* Reply Form */}
           {isReplying && (
             <form
-              onSubmit={(e) => onSubmitReply(e, comment.id)}
+              onSubmit={handleSubmitReply}
               className="mt-3 border border-zinc-800 bg-zinc-900 p-2 focus-within:border-zinc-700"
             >
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                placeholder={`Reply to ${comment.author}...`}
+                placeholder={`Reply to ${comment.author || comment.provider?.name || 'User'}...`}
                 className="min-h-15 w-full resize-none bg-transparent px-2 py-1 text-sm text-zinc-100 outline-hidden placeholder:text-zinc-500"
-                disabled={isSubmitting}
+                disabled={isSubmittingReply}
                 autoFocus
               />
               <div className="mt-1 flex justify-end gap-2 border-t border-zinc-800 pt-2">
@@ -240,7 +364,7 @@ function CommentNode({
                   variant="ghost"
                   onClick={() => setReplyingToId(null)}
                   className="h-7 text-xs text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200"
-                  disabled={isSubmitting}
+                  disabled={isSubmittingReply}
                 >
                   Cancel
                 </Button>
@@ -248,16 +372,16 @@ function CommentNode({
                   type="submit"
                   size="sm"
                   className="h-7 bg-[#2995f3] px-3 text-xs font-bold text-white hover:bg-[#1a85e2]"
-                  disabled={!replyText.trim() || isSubmitting}
+                  disabled={!replyText.trim() || isSubmittingReply}
                 >
-                  Reply
+                  {isSubmittingReply ? 'Replying...' : 'Reply'}
                 </Button>
               </div>
             </form>
           )}
 
           {/* Nested Replies Rendering */}
-          {comment.replies && comment.replies.length > 0 && (
+          {(comment.replies || comment.commentReplies || []).length > 0 && (
             <div
               className={cn(
                 'mt-3 space-y-4',
@@ -265,7 +389,7 @@ function CommentNode({
                 depth < 2 ? 'border-l border-zinc-800 pl-3 md:pl-4' : 'border-l-0 pl-1.5',
               )}
             >
-              {comment.replies.map((reply) => (
+              {(comment.replies || comment.commentReplies || []).map((reply) => (
                 <div key={reply.id} className="flex gap-1.5 text-xs">
                   {depth < 2 && (
                     <CornerDownRight className="mt-1.5 size-3 shrink-0 text-zinc-700" />
@@ -276,11 +400,9 @@ function CommentNode({
                       depth={depth + 1}
                       replyingToId={replyingToId}
                       setReplyingToId={setReplyingToId}
-                      replyText={replyText}
-                      setReplyText={setReplyText}
-                      onSubmitReply={onSubmitReply}
+                      onAddComment={onAddComment}
                       onDelete={onDelete}
-                      isSubmitting={isSubmitting}
+                      onEdit={onEdit}
                     />
                   </div>
                 </div>
@@ -298,8 +420,9 @@ function countAllComments(comments: Comment[]): number {
   let count = 0;
   for (const comment of comments) {
     count += 1;
-    if (comment.replies && comment.replies.length > 0) {
-      count += countAllComments(comment.replies);
+    const replies = comment.commentReplies || comment.replies;
+    if (replies && replies.length > 0) {
+      count += countAllComments(replies);
     }
   }
   return count;

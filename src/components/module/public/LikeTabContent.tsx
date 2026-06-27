@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { GridLoadingState, PhotoCard, TabErrorState, TabSectionHeader } from './public-tab-ui';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useLazyGetLikedPhotosQuery } from '@/store/apis/socialApi';
+import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
 
 type Props = {
   username: string;
@@ -88,6 +89,12 @@ const LikeTabContent = ({ username, title = 'Liked Photos' }: Props) => {
     onLoadMore: loadMore,
   });
 
+  const { containerRef, rows } = useJustifiedLayout({
+    items: photos.map((p) => ({ ...p, url: p.url || p.src })),
+    targetHeight: 350,
+    gap: 6,
+  });
+
   return (
     <section className="container py-6">
       <TabSectionHeader title={title} />
@@ -99,19 +106,25 @@ const LikeTabContent = ({ username, title = 'Liked Photos' }: Props) => {
           {photos.length === 0 && !isFetching ? (
             <div className="py-12 text-center text-zinc-500">No liked photos found.</div>
           ) : (
-            <div className="overflow-hidden rounded-2xl">
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {photos.map((photo) => (
-                  <PhotoCard
-                    key={photo.id}
-                    photo={photo}
-                    profileUsername={username}
-                    isLikedDefault={true}
-                    allPhotos={photos}
-                  />
-                ))}
-                <div style={{ flexGrow: 9999999, flexBasis: '240px' }} className="h-0" />
-              </div>
+            <div ref={containerRef} className="w-full overflow-hidden rounded-2xl">
+              {rows.map((row, rowIndex) => (
+                <div
+                  key={rowIndex}
+                  className="flex mb-1.5"
+                  style={{ height: `${row.height}px`, gap: '6px' }}
+                >
+                  {row.items.map(({ item: photo, width, height }) => (
+                    <PhotoCard
+                      key={photo.id}
+                      photo={photo}
+                      profileUsername={username}
+                      isLikedDefault={true}
+                      allPhotos={photos}
+                      style={{ width: `${width}px`, height: `${height}px`, flexShrink: 0 }}
+                    />
+                  ))}
+                </div>
+              ))}
             </div>
           )}
           {/* Infinite Scroll Trigger */}

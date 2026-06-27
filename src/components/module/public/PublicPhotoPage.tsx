@@ -20,6 +20,13 @@ import {
   useLazyGetMyPhotoDetailsQuery,
   useLazyGetPublicPhotoDetailsQuery,
 } from '@/store/apis/profileApi';
+import {
+  useLazyGetPhotoCommentsQuery,
+  useAddCommentMutation,
+  useAddReplyMutation,
+  useUpdateCommentMutation,
+  useDeleteCommentMutation,
+} from '@/store/apis/commentsApi';
 
 interface Props {
   photoId: string;
@@ -28,39 +35,46 @@ interface Props {
 export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
   const searchParams = useSearchParams();
   const source = searchParams.get('source') || '';
-  const profileParam = searchParams.get('profile') || ''; // username or userId passed from profile page
-  const ownerIdParam = searchParams.get('ownerId') || ''; // userId of the photo owner
+  const profileParam = searchParams.get('profile') || '';
+  const ownerIdParam = searchParams.get('ownerId') || '';
   const contestParam = searchParams.get('contest') || '';
 
   const dispatch = useAppDispatch();
   const { user: currentUser } = useAuth();
 
-  // Swiper photos from Redux (set by PortfolioCard / PhotoCard on click for slide navigation)
   const swiperPhotos = useAppSelector((state) => state.profile.swiperPhotos);
 
-  // App state
+  // ── Photo / slide state ────────────────────────────────────────────────────
   const [currentPhotoId, setCurrentPhotoId] = useState(initialPhotoId);
   const [photo, setPhoto] = useState<any>(null);
   const [profileOwner, setProfileOwner] = useState<any>(null);
   const [slides, setSlides] = useState<any[]>([]);
-  const [comments, setComments] = useState<Comment[]>([]);
   const [liked, setLiked] = useState(false);
+  const [localLikesCount, setLocalLikesCount] = useState(0);
   const [ownerIsFollowed, setOwnerIsFollowed] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [transitionReady, setTransitionReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Determine if viewing own photo (by ownerId param or by photo.userId after load)
+  // Local photo-data cache to skip the loading overlay when navigating to
+  // a photo we've already seen in this session
+  const [photoCache, setPhotoCache] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    if (photo) {
+      setLocalLikesCount(photo.likes ?? 0);
+    }
+  }, [photo]);
+
+  // ── Derived ────────────────────────────────────────────────────────────────
   const isOwnPhoto =
     !!currentUser?.id && (ownerIdParam === currentUser.id || photo?.userId === currentUser.id);
 
-  // Active index in slides
   const activeIndex = Math.max(
     0,
     slides.findIndex((p) => p.id === currentPhotoId),
   );
 
-  // Back URL derivation
   const backUrl = (() => {
     if (source === 'contest' && (contestParam || photo?.contestId)) {
       return `/contest/${contestParam || photo.contestId}`;
@@ -84,120 +98,181 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
     return '/';
   })();
 
-  // RTK Lazy queries
-  const [fetchMyPhotoDetails, { isLoading: isLoadingOwn }] = useLazyGetMyPhotoDetailsQuery();
-  const [fetchPublicPhotoDetails, { isLoading: isLoadingPublic }] =
+  // ── RTK Query hooks ────────────────────────────────────────────────────────
+  const [fetchMyPhotoDetails, { isLoading: isLoadingOwn, isFetching: isFetchingOwn }] = useLazyGetMyPhotoDetailsQuery();
+  const [fetchPublicPhotoDetails, { isLoading: isLoadingPublic, isFetching: isFetchingPublic }] =
     useLazyGetPublicPhotoDetailsQuery();
   const isLoading = isLoadingOwn || isLoadingPublic;
+  const isFetching = isFetchingOwn || isFetchingPublic;
 
   const [toggleLike, { isLoading: isLiking }] = useToggleLikeMutation();
   const [toggleFollow, { isLoading: isFollowToggling }] = useToggleFollowMutation();
 
-  // Load photo data — chooses own vs public API based on ownership
+  // Comments RTK Query — lazy so we control when to fetch
+  const [fetchComments] = useLazyGetPhotoCommentsQuery();
+  const [addComment, { isLoading: isAddingComment }] = useAddCommentMutation();
+  const [addReply, { isLoading: isAddingReply }] = useAddReplyMutation();
+  const [updateComment, { isLoading: isUpdatingComment }] = useUpdateCommentMutation();
+  const [deleteComment, { isLoading: isDeletingComment }] = useDeleteCommentMutation();
+
+  // Local comments state — populated from RTK cache or fresh fetch
+  const [comments, setComments] = useState<Comment[]>([]);
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  const loadComments = async (photoId: string): Promise<Comment[]> => {
+    try {
+      // preferCacheValue: true — returns cached data immediately if available
+      const result = await fetchComments(photoId, true).unwrap();
+      return (result.data as Comment[]) || [];
+    } catch {
+      return [];
+    }
+  };
+
+  // ── Load photo data ────────────────────────────────────────────────────────
   const loadPhotoData = async (photoId: string) => {
     setError(null);
 
-    // Determine ownership from URL param (available immediately before photo loads)
     const viewingOwn = !!currentUser?.id && ownerIdParam === currentUser.id;
 
+    // Serve from local cache instantly (no loading overlay on previously visited photos)
+    if (photoCache[photoId]) {
+      const cached = photoCache[photoId];
+      setPhoto(cached.photo);
+      setProfileOwner(cached.profileOwner);
+      setLiked(cached.liked);
+      setOwnerIsFollowed(cached.ownerIsFollowed);
+      setComments(cached.comments);
+      return;
+    }
+
+    // First visit — fetch photo details and comments together
     try {
+      let photoData: any = null;
+      let photoOwner: any = null;
+      let isLikedFromApi = false;
+      let isFollowedFromApi = false;
+
       if (viewingOwn) {
-        // Own photo: GET /profiles/photos/:photoId
-        const result = await fetchMyPhotoDetails(photoId).unwrap();
-        const { photo: photoData, comments: photoComments } = result.data;
-        setPhoto(photoData);
-        // For own photos the owner is embedded in photo.user
-        setProfileOwner(photoData.user ?? null);
-        setLiked(photoData.isLiked ?? false);
-        // Own photo — no follow button needed
-        setOwnerIsFollowed(false);
-        if (photoComments) setComments(photoComments);
+        const result = await fetchMyPhotoDetails(photoId, true).unwrap();
+        photoData = result.data.photo;
+        photoOwner = photoData?.user ?? null;
+        isLikedFromApi = photoData?.isLiked ?? false;
+        isFollowedFromApi = false;
       } else {
-        // Public photo: GET /profiles/users/:ownerId/photos/:photoId
         const ownerId = ownerIdParam || photo?.userId || '';
         if (!ownerId) {
           setError('Could not determine photo owner. Please navigate back and try again.');
           return;
         }
-        const result = await fetchPublicPhotoDetails({ id: ownerId, photoId }).unwrap();
-        const { photo: photoData, photoOwner, comments: photoComments } = result.data;
-        setPhoto(photoData);
-        setProfileOwner(photoOwner ?? null);
-        setLiked(photoData.isLiked ?? false);
-        setOwnerIsFollowed(photoOwner?.isFollowed ?? false);
-        if (photoComments) setComments(photoComments);
+        const result = await fetchPublicPhotoDetails({ id: ownerId, photoId }, true).unwrap();
+        photoData = result.data.photo;
+        photoOwner = result.data.photoOwner ?? null;
+        isLikedFromApi = photoData?.isLiked ?? false;
+        isFollowedFromApi = photoOwner?.isFollowed ?? false;
       }
+
+      // Fetch comments via RTK Query (uses cache automatically on revisit)
+      const commentsList = await loadComments(photoId);
+
+      setPhoto(photoData);
+      setProfileOwner(photoOwner);
+      setLiked(isLikedFromApi);
+      setOwnerIsFollowed(isFollowedFromApi);
+      setComments(commentsList);
+
+      // Save to local cache
+      setPhotoCache((prev) => ({
+        ...prev,
+        [photoId]: {
+          photo: photoData,
+          profileOwner: photoOwner,
+          liked: isLikedFromApi,
+          ownerIsFollowed: isFollowedFromApi,
+          comments: commentsList,
+        },
+      }));
     } catch (err: any) {
       const msg = err?.data?.message || err?.message || 'Failed to load photo.';
       setError(msg);
     }
   };
 
-  // On mount: initialise slides from Redux swiper state
+  // ── Effects ────────────────────────────────────────────────────────────────
+  // On mount: seed slides from Redux swiper state
   useEffect(() => {
     if (swiperPhotos.length > 0) {
       setSlides(swiperPhotos);
       const seed = swiperPhotos.find((p) => p.id === initialPhotoId) || swiperPhotos[0];
       if (seed) setPhoto((prev: any) => prev ?? seed);
     }
-  }, []); // run only on mount
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch full details when photo ID changes
   useEffect(() => {
     loadPhotoData(currentPhotoId);
-  }, [currentPhotoId]);
+  }, [currentPhotoId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // SSR-safe: close sidebar on mobile
+  // SSR-safe: collapse sidebar on mobile
   useLayoutEffect(() => {
     if (window.innerWidth < 1024) setIsSidebarOpen(false);
   }, []);
 
-  // Enable CSS transitions after first paint
+  // Enable CSS transitions after first paint (avoids flash of unstyled transition)
   useEffect(() => {
     const frame = requestAnimationFrame(() => setTransitionReady(true));
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  // Update address bar during slide navigation
+  // ── Navigation ─────────────────────────────────────────────────────────────
   const updateAddressBar = (photoId: string) => {
-    const newPath = `/photo/${photoId}${window.location.search}`;
-    window.history.replaceState(null, '', newPath);
+    window.history.replaceState(null, '', `/photo/${photoId}${window.location.search}`);
   };
 
   const handleNext = () => {
     if (slides.length <= 1) return;
     const next = slides[(activeIndex + 1) % slides.length];
-    if (next) {
-      setCurrentPhotoId(next.id);
-      updateAddressBar(next.id);
-    }
+    if (next) { setCurrentPhotoId(next.id); updateAddressBar(next.id); }
   };
 
   const handlePrev = () => {
     if (slides.length <= 1) return;
     const prev = slides[(activeIndex - 1 + slides.length) % slides.length];
-    if (prev) {
-      setCurrentPhotoId(prev.id);
-      updateAddressBar(prev.id);
-    }
+    if (prev) { setCurrentPhotoId(prev.id); updateAddressBar(prev.id); }
   };
 
   const handleIndexChange = (index: number) => {
     const selected = slides[index];
-    if (selected) {
-      setCurrentPhotoId(selected.id);
-      updateAddressBar(selected.id);
-    }
+    if (selected) { setCurrentPhotoId(selected.id); updateAddressBar(selected.id); }
   };
 
+  // ── Like / Follow ──────────────────────────────────────────────────────────
   const handleToggleLike = async () => {
     if (isLiking) return;
     try {
       const res = await toggleLike(currentPhotoId).unwrap();
       if (res.success) {
-        setLiked((prev) => !prev);
+        setLiked((prev) => {
+          const next = !prev;
+          setLocalLikesCount((count) => count + (next ? 1 : -1));
+          setPhotoCache((old) => {
+            if (!old[currentPhotoId]) return old;
+            return {
+              ...old,
+              [currentPhotoId]: {
+                ...old[currentPhotoId],
+                liked: next,
+                photo: {
+                  ...old[currentPhotoId].photo,
+                  likes: (old[currentPhotoId].photo.likes ?? 0) + (next ? 1 : -1),
+                },
+              },
+            };
+          });
+          return next;
+        });
       }
-    } catch (err: any) {}
+    } catch {}
   };
 
   const handleToggleFollow = async () => {
@@ -206,21 +281,44 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
     try {
       const res = await toggleFollow({ userId: targetUserId }).unwrap();
       if (res.success) {
-        setOwnerIsFollowed((prev) => !prev);
+        setOwnerIsFollowed((prev) => {
+          const next = !prev;
+          setPhotoCache((old) => {
+            const updated = { ...old };
+            Object.keys(updated).forEach((id) => {
+              if (updated[id].profileOwner?.id === targetUserId) {
+                updated[id] = { ...updated[id], ownerIsFollowed: next };
+              }
+            });
+            return updated;
+          });
+          return next;
+        });
       }
-    } catch (err: any) {}
+    } catch {}
+  };
+
+  // ── Comment handlers (all via RTK Query) ───────────────────────────────────
+  const refreshComments = async () => {
+    // Force fresh fetch and update local state + cache
+    const result = await fetchComments(currentPhotoId).unwrap();
+    const updated = (result.data as unknown as Comment[]) || [];
+    setComments(updated);
+    setPhotoCache((old) => {
+      if (!old[currentPhotoId]) return old;
+      return { ...old, [currentPhotoId]: { ...old[currentPhotoId], comments: updated } };
+    });
+    return updated;
   };
 
   const handleAddComment = async (text: string, parentId?: string) => {
     try {
-      const res = await fetch(`/api/photo/${currentPhotoId}/comments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ author: 'Visitor', text, parentId }),
-      });
-      if (!res.ok) throw new Error('Failed to post comment.');
-      const data = await res.json();
-      setComments(data.comments);
+      if (parentId) {
+        await addReply({ commentId: parentId, text, photoId: currentPhotoId }).unwrap();
+      } else {
+        await addComment({ photoId: currentPhotoId, text }).unwrap();
+      }
+      await refreshComments();
       toast.success(parentId ? 'Reply submitted!' : 'Comment added!');
     } catch {
       toast.error('Could not submit comment. Please try again.');
@@ -229,18 +327,31 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
 
   const handleDeleteComment = async (commentId: string) => {
     try {
-      const res = await fetch(`/api/photo/${currentPhotoId}/comments?commentId=${commentId}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Failed to delete comment.');
-      const data = await res.json();
-      setComments(data.comments);
+      await deleteComment({ commentId, photoId: currentPhotoId }).unwrap();
+      await refreshComments();
       toast.success('Comment deleted.');
     } catch {
       toast.error('Could not delete comment. Please try again.');
     }
   };
 
+  const handleUpdateComment = async (commentId: string, text: string) => {
+    try {
+      await updateComment({ commentId, text, photoId: currentPhotoId }).unwrap();
+      await refreshComments();
+      toast.success('Comment updated.');
+    } catch {
+      toast.error('Could not update comment. Please try again.');
+    }
+  };
+
+  // ── Derived display values ─────────────────────────────────────────────────
+  // Only show loading overlay when it's a first visit (not cached)
+  const isImageLoading = isFetching && !photoCache[currentPhotoId];
+
+  const isCommentBusy = isAddingComment || isAddingReply || isUpdatingComment || isDeletingComment;
+
+  // ── Guards ─────────────────────────────────────────────────────────────────
   if (isLoading && !photo) return <PhotoSkeleton isSidebarOpen={isSidebarOpen} />;
   if (error)
     return (
@@ -248,6 +359,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
     );
   if (!photo) return <PhotoSkeleton isSidebarOpen={isSidebarOpen} />;
 
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <main className="min-h-screen overflow-hidden bg-zinc-950 text-white">
       <div className="flex h-screen flex-col lg:flex-row">
@@ -267,7 +379,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
             isSidebarOpen={isSidebarOpen}
             onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
             isOwnPhoto={isOwnPhoto}
-            isImageLoading={isLoading}
+            isImageLoading={isImageLoading}
           />
         </section>
 
@@ -299,7 +411,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
             <SidebarMetrics
               votes={photo.totalVotes ?? photo.votes ?? 0}
               views={photo.views ?? 0}
-              likes={(photo.likes ?? 0) + (liked ? 1 : 0)}
+              likes={localLikesCount}
               achievements={photo.contestUpload?.length ?? photo.achievememnts?.length ?? 0}
             />
             <SidebarComments
@@ -307,7 +419,8 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
               comments={comments}
               onAddComment={handleAddComment}
               onDeleteComment={handleDeleteComment}
-              isLoading={isLoading}
+              onEditComment={handleUpdateComment}
+              isLoading={isCommentBusy}
             />
           </div>
         </aside>
