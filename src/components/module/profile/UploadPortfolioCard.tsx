@@ -2,6 +2,7 @@
 
 import { useCreatePhotoMutation } from '@/store/apis/profileApi';
 import { cn } from '@/utils/cn';
+import { compressImage } from '@/utils/compressImage';
 import { LucideCloudUpload, X } from 'lucide-react';
 import Image from 'next/image';
 import { ChangeEvent, DragEvent, KeyboardEvent, useEffect, useState } from 'react';
@@ -20,8 +21,9 @@ export default function UploadPortfolioCard() {
     setIsError(false);
 
     try {
+      const fileToUpload = await compressImage(selectedFile);
       const formData = new FormData();
-      formData.append('photo', selectedFile);
+      formData.append('photo', fileToUpload);
 
       await createPhoto(formData).unwrap();
 
