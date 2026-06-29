@@ -11,22 +11,23 @@ import { Comment, SidebarComments } from './photo/SidebarComments';
 import { SidebarHeader } from './photo/SidebarHeader';
 import { SidebarMetrics } from './photo/SidebarMetrics';
 
-import { cn } from '@/utils/cn';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { clearSwiperPhotos } from '@/store/slices/profileSlice';
 import { useAuth } from '@/hooks/useAuth';
-import { useToggleFollowMutation, useToggleLikeMutation } from '@/store/apis/socialApi';
 import {
-  useLazyGetMyPhotoDetailsQuery,
-  useLazyGetPublicPhotoDetailsQuery,
-} from '@/store/apis/profileApi';
-import {
-  useLazyGetPhotoCommentsQuery,
   useAddCommentMutation,
   useAddReplyMutation,
-  useUpdateCommentMutation,
   useDeleteCommentMutation,
+  useLazyGetPhotoCommentsQuery,
+  useUpdateCommentMutation,
 } from '@/store/apis/commentsApi';
+import { useLazyGetUserPhotosQuery } from '@/store/apis/contestApi';
+import {
+  useLazyGetMyPhotoDetailsQuery,
+  useLazyGetOtherUserPhotosQuery,
+  useLazyGetPublicPhotoDetailsQuery,
+} from '@/store/apis/profileApi';
+import { useToggleFollowMutation, useToggleLikeMutation } from '@/store/apis/socialApi';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { cn } from '@/utils/cn';
 
 interface Props {
   photoId: string;
@@ -99,7 +100,8 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
   })();
 
   // ── RTK Query hooks ────────────────────────────────────────────────────────
-  const [fetchMyPhotoDetails, { isLoading: isLoadingOwn, isFetching: isFetchingOwn }] = useLazyGetMyPhotoDetailsQuery();
+  const [fetchMyPhotoDetails, { isLoading: isLoadingOwn, isFetching: isFetchingOwn }] =
+    useLazyGetMyPhotoDetailsQuery();
   const [fetchPublicPhotoDetails, { isLoading: isLoadingPublic, isFetching: isFetchingPublic }] =
     useLazyGetPublicPhotoDetailsQuery();
   const isLoading = isLoadingOwn || isLoadingPublic;
@@ -199,19 +201,67 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
   };
 
   // ── Effects ────────────────────────────────────────────────────────────────
-  // On mount: seed slides from Redux swiper state
+  // ── RTK Query lazy loaders for backup slide loading ────────────────────────
+  const [fetchContestUserPhotos] = useLazyGetUserPhotosQuery();
+  const [fetchProfileUserPhotos] = useLazyGetOtherUserPhotosQuery();
+
+  // On mount: seed slides from Redux swiper state, or fetch dynamically if empty
   useEffect(() => {
-    if (swiperPhotos.length > 0) {
-      setSlides(swiperPhotos);
-      const seed = swiperPhotos.find((p) => p.id === initialPhotoId) || swiperPhotos[0];
-      if (seed) setPhoto((prev: any) => prev ?? seed);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    const initializeSlides = async () => {
+      if (swiperPhotos.length > 0) {
+        setSlides(swiperPhotos);
+        const seed = swiperPhotos.find((p) => p.id === initialPhotoId) || swiperPhotos[0];
+        if (seed) setPhoto((prev: any) => prev ?? seed);
+        return;
+      }
+
+      // If swiper is empty, fetch based on context
+      if (source === 'contest' && contestParam) {
+        try {
+          const res = await fetchContestUserPhotos({ id: contestParam }).unwrap();
+          const items = (res?.data?.data || []).map((p: any) => ({
+            id: p.id,
+            url: p.url,
+            userId: ownerIdParam || p.userId,
+            title: p.title || '',
+            views: p.views || 0,
+            likes: p.likes || 0,
+            totalVotes: p.voteCount || 0,
+          }));
+          setSlides(items);
+          const seed = items.find((p: any) => p.id === initialPhotoId) || items[0];
+          if (seed) setPhoto((prev: any) => prev ?? seed);
+        } catch {}
+      } else if (source === 'profile' && ownerIdParam) {
+        try {
+          const res = await fetchProfileUserPhotos({
+            id: ownerIdParam,
+            page: 1,
+            limit: 50,
+          }).unwrap();
+          const items = (res?.data || []).map((p: any) => ({
+            id: p.id,
+            url: p.url,
+            userId: ownerIdParam,
+            title: p.title || '',
+            views: p.views || 0,
+            likes: p.likes || 0,
+            totalVotes: p.totalVotes || p.voteCount || 0,
+          }));
+          setSlides(items);
+          const seed = items.find((p: any) => p.id === initialPhotoId) || items[0];
+          if (seed) setPhoto((prev: any) => prev ?? seed);
+        } catch {}
+      }
+    };
+
+    initializeSlides();
+  }, []);
 
   // Fetch full details when photo ID changes
   useEffect(() => {
     loadPhotoData(currentPhotoId);
-  }, [currentPhotoId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentPhotoId]);
 
   // SSR-safe: collapse sidebar on mobile
   useLayoutEffect(() => {
@@ -232,18 +282,27 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
   const handleNext = () => {
     if (slides.length <= 1) return;
     const next = slides[(activeIndex + 1) % slides.length];
-    if (next) { setCurrentPhotoId(next.id); updateAddressBar(next.id); }
+    if (next) {
+      setCurrentPhotoId(next.id);
+      updateAddressBar(next.id);
+    }
   };
 
   const handlePrev = () => {
     if (slides.length <= 1) return;
     const prev = slides[(activeIndex - 1 + slides.length) % slides.length];
-    if (prev) { setCurrentPhotoId(prev.id); updateAddressBar(prev.id); }
+    if (prev) {
+      setCurrentPhotoId(prev.id);
+      updateAddressBar(prev.id);
+    }
   };
 
   const handleIndexChange = (index: number) => {
     const selected = slides[index];
-    if (selected) { setCurrentPhotoId(selected.id); updateAddressBar(selected.id); }
+    if (selected) {
+      setCurrentPhotoId(selected.id);
+      updateAddressBar(selected.id);
+    }
   };
 
   // ── Like / Follow ──────────────────────────────────────────────────────────

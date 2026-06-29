@@ -87,7 +87,7 @@ const CompletedContest = () => {
       </section>
 
       {/* Load more trigger */}
-      <section className="mt-10 min-h-80">
+      <section className="mt-10">
         <div ref={loadMoreRef} className="grid grid-cols-1 gap-10">
           {hasMore &&
             isFetching &&

@@ -10,6 +10,9 @@ import {
 import { cn } from '@/utils/cn';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAppDispatch } from '@/store/hooks';
+import { setSwiperPhotos } from '@/store/slices/profileSlice';
 import { MdOutlineHowToVote } from 'react-icons/md';
 
 const EmptyState = ({ title, description }: { title: string; description: string }) => (
@@ -20,6 +23,8 @@ const EmptyState = ({ title, description }: { title: string; description: string
 );
 
 const RankTab = ({ value, id }: { value: string; id: string }) => {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
   const [activeRankTab, setActiveRankTab] = useState<'top-photo' | 'top-photographer'>('top-photo');
   const [photoPage, setPhotoPage] = useState(1);
   const [photoItems, setPhotoItems] = useState<any[]>([]);
@@ -136,38 +141,57 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
               description="There are no ranked photos available for this contest right now."
             />
           ) : (
-            photoItems?.map((topPhoto: any, index: number) => (
-              <div key={index} className="group relative cursor-pointer overflow-hidden rounded-xl">
-                <Image
-                  src={topPhoto?.userPhoto?.url}
-                  alt=""
-                  width={400}
-                  height={260}
-                  className="h-72 w-full rounded-xl object-cover transition-all duration-500 group-hover:brightness-60"
-                />
+            photoItems?.map((topPhoto: any, index: number) => {
+              const handlePhotoClick = () => {
+                const photosToSet = photoItems.map((p) => ({
+                  id: p.id,
+                  url: p.userPhoto?.url,
+                  userId: p.userId || p.user?.id,
+                  title: p.userPhoto?.title || '',
+                  views: p.userPhoto?.views || 0,
+                  likes: p.userPhoto?.likes || 0,
+                  totalVotes: p.voteCount || 0,
+                }));
+                dispatch(setSwiperPhotos(photosToSet));
+                router.push(`/photo/${topPhoto.id}?source=contest&contest=${id}&ownerId=${topPhoto.userId || topPhoto.user?.id}`);
+              };
 
-                <div className="absolute top-2 left-2 rounded bg-black/50 px-2 py-1 font-bold">
-                  #{index + 1}
-                </div>
-
-                <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-black/20 px-2 py-1 text-sm">
-                  <MdOutlineHowToVote />
-                  {topPhoto?.voteCount}
-                </div>
-
-                <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
+              return (
+                <div key={index} className="group relative cursor-pointer overflow-hidden rounded-xl" onClick={handlePhotoClick}>
                   <Image
-                    src={topPhoto?.user?.avatar}
-                    alt="Profile avatar"
-                    width={70}
-                    height={70}
-                    className="bg-foreground mb-2 size-20 rounded-full object-cover"
+                    src={topPhoto?.userPhoto?.url}
+                    alt=""
+                    width={400}
+                    height={260}
+                    className="h-72 w-full rounded-xl object-cover transition-all duration-500 group-hover:brightness-60"
                   />
-                  <p className="font-semibold">{topPhoto?.user?.fullName}</p>
-                  <p className="text-black-2-50">{topPhoto?.user?.location}</p>
+
+                  <div className="absolute top-2 left-2 rounded bg-black/50 px-2 py-1 font-bold">
+                    #{index + 1}
+                  </div>
+
+                  <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-black/20 px-2 py-1 text-sm">
+                    <MdOutlineHowToVote />
+                    {topPhoto?.voteCount}
+                  </div>
+
+                  <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100" onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/profile/${topPhoto?.user?.username || topPhoto?.user?.id}`);
+                  }}>
+                    <Image
+                      src={topPhoto?.user?.avatar}
+                      alt="Profile avatar"
+                      width={70}
+                      height={70}
+                      className="bg-foreground mb-2 size-20 rounded-full object-cover"
+                    />
+                    <p className="font-semibold">{topPhoto?.user?.fullName}</p>
+                    <p className="text-black-2-50">{topPhoto?.user?.location}</p>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
           <div ref={photoLoadMoreRef} className="col-span-full">
             {activeRankTab === 'top-photo' && rankPhotosHasMore && isRankPhotosFetching && (
@@ -233,10 +257,14 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                 10,
               );
 
+              const handleUserClick = () => {
+                router.push(`/profile/${rankPhotographer?.user?.username || rankPhotographer?.user?.id}`);
+              };
+
               return (
                 <div className="space-y-5" key={index}>
                   <div className="flex items-center justify-between gap-5">
-                    <div className="flex w-1/3 items-center gap-3">
+                    <div className="flex w-1/3 items-center gap-3 cursor-pointer" onClick={handleUserClick}>
                       <Image
                         src={rankPhotographer?.user?.avatar}
                         alt=""
@@ -245,7 +273,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                         className="bg-black-2-600 size-20 min-w-20 rounded-full object-cover"
                       />
                       <div className="min-w-0">
-                        <h3 className="truncate text-lg font-semibold whitespace-nowrap">
+                        <h3 className="truncate text-lg font-semibold whitespace-nowrap hover:text-primary">
                           {rankPhotographer?.user?.fullName}
                         </h3>
                         <p className="text-sm">{rankPhotographer?.user?.location ?? ''}</p>
@@ -270,22 +298,38 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                   <div className="grid h-60 grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
                     {[...(rankPhotographer.photos ?? [])]
                       .sort((a, b) => b?.voteCount - a?.voteCount)
-                      .map((photo: any, index: any) => (
-                        <div className="relative" key={index}>
-                          <Image
-                            src={photo?.photo?.url}
-                            alt=""
-                            width={400}
-                            height={280}
-                            className="h-60 w-full rounded-xl object-cover"
-                          />
+                      .map((photo: any, index: any) => {
+                        const handlePhotoClick = () => {
+                          const photosToSet = rankPhotographer.photos.map((p: any) => ({
+                            id: p?.photo?.id,
+                            url: p?.photo?.url,
+                            userId: rankPhotographer.user?.id,
+                            title: p?.photo?.title || '',
+                            views: p?.photo?.views || 0,
+                            likes: p?.photo?.likes || 0,
+                            totalVotes: p?.voteCount || 0,
+                          }));
+                          dispatch(setSwiperPhotos(photosToSet));
+                          router.push(`/photo/${photo?.photo?.id}?source=contest&contest=${id}&ownerId=${rankPhotographer.user?.id}`);
+                        };
 
-                          <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-black/20 px-2 py-1 text-sm">
-                            <MdOutlineHowToVote />
-                            {photo?.voteCount}
+                        return (
+                          <div className="relative cursor-pointer" key={index} onClick={handlePhotoClick}>
+                            <Image
+                              src={photo?.photo?.url}
+                              alt=""
+                              width={400}
+                              height={280}
+                              className="h-60 w-full rounded-xl object-cover"
+                            />
+
+                            <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-black/20 px-2 py-1 text-sm">
+                              <MdOutlineHowToVote />
+                              {photo?.voteCount}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                   </div>
                 </div>
               );

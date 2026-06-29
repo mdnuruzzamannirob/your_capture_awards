@@ -130,6 +130,7 @@ export const {
   useLazyGetMyPhotoDetailsQuery,
   useGetOtherUserProfileQuery,
   useGetOtherUserPhotosQuery,
+  useLazyGetOtherUserPhotosQuery,
   useGetOtherUserStatsQuery,
   useGetPublicPhotoDetailsQuery,
   useLazyGetPublicPhotoDetailsQuery,
