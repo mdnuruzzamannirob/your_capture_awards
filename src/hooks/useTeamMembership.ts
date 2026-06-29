@@ -15,7 +15,6 @@ export function useTeamMembership() {
     isSuccess,
   } = useGetMyTeamQuery(undefined, {
     skip: !token,
-    refetchOnMountOrArgChange: true,
   });
 
   const team: TeamData | null =
@@ -28,7 +27,7 @@ export function useTeamMembership() {
   return {
     token,
     isAuthenticated,
-    isCheckingMembership,
+    isCheckingMembership: isCheckingMembership || false,
     hasTeam,
     team,
     teamData: data,
