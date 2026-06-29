@@ -1,10 +1,13 @@
 'use client';
 
+import { LevelProgressBar } from '@/components/LevelProgressBar';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
+import { useAuth } from '@/hooks/useAuth';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useGetJoinedContestQuery } from '@/store/apis/contestApi';
+import { useGetAllLevelsQuery, useGetUserProgressQuery } from '@/store/apis/levelsApi';
 import { cn } from '@/utils/cn';
 import { labels, totalLevels } from '@/utils/valueToExposureLabel';
 import { AlertTriangle } from 'lucide-react';
@@ -22,26 +25,43 @@ const JoinedContest = () => {
   const contestTitle = searchParams.get('contestTitle');
   const voteModalRef = useRef<VoteModalRef>(null);
 
+  const { isAuthenticated } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
   const [uploadModal, setUploadModal] = useState(false);
   const [page, setPage] = useState(1);
   const [allContests, setAllContests] = useState<any[]>([]);
   const initializedRef = useRef(false);
   const actionModalRef = useRef<ContestActionModalRef>(null);
 
+  // Set mounted on client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Fetch all levels (public endpoint)
+  const { data: levelsData, isLoading: isLevelsLoading } = useGetAllLevelsQuery({
+    page: 1,
+    limit: 50,
+  });
+
+  // Fetch progress if authenticated
+  const { data: progressData, isLoading: isProgressLoading } = useGetUserProgressQuery(undefined, {
+    skip: !isAuthenticated,
+  });
+
+  const allLevels = levelsData?.data ?? [];
+  const userProgress = progressData?.data ?? null;
+  const currentLevelOrder = userProgress?.currentLevel?.order ?? null;
+
   const { data, isLoading, isFetching, refetch, isError, error } = useGetJoinedContestQuery(
     { page, limit: 10 },
     {
-      // Re-fetch every 60 seconds in the background so fresh photo/vote data
-      // arrives without the user needing to manually refresh.
       pollingInterval: 60_000,
-      // Always try to serve cached data first; don't block the UI while
-      // a background poll is in-flight (this prevents skeleton flashes).
       refetchOnMountOrArgChange: false,
     },
   );
 
-  // Derive the active contest id from the joined list itself.
-  // This avoids a separate getPublicContests call just to get the vote target.
   const firstActiveContest = (data as any)?.data?.find(
     (c: any) => c.status === 'ACTIVE' || !c.status,
   );
@@ -49,9 +69,6 @@ const JoinedContest = () => {
   const hasMore = Boolean((data as any)?.meta?.hasNextPage);
   const voteContestId = (firstActiveContest?.id as string | undefined) ?? contestId ?? '';
 
-  // Accumulate contests data across infinite-scroll pages.
-  // On page 1 (including background polls), we merge updates into existing items
-  // so vote counts / upload counts stay fresh without losing later-page entries.
   useEffect(() => {
     if (!joinedResult.length) return;
 
@@ -62,8 +79,6 @@ const JoinedContest = () => {
     }
 
     if (page === 1) {
-      // Background poll: merge updated page-1 items into the accumulated list.
-      // Items already in the list get refreshed; brand-new items are prepended.
       setAllContests((prev) => {
         const updatedMap = new Map(joinedResult.map((item: any) => [item.id, item]));
         const merged = prev.map((item) => updatedMap.get(item.id) ?? item);
@@ -72,7 +87,6 @@ const JoinedContest = () => {
         return [...newOnes, ...merged];
       });
     } else {
-      // Infinite scroll: append only genuinely new items from the next page.
       setAllContests((prev) => {
         const existingIds = new Set(prev.map((item) => item.id));
         const newContests = joinedResult.filter((item: any) => !existingIds.has(item.id));
@@ -81,7 +95,6 @@ const JoinedContest = () => {
     }
   }, [joinedResult, page]);
 
-  // Infinite scroll
   const { loadMoreRef } = useInfiniteScroll({
     hasMore,
     isLoading: isFetching,
@@ -94,7 +107,6 @@ const JoinedContest = () => {
     }
   }, [joinSuccess]);
 
-  // Function to remove search params without reloading
   const clearSearchParams = () => {
     if (typeof window === 'undefined') return;
     const url = new URL(window.location.href);
@@ -104,7 +116,6 @@ const JoinedContest = () => {
     window.history.replaceState({}, '', url.toString());
   };
 
-  // Handle Vote button click
   const handleVoteClick = () => {
     if (!voteContestId) return;
     voteModalRef.current?.open();
@@ -112,7 +123,6 @@ const JoinedContest = () => {
     clearSearchParams();
   };
 
-  // Handle Charge button click
   const handleChargeClick = () => {
     if (!voteContestId) return;
     actionModalRef.current?.open('boost');
@@ -122,6 +132,15 @@ const JoinedContest = () => {
 
   return (
     <section className="">
+      {/* Level Progress Tracker */}
+      <div className="mb-8">
+        {!mounted || isLevelsLoading || (isAuthenticated && isProgressLoading) ? (
+          <div className="h-11 w-full animate-pulse rounded-lg bg-zinc-800/80" />
+        ) : allLevels.length > 0 ? (
+          <LevelProgressBar levels={allLevels} currentLevelOrder={currentLevelOrder} />
+        ) : null}
+      </div>
+
       <div className="my-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
         {isLoading ? (
           [1, 2, 3, 4].map((_, index) => <JoinedContestCardSkeleton key={index} />)

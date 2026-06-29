@@ -2,9 +2,10 @@
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
-import { CornerDownRight, Reply, Trash2 } from 'lucide-react';
+import { CornerDownRight, Pencil, Reply, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 
+// ── Types ─────────────────────────────────────────────────────────────────────
 export interface CommentProvider {
   id?: string;
   name?: string;
@@ -22,6 +23,7 @@ export interface Comment {
   parentId?: string | null;
   providerId?: string;
   provider?: CommentProvider;
+  userId?: string;
   replies?: Comment[];
   commentReplies?: Comment[];
 }
@@ -29,17 +31,16 @@ export interface Comment {
 interface SidebarCommentsProps {
   photoId: string;
   comments: Comment[];
+  currentUserId?: string;
   onAddComment: (text: string, parentId?: string) => Promise<void>;
   onDeleteComment: (commentId: string) => Promise<void>;
   onEditComment?: (commentId: string, text: string) => Promise<void>;
   isLoading?: boolean;
 }
 
-// ── Helper: Format date/time properly ──────────────────────────────────────
+// ── Helper: Format date/time ───────────────────────────────────────────────
 function formatCommentTime(createdAtStr?: string, timeStr?: string): string {
-  if (timeStr && !timeStr.includes('T') && !timeStr.includes('-')) {
-    return timeStr;
-  }
+  if (timeStr && !timeStr.includes('T') && !timeStr.includes('-')) return timeStr;
   const dateStr = createdAtStr || timeStr;
   if (!dateStr) return '';
 
@@ -53,29 +54,49 @@ function formatCommentTime(createdAtStr?: string, timeStr?: string): string {
   const diffHr = Math.floor(diffMin / 60);
   const diffDays = Math.floor(diffHr / 24);
 
-  if (diffSec < 60) {
-    return 'just now';
-  } else if (diffMin < 60) {
-    return `${diffMin}m ago`;
-  } else if (diffHr < 24) {
-    return `${diffHr}h ago`;
-  } else if (diffDays < 7) {
-    return `${diffDays}d ago`;
-  } else {
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
-  }
+  if (diffSec < 60) return 'just now';
+  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffHr < 24) return `${diffHr}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
 }
 
+// Helper to count total comments recursively
+function countAllComments(comments: Comment[]): number {
+  let count = 0;
+  for (const comment of comments) {
+    count += 1;
+    const replies = comment.commentReplies || comment.replies;
+    if (replies && replies.length > 0) {
+      count += countAllComments(replies);
+    }
+  }
+  return count;
+}
+
+// ── Ownership check ────────────────────────────────────────────────────────────
+// The server may put the author ID in `providerId` or `provider.id` or `userId`.
+function isOwner(comment: Comment, currentUserId?: string): boolean {
+  if (!currentUserId) return false;
+  return (
+    comment.userId === currentUserId ||
+    comment.providerId === currentUserId ||
+    comment.provider?.id === currentUserId
+  );
+}
+
+// ── Main component ─────────────────────────────────────────────────────────────
 export function SidebarComments({
   photoId,
   comments,
+  currentUserId,
   onAddComment,
   onDeleteComment,
   onEditComment,
@@ -88,7 +109,6 @@ export function SidebarComments({
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentText.trim() || isSubmitting) return;
-
     setIsSubmitting(true);
     try {
       await onAddComment(commentText.trim());
@@ -101,7 +121,7 @@ export function SidebarComments({
 
   return (
     <section className="bg-zinc-950 p-6 text-zinc-100">
-      <h4 className="mb-4 text-xs font-bold tracking-wider text-zinc-400 uppercase">
+      <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-zinc-400">
         Comments ({countAllComments(comments)})
       </h4>
 
@@ -148,10 +168,10 @@ export function SidebarComments({
           </p>
         ) : (
           comments.map((comment) => (
-            <CommentNode
+            <TopLevelComment
               key={comment.id}
               comment={comment}
-              depth={0}
+              currentUserId={currentUserId}
               replyingToId={replyingToId}
               setReplyingToId={setReplyingToId}
               onAddComment={onAddComment}
@@ -165,10 +185,90 @@ export function SidebarComments({
   );
 }
 
-// Recursive Comment Node Component
-function CommentNode({
+// ── Top-level comment (depth 0) ───────────────────────────────────────────────
+// Renders the comment body + inline reply form + all replies rendered at a
+// SINGLE nested level (Facebook style: no matter how deep the reply chain is,
+// everything is shown as depth-1 visually).
+function TopLevelComment({
+  comment,
+  currentUserId,
+  replyingToId,
+  setReplyingToId,
+  onAddComment,
+  onDelete,
+  onEdit,
+}: {
+  comment: Comment;
+  currentUserId?: string;
+  replyingToId: string | null;
+  setReplyingToId: (id: string | null) => void;
+  onAddComment: (text: string, parentId?: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+  onEdit?: (id: string, text: string) => Promise<void>;
+}) {
+  // Flatten all replies into a single list (keeps Facebook "thread" look)
+  const flatReplies = flattenReplies(comment.replies || comment.commentReplies || []);
+
+  return (
+    <div className="group/top text-sm">
+      <CommentBubble
+        comment={comment}
+        depth={0}
+        currentUserId={currentUserId}
+        replyingToId={replyingToId}
+        setReplyingToId={setReplyingToId}
+        onAddComment={onAddComment}
+        onDelete={onDelete}
+        onEdit={onEdit}
+      />
+
+      {/* Nested replies — all shown at exactly ONE indent level */}
+      {flatReplies.length > 0 && (
+        <div className="ml-4 mt-3 space-y-3 border-l border-zinc-800 pl-3 md:ml-6 md:pl-4">
+          {flatReplies.map((reply) => (
+            <div key={reply.id} className="flex gap-1.5 text-xs">
+              <CornerDownRight className="mt-1.5 size-3 shrink-0 text-zinc-700" />
+              <div className="min-w-0 flex-1">
+                <CommentBubble
+                  comment={reply}
+                  depth={1}
+                  currentUserId={currentUserId}
+                  replyingToId={replyingToId}
+                  setReplyingToId={setReplyingToId}
+                  // Replies always reply to the top-level comment id so the
+                  // thread stays flat (like Facebook).
+                  onAddComment={(text) => onAddComment(text, comment.id)}
+                  onDelete={onDelete}
+                  onEdit={onEdit}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Flatten helpers ────────────────────────────────────────────────────────────
+function flattenReplies(replies: Comment[]): Comment[] {
+  const result: Comment[] = [];
+  const visit = (list: Comment[]) => {
+    for (const r of list) {
+      result.push(r);
+      const children = r.replies || r.commentReplies || [];
+      if (children.length) visit(children);
+    }
+  };
+  visit(replies);
+  return result;
+}
+
+// ── Comment Bubble ─────────────────────────────────────────────────────────────
+function CommentBubble({
   comment,
   depth,
+  currentUserId,
   replyingToId,
   setReplyingToId,
   onAddComment,
@@ -177,11 +277,12 @@ function CommentNode({
 }: {
   comment: Comment;
   depth: number;
+  currentUserId?: string;
   replyingToId: string | null;
   setReplyingToId: (id: string | null) => void;
   onAddComment: (text: string, parentId?: string) => Promise<void>;
-  onDelete: (commentId: string) => Promise<void>;
-  onEdit?: (commentId: string, text: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+  onEdit?: (id: string, text: string) => Promise<void>;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(comment.text);
@@ -192,13 +293,17 @@ function CommentNode({
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
 
   const isReplying = replyingToId === comment.id;
+  const canManage = isOwner(comment, currentUserId);
+
+  const avatarSize = depth > 0 ? 'size-7 text-[10px] shrink-0' : 'size-9 text-xs shrink-0';
+  const displayName = comment.author || comment.provider?.name || 'User';
 
   const handleDelete = async () => {
     if (isDeleting) return;
     setIsDeleting(true);
     try {
       await onDelete(comment.id);
-    } catch (err) {
+    } catch {
       setIsDeleting(false);
     }
   };
@@ -206,35 +311,31 @@ function CommentNode({
   const handleSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyText.trim() || isSubmittingReply) return;
-
     setIsSubmittingReply(true);
     try {
       await onAddComment(replyText.trim(), comment.id);
       setReplyText('');
       setReplyingToId(null);
-    } catch (err) {
+    } catch {
     } finally {
       setIsSubmittingReply(false);
     }
   };
 
-  // Restrict avatar circle size depending on deep levels
-  const avatarSize = depth > 0 ? 'size-7 text-[10px] shrink-0' : 'size-9 text-xs shrink-0';
-
   return (
     <div className="group/node text-sm">
       <div className="flex gap-3">
-        {/* Author Avatar Initial Placeholder */}
+        {/* Avatar */}
         <div
           className={cn(
             'grid place-items-center rounded-full border border-zinc-700 bg-zinc-800 font-black text-zinc-300 uppercase shadow-xs',
             avatarSize,
           )}
         >
-          {(comment.author || comment.provider?.name || 'User').substring(0, 2)}
+          {displayName.substring(0, 2)}
         </div>
 
-        {/* Comment Contents */}
+        {/* Content */}
         <div className="min-w-0 flex-1">
           <div className="rounded-lg border border-zinc-800/80 bg-zinc-900 px-3 py-2">
             {isEditing ? (
@@ -244,11 +345,9 @@ function CommentNode({
                   if (!editText.trim() || isSaving) return;
                   setIsSaving(true);
                   try {
-                    if (onEdit) {
-                      await onEdit(comment.id, editText.trim());
-                    }
+                    if (onEdit) await onEdit(comment.id, editText.trim());
                     setIsEditing(false);
-                  } catch (err) {
+                  } catch {
                   } finally {
                     setIsSaving(false);
                   }
@@ -260,20 +359,18 @@ function CommentNode({
                   onChange={(e) => setEditText(e.target.value)}
                   className="w-full min-h-15 resize-none bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-sm text-zinc-100 outline-hidden focus:border-zinc-700"
                   disabled={isSaving}
+                  autoFocus
                 />
                 <div className="flex justify-end gap-2 mt-2">
                   <Button
                     type="button"
                     size="sm"
                     variant="ghost"
-                    onClick={() => {
-                      setIsEditing(false);
-                      setEditText(comment.text);
-                    }}
+                    onClick={() => { setIsEditing(false); setEditText(comment.text); }}
                     className="h-7 text-xs text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200"
                     disabled={isSaving}
                   >
-                    Cancel
+                    <X className="size-3 mr-1" /> Cancel
                   </Button>
                   <Button
                     type="submit"
@@ -281,15 +378,13 @@ function CommentNode({
                     className="h-7 bg-[#2995f3] px-3 text-xs font-bold text-white hover:bg-[#1a85e2]"
                     disabled={!editText.trim() || isSaving}
                   >
-                    {isSaving ? 'Saving...' : 'Save'}
+                    {isSaving ? 'Saving…' : 'Save'}
                   </Button>
                 </div>
               </form>
             ) : (
               <>
-                <span className="mr-2 font-bold text-zinc-100">
-                  {comment.author || comment.provider?.name || 'User'}
-                </span>
+                <span className="mr-2 font-bold text-zinc-100">{displayName}</span>
                 <span className="leading-relaxed wrap-break-word whitespace-pre-wrap text-zinc-300">
                   {comment.text}
                 </span>
@@ -297,62 +392,59 @@ function CommentNode({
             )}
           </div>
 
-          <div className="mt-1.5 flex items-center gap-3 px-1 text-xs">
-            <span className="font-medium text-zinc-500">
-              {formatCommentTime(comment.createdAt, comment.time)}
-            </span>
+          {/* Action row */}
+          {!isEditing && (
+            <div className="mt-1.5 flex flex-wrap items-center gap-3 px-1 text-xs">
+              <span className="font-medium text-zinc-500">
+                {formatCommentTime(comment.createdAt, comment.time)}
+              </span>
 
-            {!isEditing && (
+              {/* Reply — visible to everyone */}
               <button
                 onClick={() => {
-                  if (isReplying) {
-                    setReplyingToId(null);
-                  } else {
-                    setReplyingToId(comment.id);
-                    setReplyText('');
-                  }
+                  setReplyingToId(isReplying ? null : comment.id);
+                  setReplyText('');
                 }}
                 className="inline-flex items-center gap-1 font-bold text-[#2995f3] transition-colors duration-150 hover:text-[#1a85e2]"
               >
                 <Reply className="size-3" />
                 reply
               </button>
-            )}
 
-            {!isEditing && (
-              <button
-                onClick={() => {
-                  setIsEditing(true);
-                  setEditText(comment.text);
-                }}
-                className="inline-flex items-center gap-1 font-bold text-zinc-500 transition-colors duration-150 hover:text-[#2995f3]"
-              >
-                edit
-              </button>
-            )}
+              {/* ── Owner-only: Edit & Delete ── */}
+              {canManage && (
+                <>
+                  <button
+                    onClick={() => { setIsEditing(true); setEditText(comment.text); }}
+                    className="inline-flex items-center gap-1 font-bold text-zinc-500 transition-colors duration-150 hover:text-[#2995f3]"
+                  >
+                    <Pencil className="size-3" />
+                    edit
+                  </button>
 
-            {!isEditing && (
-              <button
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="inline-flex items-center gap-1 font-bold text-zinc-500 transition-colors duration-150 hover:text-red-400 disabled:opacity-50"
-              >
-                <Trash2 className="size-3" />
-                {isDeleting ? 'deleting...' : 'delete'}
-              </button>
-            )}
-          </div>
+                  <button
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="inline-flex items-center gap-1 font-bold text-zinc-500 transition-colors duration-150 hover:text-red-400 disabled:opacity-50"
+                  >
+                    <Trash2 className="size-3" />
+                    {isDeleting ? 'deleting…' : 'delete'}
+                  </button>
+                </>
+              )}
+            </div>
+          )}
 
-          {/* Reply Form */}
+          {/* Reply form */}
           {isReplying && (
             <form
               onSubmit={handleSubmitReply}
-              className="mt-3 border border-zinc-800 bg-zinc-900 p-2 focus-within:border-zinc-700"
+              className="mt-3 border border-zinc-800 bg-zinc-900 p-2 focus-within:border-zinc-700 rounded-md"
             >
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                placeholder={`Reply to ${comment.author || comment.provider?.name || 'User'}...`}
+                placeholder={`Reply to ${displayName}…`}
                 className="min-h-15 w-full resize-none bg-transparent px-2 py-1 text-sm text-zinc-100 outline-hidden placeholder:text-zinc-500"
                 disabled={isSubmittingReply}
                 autoFocus
@@ -374,56 +466,13 @@ function CommentNode({
                   className="h-7 bg-[#2995f3] px-3 text-xs font-bold text-white hover:bg-[#1a85e2]"
                   disabled={!replyText.trim() || isSubmittingReply}
                 >
-                  {isSubmittingReply ? 'Replying...' : 'Reply'}
+                  {isSubmittingReply ? 'Replying…' : 'Reply'}
                 </Button>
               </div>
             </form>
-          )}
-
-          {/* Nested Replies Rendering */}
-          {(comment.replies || comment.commentReplies || []).length > 0 && (
-            <div
-              className={cn(
-                'mt-3 space-y-4',
-                // Max padding indent of 2 levels, after that keep it flat to avoid layout compression
-                depth < 2 ? 'border-l border-zinc-800 pl-3 md:pl-4' : 'border-l-0 pl-1.5',
-              )}
-            >
-              {(comment.replies || comment.commentReplies || []).map((reply) => (
-                <div key={reply.id} className="flex gap-1.5 text-xs">
-                  {depth < 2 && (
-                    <CornerDownRight className="mt-1.5 size-3 shrink-0 text-zinc-700" />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <CommentNode
-                      comment={reply}
-                      depth={depth + 1}
-                      replyingToId={replyingToId}
-                      setReplyingToId={setReplyingToId}
-                      onAddComment={onAddComment}
-                      onDelete={onDelete}
-                      onEdit={onEdit}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
           )}
         </div>
       </div>
     </div>
   );
-}
-
-// Helper to count total comments recursively
-function countAllComments(comments: Comment[]): number {
-  let count = 0;
-  for (const comment of comments) {
-    count += 1;
-    const replies = comment.commentReplies || comment.replies;
-    if (replies && replies.length > 0) {
-      count += countAllComments(replies);
-    }
-  }
-  return count;
 }

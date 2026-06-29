@@ -476,6 +476,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
             <SidebarComments
               photoId={currentPhotoId}
               comments={comments}
+              currentUserId={currentUser?.id}
               onAddComment={handleAddComment}
               onDeleteComment={handleDeleteComment}
               onEditComment={handleUpdateComment}
