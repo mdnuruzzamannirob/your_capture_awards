@@ -18,7 +18,7 @@ export function useTeamMembership() {
   });
 
   const team: TeamData | null =
-    isSuccess && data?.success && data?.data?.team?.id ? data.data.team : null;
+    data?.success && data?.data?.team?.id ? data.data.team : null;
   const hasTeam = Boolean(team?.id);
 
   const isCheckingMembership =
@@ -27,7 +27,7 @@ export function useTeamMembership() {
   return {
     token,
     isAuthenticated,
-    isCheckingMembership: isCheckingMembership || false,
+    isCheckingMembership: isCheckingMembership && !hasTeam,
     hasTeam,
     team,
     teamData: data,
