@@ -23,7 +23,7 @@ export function useTeamMembership() {
   const hasTeam = Boolean(team?.id);
 
   const isCheckingMembership =
-    isAuthenticated && (isAuthLoading || isTeamLoading || (isFetching && !hasTeam && !isError));
+    isAuthenticated && (isAuthLoading || (isTeamLoading && !data));
 
   return {
     token,

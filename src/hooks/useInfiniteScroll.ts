@@ -11,6 +11,11 @@ interface UseInfiniteScrollProps {
 export const useInfiniteScroll = ({ hasMore, isLoading, onLoadMore }: UseInfiniteScrollProps) => {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
+  const onLoadMoreRef = useRef(onLoadMore);
+  useEffect(() => {
+    onLoadMoreRef.current = onLoadMore;
+  }, [onLoadMore]);
+
   useEffect(() => {
     const element = loadMoreRef.current;
     if (!element) return;
@@ -19,7 +24,7 @@ export const useInfiniteScroll = ({ hasMore, isLoading, onLoadMore }: UseInfinit
       (entries) => {
         const [entry] = entries;
         if (entry?.isIntersecting && hasMore && !isLoading) {
-          onLoadMore();
+          onLoadMoreRef.current();
         }
       },
       {
@@ -34,7 +39,7 @@ export const useInfiniteScroll = ({ hasMore, isLoading, onLoadMore }: UseInfinit
     return () => {
       observer.disconnect();
     };
-  }, [hasMore, isLoading, onLoadMore]);
+  }, [hasMore, isLoading]);
 
   return { loadMoreRef };
 };
