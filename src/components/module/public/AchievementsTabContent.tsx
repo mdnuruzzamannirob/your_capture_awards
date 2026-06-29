@@ -1,69 +1,67 @@
 'use client';
 
-import { fetchAchievements } from '@/lib/mock/public-profile-tab-data';
+import { LevelProgressBar } from '@/components/LevelProgressBar';
+import { useAuth } from '@/hooks/useAuth';
+import { useGetAllLevelsQuery, useGetUserProgressQuery } from '@/store/apis/levelsApi';
+import { Trophy } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { AchievementLoadingState, TabErrorState, TabSectionHeader } from './public-tab-ui';
+import { TabSectionHeader } from './public-tab-ui';
 
 type Props = {
   username: string;
+  isOwn?: boolean;
 };
 
-const AchievementsTabContent = ({ username }: Props) => {
-  const [count, setCount] = useState<number>(0);
-  const [items, setItems] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const AchievementsTabContent = ({ username, isOwn = false }: Props) => {
+  const { isAuthenticated } = useAuth();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-    const controller = new AbortController();
+    setMounted(true);
+  }, []);
 
-    const run = async () => {
-      setLoading(true);
-      setError(null);
+  // Fetch all levels (public endpoint)
+  const { data: levelsData, isLoading: isLevelsLoading } = useGetAllLevelsQuery(
+    { page: 1, limit: 50 },
+    { skip: !isOwn }
+  );
 
-      try {
-        const result = await fetchAchievements(username, controller.signal);
-        if (!cancelled) {
-          setCount(result.count);
-          setItems(result.items);
-        }
-      } catch (err) {
-        if (!cancelled && !(err instanceof DOMException && err.name === 'AbortError')) {
-          setError('Achievements could not be loaded.');
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
+  // Fetch progress if own profile and authenticated
+  const { data: progressData, isLoading: isProgressLoading } = useGetUserProgressQuery(undefined, {
+    skip: !isAuthenticated || !isOwn,
+  });
 
-    run();
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-    };
-  }, [username]);
+  const allLevels = levelsData?.data ?? [];
+  const userProgress = progressData?.data ?? null;
+  const currentLevelOrder = userProgress?.currentLevel?.order ?? null;
+  const isLoading = isLevelsLoading || (isAuthenticated && isProgressLoading);
 
   return (
-    <section className="container py-6">
+    <section className="container py-6 space-y-6">
       <TabSectionHeader title="Achievements" />
-      {error ? <TabErrorState title="Unable to load achievements" description={error} /> : null}
-      {loading ? (
-        <AchievementLoadingState />
-      ) : !error ? (
-        <div className="rounded border border-dashed border-white/10 bg-white/5 p-8 text-center text-white/60">
-          <p className="font-semibold">Achievements summary</p>
-          <p className="mt-2 text-sm">Total achievements: {count.toLocaleString()}</p>
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            {items.map((item) => (
-              <span key={item} className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/75">
-                {item}
-              </span>
-            ))}
-          </div>
+
+      {/* Level Progress Tracker */}
+      {isOwn && (
+        <div className="mb-6">
+          {!mounted || isLoading ? (
+            <div className="h-11 w-full animate-pulse rounded-lg bg-zinc-800/80" />
+          ) : allLevels.length > 0 ? (
+            <LevelProgressBar
+              levels={allLevels}
+              currentLevelOrder={currentLevelOrder}
+            />
+          ) : null}
         </div>
-      ) : null}
+      )}
+
+      {/* Achievements placeholder */}
+      <div className="rounded-xl border border-dashed border-zinc-700/60 bg-zinc-900/30 p-8 text-center">
+        <Trophy className="mx-auto mb-3 size-8 text-zinc-600" />
+        <p className="font-semibold text-zinc-400">Contest Achievements</p>
+        <p className="mt-1 text-sm text-zinc-600">
+          Achievements earned from contests will appear here.
+        </p>
+      </div>
     </section>
   );
 };

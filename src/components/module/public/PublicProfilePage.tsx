@@ -86,7 +86,7 @@ function ProfileContent({
   const username = profile?.username || profile?.id || '';
 
   if (activeTab === 'achievements') {
-    return <AchievementsTabContent username={username} />;
+    return <AchievementsTabContent username={username} isOwn={isOwn} />;
   }
 
   if (activeTab === 'followers') {

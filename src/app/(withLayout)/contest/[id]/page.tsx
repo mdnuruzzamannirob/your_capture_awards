@@ -4,7 +4,7 @@ import { contestApi } from '@/store/apis/contestApi';
 import { makeStore } from '@/store/makeStore';
 import { Suspense } from 'react';
 
-const DynamicJoinedPage = async ({ params }: { params: { id: string } }) => {
+const DynamicJoinedPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
   const store = makeStore();
 
