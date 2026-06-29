@@ -23,14 +23,14 @@ export default function TeamsHomeGuard({ children }: Readonly<{ children: React.
     }
   }, [hasTeam, isAuthenticated, isCheckingMembership, router]);
 
-  if (isCheckingMembership || !hasTeam) {
-    return <TeamMembershipLoading />;
-  }
-
   return (
     <>
       <TeamsHeader />
-      {children}
+      {isCheckingMembership || !hasTeam ? (
+        <TeamMembershipLoading />
+      ) : (
+        children
+      )}
     </>
   );
 }
