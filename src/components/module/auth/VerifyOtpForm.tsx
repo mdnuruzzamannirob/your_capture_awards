@@ -117,7 +117,7 @@ export default function VerifyOtpForm() {
         <LogoName className="scale-125" />
       </header>
 
-      <div className="w-full space-y-5 rounded-md border border-orange-400/60 p-8 md:p-10">
+      <div className="w-full space-y-5 rounded-md border border-primary/40 p-8 md:p-10">
         <div className="space-y-5">
           <h1 className="font-rubik text-2xl font-medium md:text-3xl">Verify OTP</h1>
           <p className="max-md:text-sm">
@@ -146,13 +146,13 @@ export default function VerifyOtpForm() {
                   onChange={(e) => handleChange(idx, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(e, idx)}
                   onPaste={handlePaste}
-                  className="size-8 rounded border border-gray-500 bg-transparent text-center outline-none focus:border-orange-500 md:size-10"
+                  className="size-8 rounded border border-border-strong bg-transparent text-center outline-none focus:border-primary md:size-10"
                 />
               ))}
             </div>
           </div>
 
-          <p className="mb-4 text-xs text-gray-400">
+          <p className="mb-4 text-xs text-caption-foreground">
             Didn&apos;t get a code?&nbsp;
             <button
               type="button"
@@ -168,12 +168,12 @@ export default function VerifyOtpForm() {
             </button>
           </p>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <button
             type="submit"
             disabled={isLoading}
-            className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-8 w-full rounded-sm py-2.25 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-8 w-full rounded-sm py-2.25 text-primary-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? 'Verifying...' : 'Send'}
           </button>

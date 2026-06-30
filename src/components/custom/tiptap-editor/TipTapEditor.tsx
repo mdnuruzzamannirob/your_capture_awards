@@ -32,7 +32,7 @@ export const proseBaseStyles = cn(
   '[&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-1',
 
   // Links: color + underline
-  '[&_a]:text-blue-400 [&_a]:underline hover:[&_a]:text-blue-500',
+  '[&_a]:text-info [&_a]:underline hover:[&_a]:text-info',
 
   // Images
   '[&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-md',
@@ -87,7 +87,7 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
       Placeholder.configure({
         placeholder,
         emptyEditorClass:
-          'before:content-[attr(data-placeholder)] before:text-gray-500 before:pointer-events-none before:float-left before:h-0',
+          'before:content-[attr(data-placeholder)] before:text-placeholder-foreground before:pointer-events-none before:float-left before:h-0',
       }),
     ],
     [placeholder],
@@ -111,7 +111,7 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
     return (
       <div
         className={cn(
-          'flex w-full items-center justify-center rounded-md border bg-gray-900 p-3',
+          'flex w-full items-center justify-center rounded-md border bg-surface p-3',
           minHeight,
           maxHeight,
         )}
@@ -127,7 +127,7 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
   return (
     <div
       className={cn(
-        'overflow-hidden rounded-md border transition-all focus-within:ring-2 focus-within:ring-white/20',
+        'overflow-hidden rounded-md border transition-all focus-within:ring-2 focus-within:ring-ring/20',
         className,
       )}
     >

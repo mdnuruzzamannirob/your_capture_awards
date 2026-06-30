@@ -59,7 +59,7 @@ function ContestPhotoJustifiedPicker({
 
   if (!photos.length) {
     return (
-      <div className="border-black-2-600 text-muted-foreground rounded-xl border border-dashed p-6 text-center text-sm">
+      <div className="border-border text-muted-foreground rounded-xl border border-dashed p-6 text-center text-sm">
         No contest photos available for this contest.
       </div>
     );
@@ -81,8 +81,8 @@ function ContestPhotoJustifiedPicker({
                   width: `${width}px`,
                   height: `${height}px`,
                   outline: isSelected
-                    ? '3px solid var(--color-primary, #a855f7)'
-                    : '1px solid rgba(255,255,255,0.1)',
+                    ? '3px solid var(--color-primary)'
+                    : '1px solid color-mix(in oklab, var(--foreground) 10%, transparent)',
                   outlineOffset: '-3px',
                 }}
               >
@@ -96,7 +96,7 @@ function ContestPhotoJustifiedPicker({
                 <span
                   className={cn(
                     'absolute top-2 right-2 rounded-full px-2 py-0.5 text-[10px] font-medium transition',
-                    isSelected ? 'bg-primary text-black' : 'bg-black/60 text-white/80',
+                    isSelected ? 'bg-primary text-primary-foreground' : 'bg-overlay text-foreground',
                   )}
                 >
                   {isSelected ? '✓ Selected' : 'Select'}
@@ -132,7 +132,7 @@ function TradePhotoJustifiedPicker({
     return (
       <div className="flex max-h-64 scrollbar-thin flex-wrap gap-0.5 overflow-y-auto">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-          <Skeleton key={item} className="bg-black-2-600" style={{ height: 150, width: 150 }} />
+          <Skeleton key={item} className="bg-surface-secondary" style={{ height: 150, width: 150 }} />
         ))}
       </div>
     );
@@ -140,7 +140,7 @@ function TradePhotoJustifiedPicker({
 
   if (!photos || photos.length === 0) {
     return (
-      <div className="border-black-2-600 text-muted-foreground rounded-xl border border-dashed p-6 text-center text-sm">
+      <div className="border-border text-muted-foreground rounded-xl border border-dashed p-6 text-center text-sm">
         No profile photos available. Please upload some photos first.
       </div>
     );
@@ -165,7 +165,7 @@ function TradePhotoJustifiedPicker({
                 style={{
                   width: `${width}px`,
                   height: `${height}px`,
-                  outline: isSelected ? '3px solid var(--color-primary, #a855f7)' : undefined,
+                  outline: isSelected ? '3px solid var(--color-primary)' : undefined,
                   outlineOffset: '-3px',
                 }}
               >
@@ -177,7 +177,7 @@ function TradePhotoJustifiedPicker({
                   className="object-cover"
                 />
                 {isSelected && (
-                  <span className="bg-primary absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-black shadow">
+                  <span className="bg-primary absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-primary-foreground shadow">
                     ✓
                   </span>
                 )}
@@ -418,14 +418,14 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
           else setOpen(true);
         }}
       >
-        <DialogContent className="border-black-2-600 flex max-h-[85vh] min-h-100 scrollbar-thin flex-col justify-between overflow-y-auto border-2 sm:max-w-2xl">
+        <DialogContent className="border-border flex max-h-[85vh] min-h-100 scrollbar-thin flex-col justify-between overflow-y-auto border-2 sm:max-w-2xl">
           {/* ── Header ─────────────────────────────────── */}
           <DialogTitle className="flex shrink-0 items-center gap-2">
             {canGoBack ? (
               <button
                 type="button"
                 onClick={goBack}
-                className="hover:text-primary flex size-10 items-center justify-center rounded-full transition hover:bg-white/5"
+                className="hover:text-primary flex size-10 items-center justify-center rounded-full transition hover:bg-surface-secondary"
               >
                 <ArrowLeft />
               </button>
@@ -447,7 +447,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                 />
 
                 {/* footer */}
-                <div className="border-black-2-500 flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
+                <div className="border-border-subtle flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
                   <button
                     type="button"
                     onClick={reset}
@@ -459,7 +459,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                     type="button"
                     disabled={!selectedContestPhotoId || isSubmitting || actionLoading}
                     onClick={actionType === 'boost' ? handleSubmit : selectContestPhoto}
-                    className="bg-primary text-background rounded-sm px-5 py-2 text-sm disabled:opacity-60"
+                    className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm disabled:opacity-60"
                   >
                     {actionType === 'boost'
                       ? isSubmitting || actionLoading
@@ -481,7 +481,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                     {contestTitle && <span className="text-primary">{contestTitle}</span>}
                     {!contestTitle && 'THIS CONTEST'}
                   </h1>
-                  <p className="text-sm text-white/50">
+                  <p className="text-sm text-primary-foreground/50">
                     Select where your replacement photo comes from
                   </p>
                 </div>
@@ -528,7 +528,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                       ? 'Upload replacement photo'
                       : 'Select replacement photo'}
                   </h1>
-                  <p className="text-sm text-white/50">
+                  <p className="text-sm text-primary-foreground/50">
                     {swapSource === 'computer'
                       ? 'Choose a photo from your computer'
                       : 'Pick one photo from your uploaded photos'}
@@ -547,7 +547,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                           height={300}
                           onClick={() => fileInputRef.current?.click()}
                           // FIX: ring applied directly on the image wrapper — no broken absolute div
-                          className="ring-primary max-h-72 w-auto cursor-pointer rounded-xl object-contain ring-2 ring-offset-2 ring-offset-black transition hover:opacity-90"
+                          className="ring-primary max-h-72 w-auto cursor-pointer rounded-xl object-contain ring-2 ring-offset-2 ring-offset-background transition hover:opacity-90"
                         />
                       </div>
                     ) : (
@@ -583,7 +583,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                 )}
 
                 {/* footer */}
-                <div className="border-black-2-500 flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
+                <div className="border-border-subtle flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
                   <button
                     type="button"
                     onClick={reset}
@@ -595,7 +595,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                     type="button"
                     disabled={swapSource === 'profile' ? !selectedUserPhotoId : !replacementFile}
                     onClick={selectTradeSource}
-                    className="bg-primary text-background rounded-sm px-5 py-2 text-sm disabled:opacity-60"
+                    className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm disabled:opacity-60"
                   >
                     Continue
                   </button>
@@ -608,8 +608,8 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
               <div className="space-y-5">
                 <div className="grid gap-4 md:grid-cols-2">
                   {/* Left: selected contest photo */}
-                  <div className="flex flex-col items-center gap-2 rounded-xl bg-white/3 p-4">
-                    <p className="text-xs font-medium tracking-wider text-white/40 uppercase">
+                  <div className="flex flex-col items-center gap-2 rounded-xl bg-surface-secondary p-4">
+                    <p className="text-xs font-medium tracking-wider text-primary-foreground/40 uppercase">
                       Contest photo
                     </p>
                     <div className="flex w-full items-center justify-center overflow-hidden rounded-lg">
@@ -630,15 +630,15 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
 
                   {/* Right: action info or swap preview */}
                   {actionType === 'boost' ? (
-                    <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-white/3 p-4">
+                    <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-surface-secondary p-4">
                       <AiOutlineThunderbolt className="text-primary size-10" />
-                      <p className="text-center text-sm text-white/60">
+                      <p className="text-center text-sm text-muted-foreground">
                         This photo will be boosted to the top of the contest rankings.
                       </p>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center gap-2 rounded-xl bg-white/3 p-4">
-                      <p className="text-xs font-medium tracking-wider text-white/40 uppercase">
+                    <div className="flex flex-col items-center gap-2 rounded-xl bg-surface-secondary p-4">
+                      <p className="text-xs font-medium tracking-wider text-primary-foreground/40 uppercase">
                         Replacement photo
                       </p>
                       <div className="flex w-full items-center justify-center overflow-hidden rounded-lg">
@@ -665,7 +665,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                 </div>
 
                 {/* footer */}
-                <div className="border-black-2-500 flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
+                <div className="border-border-subtle flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
                   <button
                     type="button"
                     onClick={reset}
@@ -677,7 +677,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                     type="button"
                     disabled={isSubmitting || actionLoading}
                     onClick={handleSubmit}
-                    className="bg-primary text-background rounded-sm px-5 py-2 text-sm disabled:opacity-60"
+                    className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm disabled:opacity-60"
                   >
                     {isSubmitting || actionLoading ? 'Processing...' : actionLabel}
                   </button>

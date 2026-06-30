@@ -76,7 +76,7 @@ export default function DiscoverPage() {
         />
         <div className="from-background via-background/20 absolute inset-0 bg-linear-to-t to-transparent" />
         <div className="relative z-10 max-w-4xl px-4 text-center">
-          <h1 className="font-kumbh text-3xl font-bold tracking-tight text-balance text-white drop-shadow-lg md:text-5xl lg:text-6xl">
+          <h1 className="font-kumbh text-3xl font-bold tracking-tight text-balance text-primary-foreground drop-shadow-lg md:text-5xl lg:text-6xl">
             Discover Stunning Photography from Around the World
           </h1>
         </div>
@@ -89,7 +89,7 @@ export default function DiscoverPage() {
             {Array.from({ length: 6 }).map((_, index) => (
               <div
                 key={index}
-                className="bg-black-2-700/40 border-black-2-600 aspect-4/3 animate-pulse overflow-hidden rounded-xl border"
+                className="bg-surface-secondary/40 border-border aspect-4/3 animate-pulse overflow-hidden rounded-xl border"
               />
             ))}
           </div>
@@ -128,7 +128,7 @@ export default function DiscoverPage() {
                 return (
                   <div
                     key={item.id}
-                    className="group border-black-2-600 bg-black-2-800 relative aspect-4/3 cursor-pointer overflow-hidden rounded-xl border transition-all duration-300"
+                    className="group border-border bg-surface-secondary relative aspect-4/3 cursor-pointer overflow-hidden rounded-xl border transition-all duration-300"
                   >
                     {/* Main Image */}
                     <Image
@@ -140,21 +140,21 @@ export default function DiscoverPage() {
                     />
 
                     {/* Gradient Overlay on Hover */}
-                    <div className="absolute inset-0 flex flex-col justify-between bg-linear-to-b from-black/70 via-black/20 to-black/80 p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    <div className="absolute inset-0 flex flex-col justify-between bg-linear-to-b from-zinc-950/70 via-zinc-950/20 to-zinc-950/80 p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
                     {/* Top Info overlay (Profile, Name, Location) */}
                     <div className="absolute inset-x-0 top-0 flex -translate-y-2 transform items-center gap-3 p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                      <Avatar className="size-9 shrink-0 border border-white/20">
+                      <Avatar className="size-9 shrink-0 border border-border-subtle">
                         {avatar ? <AvatarImage src={avatar} alt={name} /> : null}
                         <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
                           {getInitials(name)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-white drop-shadow">
+                        <p className="truncate text-sm font-semibold text-primary-foreground drop-shadow">
                           {name}
                         </p>
-                        <div className="flex items-center gap-1 text-xs text-white/70">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
                           <MapPin className="size-3" />
                           <span className="truncate drop-shadow">{location}</span>
                         </div>
@@ -163,7 +163,7 @@ export default function DiscoverPage() {
 
                     {/* Bottom Info overlay (Votes count) */}
                     <div className="absolute inset-x-0 bottom-0 flex translate-y-2 transform items-center justify-between p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                      <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-3 py-1 text-xs text-white backdrop-blur-md">
+                      <div className="flex items-center gap-1.5 rounded-full border border-border-subtle bg-overlay px-3 py-1 text-xs text-primary-foreground backdrop-blur-md">
                         <span className="font-semibold">{item.voteCount ?? 0} Votes</span>
                       </div>
                     </div>

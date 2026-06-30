@@ -40,7 +40,7 @@ const Features = () => {
         </p>
         <Link
           href={'/contest/open'}
-          className="bg-primary text-background hover:bg-primary/90 flex items-center justify-center rounded-sm px-5 py-2"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center rounded-sm px-5 py-2"
         >
           Explore Contest <IoMdArrowForward />
         </Link>

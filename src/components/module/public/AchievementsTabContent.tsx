@@ -44,7 +44,7 @@ const AchievementsTabContent = ({ username, isOwn = false }: Props) => {
       {isOwn && (
         <div className="mb-6">
           {!mounted || isLoading ? (
-            <div className="h-11 w-full animate-pulse rounded-lg bg-zinc-800/80" />
+            <div className="h-11 w-full animate-pulse rounded-lg bg-surface-secondary/80" />
           ) : allLevels.length > 0 ? (
             <LevelProgressBar
               levels={allLevels}
@@ -55,10 +55,10 @@ const AchievementsTabContent = ({ username, isOwn = false }: Props) => {
       )}
 
       {/* Achievements placeholder */}
-      <div className="rounded-xl border border-dashed border-zinc-700/60 bg-zinc-900/30 p-8 text-center">
-        <Trophy className="mx-auto mb-3 size-8 text-zinc-600" />
-        <p className="font-semibold text-zinc-400">Contest Achievements</p>
-        <p className="mt-1 text-sm text-zinc-600">
+      <div className="rounded-xl border border-dashed border-border/60 bg-surface/30 p-8 text-center">
+        <Trophy className="mx-auto mb-3 size-8 text-caption-foreground" />
+        <p className="font-semibold text-muted-foreground">Contest Achievements</p>
+        <p className="mt-1 text-sm text-caption-foreground">
           Achievements earned from contests will appear here.
         </p>
       </div>

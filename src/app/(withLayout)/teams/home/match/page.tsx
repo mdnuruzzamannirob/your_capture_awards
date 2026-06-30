@@ -320,7 +320,7 @@ export default function TeamMatchPage() {
     <section className="margin-user container space-y-6 py-6">
       <div>
         <h2 className="font-kumbh text-xl font-bold">Team Match</h2>
-        <p className="mt-1 text-sm text-zinc-400">
+        <p className="mt-1 text-sm text-muted-foreground">
           {activeMatchView
             ? `Live match · ${activeMatchView.theme}`
             : 'Find and join matches with your team'}

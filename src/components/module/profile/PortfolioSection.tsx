@@ -33,27 +33,27 @@ export default function PortfolioSection() {
 
   return (
     <section className="container mx-auto mt-10 px-4 pb-12">
-      <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 shadow-xl backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-border bg-surface/60 p-4 shadow-xl backdrop-blur sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-primary text-sm font-medium">Portfolio</p>
-          <h2 className="text-xl font-bold text-white sm:text-2xl">My Uploads</h2>
+          <h2 className="text-xl font-bold text-foreground sm:text-2xl">My Uploads</h2>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/70">
+          <span className="rounded-full bg-surface-secondary px-3 py-1 text-xs font-medium text-foreground">
             {photos.length} uploads
           </span>
 
           <div className="flex items-center gap-2">
-            <span className="text-sm text-white/60">Sort By:</span>
+            <span className="text-sm text-muted-foreground">Sort By:</span>
             <Select
               value={sortBy}
               onValueChange={(value) => setSortBy(value as 'totalVotes' | 'views' | 'likes')}
             >
-              <SelectTrigger className="w-32 border-white/10 bg-white/5 text-sm text-white">
+              <SelectTrigger className="w-32 border-border bg-surface-secondary text-sm text-foreground">
                 <SelectValue placeholder="Sort" />
               </SelectTrigger>
-              <SelectContent className="bg-background text-foreground border-white/10">
+              <SelectContent className="border-border bg-background text-foreground">
                 <SelectItem value="totalVotes">Votes</SelectItem>
                 <SelectItem value="views">Views</SelectItem>
                 <SelectItem value="likes">Likes</SelectItem>
@@ -73,13 +73,13 @@ export default function PortfolioSection() {
           visiblePhotos.map((item) => <PortfolioCard key={item.id} item={item} />)}
 
         {!isLoading && photos.length > 0 && visiblePhotos.length === 0 && (
-          <div className="col-span-full rounded-2xl border border-dashed border-white/10 bg-white/5 p-8 text-center text-white/60">
+          <div className="col-span-full rounded-2xl border border-dashed border-border bg-surface/60 p-8 text-center text-muted-foreground">
             No uploads found
           </div>
         )}
 
         {!isLoading && photos.length === 0 && (
-          <div className="col-span-full rounded-2xl border border-dashed border-white/10 bg-white/5 p-8 text-center text-white/60">
+          <div className="col-span-full rounded-2xl border border-dashed border-border bg-surface/60 p-8 text-center text-muted-foreground">
             No uploads yet. Upload your first photo to start building your portfolio.
           </div>
         )}
@@ -88,7 +88,7 @@ export default function PortfolioSection() {
           <div className="col-span-full flex items-center justify-center">
             <button
               onClick={handleLoadMore}
-              className="bg-primary hover:bg-primary/90 text-background shadow-primary/20 rounded-xl px-6 py-2.5 text-sm font-semibold shadow-lg transition active:scale-[0.98]"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/20 rounded-xl px-6 py-2.5 text-sm font-semibold shadow-lg transition active:scale-[0.98]"
             >
               Load More
             </button>

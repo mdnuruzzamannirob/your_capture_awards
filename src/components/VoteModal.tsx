@@ -156,7 +156,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="border-black-2-600 flex h-[95vh] max-h-[95vh] w-[95vw] max-w-[95vw] flex-col overflow-hidden border-2 p-0 sm:max-h-[95vh] sm:max-w-[95vw]">
+      <DialogContent className="border-border flex h-[95vh] max-h-[95vh] w-[95vw] max-w-[95vw] flex-col overflow-hidden border-2 p-0 sm:max-h-[95vh] sm:max-w-[95vw]">
         <VisuallyHidden>
           <DialogTitle />
         </VisuallyHidden>
@@ -170,7 +170,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
                 return (
                   <Skeleton
                     key={i}
-                    className="bg-black-2-600 rounded"
+                    className="bg-surface-secondary rounded"
                     style={{ height: 350, width: 350 * a, flexShrink: 0 }}
                   />
                 );
@@ -202,11 +202,11 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
                               alt={`Vote Image`}
                               fill
                               sizes="(max-width: 768px) 50vw, 25vw"
-                              className="rounded bg-black object-cover transition duration-300 group-hover:opacity-90"
+                              className="rounded bg-zinc-950 object-cover transition duration-300 group-hover:opacity-90"
                             />
 
                             {selected && (
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-[2px] transition">
+                              <div className="absolute inset-0 flex items-center justify-center bg-overlay backdrop-blur-[2px] transition">
                                 <Image
                                   src="/icons/voting-power.png"
                                   alt="voted"
@@ -232,7 +232,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
                     return (
                       <Skeleton
                         key={i}
-                        className="bg-black-2-600 rounded"
+                        className="bg-surface-secondary rounded"
                         style={{ height: 200, width: 200 * a, flexShrink: 0 }}
                       />
                     );
@@ -243,7 +243,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
               <div ref={observerRef} className="h-10 w-full" />
             </>
           ) : (
-            <div className="flex size-full items-center justify-center p-5 text-center text-lg text-gray-500">
+            <div className="flex size-full items-center justify-center p-5 text-center text-lg text-muted-foreground">
               No photos available for voting yet. Stay tuned and be ready to cast your vote soon!
             </div>
           )}

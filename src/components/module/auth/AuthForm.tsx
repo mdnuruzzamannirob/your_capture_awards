@@ -177,7 +177,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         <button
           type="button"
           onClick={() => setRememberMe(!rememberMe)}
-          className="flex items-center gap-2 text-sm font-medium text-gray-100 select-none"
+          className="flex items-center gap-2 text-sm font-medium text-foreground select-none"
         >
           {rememberMe ? (
             <IoCheckbox className="text-primary size-6" />
@@ -186,7 +186,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
           )}
           Remember Me
         </button>
-        <Link href="/forgot-password" className="text-sm font-medium text-gray-100 hover:underline">
+        <Link href="/forgot-password" className="text-sm font-medium text-foreground hover:underline">
           Forgot Password?
         </Link>
       </div>
@@ -194,7 +194,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
       <button
         type="submit"
         disabled={isSigninLoading}
-        className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-4 w-full rounded-sm py-2.25 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+        className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-4 w-full rounded-sm py-2.25 text-primary-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSigninLoading ? 'Signing in...' : 'Sign In'}
       </button>
@@ -304,7 +304,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
       </div>
 
       <div className="mt-1 flex flex-col gap-1">
-        <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-100 select-none">
+        <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground select-none">
           <input type="checkbox" id="agree" className="sr-only" {...signupForm.register('agree')} />
           <span className="mt-0.5 shrink-0">
             {agreeValue ? (
@@ -313,7 +313,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
               <IoCheckboxOutline className="text-primary size-5" />
             )}
           </span>
-          <span className="text-xs leading-normal text-white/70">
+          <span className="text-xs leading-normal text-muted-foreground">
             I agree to the{' '}
             <Link
               href="/terms"
@@ -334,14 +334,14 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
           </span>
         </label>
         {signupForm.formState.errors.agree && (
-          <p className="mt-0.5 text-xs text-red-500">{signupForm.formState.errors.agree.message}</p>
+          <p className="mt-0.5 text-xs text-destructive">{signupForm.formState.errors.agree.message}</p>
         )}
       </div>
 
       <button
         type="submit"
         disabled={isSignupLoading}
-        className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-2 w-full rounded-sm py-2.25 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+        className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-2 w-full rounded-sm py-2.25 text-primary-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSignupLoading ? 'Creating account...' : 'Sign Up'}
       </button>
@@ -358,21 +358,21 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         <div className="font-kumbh w-full space-y-6 font-light">
           <button
             onClick={() => handleOAuthLogin('google')}
-            className="text-foreground flex w-full items-center gap-4 rounded-md border border-orange-400/60 px-5 py-3"
+            className="text-foreground flex w-full items-center gap-4 rounded-md border border-primary/40 px-5 py-3"
           >
             <FaGoogle size={20} /> Continue With Google
           </button>
           <button
             onClick={() => handleOAuthLogin('facebook')}
-            className="text-foreground flex w-full items-center gap-4 rounded-md border border-orange-400/60 px-5 py-3"
+            className="text-foreground flex w-full items-center gap-4 rounded-md border border-primary/40 px-5 py-3"
           >
             <FaFacebookF size={20} /> Continue With Facebook
           </button>
         </div>
         <div className="my-10 flex w-full items-center">
-          <hr className="border-0.5 border-white-2-darker flex-1" />
+          <hr className="border-0.5 border-border flex-1" />
           <span className="px-5 font-medium">or</span>
-          <hr className="border-0.5 border-white-2-darker flex-1" />
+          <hr className="border-0.5 border-border flex-1" />
         </div>
       </header>
 

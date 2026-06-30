@@ -4,7 +4,7 @@ const CornerCount = ({ count = 0, className }: { count: number; className?: stri
   return (
     <div
       className={cn(
-        'absolute -top-2.5 -right-14 z-10 flex h-16 w-40 rotate-45 transform flex-col items-center justify-center bg-black text-xs',
+        'absolute -top-2.5 -right-14 z-10 flex h-16 w-40 rotate-45 transform flex-col items-center justify-center bg-zinc-950 text-xs',
         className,
       )}
     >

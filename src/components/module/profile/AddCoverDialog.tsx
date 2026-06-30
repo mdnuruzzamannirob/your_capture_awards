@@ -137,21 +137,21 @@ export default function AddCoverDialog() {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <button className="inline-flex items-center gap-2 rounded-sm border border-zinc-700 bg-zinc-900/90 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition-all duration-200 hover:border-zinc-600 hover:bg-zinc-800 active:scale-[0.98]">
+        <button className="inline-flex items-center gap-2 rounded-sm border border-border bg-surface/90 px-4 py-2 text-sm font-medium text-primary-foreground backdrop-blur-sm transition-all duration-200 hover:border-border hover:bg-surface-secondary active:scale-[0.98]">
           <FiEdit2 className="size-4" />
           <span>Change Banner</span>
         </button>
       </DialogTrigger>
 
-      <DialogContent className="gap-0 overflow-hidden border-0 bg-zinc-950 p-0 text-white shadow-2xl ring-1 shadow-black/70 ring-white/8 sm:max-w-2xl">
+      <DialogContent className="gap-0 overflow-hidden border-0 bg-background p-0 text-primary-foreground shadow-modal ring-1 ring-border-subtle sm:max-w-2xl">
         {/* ── Header ── */}
         <DialogHeader className="relative px-7 pt-6 pb-5">
           <div className="flex items-start justify-between">
             <div>
-              <DialogTitle className="text-[16px] font-semibold tracking-tight text-white">
+              <DialogTitle className="text-[16px] font-semibold tracking-tight text-primary-foreground">
                 {user?.cover ? 'Update cover photo' : 'Add cover photo'}
               </DialogTitle>
-              <p className="mt-1 text-[11px] text-zinc-500">
+              <p className="mt-1 text-[11px] text-caption-foreground">
                 JPG, PNG, AVIF, WebP &nbsp;·&nbsp; 50 KB – 8 MB
               </p>
             </div>
@@ -167,7 +167,7 @@ export default function AddCoverDialog() {
                         ? 'bg-primary w-4'
                         : steps.indexOf(s) < steps.indexOf(step)
                           ? 'bg-primary/40 w-1.5'
-                          : 'w-1.5 bg-zinc-700',
+                          : 'w-1.5 bg-surface-secondary',
                     ].join(' ')}
                   />
                 ))}
@@ -176,7 +176,7 @@ export default function AddCoverDialog() {
           </div>
         </DialogHeader>
 
-        <div className="mx-7 h-px bg-white/6" />
+        <div className="mx-7 h-px bg-border-subtle" />
 
         {/* ── Body ── */}
         <div className="px-7 py-5">
@@ -194,10 +194,10 @@ export default function AddCoverDialog() {
               className={[
                 'group relative flex aspect-21/9 w-full cursor-pointer items-center justify-center overflow-hidden rounded border-2 text-left transition-all duration-300',
                 isDragging
-                  ? 'border-primary bg-primary/8 shadow-[inset_0_0_30px_-10px_rgba(252,102,0,0.12)]'
+                  ? 'border-primary bg-primary/8 shadow-[inset_0_0_30px_-10px_color-mix(in_oklab,var(--primary)_12%,transparent)]'
                   : displaySrc
-                    ? 'border-zinc-800 hover:border-zinc-600'
-                    : 'border-dashed border-zinc-800 bg-zinc-900/40 hover:border-zinc-600 hover:bg-zinc-900/60',
+                    ? 'border-border hover:border-border'
+                    : 'border-dashed border-border bg-surface/40 hover:border-border hover:bg-surface/60',
               ].join(' ')}
             >
               {displaySrc ? (
@@ -210,10 +210,10 @@ export default function AddCoverDialog() {
                   />
                   {/* Change overlay */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm">
-                      <FiUpload className="size-4 text-white" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-overlay backdrop-blur-sm">
+                      <FiUpload className="size-4 text-primary-foreground" />
                     </div>
-                    <span className="text-[12px] font-semibold text-white drop-shadow">
+                    <span className="text-[12px] font-semibold text-primary-foreground drop-shadow">
                       Change cover photo
                     </span>
                   </div>
@@ -225,7 +225,7 @@ export default function AddCoverDialog() {
                       'flex h-12 w-12 items-center justify-center rounded ring-1 transition-all duration-300',
                       isDragging
                         ? 'bg-primary/20 ring-primary/40 text-primary'
-                        : 'bg-zinc-800 text-zinc-400 ring-white/10 group-hover:bg-zinc-700/80 group-hover:text-zinc-300 group-hover:ring-white/15',
+                        : 'bg-surface-secondary text-muted-foreground ring-border-subtle group-hover:bg-surface-secondary/80 group-hover:text-muted-foreground group-hover:ring-border-subtle',
                     ].join(' ')}
                   >
                     <FiImage className="size-5" />
@@ -234,12 +234,12 @@ export default function AddCoverDialog() {
                     <p
                       className={[
                         'text-[13px] font-medium transition-colors',
-                        isDragging ? 'text-primary' : 'text-zinc-300 group-hover:text-white',
+                        isDragging ? 'text-primary' : 'text-muted-foreground group-hover:text-primary-foreground',
                       ].join(' ')}
                     >
                       {isDragging ? 'Drop your image here' : 'Upload a cover photo'}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-zinc-600">
+                    <p className="mt-0.5 text-[11px] text-caption-foreground">
                       Drag & drop or click to browse &nbsp;·&nbsp; Landscape images work best
                     </p>
                   </div>
@@ -265,26 +265,26 @@ export default function AddCoverDialog() {
           {/* Step: preview */}
           {step === 'preview' && croppedPreview && (
             <div className="flex flex-col items-center gap-3">
-              <div className="relative w-full overflow-hidden rounded shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)] ring-1 ring-white/10">
+              <div className="relative w-full overflow-hidden rounded shadow-modal ring-1 ring-border-subtle">
                 <div className="relative aspect-21/9 w-full">
                   <Image src={croppedPreview} alt="Cover preview" fill className="object-cover" />
                 </div>
-                <div className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]" />
+                <div className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_color-mix(in_oklab,var(--foreground)_6%,transparent)]" />
               </div>
 
-              <div className="flex items-center gap-3 text-[11px] text-zinc-500">
+              <div className="flex items-center gap-3 text-[11px] text-caption-foreground">
                 <button
                   type="button"
                   onClick={() => setStep('crop')}
-                  className="transition-colors hover:text-zinc-300"
+                  className="transition-colors hover:text-muted-foreground"
                 >
                   Adjust crop
                 </button>
-                <span className="text-zinc-700">·</span>
+                <span className="text-muted-foreground">·</span>
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="transition-colors hover:text-zinc-300"
+                  className="transition-colors hover:text-muted-foreground"
                 >
                   Choose different photo
                 </button>
@@ -301,9 +301,9 @@ export default function AddCoverDialog() {
           />
 
           {error && (
-            <div className="mt-4 flex items-start gap-2 rounded border border-red-500/20 bg-red-500/8 px-3.5 py-2.5">
-              <span className="mt-px shrink-0 text-[11px] text-red-400">⚠</span>
-              <p className="text-[11px] leading-relaxed text-red-400">{error}</p>
+            <div className="mt-4 flex items-start gap-2 rounded border border-destructive/20 bg-destructive/8 px-3.5 py-2.5">
+              <span className="mt-px shrink-0 text-[11px] text-destructive">⚠</span>
+              <p className="text-[11px] leading-relaxed text-destructive">{error}</p>
             </div>
           )}
         </div>
@@ -311,12 +311,12 @@ export default function AddCoverDialog() {
         {/* ── Footer ── */}
         {step !== 'crop' && (
           <>
-            <div className="mx-7 h-px bg-white/6" />
+            <div className="mx-7 h-px bg-border-subtle" />
             <DialogFooter className="flex items-center justify-between px-7 py-4">
               <DialogClose asChild>
                 <button
                   type="button"
-                  className="rounded-sm border border-zinc-800 bg-zinc-900/60 px-4 py-2 text-[13px] text-zinc-300 transition hover:bg-zinc-800"
+                  className="rounded-sm border border-border bg-surface/60 px-4 py-2 text-[13px] text-muted-foreground transition hover:bg-surface-secondary"
                 >
                   Cancel
                 </button>
@@ -326,11 +326,11 @@ export default function AddCoverDialog() {
                 type="button"
                 disabled={isLoading || step !== 'preview'}
                 onClick={handleSubmit}
-                className="bg-primary hover:bg-primary/90 rounded-sm px-6 py-2 text-[13px] font-semibold text-white shadow-[0_2px_12px_-3px_rgba(252,102,0,0.45)] transition-all hover:shadow-[0_2px_16px_-3px_rgba(252,102,0,0.6)] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+                className="bg-primary hover:bg-primary/90 rounded-sm px-6 py-2 text-[13px] font-semibold text-primary-foreground shadow-[0_2px_12px_-3px_color-mix(in_oklab,var(--primary)_45%,transparent)] transition-all hover:shadow-[0_2px_16px_-3px_color-mix(in_oklab,var(--primary)_60%,transparent)] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
-                    <span className="inline-block h-3 w-3 animate-spin rounded-full border border-white/30 border-t-white" />
+                    <span className="inline-block h-3 w-3 animate-spin rounded-full border border-primary-foreground/30 border-t-primary-foreground" />
                     Saving…
                   </span>
                 ) : user?.cover ? (

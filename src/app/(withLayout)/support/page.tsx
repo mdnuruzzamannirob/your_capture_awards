@@ -45,30 +45,30 @@ export default function SupportPage() {
       <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-semibold text-white">Support</h1>
-            <p className="mt-2 text-sm text-white/60">
+            <h1 className="text-3xl font-semibold text-primary-foreground">Support</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
               Send us a message if you have a question, bug report, or account issue.
             </p>
           </div>
 
           <form
             onSubmit={handleSubmit}
-            className="border-black-2-600 bg-black-2-800/90 space-y-4 rounded-2xl border p-5 md:p-6"
+            className="border-border bg-surface-secondary/90 space-y-4 rounded-2xl border p-5 md:p-6"
           >
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm text-white/80" htmlFor="name">
+                <label className="text-sm text-foreground" htmlFor="name">
                   Name
                 </label>
                 <Input
                   id="name"
                   name="name"
                   required
-                  className="border-black-2-600 bg-black-2-900"
+                  className="border-border bg-surface"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/80" htmlFor="email">
+                <label className="text-sm text-foreground" htmlFor="email">
                   Email
                 </label>
                 <Input
@@ -76,31 +76,31 @@ export default function SupportPage() {
                   name="email"
                   type="email"
                   required
-                  className="border-black-2-600 bg-black-2-900"
+                  className="border-border bg-surface"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm text-white/80" htmlFor="subject">
+              <label className="text-sm text-foreground" htmlFor="subject">
                 Subject
               </label>
               <Input
                 id="subject"
                 name="subject"
                 required
-                className="border-black-2-600 bg-black-2-900"
+                className="border-border bg-surface"
                 placeholder="What do you need help with?"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm text-white/80" htmlFor="message">
+              <label className="text-sm text-foreground" htmlFor="message">
                 Message
               </label>
               <Textarea
                 id="message"
                 name="message"
                 required
-                className="border-black-2-600 bg-black-2-900 min-h-40"
+                className="border-border bg-surface min-h-40"
                 placeholder="Write your message here"
               />
             </div>
@@ -108,7 +108,7 @@ export default function SupportPage() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="bg-primary hover:bg-primary/90 text-black"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 {submitting ? 'Sending...' : 'Send message'}
               </Button>
@@ -116,9 +116,9 @@ export default function SupportPage() {
           </form>
         </div>
 
-        <aside className="border-black-2-600 bg-black-2-800/90 space-y-4 rounded-2xl border p-5 md:p-6">
-          <h2 className="text-xl font-semibold text-white">Other details</h2>
-          <div className="space-y-3 text-sm text-white/65">
+        <aside className="border-border bg-surface-secondary/90 space-y-4 rounded-2xl border p-5 md:p-6">
+          <h2 className="text-xl font-semibold text-primary-foreground">Other details</h2>
+          <div className="space-y-3 text-sm text-muted-foreground">
             <p>Email: support@yourcaptureawards.com</p>
             <p>Response time: 1 to 2 business days</p>
             <p>For urgent account issues, include your registered email.</p>

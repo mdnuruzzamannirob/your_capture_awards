@@ -126,7 +126,7 @@ export default function AvatarDialog() {
       <DialogTrigger asChild>
         <button
           onClick={() => setOpen(true)}
-          className="group relative flex size-full items-center justify-center overflow-hidden rounded-full bg-zinc-800"
+          className="group relative flex size-full items-center justify-center overflow-hidden rounded-full bg-surface-secondary"
         >
           {user?.avatar ? (
             <>
@@ -137,12 +137,12 @@ export default function AvatarDialog() {
                 className="object-cover transition-all duration-300 group-hover:brightness-50"
               />
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                <FiEdit2 className="size-4 text-white drop-shadow" />
-                <span className="text-[9px] font-semibold text-white drop-shadow">Edit</span>
+                <FiEdit2 className="size-4 text-primary-foreground drop-shadow" />
+                <span className="text-[9px] font-semibold text-primary-foreground drop-shadow">Edit</span>
               </div>
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center gap-1 text-zinc-400 transition-colors group-hover:text-zinc-200">
+            <div className="flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors group-hover:text-foreground">
               <FiCamera className="size-5" />
               <span className="text-[10px] font-medium">Add photo</span>
             </div>
@@ -151,15 +151,15 @@ export default function AvatarDialog() {
       </DialogTrigger>
 
       {/* ── Dialog ── */}
-      <DialogContent className="gap-0 overflow-hidden border-0 bg-zinc-950 p-0 text-white shadow-2xl ring-1 shadow-black/70 ring-white/8 sm:max-w-sm">
+      <DialogContent className="gap-0 overflow-hidden border-0 bg-background p-0 text-primary-foreground shadow-modal ring-1 shadow-overlay ring-border-subtle sm:max-w-sm">
         {/* ── Header ── */}
         <DialogHeader className="relative px-6 pt-6 pb-5">
           <div className="flex items-start justify-between">
             <div>
-              <DialogTitle className="text-[15px] font-semibold tracking-tight text-white">
+              <DialogTitle className="text-[15px] font-semibold tracking-tight text-primary-foreground">
                 {user?.avatar ? 'Update profile photo' : 'Add profile photo'}
               </DialogTitle>
-              <p className="mt-1 text-[11px] text-zinc-500">
+              <p className="mt-1 text-[11px] text-caption-foreground">
                 JPG · PNG · AVIF · WebP &nbsp;·&nbsp; 20 KB – 5 MB
               </p>
             </div>
@@ -176,7 +176,7 @@ export default function AvatarDialog() {
                         ? 'bg-primary w-4'
                         : steps.indexOf(s) < steps.indexOf(step)
                           ? 'bg-primary/40 w-1.5'
-                          : 'w-1.5 bg-zinc-700',
+                          : 'w-1.5 bg-surface-secondary',
                     ].join(' ')}
                   />
                 ))}
@@ -185,7 +185,7 @@ export default function AvatarDialog() {
           </div>
         </DialogHeader>
 
-        <div className="mx-6 h-px bg-white/6" />
+        <div className="mx-6 h-px bg-border-subtle" />
 
         {/* ── Body ── */}
         <div className="relative px-6 py-5">
@@ -197,33 +197,33 @@ export default function AvatarDialog() {
                 className={[
                   'rounded-full p-0.5 transition-all duration-500',
                   displaySrc
-                    ? 'from-primary bg-linear-to-br via-orange-400 to-amber-500 shadow-[0_0_28px_-4px_rgba(252,102,0,0.45)]'
-                    : 'bg-linear-to-br from-zinc-700 via-zinc-600 to-zinc-700',
+                    ? 'from-primary bg-linear-to-br via-primary/80 to-warning-500 shadow-[0_0_28px_-4px_color-mix(in_oklab,var(--primary)_45%,transparent)]'
+                    : 'bg-linear-to-br from-surface-secondary via-border to-surface-secondary',
                 ].join(' ')}
               >
                 <button
                   type="button"
                   onClick={openFilePicker}
-                  className="group/inner relative flex h-44 w-44 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-zinc-900 transition-all duration-200"
+                  className="group/inner relative flex h-44 w-44 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-surface transition-all duration-200"
                 >
                   {displaySrc ? (
                     <>
                       <Image src={displaySrc} alt="Photo preview" fill className="object-cover" />
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-black/55 opacity-0 backdrop-blur-[2px] transition-opacity duration-200 group-hover/inner:opacity-100">
-                        <FiCamera className="size-5 text-white" />
-                        <span className="text-[11px] font-semibold text-white">Change photo</span>
+                      <div className="bg-overlay absolute inset-0 flex flex-col items-center justify-center gap-1.5 opacity-0 backdrop-blur-[2px] transition-opacity duration-200 group-hover/inner:opacity-100">
+                        <FiCamera className="size-5 text-primary-foreground" />
+                        <span className="text-[11px] font-semibold text-primary-foreground">Change photo</span>
                       </div>
                     </>
                   ) : (
                     <div className="flex flex-col items-center gap-3 px-4 text-center">
-                      <div className="group-hover/inner:bg-primary/15 group-hover/inner:ring-primary/30 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800 ring-1 ring-white/10 transition-all duration-200">
-                        <FiUpload className="group-hover/inner:text-primary size-5 text-zinc-400 transition-colors" />
+                      <div className="group-hover/inner:bg-primary/15 group-hover/inner:ring-primary/30 flex h-12 w-12 items-center justify-center rounded-full bg-surface-secondary ring-1 ring-border-subtle transition-all duration-200">
+                        <FiUpload className="group-hover/inner:text-primary size-5 text-muted-foreground transition-colors" />
                       </div>
                       <div>
-                        <p className="text-[12px] font-medium text-zinc-300 transition-colors group-hover/inner:text-white">
+                        <p className="text-[12px] font-medium text-muted-foreground transition-colors group-hover/inner:text-primary-foreground">
                           Upload a photo
                         </p>
-                        <p className="mt-0.5 text-[10px] text-zinc-600">Square image works best</p>
+                        <p className="mt-0.5 text-[10px] text-caption-foreground">Square image works best</p>
                       </div>
                     </div>
                   )}
@@ -234,7 +234,7 @@ export default function AvatarDialog() {
                 <button
                   type="button"
                   onClick={openFilePicker}
-                  className="group/link flex items-center gap-1.5 text-[11px] text-zinc-500 transition-colors hover:text-zinc-300"
+                  className="group/link flex items-center gap-1.5 text-[11px] text-caption-foreground transition-colors hover:text-muted-foreground"
                 >
                   <FiUpload className="size-3 transition-transform" />
                   Choose a different photo
@@ -264,25 +264,25 @@ export default function AvatarDialog() {
           {/* Step: preview */}
           {step === 'preview' && croppedPreview && (
             <div className="flex flex-col items-center gap-4">
-              <div className="from-primary rounded-full bg-linear-to-br via-orange-400 to-amber-500 p-0.5 shadow-[0_0_28px_-4px_rgba(252,102,0,0.45)]">
-                <div className="relative h-44 w-44 overflow-hidden rounded-full bg-zinc-900">
+              <div className="from-primary rounded-full bg-linear-to-br via-primary/80 to-warning-500 p-0.5 shadow-[0_0_28px_-4px_color-mix(in_oklab,var(--primary)_45%,transparent)]">
+                <div className="relative h-44 w-44 overflow-hidden rounded-full bg-surface">
                   <Image src={croppedPreview} alt="Cropped preview" fill className="object-cover" />
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 text-[11px] text-zinc-500">
+              <div className="flex items-center gap-3 text-[11px] text-caption-foreground">
                 <button
                   type="button"
                   onClick={() => setStep('crop')}
-                  className="transition-colors hover:text-zinc-300"
+                  className="transition-colors hover:text-muted-foreground"
                 >
                   Adjust crop
                 </button>
-                <span className="text-zinc-700">·</span>
+                <span className="text-border-strong">·</span>
                 <button
                   type="button"
                   onClick={openFilePicker}
-                  className="transition-colors hover:text-zinc-300"
+                  className="transition-colors hover:text-muted-foreground"
                 >
                   Choose different photo
                 </button>
@@ -299,9 +299,9 @@ export default function AvatarDialog() {
           />
 
           {error && (
-            <div className="mt-4 flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-500/8 px-3.5 py-2.5">
-              <span className="mt-px shrink-0 text-[11px] text-red-400">⚠</span>
-              <p className="text-[11px] leading-relaxed text-red-400">{error}</p>
+            <div className="mt-4 flex items-start gap-2 rounded-xl border border-destructive/20 bg-destructive/10 px-3.5 py-2.5">
+              <span className="mt-px shrink-0 text-[11px] text-destructive">⚠</span>
+              <p className="text-[11px] leading-relaxed text-destructive">{error}</p>
             </div>
           )}
         </div>
@@ -309,12 +309,12 @@ export default function AvatarDialog() {
         {/* ── Footer ── */}
         {step !== 'crop' && (
           <>
-            <div className="mx-6 h-px bg-white/6" />
+            <div className="mx-6 h-px bg-border-subtle" />
             <DialogFooter className="flex items-center justify-between px-6 py-4">
               <DialogClose asChild>
                 <button
                   type="button"
-                  className="rounded-sm border border-zinc-800 bg-zinc-900/60 px-4 py-2 text-[13px] text-zinc-300 transition hover:bg-zinc-800"
+                  className="rounded-sm border border-border bg-surface/60 px-4 py-2 text-[13px] text-muted-foreground transition hover:bg-surface-secondary"
                 >
                   Cancel
                 </button>
@@ -324,11 +324,11 @@ export default function AvatarDialog() {
                 type="button"
                 disabled={isUpdating || step !== 'preview'}
                 onClick={handleSave}
-                className="bg-primary hover:bg-primary/90 rounded-sm px-5 py-2 text-[13px] font-semibold text-white shadow-[0_2px_12px_-3px_rgba(252,102,0,0.45)] transition-all hover:shadow-[0_2px_16px_-3px_rgba(252,102,0,0.6)] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+                className="bg-primary hover:bg-primary/90 rounded-sm px-5 py-2 text-[13px] font-semibold text-primary-foreground shadow-[0_2px_12px_-3px_color-mix(in_oklab,var(--primary)_45%,transparent)] transition-all hover:shadow-[0_2px_16px_-3px_color-mix(in_oklab,var(--primary)_60%,transparent)] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
               >
                 {isUpdating ? (
                   <span className="flex items-center gap-2">
-                    <span className="inline-block h-3 w-3 animate-spin rounded-full border border-white/30 border-t-white" />
+                    <span className="inline-block h-3 w-3 animate-spin rounded-full border border-primary-foreground/30 border-t-primary-foreground" />
                     Saving…
                   </span>
                 ) : user?.avatar ? (

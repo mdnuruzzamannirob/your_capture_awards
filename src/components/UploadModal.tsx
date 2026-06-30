@@ -103,7 +103,7 @@ function ProfilePhotoJustifiedPicker({
             {row.items.map(({ item: s, width, height }) => (
               <div
                 key={s.id}
-                className="bg-black-2-600 animate-pulse rounded"
+                className="bg-surface-secondary animate-pulse rounded"
                 style={{ width: `${width}px`, height: `${height}px`, flexShrink: 0 }}
               />
             ))}
@@ -115,7 +115,7 @@ function ProfilePhotoJustifiedPicker({
 
   if (!photos || photos.length === 0) {
     return (
-      <div className="border-black-2-600 text-muted-foreground rounded-xl border border-dashed p-6 text-center text-sm">
+      <div className="border-border text-muted-foreground rounded-xl border border-dashed p-6 text-center text-sm">
         No profile photos available. Please upload some photos first.
       </div>
     );
@@ -143,7 +143,7 @@ function ProfilePhotoJustifiedPicker({
                 style={{
                   width: `${width}px`,
                   height: `${height}px`,
-                  outline: isSelected ? '2px solid var(--color-primary, #a855f7)' : 'none',
+                  outline: isSelected ? '2px solid var(--color-primary)' : 'none',
                   outlineOffset: '-2px',
                 }}
               >
@@ -155,7 +155,7 @@ function ProfilePhotoJustifiedPicker({
                   className="object-cover"
                 />
                 {isSelected && (
-                  <span className="bg-primary absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-black shadow">
+                  <span className="bg-primary absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-primary-foreground shadow">
                     ✓
                   </span>
                 )}
@@ -430,13 +430,13 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               </div>
 
               {/* footer */}
-              <div className="border-black-2-500 flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
+              <div className="border-border-subtle flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
                 <button className="text-primary border-primary rounded-sm border px-5 py-2 text-sm">
                   View Rules
                 </button>
                 <button
                   onClick={() => setModalContentType('choose')}
-                  className="bg-primary text-background rounded-sm px-5 py-2 text-sm"
+                  className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm"
                 >
                   Continue
                 </button>
@@ -535,8 +535,8 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                       onSelect={imageSelectHandler}
                     />
                     {selectedImages.length > 0 && (
-                      <div className="border-black-2-500 flex flex-wrap gap-0 border-t pt-5">
-                        <h4 className="mb-2 flex w-full items-center gap-2 text-sm text-white/80">
+                      <div className="border-border-subtle flex flex-wrap gap-0 border-t pt-5">
+                        <h4 className="mb-2 flex w-full items-center gap-2 text-sm text-foreground">
                           <IoImagesOutline className="size-4" /> Selected Images
                         </h4>
                         {selectedImages?.slice(0, 4)?.map((img, i) => (
@@ -561,7 +561,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                                     selectedImages.filter((image) => image.url !== img.url),
                                   )
                                 }
-                                className="flex items-center justify-center rounded-full bg-black/60 p-1.5 text-red-500 opacity-0 transition-all duration-300 group-hover:opacity-100"
+                                className="flex items-center justify-center rounded-full bg-overlay p-1.5 text-destructive opacity-0 transition-all duration-300 group-hover:opacity-100"
                               >
                                 <AiOutlineDelete className="size-4" />
                               </button>
@@ -575,7 +575,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               )}
 
               {/* footer */}
-              <div className="border-black-2-500 flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
+              <div className="border-border-subtle flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
                 <button
                   onClick={() => {
                     setUploadModal(false);
@@ -593,7 +593,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                     isSubmitting ||
                     (uploadSource === 'computer' ? !file : selectedImages.length === 0)
                   }
-                  className="bg-primary text-background rounded-sm px-5 py-2 text-sm"
+                  className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm"
                 >
                   {isSubmitting ? resolvedLoadingLabel : resolvedSubmitLabel}
                 </button>
@@ -618,7 +618,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
             }
           }}
         >
-          <DialogContent className="border-black-2-600 flex max-h-[85vh] min-h-100 scrollbar-thin flex-col justify-between overflow-y-auto border-2 sm:max-w-2xl">
+          <DialogContent className="border-border flex max-h-[85vh] min-h-100 scrollbar-thin flex-col justify-between overflow-y-auto border-2 sm:max-w-2xl">
             <DialogTitle>
               {(modalContentType === 'choose' || modalContentType === 'select') && (
                 <button
@@ -631,7 +631,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                           : 'preview',
                     )
                   }
-                  className="hover:text-primary flex size-10 items-center justify-center rounded-full transition hover:bg-white/5"
+                  className="hover:text-primary flex size-10 items-center justify-center rounded-full transition hover:bg-surface-secondary"
                 >
                   <ArrowLeft />
                 </button>
@@ -643,10 +643,10 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         </Dialog>
 
         <Dialog open={showCoinConfirm} onOpenChange={setShowCoinConfirm}>
-          <DialogContent className="border-black-2-600 max-w-sm space-y-6 border-2 p-6 text-center">
+          <DialogContent className="border-border max-w-sm space-y-6 border-2 p-6 text-center">
             <div className="flex flex-col items-center justify-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-amber-500/20 bg-amber-500/10 text-amber-500 shadow-inner">
-                <div className="h-8 w-8 animate-pulse rounded-full border border-amber-200 bg-linear-to-tr from-amber-500 to-amber-300" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-warning/20 bg-warning/10 text-warning shadow-inner">
+                <div className="h-8 w-8 animate-pulse rounded-full border border-warning/40 bg-linear-to-tr from-warning-500 to-warning-500" />
               </div>
               <DialogTitle className="text-foreground text-xl font-bold uppercase">
                 Coin Required
@@ -674,7 +674,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                     setUploadModal(true);
                   }
                 }}
-                className="bg-primary text-background hover:bg-primary/95 w-full rounded-md py-2.5 text-sm font-semibold transition"
+                className="bg-primary text-primary-foreground hover:bg-primary/95 w-full rounded-md py-2.5 text-sm font-semibold transition"
               >
                 Continue
               </button>

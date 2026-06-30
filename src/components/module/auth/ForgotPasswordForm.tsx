@@ -39,7 +39,7 @@ export default function ForgotPasswordForm() {
       <header className="flex flex-col items-center space-y-2 text-center">
         <LogoName className="scale-125" />
       </header>
-      <div className="border-orange-2-400/60 w-full space-y-10 rounded-md border p-8 md:p-10">
+      <div className="border-primary/40 w-full space-y-10 rounded-md border p-8 md:p-10">
         <div className="space-y-5">
           <h1 className="font-rubik text-2xl font-medium md:text-3xl">Forgot Password ?</h1>
           <p className="max-md:text-sm">
@@ -59,7 +59,7 @@ export default function ForgotPasswordForm() {
           <button
             type="submit"
             disabled={isLoading}
-            className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-4 w-full rounded-sm py-2.25 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-4 w-full rounded-sm py-2.25 text-primary-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? 'Sending...' : 'Send'}
           </button>

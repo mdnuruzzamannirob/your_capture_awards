@@ -25,7 +25,7 @@ export const Toolbar: React.FC<Props> = ({ editor, className }) => {
         size="sm"
         pressed={editor.isActive('bold')}
         onPressedChange={() => editor.chain().focus().toggleBold().run()}
-        className="text-gray-300 hover:bg-gray-700 data-[state=on]:bg-gray-700"
+        className="text-muted-foreground hover:bg-surface-secondary data-[state=on]:bg-surface-secondary"
         title="Bold"
       >
         <Bold className="size-4" />
@@ -36,7 +36,7 @@ export const Toolbar: React.FC<Props> = ({ editor, className }) => {
         size="sm"
         pressed={editor.isActive('italic')}
         onPressedChange={() => editor.chain().focus().toggleItalic().run()}
-        className="text-gray-300 hover:bg-gray-700 data-[state=on]:bg-gray-700"
+        className="text-muted-foreground hover:bg-surface-secondary data-[state=on]:bg-surface-secondary"
         title="Italic"
       >
         <Italic className="size-4" />
@@ -45,14 +45,14 @@ export const Toolbar: React.FC<Props> = ({ editor, className }) => {
       {/* Underline Toggle */}
       <AddUnderlineToggle editor={editor} />
 
-      <div className="mx-1 h-4 w-px self-center bg-gray-600" />
+      <div className="mx-1 h-4 w-px self-center bg-border" />
 
       {/* Headings */}
       <Toggle
         size="sm"
         pressed={editor.isActive('heading', { level: 1 })}
         onPressedChange={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-        className="font-bold text-gray-300 hover:bg-gray-700 data-[state=on]:bg-gray-700"
+        className="font-bold text-muted-foreground hover:bg-surface-secondary data-[state=on]:bg-surface-secondary"
         title="H1"
       >
         <Heading1 className="size-4" />
@@ -62,7 +62,7 @@ export const Toolbar: React.FC<Props> = ({ editor, className }) => {
         size="sm"
         pressed={editor.isActive('heading', { level: 2 })}
         onPressedChange={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        className="font-bold text-gray-300 hover:bg-gray-700 data-[state=on]:bg-gray-700"
+        className="font-bold text-muted-foreground hover:bg-surface-secondary data-[state=on]:bg-surface-secondary"
         title="H2"
       >
         <Heading2 className="size-4" />
@@ -72,20 +72,20 @@ export const Toolbar: React.FC<Props> = ({ editor, className }) => {
         size="sm"
         pressed={editor.isActive('heading', { level: 3 })}
         onPressedChange={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-        className="font-bold text-gray-300 hover:bg-gray-700 data-[state=on]:bg-gray-700"
+        className="font-bold text-muted-foreground hover:bg-surface-secondary data-[state=on]:bg-surface-secondary"
         title="H3"
       >
         <Heading3 className="size-4" />
       </Toggle>
 
-      <div className="mx-1 h-4 w-px self-center bg-gray-600" />
+      <div className="mx-1 h-4 w-px self-center bg-border" />
 
       {/* Lists */}
       <Toggle
         size="sm"
         pressed={editor.isActive('bulletList')}
         onPressedChange={() => editor.chain().focus().toggleBulletList().run()}
-        className="text-gray-300 hover:bg-gray-700 data-[state=on]:bg-gray-700"
+        className="text-muted-foreground hover:bg-surface-secondary data-[state=on]:bg-surface-secondary"
         title="Bullet list"
       >
         <List className="size-4" />
@@ -95,13 +95,13 @@ export const Toolbar: React.FC<Props> = ({ editor, className }) => {
         size="sm"
         pressed={editor.isActive('orderedList')}
         onPressedChange={() => editor.chain().focus().toggleOrderedList().run()}
-        className="text-gray-300 hover:bg-gray-700 data-[state=on]:bg-gray-700"
+        className="text-muted-foreground hover:bg-surface-secondary data-[state=on]:bg-surface-secondary"
         title="Numbered list"
       >
         <ListOrdered className="size-4" />
       </Toggle>
 
-      <div className="mx-1 h-4 w-px self-center bg-gray-600" />
+      <div className="mx-1 h-4 w-px self-center bg-border" />
 
       {/* Image & Link */}
       <AddImagePopover editor={editor} />

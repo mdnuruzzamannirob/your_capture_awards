@@ -45,13 +45,13 @@ const PhotosTabContent = ({
         title={title}
         action={
           <div className="flex items-center gap-3">
-            <label className="text-xs font-semibold tracking-wide text-zinc-500 uppercase">
+            <label className="text-xs font-semibold tracking-wide text-caption-foreground uppercase">
               Filter
             </label>
             <select
               value={photoFilter}
               onChange={(event) => setPhotoFilter(event.target.value)}
-              className="focus:border-primary/60 cursor-pointer rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm text-zinc-200 shadow-sm transition outline-none"
+              className="focus:border-primary/60 cursor-pointer rounded-lg border border-border bg-surface px-4 py-2 text-sm text-foreground shadow-sm transition outline-none"
             >
               {photoOptions.map((option) => (
                 <option key={option} value={option}>
@@ -81,14 +81,14 @@ const PhotosTabContent = ({
             return (
               <div
                 key={i}
-                className="relative h-75 animate-pulse overflow-hidden rounded-sm bg-zinc-900 ring-1 ring-white/5"
+                className="relative h-75 animate-pulse overflow-hidden rounded-sm bg-surface ring-1 ring-border-subtle"
                 style={{
                   flexGrow: aspect,
                   flexBasis: `${aspect * 200}px`,
                 }}
               >
-                <div className="absolute inset-0 bg-zinc-800/60" />
-                <div className="absolute top-3 right-3 size-7 rounded-full bg-zinc-700/60" />
+                <div className="absolute inset-0 bg-surface-secondary/60" />
+                <div className="absolute top-3 right-3 size-7 rounded-full bg-surface-secondary/60" />
               </div>
             );
           })}

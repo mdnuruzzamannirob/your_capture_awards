@@ -54,7 +54,7 @@ const PortfolioCard = ({
 
   return (
     <article
-      className="group relative cursor-pointer overflow-hidden rounded-sm bg-zinc-900 shadow-md transition-all duration-300 hover:shadow-xl"
+      className="group relative cursor-pointer overflow-hidden rounded-sm bg-surface shadow-md transition-all duration-300 hover:shadow-xl"
       style={style || {
         height: '300px',
         flexGrow: aspect,
@@ -72,13 +72,13 @@ const PortfolioCard = ({
           onError={() => setImgError((prev) => ({ ...prev, [item.id]: true }))}
         />
       ) : (
-        <div className="flex size-full items-center justify-center bg-zinc-800 text-xs text-zinc-500">
+        <div className="flex size-full items-center justify-center bg-surface-secondary text-xs text-caption-foreground">
           No Image
         </div>
       )}
 
       {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-focus-within:opacity-100 group-hover:opacity-100" />
+      <div className="absolute inset-0 bg-linear-to-t from-zinc-950/80 via-zinc-950/20 to-transparent opacity-0 transition-opacity duration-300 group-focus-within:opacity-100 group-hover:opacity-100" />
 
       {/* Delete button — own profile only */}
       {isOwn && (
@@ -88,7 +88,7 @@ const PortfolioCard = ({
             e.stopPropagation();
             handleDelete(item.id);
           }}
-          className="absolute top-3 right-3 z-10 flex size-9 items-center justify-center rounded-full bg-red-500/10 text-red-300 opacity-0 shadow-lg ring-1 ring-red-500/30 transition group-focus-within:opacity-100 group-hover:opacity-100 hover:bg-red-500 hover:text-white active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+          className="absolute top-3 right-3 z-10 flex size-9 items-center justify-center rounded-full bg-destructive/10 text-destructive opacity-0 shadow-lg ring-1 ring-destructive/30 transition group-focus-within:opacity-100 group-hover:opacity-100 hover:bg-destructive hover:text-primary-foreground active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isLoading ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
         </button>
@@ -96,7 +96,7 @@ const PortfolioCard = ({
 
       {/* Stats overlay (bottom) */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 p-3 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
-        <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-white/90">
+        <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-foreground">
           <span className="inline-flex items-center gap-1">
             <Trophy size={18} />
             {(item.totalVotes ?? 0).toLocaleString()}
