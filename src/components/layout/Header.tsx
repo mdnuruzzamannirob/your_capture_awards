@@ -1,5 +1,7 @@
 'use client';
 
+import { SearchBar } from '@/components/SearchBar';
+import { SearchModal } from '@/components/SearchModal';
 import UserMenu from '@/components/UserMenu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { loggedInNavLinks, navLinks } from '@/constants';
@@ -7,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useStoreModal } from '@/providers/StoreModalProvider';
 import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { cn } from '@/utils/cn';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
@@ -14,11 +17,8 @@ import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { FaPlus } from 'react-icons/fa6';
 import { IoKeyOutline } from 'react-icons/io5';
 import { MdOutlineCameraswitch } from 'react-icons/md';
-import Image from 'next/image';
 import LogoName from '../LogoName';
 import Sidebar from './Sidebar';
-import { SearchBar } from '@/components/SearchBar';
-import { SearchModal } from '@/components/SearchModal';
 
 const ResourceValue = ({
   isLoading,
@@ -49,6 +49,7 @@ const Navbar = () => {
   // "/" keyboard shortcut to open search
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      if (!isAuthenticated) return;
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
       if (e.key === '/') {
@@ -58,7 +59,7 @@ const Navbar = () => {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, []);
+  }, [isAuthenticated]);
 
   const menuLinks = useMemo(
     () => (isAuthenticated ? loggedInNavLinks : navLinks),
@@ -69,7 +70,7 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="bg-background fixed top-0 right-0 left-0 z-50 border-b border-border">
+      <header className="bg-background border-border fixed top-0 right-0 left-0 z-50 border-b">
         <nav className="container flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Sidebar />
@@ -90,7 +91,7 @@ const Navbar = () => {
                         'hover:text-primary p-1 text-sm transition-colors',
                         isActive
                           ? 'text-primary pointer-events-none cursor-default'
-                        : 'text-muted-foreground hover:text-foreground',
+                          : 'text-muted-foreground hover:text-foreground',
                       )}
                     >
                       {link?.name}
@@ -101,36 +102,30 @@ const Navbar = () => {
             </ul>
           </div>
 
-          <div className="flex items-center justify-end gap-3 max-lg:gap-2">
-            {/* ── Global Search Bar ── */}
-            <SearchBar onClick={() => setIsSearchOpen(true)} className="hidden sm:flex" />
-
+          <div className="flex items-center gap-2 max-lg:gap-2">
             {isAuthenticated ? (
               <>
-                <div className="lg:hidden">
-                  <UserMenu />
-                </div>
                 <div className="hidden items-center gap-2 xl:flex">
                   <button
                     type="button"
                     onClick={openStore}
-                    className="group flex h-8.5 items-stretch overflow-hidden rounded-md bg-surface-secondary transition hover:bg-surface-tertiary"
+                    className="group bg-surface-secondary hover:bg-surface-tertiary flex h-8.5 items-stretch overflow-hidden rounded-md transition"
                     aria-label="Open store resources"
                   >
-                    <div className="flex items-center px-2 text-sm text-foreground">
+                    <div className="text-foreground flex items-center px-2 text-sm">
                       <div className="flex items-center gap-2" title="Keys">
                         <IoKeyOutline className="text-primary size-4" />
                         <ResourceValue isLoading={isStatsLoading} value={stats?.key ?? 0} />
                       </div>
 
-                      <span className="mx-3 text-border-strong">|</span>
+                      <span className="text-border-strong mx-3">|</span>
 
                       <div className="flex items-center gap-2" title="Trades">
                         <MdOutlineCameraswitch className="text-primary size-4 rotate-90" />
                         <ResourceValue isLoading={isStatsLoading} value={stats?.swap ?? 0} />
                       </div>
 
-                      <span className="mx-3 text-border-strong">|</span>
+                      <span className="text-border-strong mx-3">|</span>
 
                       <div className="flex items-center gap-2" title="Charges">
                         <AiOutlineThunderbolt className="text-primary size-4" />
@@ -146,7 +141,7 @@ const Navbar = () => {
                   <button
                     type="button"
                     onClick={openStore}
-                    className="group flex h-8.5 items-stretch overflow-hidden rounded-md bg-surface-secondary transition hover:bg-surface-tertiary"
+                    className="group bg-surface-secondary hover:bg-surface-tertiary flex h-8.5 items-stretch overflow-hidden rounded-md transition"
                     aria-label="Open coin store"
                   >
                     <div className="flex items-center gap-2 px-2">
@@ -170,6 +165,12 @@ const Navbar = () => {
                   </button>
                 </div>
 
+                <SearchBar onClick={() => setIsSearchOpen(true)} />
+                {/* <NotificationModal /> */}
+
+                <div className="lg:hidden">
+                  <UserMenu />
+                </div>
                 <div className="hidden lg:block">
                   <UserMenu />
                 </div>
