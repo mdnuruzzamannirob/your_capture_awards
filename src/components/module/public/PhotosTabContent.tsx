@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { PhotoCard, TabErrorState, TabSectionHeader } from './public-tab-ui';
 
-import UploadPortfolioCard from '../profile/UploadPortfolioCard';
-import PortfolioCard from '../profile/PortfolioCard';
-import SkeletonCard from '../profile/SkeletonCard';
 import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
+import PortfolioCard from '../profile/PortfolioCard';
+import UploadPortfolioCard from '../profile/UploadPortfolioCard';
 
 type Props = {
   username: string;
@@ -33,8 +32,15 @@ const PhotosTabContent = ({
   const photosList = initialPhotos;
   const isPhotosLoading = isLoading;
 
+  const gridItems = isOwn
+    ? [
+        { id: 'upload-card', isUploadCard: true },
+        ...photosList.map((p) => ({ ...p, url: p.url || p.src })),
+      ]
+    : photosList.map((p) => ({ ...p, url: p.url || p.src }));
+
   const { containerRef, rows } = useJustifiedLayout({
-    items: photosList.map((p) => ({ ...p, url: p.url || p.src })),
+    items: gridItems,
     targetHeight: 350,
     gap: 4,
   });
@@ -45,13 +51,13 @@ const PhotosTabContent = ({
         title={title}
         action={
           <div className="flex items-center gap-3">
-            <label className="text-xs font-semibold tracking-wide text-caption-foreground uppercase">
+            <label className="text-caption-foreground text-xs font-semibold tracking-wide uppercase">
               Filter
             </label>
             <select
               value={photoFilter}
               onChange={(event) => setPhotoFilter(event.target.value)}
-              className="focus:border-primary/60 cursor-pointer rounded-lg border border-border bg-surface px-4 py-2 text-sm text-foreground shadow-sm transition outline-none"
+              className="focus:border-primary/60 border-border bg-surface text-foreground cursor-pointer rounded-lg border px-4 py-2 text-sm shadow-sm transition outline-none"
             >
               {photoOptions.map((option) => (
                 <option key={option} value={option}>
@@ -67,28 +73,20 @@ const PhotosTabContent = ({
 
       {isPhotosLoading && photosList.length === 0 ? (
         <div className="flex flex-wrap gap-1">
-          {isOwn && (
-            <div
-              style={{ flexGrow: 1.4, flexBasis: '280px', height: '300px', minHeight: '220px' }}
-              className="overflow-hidden rounded-sm"
-            >
-              <UploadPortfolioCard />
-            </div>
-          )}
           {Array.from({ length: 7 }).map((_, i) => {
             const mockAspects = [1.3, 0.8, 1.5, 1.0, 1.8, 1.2, 0.9, 1.6];
             const aspect = mockAspects[i % mockAspects.length];
             return (
               <div
                 key={i}
-                className="relative h-75 animate-pulse overflow-hidden rounded-sm bg-surface ring-1 ring-border-subtle"
+                className="bg-surface ring-border-subtle relative h-75 animate-pulse overflow-hidden rounded-sm ring-1"
                 style={{
                   flexGrow: aspect,
                   flexBasis: `${aspect * 200}px`,
                 }}
               >
-                <div className="absolute inset-0 bg-surface-secondary/60" />
-                <div className="absolute top-3 right-3 size-7 rounded-full bg-surface-secondary/60" />
+                <div className="bg-surface-secondary/60 absolute inset-0" />
+                <div className="bg-surface-secondary/60 absolute top-3 right-3 size-7 rounded-full" />
               </div>
             );
           })}
@@ -98,35 +96,29 @@ const PhotosTabContent = ({
 
       {!isPhotosLoading || photosList.length > 0 ? (
         <div ref={containerRef} className="w-full">
-          {/* Upload card row (own profile only) — shown above the justified grid */}
-          {isOwn && (
-            <div
-              style={{ height: '220px', marginBottom: '4px' }}
-              className="overflow-hidden rounded-sm"
-            >
-              <UploadPortfolioCard />
-            </div>
-          )}
-
           {rows.map((row, rowIndex) => (
-            <div
-              key={rowIndex}
-              className="flex gap-1 mb-1"
-              style={{ height: `${row.height}px` }}
-            >
-              {row.items.map(({ item: photo, width, height }) =>
-                isOwn ? (
+            <div key={rowIndex} className="mb-1 flex gap-1" style={{ height: `${row.height}px` }}>
+              {row.items.map(({ item, width, height }) =>
+                item.isUploadCard ? (
+                  <div
+                    key="upload-card"
+                    className="overflow-hidden rounded-sm"
+                    style={{ width: `${width}px`, height: `${height}px`, flexShrink: 0 }}
+                  >
+                    <UploadPortfolioCard />
+                  </div>
+                ) : isOwn ? (
                   <PortfolioCard
-                    key={photo.id}
-                    item={photo}
+                    key={item.id}
+                    item={item}
                     isOwn={true}
                     allPhotos={photosList}
                     style={{ width: `${width}px`, height: `${height}px`, flexShrink: 0 }}
                   />
                 ) : (
                   <PhotoCard
-                    key={photo.id}
-                    photo={photo}
+                    key={item.id}
+                    photo={item}
                     profileUsername={username}
                     allPhotos={photosList}
                     ownerId={userId}

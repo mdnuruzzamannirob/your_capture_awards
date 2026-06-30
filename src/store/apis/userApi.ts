@@ -40,7 +40,7 @@ type SearchUser = {
 type SearchUsersResponse = {
   success: boolean;
   data: {
-    data: SearchUser[];
+    users: SearchUser[];
     meta: {
       total: number;
       hasNextPage: boolean;
