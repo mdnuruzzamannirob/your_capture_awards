@@ -55,7 +55,7 @@ const UpcomingContestCard = ({
             </button>
           </div>
 
-          <div className="flex w-full items-center justify-between bg-black/80 py-2 text-primary-foreground">
+          <div className="flex w-full items-center justify-between bg-zinc-950/80 py-2 text-primary-foreground">
             {contest?.isMoneyContest ? (
               <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
                 <p className="font-semibold">

@@ -37,7 +37,7 @@ const Banner = () => {
           </h1>
 
           {/* Subtext */}
-          <p className="max-w-md text-gray-200">
+          <p className="max-w-md text-body">
             Your Capture awards the ultimate destination for photographers, discussing, and creating
             stunning imagery.
           </p>

@@ -152,7 +152,7 @@ export default function VerifyOtpForm() {
             </div>
           </div>
 
-          <p className="mb-4 text-xs text-gray-400">
+          <p className="mb-4 text-xs text-caption-foreground">
             Didn&apos;t get a code?&nbsp;
             <button
               type="button"

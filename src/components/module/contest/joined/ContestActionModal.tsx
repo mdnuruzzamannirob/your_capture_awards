@@ -81,7 +81,7 @@ function ContestPhotoJustifiedPicker({
                   width: `${width}px`,
                   height: `${height}px`,
                   outline: isSelected
-                    ? '3px solid var(--color-primary, #a855f7)'
+                    ? '3px solid var(--color-primary)'
                     : '1px solid color-mix(in oklab, var(--foreground) 10%, transparent)',
                   outlineOffset: '-3px',
                 }}
@@ -96,7 +96,7 @@ function ContestPhotoJustifiedPicker({
                 <span
                   className={cn(
                     'absolute top-2 right-2 rounded-full px-2 py-0.5 text-[10px] font-medium transition',
-                    isSelected ? 'bg-primary text-background' : 'bg-overlay text-foreground',
+                    isSelected ? 'bg-primary text-primary-foreground' : 'bg-overlay text-foreground',
                   )}
                 >
                   {isSelected ? '✓ Selected' : 'Select'}
@@ -165,7 +165,7 @@ function TradePhotoJustifiedPicker({
                 style={{
                   width: `${width}px`,
                   height: `${height}px`,
-                  outline: isSelected ? '3px solid var(--color-primary, #a855f7)' : undefined,
+                  outline: isSelected ? '3px solid var(--color-primary)' : undefined,
                   outlineOffset: '-3px',
                 }}
               >
@@ -177,7 +177,7 @@ function TradePhotoJustifiedPicker({
                   className="object-cover"
                 />
                 {isSelected && (
-                  <span className="bg-primary absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-background shadow">
+                  <span className="bg-primary absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-primary-foreground shadow">
                     ✓
                   </span>
                 )}
@@ -459,7 +459,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                     type="button"
                     disabled={!selectedContestPhotoId || isSubmitting || actionLoading}
                     onClick={actionType === 'boost' ? handleSubmit : selectContestPhoto}
-                    className="bg-primary text-background rounded-sm px-5 py-2 text-sm disabled:opacity-60"
+                    className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm disabled:opacity-60"
                   >
                     {actionType === 'boost'
                       ? isSubmitting || actionLoading
@@ -547,7 +547,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                           height={300}
                           onClick={() => fileInputRef.current?.click()}
                           // FIX: ring applied directly on the image wrapper — no broken absolute div
-                          className="ring-primary max-h-72 w-auto cursor-pointer rounded-xl object-contain ring-2 ring-offset-2 ring-offset-black transition hover:opacity-90"
+                          className="ring-primary max-h-72 w-auto cursor-pointer rounded-xl object-contain ring-2 ring-offset-2 ring-offset-background transition hover:opacity-90"
                         />
                       </div>
                     ) : (
@@ -595,7 +595,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                     type="button"
                     disabled={swapSource === 'profile' ? !selectedUserPhotoId : !replacementFile}
                     onClick={selectTradeSource}
-                    className="bg-primary text-background rounded-sm px-5 py-2 text-sm disabled:opacity-60"
+                    className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm disabled:opacity-60"
                   >
                     Continue
                   </button>
@@ -677,7 +677,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                     type="button"
                     disabled={isSubmitting || actionLoading}
                     onClick={handleSubmit}
-                    className="bg-primary text-background rounded-sm px-5 py-2 text-sm disabled:opacity-60"
+                    className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm disabled:opacity-60"
                   >
                     {isSubmitting || actionLoading ? 'Processing...' : actionLabel}
                   </button>

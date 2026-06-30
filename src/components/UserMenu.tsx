@@ -101,7 +101,7 @@ const UserMenu = () => {
               <AiOutlineThunderbolt className="text-primary size-4" />
               <ResourceValue isLoading={isStatsLoading} value={stats?.boost ?? 0} />
             </span>
-            <span className="bg-primary/90 text-background flex size-8 items-center justify-center rounded-md">
+            <span className="bg-primary/90 text-primary-foreground flex size-8 items-center justify-center rounded-md">
               <FaPlus className="size-3" />
             </span>
           </button>
@@ -122,7 +122,7 @@ const UserMenu = () => {
               />
               <ResourceValue isLoading={isStatsLoading} value={stats?.coins ?? 0} />
             </span>
-            <span className="bg-primary/90 text-background flex size-8 items-center justify-center rounded-md">
+            <span className="bg-primary/90 text-primary-foreground flex size-8 items-center justify-center rounded-md">
               <FaPlus className="size-3" />
             </span>
           </button>

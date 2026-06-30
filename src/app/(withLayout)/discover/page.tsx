@@ -140,11 +140,11 @@ export default function DiscoverPage() {
                     />
 
                     {/* Gradient Overlay on Hover */}
-                    <div className="absolute inset-0 flex flex-col justify-between bg-linear-to-b from-black/70 via-black/20 to-black/80 p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    <div className="absolute inset-0 flex flex-col justify-between bg-linear-to-b from-zinc-950/70 via-zinc-950/20 to-zinc-950/80 p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
                     {/* Top Info overlay (Profile, Name, Location) */}
                     <div className="absolute inset-x-0 top-0 flex -translate-y-2 transform items-center gap-3 p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                      <Avatar className="size-9 shrink-0 border border-white/20">
+                      <Avatar className="size-9 shrink-0 border border-border-subtle">
                         {avatar ? <AvatarImage src={avatar} alt={name} /> : null}
                         <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
                           {getInitials(name)}

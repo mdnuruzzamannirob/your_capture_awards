@@ -328,7 +328,7 @@ export default function AvatarDialog() {
               >
                 {isUpdating ? (
                   <span className="flex items-center gap-2">
-                    <span className="inline-block h-3 w-3 animate-spin rounded-full border border-white/30 border-t-white" />
+                    <span className="inline-block h-3 w-3 animate-spin rounded-full border border-primary-foreground/30 border-t-primary-foreground" />
                     Saving…
                   </span>
                 ) : user?.avatar ? (

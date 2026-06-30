@@ -14,7 +14,7 @@ const PaymentCancelPage = () => {
         </p>
         <Link
           href="/"
-          className="bg-primary text-background hover:bg-primary/90 inline-flex rounded-md px-5 py-2 text-sm font-semibold transition"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex rounded-md px-5 py-2 text-sm font-semibold transition"
         >
           Back to home
         </Link>

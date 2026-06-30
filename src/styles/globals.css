@@ -28,20 +28,20 @@
   --color-danger-500: #c64031;
   --color-info-500: #3b82f6;
 
-  /* Neutral */
-  --color-neutral-0: #ffffff;
-  --color-neutral-50: #fafafa;
-  --color-neutral-100: #f4f4f5;
-  --color-neutral-200: #e4e4e7;
-  --color-neutral-300: #d4d4d8;
-  --color-neutral-400: #a1a1aa;
-  --color-neutral-500: #71717a;
-  --color-neutral-600: #52525b;
-  --color-neutral-700: #3f3f46;
-  --color-neutral-800: #27272a;
-  --color-neutral-850: #1f1f23;
-  --color-neutral-900: #18181b;
-  --color-neutral-950: #09090b;
+  /* Zinc */
+  --color-zinc-0: #ffffff;
+  --color-zinc-50: #fafafa;
+  --color-zinc-100: #f4f4f5;
+  --color-zinc-200: #e4e4e7;
+  --color-zinc-300: #d4d4d8;
+  --color-zinc-400: #a1a1aa;
+  --color-zinc-500: #71717a;
+  --color-zinc-600: #52525b;
+  --color-zinc-700: #3f3f46;
+  --color-zinc-800: #27272a;
+  --color-zinc-850: #1f1f23;
+  --color-zinc-900: #18181b;
+  --color-zinc-950: #09090b;
 
 }
 
@@ -61,22 +61,22 @@
   --radius: 0.375rem;
 
   /* Surfaces */
-  --background: var(--color-neutral-950);
-  --surface: var(--color-neutral-900);
-  --surface-secondary: var(--color-neutral-900);
-  --surface-tertiary: var(--color-neutral-850);
-  --elevated: color-mix(in oklab, var(--color-neutral-900) 88%, var(--color-neutral-0));
-  --overlay: color-mix(in oklab, var(--color-neutral-950) 72%, transparent);
+  --background: var(--color-zinc-950);
+  --surface: var(--color-zinc-900);
+  --surface-secondary: var(--color-zinc-900);
+  --surface-tertiary: var(--color-zinc-850);
+  --elevated: color-mix(in oklab, var(--color-zinc-900) 88%, var(--color-zinc-0));
+  --overlay: color-mix(in oklab, var(--color-zinc-950) 72%, transparent);
 
   /* Typography */
-  --foreground: var(--color-neutral-50);
-  --heading: var(--color-neutral-50);
-  --body: color-mix(in oklab, var(--color-neutral-50) 92%, var(--color-neutral-400));
-  --muted-foreground: var(--color-neutral-400);
-  --caption-foreground: var(--color-neutral-500);
-  --label-foreground: var(--color-neutral-300);
-  --placeholder-foreground: var(--color-neutral-500);
-  --disabled-foreground: color-mix(in oklab, var(--color-neutral-400) 70%, transparent);
+  --foreground: var(--color-zinc-50);
+  --heading: var(--color-zinc-50);
+  --body: color-mix(in oklab, var(--color-zinc-50) 92%, var(--color-zinc-400));
+  --muted-foreground: var(--color-zinc-400);
+  --caption-foreground: var(--color-zinc-500);
+  --label-foreground: var(--color-zinc-300);
+  --placeholder-foreground: var(--color-zinc-500);
+  --disabled-foreground: color-mix(in oklab, var(--color-zinc-400) 70%, transparent);
 
   /* Components */
   --card: var(--surface);
@@ -85,30 +85,30 @@
   --popover-foreground: var(--foreground);
 
   --primary: var(--color-brand-500);
-  --primary-foreground: var(--color-neutral-950);
+  --primary-foreground: var(--color-zinc-0);
   --primary-soft: color-mix(in oklab, var(--primary) 16%, var(--background));
   --primary-soft-foreground: color-mix(in oklab, var(--primary) 72%, var(--foreground));
 
-  --secondary: var(--color-neutral-800);
-  --secondary-foreground: var(--color-neutral-50);
+  --secondary: var(--color-zinc-800);
+  --secondary-foreground: var(--color-zinc-50);
 
-  --muted: var(--color-neutral-800);
-  --accent: var(--color-neutral-800);
-  --accent-foreground: var(--color-neutral-50);
+  --muted: var(--color-zinc-800);
+  --accent: var(--color-zinc-800);
+  --accent-foreground: var(--color-zinc-50);
 
   --destructive: var(--color-danger-500);
-  --destructive-foreground: var(--color-neutral-50);
+  --destructive-foreground: var(--color-zinc-50);
 
   /* Borders */
-  --border: color-mix(in oklab, var(--color-neutral-50) 10%, transparent);
-  --border-subtle: color-mix(in oklab, var(--color-neutral-50) 7%, transparent);
-  --border-strong: color-mix(in oklab, var(--color-neutral-50) 18%, transparent);
-  --input: color-mix(in oklab, var(--color-neutral-50) 15%, transparent);
-  --ring: color-mix(in oklab, var(--color-brand-400) 48%, var(--color-neutral-500));
+  --border: color-mix(in oklab, var(--color-zinc-50) 10%, transparent);
+  --border-subtle: color-mix(in oklab, var(--color-zinc-50) 7%, transparent);
+  --border-strong: color-mix(in oklab, var(--color-zinc-50) 18%, transparent);
+  --input: color-mix(in oklab, var(--color-zinc-50) 15%, transparent);
+  --ring: color-mix(in oklab, var(--color-brand-400) 48%, var(--color-zinc-500));
   --focus-ring: color-mix(in oklab, var(--ring) 70%, transparent);
 
   /* Shadows */
-  --shadow-color: var(--color-neutral-950);
+  --shadow-color: var(--color-zinc-950);
   --shadow-sm: 0 1px 2px 0 color-mix(in oklab, var(--shadow-color) 36%, transparent);
   --shadow-md:
     0 4px 6px -1px color-mix(in oklab, var(--shadow-color) 42%, transparent),
@@ -128,7 +128,7 @@
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--color-neutral-800);
+  --sidebar-accent: var(--color-zinc-800);
   --sidebar-accent-foreground: var(--foreground);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
@@ -185,11 +185,11 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--color-success-500);
-  --color-success-foreground: var(--color-neutral-50);
+  --color-success-foreground: var(--color-zinc-50);
   --color-warning: var(--color-warning-500);
-  --color-warning-foreground: var(--color-neutral-950);
+  --color-warning-foreground: var(--color-zinc-0);
   --color-info: var(--color-info-500);
-  --color-info-foreground: var(--color-neutral-50);
+  --color-info-foreground: var(--color-zinc-50);
 
   --color-border: var(--border);
   --color-border-subtle: var(--border-subtle);

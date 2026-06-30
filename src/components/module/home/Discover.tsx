@@ -33,7 +33,7 @@ const Discover = () => {
               onMouseLeave={() => setHovered(null)}
               className="border-primary rounded-full border p-2 transition-all duration-300"
             >
-              <div className="bg-primary text-background relative flex size-36 flex-col items-center justify-center rounded-full font-bold transition-all duration-300 hover:size-44">
+              <div className="bg-primary text-primary-foreground relative flex size-36 flex-col items-center justify-center rounded-full font-bold transition-all duration-300 hover:size-44">
                 <Image
                   src={item.img}
                   alt={item.label}

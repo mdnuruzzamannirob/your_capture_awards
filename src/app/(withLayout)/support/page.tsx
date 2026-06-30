@@ -108,7 +108,7 @@ export default function SupportPage() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="bg-primary hover:bg-primary/90 text-background"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 {submitting ? 'Sending...' : 'Send message'}
               </Button>

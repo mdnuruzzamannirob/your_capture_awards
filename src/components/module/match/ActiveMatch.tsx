@@ -71,7 +71,7 @@ function ActiveMatch({
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           ) : null}
-          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-black/10" />
+          <div className="absolute inset-0 bg-linear-to-t from-zinc-950/80 via-zinc-950/40 to-zinc-950/10" />
           <div className="relative z-10 flex h-full flex-col items-center justify-center gap-3 p-4 text-center">
             <h1 className="text-center text-xl leading-tight font-semibold text-primary-foreground">
               {match.theme}

@@ -748,7 +748,7 @@ export default function TeamChatPage() {
           <button
             type="button"
             onClick={() => scrollToBottom()}
-            className="bg-primary flex size-9 items-center justify-center rounded-full text-primary-foreground shadow-lg shadow-black/30 transition active:scale-95"
+            className="bg-primary flex size-9 items-center justify-center rounded-full text-primary-foreground shadow-lg shadow-overlay transition active:scale-95"
           >
             <ArrowDown className="size-4" />
           </button>

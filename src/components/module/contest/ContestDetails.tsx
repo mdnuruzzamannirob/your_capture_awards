@@ -91,7 +91,7 @@ const ContestDetails = ({ id }: { id: string }) => {
 
   return (
     <main className="margin-user space-y-10">
-      <section className="bg-surface-secondary relative h-64 w-full overflow-hidden text-gray-300 sm:h-80 md:h-96 lg:h-125">
+      <section className="bg-surface-secondary relative h-64 w-full overflow-hidden text-body sm:h-80 md:h-96 lg:h-125">
         {contest?.banner ? (
           <Image
             src={contest?.banner}
@@ -101,7 +101,7 @@ const ContestDetails = ({ id }: { id: string }) => {
             className="size-full object-cover opacity-60"
           />
         ) : (
-          <div className="bg-surface-secondary flex h-full w-full items-center justify-center text-gray-300">
+          <div className="bg-surface-secondary flex h-full w-full items-center justify-center text-body">
             <p>No banner photo</p>
           </div>
         )}

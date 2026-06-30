@@ -143,7 +143,7 @@ export default function AddCoverDialog() {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="gap-0 overflow-hidden border-0 bg-background p-0 text-primary-foreground shadow-2xl ring-1 shadow-black/70 ring-border-subtle sm:max-w-2xl">
+      <DialogContent className="gap-0 overflow-hidden border-0 bg-background p-0 text-primary-foreground shadow-modal ring-1 ring-border-subtle sm:max-w-2xl">
         {/* ── Header ── */}
         <DialogHeader className="relative px-7 pt-6 pb-5">
           <div className="flex items-start justify-between">
@@ -225,7 +225,7 @@ export default function AddCoverDialog() {
                       'flex h-12 w-12 items-center justify-center rounded ring-1 transition-all duration-300',
                       isDragging
                         ? 'bg-primary/20 ring-primary/40 text-primary'
-                        : 'bg-surface-secondary text-muted-foreground ring-border-subtle group-hover:bg-surface-secondary/80 group-hover:text-muted-foreground group-hover:ring-white/15',
+                        : 'bg-surface-secondary text-muted-foreground ring-border-subtle group-hover:bg-surface-secondary/80 group-hover:text-muted-foreground group-hover:ring-border-subtle',
                     ].join(' ')}
                   >
                     <FiImage className="size-5" />
@@ -330,7 +330,7 @@ export default function AddCoverDialog() {
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
-                    <span className="inline-block h-3 w-3 animate-spin rounded-full border border-white/30 border-t-white" />
+                    <span className="inline-block h-3 w-3 animate-spin rounded-full border border-primary-foreground/30 border-t-primary-foreground" />
                     Saving…
                   </span>
                 ) : user?.cover ? (

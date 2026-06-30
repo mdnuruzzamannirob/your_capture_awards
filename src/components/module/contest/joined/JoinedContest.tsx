@@ -194,9 +194,9 @@ const JoinedContest = () => {
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="text-muted-foreground text-xs uppercase">Exposure</div>
                 <div className="border-border relative flex size-25 flex-col items-center justify-center rounded-full border-4">
-                  <div className="flex w-full justify-between px-3 text-[10px] text-gray-400">
+                  <div className="flex w-full justify-between px-3 text-[10px] text-caption-foreground">
                     {labels.map((l, i) => (
-                      <span key={i} className={cn(i + 1 <= 0 && 'font-semibold text-[#FD8533]')}>
+                      <span key={i} className={cn(i + 1 <= 0 && 'font-semibold text-primary')}>
                         {l}
                       </span>
                     ))}
@@ -209,7 +209,7 @@ const JoinedContest = () => {
                           key={i}
                           className={cn(
                             'h-1.5 w-3.5 rounded transition',
-                            active ? 'bg-[#FD8533]' : 'bg-surface-tertiary',
+                            active ? 'bg-primary' : 'bg-surface-tertiary',
                           )}
                         ></div>
                       );
@@ -231,7 +231,7 @@ const JoinedContest = () => {
               </button>
               <button
                 onClick={handleVoteClick}
-                className="bg-primary text-background rounded-sm px-5 py-2 text-sm"
+                className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm"
               >
                 Vote
               </button>

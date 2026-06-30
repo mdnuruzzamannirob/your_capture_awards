@@ -104,7 +104,7 @@ export function LevelProgressBar({
                         <Unlock className="size-4.5 stroke-[2.5]" />
                       </div>
                     ) : isBoundaryLock ? (
-                      <div className="flex size-7 items-center justify-center rounded-full border border-border bg-[#333] text-primary-foreground shadow-md">
+                      <div className="flex size-7 items-center justify-center rounded-full border border-border bg-surface-tertiary text-primary-foreground shadow-md">
                         <Lock className="size-3.5 stroke-[2.5]" />
                       </div>
                     ) : (
