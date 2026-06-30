@@ -218,7 +218,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
       {/* TOP PHOTOGRAPHER */}
 
       {topPhotographerWinner && (
-        <div className="border-black-2-600 space-y-6 rounded-2xl border-2 p-5 md:p-8">
+        <div className="border-border space-y-6 rounded-2xl border-2 p-5 md:p-8">
           {/* TITLE */}
 
           <div className="flex items-center justify-center">
@@ -240,7 +240,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
       {/* TOP PHOTO */}
 
       {topPhotoWinner && (
-        <div className="border-black-2-600 space-y-6 rounded-2xl border-2 p-5 md:p-8">
+        <div className="border-border space-y-6 rounded-2xl border-2 p-5 md:p-8">
           {/* TITLE */}
 
           <div className="flex items-center justify-center">

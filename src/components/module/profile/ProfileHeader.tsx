@@ -28,7 +28,7 @@ const ProfileHeader = () => {
     : [];
 
   return (
-    <section className="bg-foreground text-background margin relative rounded-b-xl pb-5">
+    <section className="bg-background text-foreground margin relative rounded-b-xl pb-5">
       {/* Background */}
       <div className="relative h-40 w-full overflow-hidden bg-gray-800 text-gray-300 sm:h-60 md:h-80">
         {!coverError && user?.cover ? (
@@ -90,7 +90,7 @@ const ProfileHeader = () => {
                     key={stat.label}
                     className="flex flex-col items-center justify-center gap-2 text-center"
                   >
-                    <p className="text-foreground bg-primary flex size-10 items-center justify-center rounded-full font-medium md:size-12 md:text-lg">
+                    <p className="bg-primary text-primary-foreground flex size-10 items-center justify-center rounded-full font-medium md:size-12 md:text-lg">
                       {stat.value}
                     </p>
 

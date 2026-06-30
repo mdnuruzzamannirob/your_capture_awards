@@ -23,11 +23,11 @@ function formatSkillLabel(value: string) {
 function getRoleBadgeClass(level: string) {
   switch (level) {
     case 'LEADER':
-      return 'border-orange-2-500/40 bg-orange-2-500/15 text-orange-2-100';
+      return 'border-primary/40 bg-primary/15 text-primary-soft-foreground';
     case 'MODERATOR':
       return 'border-sky-500/40 bg-sky-500/15 text-sky-100';
     default:
-      return 'border-black-2-500 bg-black-2-700 text-muted-foreground';
+      return 'border-border-subtle bg-surface-secondary text-muted-foreground';
   }
 }
 
@@ -44,7 +44,7 @@ function TeamDetailSkeleton() {
         </div>
 
         <section className={`${teamShellClass} overflow-hidden`}>
-          <div className="border-black-2-600 border-b p-5 sm:p-6 lg:p-8">
+          <div className="border-border border-b p-5 sm:p-6 lg:p-8">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
               <div className="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:items-start">
                 <Skeleton className="size-28 shrink-0 rounded-full sm:size-32 lg:size-36" />
@@ -85,7 +85,7 @@ function TeamDetailSkeleton() {
             </div>
           </div>
 
-          <Separator className="bg-black-2-600" />
+          <Separator className="bg-surface-secondary" />
 
           <div className="divide-black-2-600 divide-y">
             {Array.from({ length: 4 }).map((_, index) => (
@@ -183,7 +183,7 @@ export default function TeamDetailPage() {
   return (
     <main className="margin container py-8 lg:py-10">
       <div className="space-y-5">
-        <Link href="/teams" className="text-primary hover:text-orange-2-400 text-sm font-medium">
+        <Link href="/teams" className="text-primary hover:text-primary text-sm font-medium">
           &lt; View Teams List
         </Link>
 
@@ -196,10 +196,10 @@ export default function TeamDetailPage() {
         </div>
 
         <section className={`${teamShellClass} overflow-hidden`}>
-          <div className="border-black-2-600 border-b p-5 sm:p-6 lg:p-8">
+          <div className="border-border border-b p-5 sm:p-6 lg:p-8">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
               <div className="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:items-start">
-                <div className="border-black-2-600 bg-black-2-700 relative size-28 shrink-0 overflow-hidden rounded-full border-4 sm:size-32 lg:size-36">
+                <div className="border-border bg-surface-secondary relative size-28 shrink-0 overflow-hidden rounded-full border-4 sm:size-32 lg:size-36">
                   {resolvedTeam.badge ? (
                     <Image
                       src={resolvedTeam.badge}
@@ -222,7 +222,7 @@ export default function TeamDetailPage() {
                     </h2>
                     <Badge
                       variant="outline"
-                      className="border-orange-2-500/40 bg-orange-2-500/10 text-orange-2-100"
+                      className="border-primary/40 bg-primary/10 text-primary-soft-foreground"
                     >
                       {resolvedTeam.level}
                     </Badge>
@@ -231,7 +231,7 @@ export default function TeamDetailPage() {
                       className={
                         resolvedTeam.accessibility === 'PUBLIC'
                           ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200'
-                          : 'border-black-2-600 bg-black-2-700 text-muted-foreground'
+                          : 'border-border bg-surface-secondary text-muted-foreground'
                       }
                     >
                       {resolvedTeam.accessibility === 'PUBLIC' ? 'Public' : 'Private'}
@@ -243,13 +243,13 @@ export default function TeamDetailPage() {
                   </p>
 
                   <div className="flex flex-wrap gap-2">
-                    <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+                    <span className="border-border bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
                       <Languages size={12} /> {resolvedTeam.language}
                     </span>
-                    <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+                    <span className="border-border bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
                       <MapPin size={12} /> {resolvedTeam.country}
                     </span>
-                    <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+                    <span className="border-border bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
                       <BarChartBig size={12} />{' '}
                       {resolvedTeam.min_requirement
                         ? formatSkillLabel(resolvedTeam.min_requirement)
@@ -264,7 +264,7 @@ export default function TeamDetailPage() {
                   type="button"
                   onClick={handleJoinTeam}
                   disabled={isJoining}
-                  className="bg-primary text-primary-foreground hover:bg-orange-2-400 h-12 rounded-md px-8 font-semibold disabled:cursor-not-allowed disabled:opacity-70"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 rounded-md px-8 font-semibold disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {isJoining ? 'Joining...' : 'Join Team'}
                 </Button>
@@ -296,7 +296,7 @@ export default function TeamDetailPage() {
             </div>
           </div>
 
-          <Separator className="bg-black-2-600" />
+          <Separator className="bg-surface-secondary" />
 
           <div className="divide-black-2-600 divide-y">
             {rankedMembers.length > 0 ? (
@@ -306,7 +306,7 @@ export default function TeamDetailPage() {
                 return (
                   <div
                     key={member.id}
-                    className="hover:bg-black-2-700/40 grid grid-cols-1 items-center gap-4 px-5 py-4 transition-colors sm:grid-cols-[56px_minmax(0,1fr)_240px] sm:px-6 lg:grid-cols-[64px_minmax(0,1fr)_280px]"
+                    className="hover:bg-surface-secondary/40 grid grid-cols-1 items-center gap-4 px-5 py-4 transition-colors sm:grid-cols-[56px_minmax(0,1fr)_240px] sm:px-6 lg:grid-cols-[64px_minmax(0,1fr)_280px]"
                   >
                     <div className="text-muted-foreground text-center text-lg font-medium">
                       {index + 1}

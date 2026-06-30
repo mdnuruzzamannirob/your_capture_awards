@@ -10,8 +10,8 @@ export default function TermsPage() {
 
   return (
     <section className="margin container py-10">
-      <div className="border-black-2-600 bg-black-2-800/90 mx-auto max-w-4xl rounded-2xl border p-5 md:p-8">
-        <h1 className="border-black-2-600 mb-6 border-b pb-4 text-3xl font-semibold text-primary-foreground">
+      <div className="border-border bg-surface-secondary/90 mx-auto max-w-4xl rounded-2xl border p-5 md:p-8">
+        <h1 className="border-border mb-6 border-b pb-4 text-3xl font-semibold text-primary-foreground">
           Terms & Conditions
         </h1>
 
@@ -21,7 +21,7 @@ export default function TermsPage() {
             <p className="text-sm text-muted-foreground">Loading terms...</p>
           </div>
         ) : error ? (
-          <div className="py-10 text-center text-red-500">
+          <div className="py-10 text-center text-destructive">
             Failed to load content. Please try again later.
           </div>
         ) : !policy?.content ? (

@@ -32,7 +32,7 @@ export const proseBaseStyles = cn(
   '[&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-1',
 
   // Links: color + underline
-  '[&_a]:text-blue-400 [&_a]:underline hover:[&_a]:text-blue-500',
+  '[&_a]:text-info [&_a]:underline hover:[&_a]:text-info',
 
   // Images
   '[&_img]:max-w-full [&_img]:h-auto [&_img]:rounded-md',

@@ -182,7 +182,7 @@ const JoinedContest = () => {
           if (!open) clearSearchParams();
         }}
       >
-        <DialogContent className="border-black-2-600 border-2 sm:max-w-2xl">
+        <DialogContent className="border-border border-2 sm:max-w-2xl">
           <DialogTitle />
           <div className="space-y-5">
             <h1 className="text-center text-lg font-semibold uppercase sm:text-xl">
@@ -193,7 +193,7 @@ const JoinedContest = () => {
             <div className="space-y-5">
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="text-muted-foreground text-xs uppercase">Exposure</div>
-                <div className="border-black-2-600 relative flex size-25 flex-col items-center justify-center rounded-full border-4">
+                <div className="border-border relative flex size-25 flex-col items-center justify-center rounded-full border-4">
                   <div className="flex w-full justify-between px-3 text-[10px] text-gray-400">
                     {labels.map((l, i) => (
                       <span key={i} className={cn(i + 1 <= 0 && 'font-semibold text-[#FD8533]')}>
@@ -209,7 +209,7 @@ const JoinedContest = () => {
                           key={i}
                           className={cn(
                             'h-1.5 w-3.5 rounded transition',
-                            active ? 'bg-[#FD8533]' : 'bg-white/20',
+                            active ? 'bg-[#FD8533]' : 'bg-surface-tertiary',
                           )}
                         ></div>
                       );
@@ -222,7 +222,7 @@ const JoinedContest = () => {
               </p>
             </div>
 
-            <div className="border-black-2-500 flex items-center justify-center gap-10 border-t-[0.5px] pt-5">
+            <div className="border-border-subtle flex items-center justify-center gap-10 border-t-[0.5px] pt-5">
               <button
                 onClick={handleChargeClick}
                 className="text-primary border-primary rounded-sm border px-5 py-2 text-sm"

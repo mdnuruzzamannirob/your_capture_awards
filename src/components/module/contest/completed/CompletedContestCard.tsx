@@ -10,13 +10,13 @@ const achievementIconMap: Record<string, string> = {
 
 const CompletedContestCard = ({ contest }: { contest: any }) => {
   return (
-    <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col gap-5 overflow-hidden rounded-xl border-2 p-3 lg:flex-row">
+    <div className="text-foreground bg-surface-secondary border-border flex flex-col gap-5 overflow-hidden rounded-xl border-2 p-3 lg:flex-row">
       <Link href={`/contest/${contest?.id}`} className="relative h-60 rounded-lg md:h-72 lg:flex-1">
         <Image
           src={contest?.banner}
           alt={contest?.title}
           fill
-          className="bg-black-2-600 size-full rounded-lg object-cover opacity-60"
+          className="bg-surface-secondary size-full rounded-lg object-cover opacity-60"
         />
         <h2 className="absolute inset-0 flex items-center justify-center p-3 text-center text-2xl font-semibold">
           {contest?.title}
@@ -58,7 +58,7 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
                 alt="Uploaded Photo"
                 width={400}
                 height={260}
-                className="bg-black-2-700 h-24 w-full rounded-sm object-cover opacity-80"
+                className="bg-surface-secondary h-24 w-full rounded-sm object-cover opacity-80"
               />
               <p className="absolute bottom-2 left-2 flex items-center justify-center gap-1">
                 <MdOutlineHowToVote />

@@ -20,16 +20,16 @@ export function getMemberName(m: TeamMemberUser): string {
 
 export function getRoleChipClass(role: Role): string {
   return {
-    LEADER: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-    MODERATOR: 'bg-blue-100  text-blue-800  dark:bg-blue-900/40  dark:text-blue-300',
+    LEADER: 'bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning-foreground',
+    MODERATOR: 'bg-info/10  text-info  dark:bg-info/20  dark:text-info-foreground',
     MEMBER: 'bg-muted text-muted-foreground',
   }[role];
 }
 
 export function getAvatarClass(role: Role): string {
   return {
-    LEADER: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
-    MODERATOR: 'bg-blue-100  text-blue-800  dark:bg-blue-900/40  dark:text-blue-300',
+    LEADER: 'bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning-foreground',
+    MODERATOR: 'bg-info/10  text-info  dark:bg-info/20  dark:text-info-foreground',
     MEMBER: '',
   }[role];
 }

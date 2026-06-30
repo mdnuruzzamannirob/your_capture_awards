@@ -81,7 +81,7 @@ const PhotosTabContent = ({
             return (
               <div
                 key={i}
-                className="relative h-75 animate-pulse overflow-hidden rounded-sm bg-surface ring-1 ring-white/5"
+                className="relative h-75 animate-pulse overflow-hidden rounded-sm bg-surface ring-1 ring-border-subtle"
                 style={{
                   flexGrow: aspect,
                   flexBasis: `${aspect * 200}px`,

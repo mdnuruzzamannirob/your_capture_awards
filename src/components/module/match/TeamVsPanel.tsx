@@ -74,8 +74,8 @@ function TeamVoteCard({
           )}
         </div>
         {isWinning && (
-          <div className="absolute -top-1 -right-1 rounded-full bg-amber-400 p-1">
-            <Trophy size={14} className="text-amber-900" />
+          <div className="absolute -top-1 -right-1 rounded-full bg-warning p-1">
+            <Trophy size={14} className="text-warning-foreground" />
           </div>
         )}
       </div>

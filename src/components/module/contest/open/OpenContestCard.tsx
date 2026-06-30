@@ -23,7 +23,7 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
 
       <Link
         href={`/contest/${contest.id}`}
-        className="group border-black-2-600 relative block h-72 overflow-hidden rounded-xl border-2"
+        className="group border-border relative block h-72 overflow-hidden rounded-xl border-2"
       >
         <Image
           alt="Banner"
@@ -57,14 +57,14 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
                   e.stopPropagation();
                   modalRef.current?.open();
                 }}
-                className="bg-foreground text-background hover:bg-foreground/90 rounded px-6 py-2 text-sm font-medium uppercase transition"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded px-6 py-2 text-sm font-medium uppercase transition"
               >
                 JOIN
               </button>
               {(contest?.coin_requirement ?? contest?.coinRequirement) &&
                 (contest?.coin_required ?? contest?.coinRequired) > 0 && (
-                  <div className="absolute -right-4 -bottom-2 flex items-center gap-1 rounded-full border border-sky-400 bg-white py-0.5 pr-2 pl-0.5 text-[10px] font-bold text-sky-500 shadow-sm select-none">
-                    <div className="h-4 w-4 animate-pulse rounded-full border border-amber-200 bg-linear-to-tr from-amber-500 to-amber-300" />
+                  <div className="absolute -right-4 -bottom-2 flex items-center gap-1 rounded-full border border-sky-400 bg-primary-foreground py-0.5 pr-2 pl-0.5 text-[10px] font-bold text-sky-500 shadow-sm select-none">
+                    <div className="h-4 w-4 animate-pulse rounded-full border border-warning/40 bg-linear-to-tr from-warning-500 to-warning-500" />
                     <span>{contest?.coin_required ?? contest?.coinRequired}</span>
                   </div>
                 )}

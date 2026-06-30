@@ -44,7 +44,7 @@ function ActiveMatch({
             <span
               className={cn(
                 'size-2 rounded-full',
-                isEnded ? 'bg-muted-foreground' : 'animate-pulse bg-green-500',
+                isEnded ? 'bg-muted-foreground' : 'animate-pulse bg-success',
               )}
             />
             <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
@@ -77,7 +77,7 @@ function ActiveMatch({
               {match.theme}
             </h1>
             <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-primary-foreground">
-              <span className="inline-flex items-center gap-1 rounded-full bg-black/55 px-3 py-1">
+              <span className="inline-flex items-center gap-1 rounded-full bg-overlay px-3 py-1">
                 <Camera size={12} />
                 {match.photosRequired} photos
               </span>
@@ -87,7 +87,7 @@ function ActiveMatch({
                 <Button
                   size="sm"
                   disabled={actionDisabled}
-                  className="h-7 rounded-sm bg-white px-3 text-xs font-semibold text-black hover:bg-zinc-200 disabled:bg-zinc-300"
+                  className="h-7 rounded-sm bg-primary-foreground px-3 text-xs font-semibold text-background hover:bg-surface-secondary disabled:bg-surface-secondary"
                   onClick={onAction}
                 >
                   <Camera size={12} className="mr-1.5" />

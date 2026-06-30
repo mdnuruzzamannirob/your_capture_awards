@@ -20,7 +20,7 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
 const ResourceValue = ({ isLoading, value }: { isLoading: boolean; value: number }) => {
-  if (isLoading) return <Skeleton className="bg-black-2-700 h-3 w-5" />;
+  if (isLoading) return <Skeleton className="bg-surface-secondary h-3 w-5" />;
   return <span>{value}</span>;
 };
 
@@ -76,18 +76,18 @@ const UserMenu = () => {
 
       <PopoverContent
         align="end"
-        className="bg-background border-black-2-600 text-foreground w-72 rounded-xl border p-4"
+        className="bg-background border-border text-foreground w-72 rounded-xl border p-4"
       >
         <div className="mb-3 flex flex-col">
           <span className="font-medium">{fullName}</span>
-          <span className="text-black-2-300 text-xs">{user?.email}</span>
+          <span className="text-background-2-300 text-xs">{user?.email}</span>
         </div>
 
         <div className="space-y-2 lg:hidden">
           <button
             type="button"
             onClick={openStore}
-            className="border-black-2-600 flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-surface-secondary"
+            className="border-border flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-surface-secondary"
           >
             <span className="flex items-center gap-2">
               <IoKeyOutline className="text-primary size-4" />
@@ -109,9 +109,9 @@ const UserMenu = () => {
           <button
             type="button"
             onClick={openStore}
-            className="border-black-2-600 flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-surface-secondary"
+            className="border-border flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-surface-secondary"
           >
-            <span className="text-black-2-300">Coins</span>
+            <span className="text-background-2-300">Coins</span>
             <span className="flex items-center gap-2">
               <Image
                 src="/icons/dollar.png"
@@ -128,7 +128,7 @@ const UserMenu = () => {
           </button>
         </div>
 
-        <div className="border-black-2-600 my-3 border-t" />
+        <div className="border-border my-3 border-t" />
 
         <div className="flex flex-col">
           <Link
@@ -155,7 +155,7 @@ const UserMenu = () => {
           </Link>
           <button
             onClick={handleLogout}
-            className="mt-1 flex items-center gap-2 rounded-sm p-2 text-red-500 transition-colors outline-none hover:bg-red-500/10"
+            className="mt-1 flex items-center gap-2 rounded-sm p-2 text-destructive transition-colors outline-none hover:bg-destructive/10"
           >
             <LogOut className="size-4" />
             Logout

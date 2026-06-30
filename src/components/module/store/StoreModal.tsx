@@ -58,8 +58,8 @@ const itemGradient = {
 };
 
 const itemBadge = {
-  KEY: 'bg-yellow-500/20 text-yellow-300',
-  SWAP: 'bg-blue-500/20 text-blue-300',
+  KEY: 'bg-warning/20 text-warning-foreground',
+  SWAP: 'bg-info/20 text-info-foreground',
   BOOST: 'bg-purple-500/20 text-purple-300',
 };
 
@@ -82,7 +82,7 @@ const BundleItems = ({ items }: { items: StoreProductItem[] }) => {
         item ? (
           <div
             key={item.type}
-            className={`bg-linear-to-r ${itemGradient[item.type]} flex items-center justify-between rounded-md px-2 py-1 ring-1 ring-white/5`}
+            className={`bg-linear-to-r ${itemGradient[item.type]} flex items-center justify-between rounded-md px-2 py-1 ring-1 ring-border-subtle`}
           >
             <span className="flex items-center gap-1 text-[11px] font-medium text-primary-foreground/75">
               {itemIcon[item.type]}
@@ -104,8 +104,8 @@ const BundleItems = ({ items }: { items: StoreProductItem[] }) => {
 
 /* ─── Skeleton Components ─────────────────────────────────────────── */
 const CoinCardSkeleton = () => (
-  <div className="flex h-55 w-40 shrink-0 flex-col overflow-hidden rounded-2xl border border-white/8 bg-white/4 p-1">
-    <div className="flex flex-1 flex-col rounded-xl bg-white/3 p-3">
+  <div className="flex h-55 w-40 shrink-0 flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-secondary p-1">
+    <div className="flex flex-1 flex-col rounded-xl bg-surface-secondary p-3">
       {/* Icon area */}
       <Skeleton className="mx-auto mb-3 h-16 w-16 rounded-full" />
       {/* Title & amount */}
@@ -120,10 +120,10 @@ const CoinCardSkeleton = () => (
 );
 
 const BundleCardSkeleton = () => (
-  <div className="flex h-55 w-45 shrink-0 flex-col overflow-hidden rounded-2xl border border-white/8 bg-white/4 p-1">
-    <div className="flex flex-1 flex-col rounded-xl bg-white/3 p-3">
+  <div className="flex h-55 w-45 shrink-0 flex-col overflow-hidden rounded-2xl border border-border-subtle bg-surface-secondary p-1">
+    <div className="flex flex-1 flex-col rounded-xl bg-surface-secondary p-3">
       <Skeleton className="mx-auto mb-2.5 h-3.5 w-24" />
-      <div className="flex-1 space-y-1 rounded-lg border border-white/6 bg-black/20 p-2">
+      <div className="flex-1 space-y-1 rounded-lg border border-border-subtle bg-overlay p-2">
         {Array.from({ length: 3 }).map((_, i) => (
           <Skeleton key={i} className="h-5 w-full" />
         ))}
@@ -143,10 +143,10 @@ const CoinCard = ({
   onPurchase: (offer: StoreProduct) => void;
   isPurchasing: boolean;
 }) => (
-  <div className="group relative flex h-52.5 w-38.75 shrink-0 flex-col overflow-hidden rounded-xl border border-white/8 bg-white/4">
+  <div className="group relative flex h-52.5 w-38.75 shrink-0 flex-col overflow-hidden rounded-xl border border-border-subtle bg-surface-secondary">
     <div className="relative flex flex-1 flex-col p-3">
       {/* Dollar icon area */}
-      <div className="relative mx-auto mb-2.5 flex h-18 w-full items-center justify-center overflow-hidden rounded-lg bg-black/20">
+      <div className="relative mx-auto mb-2.5 flex h-18 w-full items-center justify-center overflow-hidden rounded-lg bg-overlay">
         <div className="from-primary/25 absolute inset-0 bg-linear-to-br to-amber-500/5" />
         <Image
           src="/icons/dollar.png"
@@ -191,7 +191,7 @@ const BundleCard = ({
   onPurchase: (bundle: StoreProduct) => void;
   isPurchasing: boolean;
 }) => (
-  <div className="group relative flex h-52.5 w-43.75 shrink-0 flex-col overflow-hidden rounded-xl border border-white/8 bg-white/4">
+  <div className="group relative flex h-52.5 w-43.75 shrink-0 flex-col overflow-hidden rounded-xl border border-border-subtle bg-surface-secondary">
     <div className="relative flex flex-1 flex-col p-3">
       {/* Title */}
       <p className="mb-2 text-center text-[12px] font-semibold tracking-wide text-primary-foreground">
@@ -199,7 +199,7 @@ const BundleCard = ({
       </p>
 
       {/* Items — fixed 3-row container */}
-      <div className="flex-1 overflow-hidden rounded-lg bg-black/20 p-1.5">
+      <div className="flex-1 overflow-hidden rounded-lg bg-overlay p-1.5">
         <BundleItems items={bundle.items} />
       </div>
 
@@ -276,14 +276,14 @@ const StoreModal = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
         showCloseButton
-        className="border-black-2-600 bg-background flex max-h-[95vh] max-w-[95vw] flex-col gap-0 overflow-hidden border-2 p-0 sm:max-w-4xl"
+        className="border-border bg-background flex max-h-[95vh] max-w-[95vw] flex-col gap-0 overflow-hidden border-2 p-0 sm:max-w-4xl"
       >
         {/* ── Header ── */}
-        <DialogHeader className="relative shrink-0 border-b border-white/5 px-4 py-3 sm:px-6 sm:py-3.5">
+        <DialogHeader className="relative shrink-0 border-b border-border-subtle px-4 py-3 sm:px-6 sm:py-3.5">
           {/* Mobile: stacked layout */}
           <div className="flex flex-col items-center gap-2 sm:hidden">
             <DialogTitle className="text-sm font-semibold tracking-wide">Store</DialogTitle>
-            <div className="flex h-8 items-stretch overflow-hidden rounded-lg border border-white/8 bg-surface-secondary">
+            <div className="flex h-8 items-stretch overflow-hidden rounded-lg border border-border-subtle bg-surface-secondary">
               {[
                 {
                   icon: <IoKeyOutline className="text-primary size-3" />,
@@ -315,7 +315,7 @@ const StoreModal = () => {
                 },
               ].map((item, i) => (
                 <div key={i} className="flex items-center" title={item.label}>
-                  {i > 0 && <div className="my-1.5 w-px bg-white/8" />}
+                  {i > 0 && <div className="my-1.5 w-px bg-surface-secondary" />}
                   <div className="flex items-center gap-1 px-2 text-[11px] font-medium text-foreground">
                     {item.icon}
                     <ResourceValue loading={isStatsLoading} value={item.value} />
@@ -331,7 +331,7 @@ const StoreModal = () => {
               Store
             </DialogTitle>
             <div className="flex justify-center">
-              <div className="flex h-9 items-stretch overflow-hidden rounded-xl border border-white/8 bg-surface-secondary backdrop-blur-sm">
+              <div className="flex h-9 items-stretch overflow-hidden rounded-xl border border-border-subtle bg-surface-secondary backdrop-blur-sm">
                 {[
                   {
                     icon: <IoKeyOutline className="text-primary size-3.5" />,
@@ -363,7 +363,7 @@ const StoreModal = () => {
                   },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center" title={item.label}>
-                    {i > 0 && <div className="my-2 w-px bg-white/8" />}
+                    {i > 0 && <div className="my-2 w-px bg-surface-secondary" />}
                     <div className="flex items-center gap-1.5 px-3 text-xs font-medium text-foreground">
                       {item.icon}
                       <ResourceValue loading={isStatsLoading} value={item.value} />
@@ -408,8 +408,8 @@ const StoreModal = () => {
                 </CarouselContent>
                 {coinOffers.length > 3 && (
                   <>
-                    <CarouselPrevious className="-left-3 border-white/10 bg-surface-secondary text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground" />
-                    <CarouselNext className="-right-3 border-white/10 bg-surface-secondary text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground" />
+                    <CarouselPrevious className="-left-3 border-border-subtle bg-surface-secondary text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground" />
+                    <CarouselNext className="-right-3 border-border-subtle bg-surface-secondary text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground" />
                   </>
                 )}
               </Carousel>
@@ -449,8 +449,8 @@ const StoreModal = () => {
                 </CarouselContent>
                 {bundleOffers.length > 4 && (
                   <>
-                    <CarouselPrevious className="-left-3 border-white/10 bg-surface-secondary text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground" />
-                    <CarouselNext className="-right-3 border-white/10 bg-surface-secondary text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground" />
+                    <CarouselPrevious className="-left-3 border-border-subtle bg-surface-secondary text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground" />
+                    <CarouselNext className="-right-3 border-border-subtle bg-surface-secondary text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground" />
                   </>
                 )}
               </Carousel>

@@ -49,7 +49,7 @@ export default function ResetPasswordForm() {
       <header className="flex flex-col items-center space-y-2 text-center">
         <LogoName className="scale-125" />
       </header>
-      <div className="border-orange-2-400/60 w-full space-y-10 rounded-md border p-8 md:p-10">
+      <div className="border-primary/40 w-full space-y-10 rounded-md border p-8 md:p-10">
         <div className="space-y-5">
           <h1 className="font-rubik text-2xl font-medium md:text-3xl">Reset Your Password</h1>
           <p className="max-md:text-sm">

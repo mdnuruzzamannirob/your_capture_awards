@@ -222,7 +222,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
         {/* Results Area */}
         <div className="max-h-[55vh] overflow-y-auto p-2">
           {error ? (
-            <p className="py-6 text-center text-sm text-red-400">{error}</p>
+            <p className="py-6 text-center text-sm text-destructive">{error}</p>
           ) : !query.trim() ? (
             <p className="py-8 text-center text-xs text-caption-foreground">
               Start typing to search for users…

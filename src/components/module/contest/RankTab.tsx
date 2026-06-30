@@ -133,7 +133,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
         >
           {isRankPhotosLoading ? (
             [1, 2, 3, 4, 5, 6].map((_, index) => (
-              <Skeleton key={index} className="bg-black-2-600 h-72 w-full rounded-xl" />
+              <Skeleton key={index} className="bg-surface-secondary h-72 w-full rounded-xl" />
             ))
           ) : photoItems.length <= 0 ? (
             <EmptyState
@@ -170,7 +170,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                     #{index + 1}
                   </div>
 
-                  <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-black/20 px-2 py-1 text-sm">
+                  <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-overlay px-2 py-1 text-sm">
                     <MdOutlineHowToVote />
                     {topPhoto?.voteCount}
                   </div>
@@ -187,7 +187,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                       className="bg-foreground mb-2 size-20 rounded-full object-cover"
                     />
                     <p className="font-semibold">{topPhoto?.user?.fullName}</p>
-                    <p className="text-black-2-50">{topPhoto?.user?.location}</p>
+                    <p className="text-background-2-50">{topPhoto?.user?.location}</p>
                   </div>
                 </div>
               );
@@ -197,7 +197,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
             {activeRankTab === 'top-photo' && rankPhotosHasMore && isRankPhotosFetching && (
               <div className="grid min-h-80 grid-cols-1 gap-5 pt-4 sm:grid-cols-2 lg:grid-cols-3">
                 {[1, 2, 3].map((_, index) => (
-                  <Skeleton key={index} className="bg-black-2-600 h-72 w-full rounded-xl" />
+                  <Skeleton key={index} className="bg-surface-secondary h-72 w-full rounded-xl" />
                 ))}
               </div>
             )}
@@ -211,24 +211,24 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                 <div className="flex items-center justify-between gap-5">
                   <div className="flex w-1/3 items-center gap-3">
                     {/* Avatar Skeleton */}
-                    <Skeleton className="bg-black-2-600 h-20 w-20 rounded-full" />
+                    <Skeleton className="bg-surface-secondary h-20 w-20 rounded-full" />
                     <div className="min-w-0 space-y-1">
                       {/* Name Skeleton */}
-                      <Skeleton className="bg-black-2-600 h-5 w-32 rounded" />
+                      <Skeleton className="bg-surface-secondary h-5 w-32 rounded" />
                       {/* Country Skeleton */}
-                      <Skeleton className="bg-black-2-600 h-4 w-20 rounded" />
+                      <Skeleton className="bg-surface-secondary h-4 w-20 rounded" />
                     </div>
                   </div>
 
                   {/* Votes Bar + Rank */}
                   <div className="flex w-full items-center">
-                    <div className="bg-black-2-500 -mr-5 flex h-12 w-full items-center justify-end rounded-l-full px-2">
+                    <div className="bg-border -mr-5 flex h-12 w-full items-center justify-end rounded-l-full px-2">
                       <Skeleton
-                        className="bg-black-2-600 h-9 w-32 rounded-l-full"
+                        className="bg-surface-secondary h-9 w-32 rounded-l-full"
                         style={{ width: `${value}%` }}
                       />
                     </div>
-                    <div className="bg-black-2-600 size-20 rounded-full text-center" />
+                    <div className="bg-surface-secondary size-20 rounded-full text-center" />
                   </div>
                 </div>
 
@@ -236,8 +236,8 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                 <div className="grid h-60 grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
                   {[...Array(4)].map((_, idx) => (
                     <div className="relative" key={idx}>
-                      <Skeleton className="bg-black-2-600 h-60 w-full rounded-xl" />
-                      <Skeleton className="bg-black-2-600 absolute bottom-2 left-2 h-5 w-10 rounded" />
+                      <Skeleton className="bg-surface-secondary h-60 w-full rounded-xl" />
+                      <Skeleton className="bg-surface-secondary absolute bottom-2 left-2 h-5 w-10 rounded" />
                     </div>
                   ))}
                 </div>
@@ -270,7 +270,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                         alt=""
                         width={96}
                         height={96}
-                        className="bg-black-2-600 size-20 min-w-20 rounded-full object-cover"
+                        className="bg-surface-secondary size-20 min-w-20 rounded-full object-cover"
                       />
                       <div className="min-w-0">
                         <h3 className="truncate text-lg font-semibold whitespace-nowrap hover:text-primary">
@@ -280,7 +280,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                       </div>
                     </div>
                     <div className="flex w-full items-center">
-                      <div className="bg-black-2-500 -mr-5 flex h-12 w-full items-center justify-end rounded-l-full px-2">
+                      <div className="bg-border -mr-5 flex h-12 w-full items-center justify-end rounded-l-full px-2">
                         <div
                           className={cn(
                             'bg-primary flex h-9 items-center rounded-l-full px-3 whitespace-nowrap',
@@ -323,7 +323,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                               className="h-60 w-full rounded-xl object-cover"
                             />
 
-                            <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-black/20 px-2 py-1 text-sm">
+                            <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-overlay px-2 py-1 text-sm">
                               <MdOutlineHowToVote />
                               {photo?.voteCount}
                             </div>
@@ -344,20 +344,20 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                     <div key={index} className="space-y-5">
                       <div className="flex items-center justify-between gap-5">
                         <div className="flex w-1/3 items-center gap-3">
-                          <Skeleton className="bg-black-2-600 h-20 w-20 rounded-full" />
+                          <Skeleton className="bg-surface-secondary h-20 w-20 rounded-full" />
                           <div className="min-w-0 space-y-1">
-                            <Skeleton className="bg-black-2-600 h-5 w-32 rounded" />
-                            <Skeleton className="bg-black-2-600 h-4 w-20 rounded" />
+                            <Skeleton className="bg-surface-secondary h-5 w-32 rounded" />
+                            <Skeleton className="bg-surface-secondary h-4 w-20 rounded" />
                           </div>
                         </div>
                         <div className="flex w-full items-center">
-                          <div className="bg-black-2-500 -mr-5 flex h-12 w-full items-center justify-end rounded-l-full px-2">
+                          <div className="bg-border -mr-5 flex h-12 w-full items-center justify-end rounded-l-full px-2">
                             <Skeleton
-                              className="bg-black-2-600 h-9 w-32 rounded-l-full"
+                              className="bg-surface-secondary h-9 w-32 rounded-l-full"
                               style={{ width: `${value}%` }}
                             />
                           </div>
-                          <div className="bg-black-2-600 size-20 rounded-full text-center" />
+                          <div className="bg-surface-secondary size-20 rounded-full text-center" />
                         </div>
                       </div>
                     </div>

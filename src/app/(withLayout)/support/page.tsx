@@ -53,7 +53,7 @@ export default function SupportPage() {
 
           <form
             onSubmit={handleSubmit}
-            className="border-black-2-600 bg-black-2-800/90 space-y-4 rounded-2xl border p-5 md:p-6"
+            className="border-border bg-surface-secondary/90 space-y-4 rounded-2xl border p-5 md:p-6"
           >
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
@@ -64,7 +64,7 @@ export default function SupportPage() {
                   id="name"
                   name="name"
                   required
-                  className="border-black-2-600 bg-black-2-900"
+                  className="border-border bg-surface"
                 />
               </div>
               <div className="space-y-2">
@@ -76,7 +76,7 @@ export default function SupportPage() {
                   name="email"
                   type="email"
                   required
-                  className="border-black-2-600 bg-black-2-900"
+                  className="border-border bg-surface"
                 />
               </div>
             </div>
@@ -88,7 +88,7 @@ export default function SupportPage() {
                 id="subject"
                 name="subject"
                 required
-                className="border-black-2-600 bg-black-2-900"
+                className="border-border bg-surface"
                 placeholder="What do you need help with?"
               />
             </div>
@@ -100,7 +100,7 @@ export default function SupportPage() {
                 id="message"
                 name="message"
                 required
-                className="border-black-2-600 bg-black-2-900 min-h-40"
+                className="border-border bg-surface min-h-40"
                 placeholder="Write your message here"
               />
             </div>
@@ -108,7 +108,7 @@ export default function SupportPage() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="bg-primary hover:bg-primary/90 text-black"
+                className="bg-primary hover:bg-primary/90 text-background"
               >
                 {submitting ? 'Sending...' : 'Send message'}
               </Button>
@@ -116,7 +116,7 @@ export default function SupportPage() {
           </form>
         </div>
 
-        <aside className="border-black-2-600 bg-black-2-800/90 space-y-4 rounded-2xl border p-5 md:p-6">
+        <aside className="border-border bg-surface-secondary/90 space-y-4 rounded-2xl border p-5 md:p-6">
           <h2 className="text-xl font-semibold text-primary-foreground">Other details</h2>
           <div className="space-y-3 text-sm text-muted-foreground">
             <p>Email: support@yourcaptureawards.com</p>
