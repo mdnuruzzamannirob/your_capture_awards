@@ -46,7 +46,7 @@ export const AddLinkPopover: React.FC<Props> = ({ editor, className }) => {
         <Toggle
           size="sm"
           pressed={!!editor?.isActive('link')}
-          className={`text-gray-300 hover:bg-gray-700 data-[state=on]:bg-gray-700 ${className ?? ''}`}
+          className={`text-muted-foreground hover:bg-surface-secondary data-[state=on]:bg-surface-secondary ${className ?? ''}`}
           title="Add/Edit link"
         >
           <LinkIcon className="h-4 w-4" />
@@ -55,7 +55,7 @@ export const AddLinkPopover: React.FC<Props> = ({ editor, className }) => {
 
       {/* FIX: Changed layout to stacked elements (single column) using space-y-2 */}
       <PopoverContent
-        className="flex w-96 items-center gap-2 border-gray-700 bg-gray-800 p-3"
+        className="flex w-96 items-center gap-2 border-border bg-surface p-3"
         align="start"
       >
         <Input
@@ -67,11 +67,11 @@ export const AddLinkPopover: React.FC<Props> = ({ editor, className }) => {
         />
         {/* The button group still uses flex gap for horizontal arrangement */}
         <div className="flex gap-2">
-          <Button onClick={setLink} className="bg-green-600 text-white hover:bg-green-700">
+          <Button onClick={setLink} className="bg-success text-primary-foreground hover:bg-success/90">
             {editor?.isActive('link') ? 'Update' : 'Add'}
           </Button>
           {editor?.isActive('link') && (
-            <Button onClick={unsetLink} className="bg-red-700 p-2 text-white hover:bg-red-800">
+            <Button onClick={unsetLink} className="bg-destructive p-2 text-primary-foreground hover:bg-destructive/90">
               <Link2Off className="size-4" />
             </Button>
           )}

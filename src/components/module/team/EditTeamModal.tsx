@@ -119,7 +119,7 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
               </p>
               <div className="flex items-center gap-4">
                 {/* Preview box */}
-                <div className="border-black-2-600 bg-black-2-700 flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
+                <div className="border-border bg-surface-secondary flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
                   {badgePreview ? (
                     <Image
                       src={badgePreview}

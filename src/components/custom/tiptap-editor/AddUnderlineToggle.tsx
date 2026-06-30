@@ -19,7 +19,7 @@ export const AddUnderlineToggle: React.FC<Props> = ({ editor, className }) => {
       size="sm"
       pressed={editor.isActive('underline')}
       onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
-      className={cn('text-gray-300 hover:bg-gray-700 data-[state=on]:bg-gray-700', className ?? '')}
+      className={cn('text-muted-foreground hover:bg-surface-secondary data-[state=on]:bg-surface-secondary', className ?? '')}
       title="Underline"
     >
       <Underline className="size-4" />

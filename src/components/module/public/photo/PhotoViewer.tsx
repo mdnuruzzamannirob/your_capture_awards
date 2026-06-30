@@ -130,7 +130,7 @@ export function PhotoViewer({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       className={cn(
-        'relative flex flex-1 flex-col items-center justify-center bg-zinc-950 text-white transition-all duration-300 select-none',
+        'relative flex flex-1 flex-col items-center justify-center bg-background text-primary-foreground transition-all duration-300 select-none',
         isFullscreen ? 'h-screen w-screen p-0' : 'h-full w-full',
       )}
     >
@@ -138,7 +138,7 @@ export function PhotoViewer({
       {!isFullscreen && (
         <Link
           href={backUrl}
-          className="absolute top-6 left-6 z-20 grid size-10 place-items-center rounded-full border border-white/10 bg-black/40 text-white transition-colors duration-150 hover:bg-black/60"
+          className="absolute top-6 left-6 z-20 grid size-10 place-items-center rounded-full border border-border-subtle bg-overlay text-primary-foreground transition-colors duration-150 hover:bg-overlay"
           title="Exit and return to gallery"
         >
           <X className="size-5 stroke-[2.5]" />
@@ -156,7 +156,7 @@ export function PhotoViewer({
       {/* {isFullscreen && (
         <button
           onClick={toggleFullscreen}
-          className="absolute top-6 right-20 z-30 grid size-10 cursor-pointer place-items-center rounded-full border border-white/10 bg-black/40 text-white transition-colors duration-150 hover:bg-black/60"
+          className="absolute top-6 right-20 z-30 grid size-10 cursor-pointer place-items-center rounded-full border border-border-subtle bg-overlay text-primary-foreground transition-colors duration-150 hover:bg-overlay"
           title="Exit Fullscreen"
         >
           <Minimize2 className="size-5" />
@@ -168,18 +168,18 @@ export function PhotoViewer({
         <button
           onClick={onToggleLike}
           disabled={isLiking}
-          className="absolute top-6 right-20 z-20 grid size-10 cursor-pointer place-items-center rounded-full border border-white/10 bg-black/40 text-white drop-shadow-lg transition-transform duration-200 hover:bg-black/60 active:scale-95 disabled:cursor-wait disabled:opacity-70"
+          className="absolute top-6 right-20 z-20 grid size-10 cursor-pointer place-items-center rounded-full border border-border-subtle bg-overlay text-primary-foreground drop-shadow-lg transition-transform duration-200 hover:bg-overlay active:scale-95 disabled:cursor-wait disabled:opacity-70"
           title={isLiked ? 'Unlike photo' : 'Like photo'}
         >
           {isLiking ? (
-            <Loader2 className="size-5 animate-spin text-white" />
+            <Loader2 className="size-5 animate-spin text-primary-foreground" />
           ) : (
             <Heart
               className={cn(
                 'size-5 stroke-2 transition-all duration-300',
                 isLiked
-                  ? 'scale-110 fill-red-500 text-red-500'
-                  : 'text-white hover:scale-105 hover:text-red-400',
+                  ? 'scale-110 fill-destructive text-destructive'
+                  : 'text-primary-foreground hover:scale-105 hover:text-destructive',
               )}
             />
           )}
@@ -190,7 +190,7 @@ export function PhotoViewer({
       {!isFullscreen && (
         <button
           onClick={onToggleSidebar}
-          className="absolute top-6 right-6 z-20 grid size-10 place-items-center rounded-full border border-white/10 bg-black/40 text-white transition-colors duration-150 hover:bg-black/60"
+          className="absolute top-6 right-6 z-20 grid size-10 place-items-center rounded-full border border-border-subtle bg-overlay text-primary-foreground transition-colors duration-150 hover:bg-overlay"
           title={isSidebarOpen ? 'Hide comments & details' : 'Show comments & details'}
         >
           <EllipsisVertical className="size-5" />
@@ -201,7 +201,7 @@ export function PhotoViewer({
       {slidePhotos.length > 1 && (
         <button
           onClick={onPrev}
-          className="absolute left-4 z-10 grid size-16 cursor-pointer place-items-center rounded-full bg-black/5 text-white transition-all duration-200 outline-none hover:scale-105 hover:bg-black/20"
+          className="absolute left-4 z-10 grid size-16 cursor-pointer place-items-center rounded-full bg-overlay text-primary-foreground transition-all duration-200 outline-none hover:scale-105 hover:bg-overlay"
           aria-label="Previous photo"
         >
           <ChevronLeft className="size-14 stroke-[1.2]" />
@@ -224,7 +224,7 @@ export function PhotoViewer({
               priority
             />
           ) : (
-            <div className="text-zinc-650 flex size-full items-center justify-center text-sm">
+            <div className="text-muted-foreground flex size-full items-center justify-center text-sm">
               No Image
             </div>
           )}
@@ -232,8 +232,8 @@ export function PhotoViewer({
 
         {/* Image-only loading spinner overlay — shown during prev/next API calls */}
         {isImageLoading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-xs">
-            <Loader2 className="size-12 animate-spin text-white/70" />
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-overlay backdrop-blur-xs">
+            <Loader2 className="size-12 animate-spin text-muted-foreground" />
           </div>
         )}
       </div>
@@ -242,7 +242,7 @@ export function PhotoViewer({
       {slidePhotos.length > 1 && (
         <button
           onClick={onNext}
-          className="absolute right-4 z-10 grid size-16 cursor-pointer place-items-center rounded-full bg-black/5 text-white transition-all duration-200 outline-none hover:scale-105 hover:bg-black/20"
+          className="absolute right-4 z-10 grid size-16 cursor-pointer place-items-center rounded-full bg-overlay text-primary-foreground transition-all duration-200 outline-none hover:scale-105 hover:bg-overlay"
           aria-label="Next photo"
         >
           <ChevronRight className="size-14 stroke-[1.2]" />
@@ -252,7 +252,7 @@ export function PhotoViewer({
       {/* Fullscreen Button overlay (bottom-right) */}
       <button
         onClick={toggleFullscreen}
-        className="absolute right-6 bottom-6 z-20 grid size-10 cursor-pointer place-items-center rounded-full border border-white/5 bg-black/30 text-white transition-all duration-150 hover:bg-black/60"
+        className="absolute right-6 bottom-6 z-20 grid size-10 cursor-pointer place-items-center rounded-full border border-border-subtle bg-overlay text-primary-foreground transition-all duration-150 hover:bg-overlay"
         title="Toggle Fullscreen"
       >
         {isFullscreen ? <Minimize2 className="size-5" /> : <Maximize2 className="size-5" />}
@@ -260,7 +260,7 @@ export function PhotoViewer({
 
       {/* Bottom slide index dots indicator */}
       {/* {slidePhotos.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2 rounded-full border border-white/5 bg-black/20 px-3 py-1.5 backdrop-blur-xs">
+        <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2 rounded-full border border-border-subtle bg-overlay px-3 py-1.5 backdrop-blur-xs">
           {slidePhotos.map((item, itemIndex) => (
             <button
               key={item.id}
@@ -268,8 +268,8 @@ export function PhotoViewer({
               className={cn(
                 'cursor-pointer transition-all duration-300',
                 itemIndex === index
-                  ? 'h-1.5 w-6 rounded-full bg-white'
-                  : 'size-1.5 rounded-full bg-white/40 hover:bg-white/70',
+                  ? 'h-1.5 w-6 rounded-full bg-primary-foreground'
+                  : 'size-1.5 rounded-full bg-surface-secondary hover:bg-surface-secondary',
               )}
               aria-label={`Go to slide ${itemIndex + 1}`}
             />

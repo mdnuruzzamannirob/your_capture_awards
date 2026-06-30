@@ -42,7 +42,7 @@ function DisbandModal({ open, onClose, teamName, onDisband }: DisbandModalProps)
         </DialogHeader>
 
         <div className="space-y-3">
-          <div className="border-red-normal/40 bg-red-normal/10 text-red-light rounded-lg border p-3 text-sm">
+          <div className="border-destructive/40 bg-destructive/10 text-destructive rounded-lg border p-3 text-sm">
             ⚠️ Type <strong>{teamName}</strong> below to confirm.
           </div>
           <Input

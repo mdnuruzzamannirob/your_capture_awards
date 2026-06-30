@@ -7,11 +7,11 @@ import type { TeamMember } from './teamData';
 
 type Tone = 'default' | 'gold' | 'green' | 'red' | 'blue';
 
-export const teamShellClass = 'rounded-xl border-2 border-black-2-600 bg-black-2-800';
-export const teamPanelClass = 'rounded-lg border-2 border-black-2-600 bg-black-2-800';
-export const teamCardClass = 'rounded-md border border-black-2-600 bg-black-2-700';
+export const teamShellClass = 'rounded-xl border-2 border-border bg-surface';
+export const teamPanelClass = 'rounded-lg border-2 border-border bg-surface';
+export const teamCardClass = 'rounded-md border border-border bg-surface-secondary';
 export const teamTagClass =
-  'rounded-sm border border-black-2-600 bg-black-2-700 px-2 py-1 text-xs text-muted-foreground';
+  'rounded-sm border border-border bg-surface-secondary px-2 py-1 text-xs text-muted-foreground';
 
 export function StatusBadge({
   className,
@@ -28,10 +28,10 @@ export function StatusBadge({
     <span
       className={cn(
         'inline-flex w-fit items-center gap-1 rounded-sm border px-2 py-0.5 text-xs font-medium',
-        tone === 'default' && 'border-border/60 bg-background/60 text-muted-foreground',
-        tone === 'gold' && 'border-orange-2-500/40 bg-orange-2-500/10 text-orange-2-100',
+        tone === 'default' && 'border-border-subtle bg-background/60 text-muted-foreground',
+        tone === 'gold' && 'border-primary/40 bg-primary/10 text-primary-soft-foreground',
         tone === 'green' && 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200',
-        tone === 'red' && 'border-red-normal/40 bg-red-normal/10 text-red-light',
+        tone === 'red' && 'border-destructive/40 bg-destructive/10 text-destructive',
         tone === 'blue' && 'border-sky-500/30 bg-sky-500/10 text-sky-200',
         className,
       )}
@@ -80,7 +80,7 @@ export function MiniMetric({ label, value }: { label: string; value: string | nu
 
 export function WalletRow({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="border-border/60 flex items-center justify-between gap-3 border-b pb-3 last:border-b-0 last:pb-0">
+    <div className="border-border-subtle flex items-center justify-between gap-3 border-b pb-3 last:border-b-0 last:pb-0">
       <span className="text-muted-foreground text-sm">{label}</span>
       <span className="font-semibold">{value}</span>
     </div>
@@ -145,7 +145,7 @@ export function AvatarLabel({ name }: { name: string }) {
 
 export function EmptyBlock({ icon: Icon, title }: { icon: ElementType; title: string }) {
   return (
-    <div className="border-border/60 bg-background/30 rounded-md border border-dashed p-6 text-center">
+    <div className="border-border-subtle bg-background/30 rounded-md border border-dashed p-6 text-center">
       <Icon className="text-muted-foreground mx-auto size-8" />
       <p className="text-foreground mt-3 text-sm font-medium">{title}</p>
     </div>
@@ -178,17 +178,17 @@ export function TeamDetailsSkeleton() {
   return (
     <div className="space-y-6">
       <div className={`${teamShellClass} h-96 overflow-hidden`}>
-        <Skeleton className="bg-black-2-700 h-full w-full" />
+        <Skeleton className="bg-surface-secondary h-full w-full" />
       </div>
 
       <div className={`${teamShellClass} p-5`}>
         <div className="space-y-4">
-          <Skeleton className="bg-black-2-700 h-8 w-1/3" />
-          <Skeleton className="bg-black-2-700 h-4 w-full" />
-          <Skeleton className="bg-black-2-700 h-4 w-5/6" />
+          <Skeleton className="bg-surface-secondary h-8 w-1/3" />
+          <Skeleton className="bg-surface-secondary h-4 w-full" />
+          <Skeleton className="bg-surface-secondary h-4 w-5/6" />
           <div className="mt-6 grid grid-cols-2 gap-3">
-            <Skeleton className="bg-black-2-700 h-20" />
-            <Skeleton className="bg-black-2-700 h-20" />
+            <Skeleton className="bg-surface-secondary h-20" />
+            <Skeleton className="bg-surface-secondary h-20" />
           </div>
         </div>
       </div>
@@ -200,10 +200,10 @@ export function MemberCardSkeleton() {
   return (
     <div className={`${teamCardClass} space-y-3 p-3`}>
       <div className="flex items-center gap-3">
-        <Skeleton className="bg-black-2-700 size-10 shrink-0 rounded-md" />
+        <Skeleton className="bg-surface-secondary size-10 shrink-0 rounded-md" />
         <div className="flex-1 space-y-2">
-          <Skeleton className="bg-black-2-700 h-4 w-2/3" />
-          <Skeleton className="bg-black-2-700 h-3 w-1/2" />
+          <Skeleton className="bg-surface-secondary h-4 w-2/3" />
+          <Skeleton className="bg-surface-secondary h-3 w-1/2" />
         </div>
       </div>
     </div>
@@ -213,16 +213,16 @@ export function MemberCardSkeleton() {
 export function MatchCardSkeleton() {
   return (
     <div className={`${teamShellClass} overflow-hidden`}>
-      <Skeleton className="bg-black-2-700 h-44 w-full rounded-none" />
+      <Skeleton className="bg-surface-secondary h-44 w-full rounded-none" />
       <div className="space-y-4 p-5">
-        <Skeleton className="bg-black-2-700 h-6 w-2/3" />
-        <Skeleton className="bg-black-2-700 h-4 w-1/2" />
+        <Skeleton className="bg-surface-secondary h-6 w-2/3" />
+        <Skeleton className="bg-surface-secondary h-4 w-1/2" />
         <div className="grid grid-cols-3 gap-2">
-          <Skeleton className="bg-black-2-700 h-16" />
-          <Skeleton className="bg-black-2-700 h-16" />
-          <Skeleton className="bg-black-2-700 h-16" />
+          <Skeleton className="bg-surface-secondary h-16" />
+          <Skeleton className="bg-surface-secondary h-16" />
+          <Skeleton className="bg-surface-secondary h-16" />
         </div>
-        <Skeleton className="bg-black-2-700 h-10 w-full" />
+        <Skeleton className="bg-surface-secondary h-10 w-full" />
       </div>
     </div>
   );

@@ -101,7 +101,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
 
   const renderDynamicGallery = () => {
     if (!photographerPhotos.length) {
-      return <div className="h-125 rounded-2xl bg-white/10" />;
+      return <div className="h-125 rounded-2xl bg-surface-secondary" />;
     }
 
     if (photographerPhotos.length === 1) {
@@ -161,7 +161,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
                   className={`relative min-h-30 overflow-hidden rounded-2xl border-2 transition-all ${
                     isActive
                       ? 'border-primary scale-[0.98]'
-                      : 'border-transparent hover:border-white/30'
+                      : 'border-transparent hover:border-border-subtle'
                   }`}
                 >
                   <Image
@@ -185,7 +185,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
         {/* LEFT */}
 
         <div className="flex min-w-0 items-center gap-5">
-          <div className="border-foreground size-28 shrink-0 overflow-hidden rounded-full border-4 bg-black">
+          <div className="border-foreground size-28 shrink-0 overflow-hidden rounded-full border-4 bg-zinc-950">
             <Image
               alt="Profile"
               src={normalizeImageUrl(winner?.participant?.user?.avatar)}
@@ -218,7 +218,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
       {/* TOP PHOTOGRAPHER */}
 
       {topPhotographerWinner && (
-        <div className="border-black-2-600 space-y-6 rounded-2xl border-2 p-5 md:p-8">
+        <div className="border-border space-y-6 rounded-2xl border-2 p-5 md:p-8">
           {/* TITLE */}
 
           <div className="flex items-center justify-center">
@@ -240,7 +240,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
       {/* TOP PHOTO */}
 
       {topPhotoWinner && (
-        <div className="border-black-2-600 space-y-6 rounded-2xl border-2 p-5 md:p-8">
+        <div className="border-border space-y-6 rounded-2xl border-2 p-5 md:p-8">
           {/* TITLE */}
 
           <div className="flex items-center justify-center">
@@ -251,7 +251,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
 
           {/* PHOTO */}
 
-          <div className="relative h-125 overflow-hidden rounded-2xl bg-white/10">
+          <div className="relative h-125 overflow-hidden rounded-2xl bg-surface-secondary">
             {topPhotoWinner?.photo?.photo?.url ? (
               <Image
                 alt="Top Photo"
@@ -260,7 +260,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
                 className="object-cover"
               />
             ) : (
-              <div className="size-full bg-white/10" />
+              <div className="size-full bg-surface-secondary" />
             )}
           </div>
 

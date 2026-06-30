@@ -41,7 +41,7 @@ function JoinRequests({ requests, onAccept, onDecline }: JoinRequestsProps) {
           <div key={req.id} className="flex items-center gap-3 px-5 py-3">
             <Avatar className="size-9 shrink-0">
               {req.member.avatar && <AvatarImage src={req.member.avatar} />}
-              <AvatarFallback className="border-orange-2-500/40 bg-orange-2-500/10 text-orange-2-100 border text-[11px] font-semibold">
+              <AvatarFallback className="border-primary/40 bg-primary/10 text-primary-soft-foreground border text-[11px] font-semibold">
                 {getInitials(req.member.fullName)}
               </AvatarFallback>
             </Avatar>

@@ -20,7 +20,7 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
 const ResourceValue = ({ isLoading, value }: { isLoading: boolean; value: number }) => {
-  if (isLoading) return <Skeleton className="bg-black-2-700 h-3 w-5" />;
+  if (isLoading) return <Skeleton className="bg-surface-secondary h-3 w-5" />;
   return <span>{value}</span>;
 };
 
@@ -45,7 +45,7 @@ const UserMenu = () => {
   };
 
   if (!user || !token)
-    return <div className="size-8.5 shrink-0 animate-pulse rounded-full bg-zinc-800"></div>;
+    return <div className="size-8.5 shrink-0 animate-pulse rounded-full bg-surface-secondary"></div>;
 
   const avatar = user?.avatar;
   const fullName = `${user?.firstName || 'Name'} ${user?.lastName || 'Not found'}`;
@@ -65,7 +65,7 @@ const UserMenu = () => {
           <button
             className={cn(
               'size-8.5 shrink-0 overflow-hidden rounded-full border text-xs leading-none font-medium',
-              'bg-primary/10 border-primary text-white',
+              'bg-primary/10 border-primary text-primary-foreground',
             )}
           >
             {user?.firstName?.charAt(0) || 'U'}
@@ -76,18 +76,18 @@ const UserMenu = () => {
 
       <PopoverContent
         align="end"
-        className="bg-background border-black-2-600 text-foreground w-72 rounded-xl border p-4"
+        className="bg-background border-border text-foreground w-72 rounded-xl border p-4"
       >
         <div className="mb-3 flex flex-col">
           <span className="font-medium">{fullName}</span>
-          <span className="text-black-2-300 text-xs">{user?.email}</span>
+          <span className="text-background-2-300 text-xs">{user?.email}</span>
         </div>
 
         <div className="space-y-2 lg:hidden">
           <button
             type="button"
             onClick={openStore}
-            className="border-black-2-600 flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-white/5"
+            className="border-border flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-surface-secondary"
           >
             <span className="flex items-center gap-2">
               <IoKeyOutline className="text-primary size-4" />
@@ -101,7 +101,7 @@ const UserMenu = () => {
               <AiOutlineThunderbolt className="text-primary size-4" />
               <ResourceValue isLoading={isStatsLoading} value={stats?.boost ?? 0} />
             </span>
-            <span className="bg-primary/90 text-background flex size-8 items-center justify-center rounded-md">
+            <span className="bg-primary/90 text-primary-foreground flex size-8 items-center justify-center rounded-md">
               <FaPlus className="size-3" />
             </span>
           </button>
@@ -109,9 +109,9 @@ const UserMenu = () => {
           <button
             type="button"
             onClick={openStore}
-            className="border-black-2-600 flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-white/5"
+            className="border-border flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-surface-secondary"
           >
-            <span className="text-black-2-300">Coins</span>
+            <span className="text-background-2-300">Coins</span>
             <span className="flex items-center gap-2">
               <Image
                 src="/icons/dollar.png"
@@ -122,13 +122,13 @@ const UserMenu = () => {
               />
               <ResourceValue isLoading={isStatsLoading} value={stats?.coins ?? 0} />
             </span>
-            <span className="bg-primary/90 text-background flex size-8 items-center justify-center rounded-md">
+            <span className="bg-primary/90 text-primary-foreground flex size-8 items-center justify-center rounded-md">
               <FaPlus className="size-3" />
             </span>
           </button>
         </div>
 
-        <div className="border-black-2-600 my-3 border-t" />
+        <div className="border-border my-3 border-t" />
 
         <div className="flex flex-col">
           <Link
@@ -136,7 +136,7 @@ const UserMenu = () => {
             onClick={() => setOpen(false)}
             className={cn(
               'flex items-center gap-2 rounded-sm p-2 transition-colors outline-none',
-              pathname === '/profile' ? 'bg-white/5' : 'hover:bg-white/5',
+              pathname === '/profile' ? 'bg-surface-secondary' : 'hover:bg-surface-secondary',
             )}
           >
             <Settings className="size-4" />
@@ -147,7 +147,7 @@ const UserMenu = () => {
             onClick={() => setOpen(false)}
             className={cn(
               'flex items-center gap-2 rounded-sm p-2 transition-colors outline-none',
-              pathname === '/settings' ? 'bg-white/5' : 'hover:bg-white/5',
+              pathname === '/settings' ? 'bg-surface-secondary' : 'hover:bg-surface-secondary',
             )}
           >
             <Settings className="size-4" />
@@ -155,7 +155,7 @@ const UserMenu = () => {
           </Link>
           <button
             onClick={handleLogout}
-            className="mt-1 flex items-center gap-2 rounded-sm p-2 text-red-500 transition-colors outline-none hover:bg-red-500/10"
+            className="mt-1 flex items-center gap-2 rounded-sm p-2 text-destructive transition-colors outline-none hover:bg-destructive/10"
           >
             <LogOut className="size-4" />
             Logout

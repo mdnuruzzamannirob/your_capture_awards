@@ -29,7 +29,7 @@ const ResourceValue = ({
   value: number;
   className?: string;
 }) => {
-  if (isLoading) return <Skeleton className={cn('bg-black-2-700 h-3 w-5', className)} />;
+  if (isLoading) return <Skeleton className={cn('bg-surface-secondary h-3 w-5', className)} />;
   return <span>{value}</span>;
 };
 
@@ -69,7 +69,7 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="bg-background fixed top-0 right-0 left-0 z-50 border-b">
+      <header className="bg-background fixed top-0 right-0 left-0 z-50 border-b border-border">
         <nav className="container flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Sidebar />
@@ -90,7 +90,7 @@ const Navbar = () => {
                         'hover:text-primary p-1 text-sm transition-colors',
                         isActive
                           ? 'text-primary pointer-events-none cursor-default'
-                          : 'text-white/65 hover:text-inherit',
+                        : 'text-muted-foreground hover:text-foreground',
                       )}
                     >
                       {link?.name}
@@ -114,23 +114,23 @@ const Navbar = () => {
                   <button
                     type="button"
                     onClick={openStore}
-                    className="group flex h-8.5 items-stretch overflow-hidden rounded-md bg-white/10 transition hover:bg-white/15"
+                    className="group flex h-8.5 items-stretch overflow-hidden rounded-md bg-surface-secondary transition hover:bg-surface-tertiary"
                     aria-label="Open store resources"
                   >
-                    <div className="flex items-center px-2 text-sm text-white/80">
+                    <div className="flex items-center px-2 text-sm text-foreground">
                       <div className="flex items-center gap-2" title="Keys">
                         <IoKeyOutline className="text-primary size-4" />
                         <ResourceValue isLoading={isStatsLoading} value={stats?.key ?? 0} />
                       </div>
 
-                      <span className="mx-3 text-white/20">|</span>
+                      <span className="mx-3 text-border-strong">|</span>
 
                       <div className="flex items-center gap-2" title="Trades">
                         <MdOutlineCameraswitch className="text-primary size-4 rotate-90" />
                         <ResourceValue isLoading={isStatsLoading} value={stats?.swap ?? 0} />
                       </div>
 
-                      <span className="mx-3 text-white/20">|</span>
+                      <span className="mx-3 text-border-strong">|</span>
 
                       <div className="flex items-center gap-2" title="Charges">
                         <AiOutlineThunderbolt className="text-primary size-4" />
@@ -138,7 +138,7 @@ const Navbar = () => {
                       </div>
                     </div>
 
-                    <div className="bg-primary/90 text-background group-hover:bg-primary flex w-10 items-center justify-center transition">
+                    <div className="bg-primary/90 text-primary-foreground group-hover:bg-primary flex w-10 items-center justify-center transition">
                       <FaPlus className="size-3" />
                     </div>
                   </button>
@@ -146,7 +146,7 @@ const Navbar = () => {
                   <button
                     type="button"
                     onClick={openStore}
-                    className="group flex h-8.5 items-stretch overflow-hidden rounded-md bg-white/10 transition hover:bg-white/15"
+                    className="group flex h-8.5 items-stretch overflow-hidden rounded-md bg-surface-secondary transition hover:bg-surface-tertiary"
                     aria-label="Open coin store"
                   >
                     <div className="flex items-center gap-2 px-2">
@@ -164,7 +164,7 @@ const Navbar = () => {
                       />
                     </div>
 
-                    <div className="bg-primary/90 text-background group-hover:bg-primary flex w-10 items-center justify-center transition">
+                    <div className="bg-primary/90 text-primary-foreground group-hover:bg-primary flex w-10 items-center justify-center transition">
                       <FaPlus className="size-3" />
                     </div>
                   </button>
@@ -178,7 +178,7 @@ const Navbar = () => {
               <>
                 <Link
                   href="/signin"
-                  className="border-primary hover:border-primary/90 hover:text-foreground/90 hidden rounded-sm border px-5 py-2 text-sm transition-colors lg:block"
+                  className="border-primary hover:border-primary/90 hover:text-foreground hidden rounded-sm border px-5 py-2 text-sm transition-colors lg:block"
                 >
                   Login
                 </Link>

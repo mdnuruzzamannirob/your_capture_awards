@@ -65,7 +65,7 @@ function TeamInfo({
       {/* Header row */}
       <div className="flex items-start gap-4">
         {/* Badge */}
-        <div className="bg-black-2-700 flex size-18 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
+        <div className="bg-surface-secondary flex size-18 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
           {team.badge ? (
             <Image
               src={team.badge}
@@ -87,7 +87,7 @@ function TeamInfo({
             <h1 className="text-xl font-bold">{team.name}</h1>
             <Badge
               variant="outline"
-              className="border-amber-200 bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300"
+              className="border-warning/40 bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning-foreground"
             >
               {team.level}
             </Badge>
@@ -95,7 +95,7 @@ function TeamInfo({
               variant="outline"
               className={
                 team.accessibility === 'PUBLIC'
-                  ? 'border-green-200 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300'
+                  ? 'border-success/40 bg-success/10 text-success'
                   : 'text-muted-foreground'
               }
             >
@@ -108,13 +108,13 @@ function TeamInfo({
           </p>
 
           <div className="flex flex-wrap gap-2">
-            <span className="bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+            <span className="bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
               <Languages size={12} /> {team.language}
             </span>
-            <span className="bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+            <span className="bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
               <MapPin size={12} /> {team.country}
             </span>
-            <span className="bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+            <span className="bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
               Min Requirement:{' '}
               {team.min_requirement ? formatSkillLabel(team.min_requirement) : 'N/A'}
             </span>

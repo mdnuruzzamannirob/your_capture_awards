@@ -63,23 +63,23 @@ function CreateTeamSkeleton() {
   return (
     <main className="margin container py-8 lg:py-10">
       <div className="space-y-5">
-        <div className="bg-black-2-700 h-4 w-32 rounded" />
+        <div className="bg-surface-secondary h-4 w-32 rounded" />
         <div className="space-y-2">
-          <div className="bg-black-2-700 h-8 w-48 rounded" />
-          <div className="bg-black-2-700 h-4 w-full max-w-2xl rounded" />
-          <div className="bg-black-2-700 h-4 w-4/5 max-w-xl rounded" />
+          <div className="bg-surface-secondary h-8 w-48 rounded" />
+          <div className="bg-surface-secondary h-4 w-full max-w-2xl rounded" />
+          <div className="bg-surface-secondary h-4 w-4/5 max-w-xl rounded" />
         </div>
         <div className="space-y-4 rounded-xl border p-5">
-          <div className="bg-black-2-700 h-24 rounded-2xl" />
+          <div className="bg-surface-secondary h-24 rounded-2xl" />
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="bg-black-2-700 h-16 rounded" />
-            <div className="bg-black-2-700 h-16 rounded" />
+            <div className="bg-surface-secondary h-16 rounded" />
+            <div className="bg-surface-secondary h-16 rounded" />
           </div>
-          <div className="bg-black-2-700 h-16 rounded" />
-          <div className="bg-black-2-700 h-32 rounded" />
+          <div className="bg-surface-secondary h-16 rounded" />
+          <div className="bg-surface-secondary h-32 rounded" />
           <div className="flex justify-end gap-3">
-            <div className="bg-black-2-700 h-10 w-24 rounded" />
-            <div className="bg-black-2-700 h-10 w-28 rounded" />
+            <div className="bg-surface-secondary h-10 w-24 rounded" />
+            <div className="bg-surface-secondary h-10 w-28 rounded" />
           </div>
         </div>
       </div>
@@ -182,7 +182,7 @@ function TeamCreatePage() {
   return (
     <main className="margin container py-8 lg:py-10">
       <div className="space-y-5">
-        <Link href="/teams" className="text-primary hover:text-orange-2-400 text-sm font-medium">
+        <Link href="/teams" className="text-primary hover:text-primary text-sm font-medium">
           &lt; View Teams List
         </Link>
 
@@ -210,7 +210,7 @@ function TeamCreatePage() {
               </div>
 
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <div className="border-black-2-600 bg-black-2-800 relative size-24 shrink-0 overflow-hidden rounded-2xl border">
+                <div className="border-border bg-surface-secondary relative size-24 shrink-0 overflow-hidden rounded-2xl border">
                   {badgePreview ? (
                     <Image
                       src={badgePreview}
@@ -242,7 +242,7 @@ function TeamCreatePage() {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="border-black-2-600 bg-black-2-700"
+                      className="border-border bg-surface-secondary"
                       onClick={() => fileRef.current?.click()}
                     >
                       <Upload className="size-4" />
@@ -279,7 +279,7 @@ function TeamCreatePage() {
                     <FormControl>
                       <Input
                         {...field}
-                        className="border-black-2-600 bg-black-2-700/90"
+                        className="border-border bg-surface-secondary/90"
                         placeholder="Test Team"
                       />
                     </FormControl>
@@ -298,7 +298,7 @@ function TeamCreatePage() {
                     </FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
-                        <SelectTrigger className="border-black-2-600 bg-black-2-700/90 w-full!">
+                        <SelectTrigger className="border-border bg-surface-secondary/90 w-full!">
                           <SelectValue placeholder="Select minimum requirement" />
                         </SelectTrigger>
                       </FormControl>
@@ -327,7 +327,7 @@ function TeamCreatePage() {
                     </FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
-                        <SelectTrigger className="border-black-2-600 bg-black-2-700/90 w-full!">
+                        <SelectTrigger className="border-border bg-surface-secondary/90 w-full!">
                           <SelectValue placeholder="Select a language" />
                         </SelectTrigger>
                       </FormControl>
@@ -354,7 +354,7 @@ function TeamCreatePage() {
                     </FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
-                        <SelectTrigger className="border-black-2-600 bg-black-2-700/90 w-full!">
+                        <SelectTrigger className="border-border bg-surface-secondary/90 w-full!">
                           <SelectValue placeholder="Select a country" />
                         </SelectTrigger>
                       </FormControl>
@@ -382,7 +382,7 @@ function TeamCreatePage() {
                   </FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
-                      <SelectTrigger className="border-black-2-600 bg-black-2-700/90 w-full!">
+                      <SelectTrigger className="border-border bg-surface-secondary/90 w-full!">
                         <SelectValue placeholder="Choose visibility" />
                       </SelectTrigger>
                     </FormControl>
@@ -407,7 +407,7 @@ function TeamCreatePage() {
                   <FormControl>
                     <Textarea
                       {...field}
-                      className="border-black-2-600 bg-black-2-700/90 min-h-32 resize-none"
+                      className="border-border bg-surface-secondary/90 min-h-32 resize-none"
                       placeholder="A team of skilled players"
                     />
                   </FormControl>
@@ -417,12 +417,12 @@ function TeamCreatePage() {
             />
 
             <div className="flex gap-3 sm:justify-end">
-              <Button asChild variant="outline" className="border-black-2-600 bg-black-2-700/80">
+              <Button asChild variant="outline" className="border-border bg-surface-secondary/80">
                 <Link href="/teams">Cancel</Link>
               </Button>
               <Button
                 type="submit"
-                className="bg-primary text-primary-foreground hover:bg-orange-2-400"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={isCreating}
               >
                 {isCreating ? 'Creating...' : 'Create team'}

@@ -71,7 +71,7 @@ export function PhotoCard({
 
   return (
     <div
-      className="group relative cursor-pointer overflow-hidden rounded-sm bg-zinc-900 shadow-md transition-all duration-300 hover:border-zinc-700/80 hover:shadow-xl"
+      className="group relative cursor-pointer overflow-hidden rounded-sm bg-surface shadow-md transition-all duration-300 hover:border-border/80 hover:shadow-xl"
       style={style || {
         height: '300px',
         flexGrow: aspect,
@@ -89,11 +89,11 @@ export function PhotoCard({
             className="object-cover transition-all duration-700 ease-out group-hover:scale-105"
           />
         ) : (
-          <div className="flex size-full items-center justify-center bg-zinc-800 text-xs text-zinc-500">
+          <div className="flex size-full items-center justify-center bg-surface-secondary text-xs text-caption-foreground">
             No Image
           </div>
         )}
-        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <div className="absolute inset-0 bg-linear-to-t from-zinc-950/80 via-zinc-950/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       </div>
 
       {/* Heart / Like Button */}
@@ -101,15 +101,15 @@ export function PhotoCard({
         type="button"
         onClick={handleToggleLike}
         disabled={isLiking}
-        className="absolute top-3 right-3 z-10 cursor-pointer rounded-full border border-white/10 bg-black/40 p-2 text-white backdrop-blur-xs transition duration-200 select-none hover:bg-black/60 disabled:cursor-wait disabled:opacity-70"
+        className="absolute top-3 right-3 z-10 cursor-pointer rounded-full border border-border-subtle bg-overlay p-2 text-primary-foreground backdrop-blur-xs transition duration-200 select-none hover:bg-overlay disabled:cursor-wait disabled:opacity-70"
       >
         {isLiking ? (
-          <Loader2 className="size-4.5 animate-spin text-white" />
+          <Loader2 className="size-4.5 animate-spin text-primary-foreground" />
         ) : (
           <Heart
             className={cn(
               'size-4.5 transition duration-200',
-              liked ? 'scale-110 fill-rose-500 text-rose-500' : 'text-white hover:text-rose-400',
+              liked ? 'scale-110 fill-rose-500 text-rose-500' : 'text-primary-foreground hover:text-rose-400',
             )}
           />
         )}
@@ -118,7 +118,7 @@ export function PhotoCard({
       {/* Hover Information overlay */}
       {showMetrics && (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 p-3 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
-          <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-white/90">
+          <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-foreground">
             <span className="inline-flex items-center gap-1">
               <Vote size={18} />
               {(photo.totalVotes ?? photo.votes ?? 0).toLocaleString()}
@@ -150,8 +150,8 @@ export function TabSectionHeader({
   return (
     <div className="mb-6 flex justify-between gap-3">
       <div>
-        <h3 className="font-medium text-white/80 uppercase">{title}</h3>
-        {countLabel ? <p className="text-xs text-white/45">{countLabel}</p> : null}
+        <h3 className="font-medium text-foreground uppercase">{title}</h3>
+        {countLabel ? <p className="text-xs text-primary-foreground/45">{countLabel}</p> : null}
       </div>
       {action ? <div>{action}</div> : null}
     </div>
@@ -169,14 +169,14 @@ export function TabErrorState({
 }) {
   return (
     <section className="container py-10">
-      <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 text-red-50">
+      <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6 text-primary-foreground">
         <p className="font-semibold">{title}</p>
-        <p className="mt-1 text-sm text-red-50/75">{description}</p>
+        <p className="mt-1 text-sm text-primary-foreground/75">{description}</p>
         {onRetry ? (
           <button
             type="button"
             onClick={onRetry}
-            className="mt-4 rounded-md bg-red-500 px-4 py-2 text-sm font-semibold text-white"
+            className="mt-4 rounded-md bg-destructive px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             Retry
           </button>
@@ -200,14 +200,14 @@ export function PhotoGridLoadingState({ count = 8 }: { count?: number }) {
         return (
           <div
             key={index}
-            className="relative h-48 animate-pulse overflow-hidden rounded-lg bg-zinc-900 ring-1 ring-white/5 sm:h-60 md:h-72"
+            className="relative h-48 animate-pulse overflow-hidden rounded-lg bg-surface ring-1 ring-border-subtle sm:h-60 md:h-72"
             style={{
               flexGrow: aspect,
               flexBasis: `${aspect * 180}px`,
             }}
           >
-            <div className="absolute inset-0 bg-zinc-800/60" />
-            <div className="absolute top-3 right-3 size-7 rounded-full bg-zinc-700/60" />
+            <div className="absolute inset-0 bg-surface-secondary/60" />
+            <div className="absolute top-3 right-3 size-7 rounded-full bg-surface-secondary/60" />
           </div>
         );
       })}
@@ -217,26 +217,26 @@ export function PhotoGridLoadingState({ count = 8 }: { count?: number }) {
 
 export function CardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-lg border border-zinc-800/80 bg-zinc-900/40 shadow-lg backdrop-blur-xs">
+    <div className="overflow-hidden rounded-lg border border-border/80 bg-surface/40 shadow-lg backdrop-blur-xs">
       {/* Banner */}
-      <div className="relative h-24 animate-pulse bg-zinc-800" />
+      <div className="relative h-24 animate-pulse bg-surface-secondary" />
 
       {/* Content */}
       <div className="relative -mt-6 px-4 pb-4">
         <div className="flex items-center gap-3">
           {/* Avatar */}
-          <div className="size-16 shrink-0 animate-pulse rounded-full border-2 border-zinc-800 bg-zinc-800" />
+          <div className="size-16 shrink-0 animate-pulse rounded-full border-2 border-border bg-surface-secondary" />
 
           {/* Text */}
           <div className="flex-1 pt-2">
-            <div className="h-5 w-28 animate-pulse rounded bg-zinc-800" />
+            <div className="h-5 w-28 animate-pulse rounded bg-surface-secondary" />
 
-            <div className="mt-2 h-3 w-20 animate-pulse rounded bg-zinc-800/70" />
+            <div className="mt-2 h-3 w-20 animate-pulse rounded bg-surface-secondary/70" />
           </div>
         </div>
 
         {/* Button */}
-        <div className="mt-5 h-9 w-full animate-pulse rounded-sm bg-zinc-800" />
+        <div className="mt-5 h-9 w-full animate-pulse rounded-sm bg-surface-secondary" />
       </div>
     </div>
   );
@@ -258,12 +258,12 @@ export function PeopleLoadingState({ count = 4 }: { count?: number }) {
 
 export function AchievementLoadingState() {
   return (
-    <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/20 p-8">
-      <div className="mx-auto h-5 w-40 animate-pulse rounded bg-zinc-800" />
-      <div className="mx-auto mt-3 h-4 w-56 animate-pulse rounded bg-zinc-800/60" />
+    <div className="rounded-2xl border border-dashed border-border bg-surface/20 p-8">
+      <div className="mx-auto h-5 w-40 animate-pulse rounded bg-surface-secondary" />
+      <div className="mx-auto mt-3 h-4 w-56 animate-pulse rounded bg-surface-secondary/60" />
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="h-8 w-24 animate-pulse rounded-full bg-zinc-800" />
+          <div key={index} className="h-8 w-24 animate-pulse rounded-full bg-surface-secondary" />
         ))}
       </div>
     </div>

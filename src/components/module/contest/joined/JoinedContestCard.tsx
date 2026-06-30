@@ -34,7 +34,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
   const level = valueToLevel(contest?.level_data?.exposure_bonus);
 
   return (
-    <div className="text-foreground bg-black-2-800 border-black-2-600 flex flex-col justify-between gap-3 overflow-hidden rounded-xl border-2 pb-3 lg:gap-5 lg:pb-5">
+    <div className="text-foreground bg-surface-secondary border-border flex flex-col justify-between gap-3 overflow-hidden rounded-xl border-2 pb-3 lg:gap-5 lg:pb-5">
       {/* Top Banner */}
       <div className="relative">
         <Link href={`/contest/${contest?.id}`}>
@@ -43,7 +43,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
             alt={contest?.title}
             width={640}
             height={320}
-            className="bg-black-2-600 h-60 w-full object-cover opacity-60 md:h-72 lg:h-80"
+            className="bg-surface-secondary h-60 w-full object-cover opacity-60 md:h-72 lg:h-80"
           />
         </Link>
 
@@ -72,7 +72,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
 
       <div className="flex flex-1 flex-col gap-3 lg:gap-5">
         {/* Stats Section */}
-        <div className="grid grid-cols-2 gap-2 border-b border-white/10 px-3 pb-3 text-center md:grid-cols-3 lg:px-5 lg:pb-5">
+        <div className="grid grid-cols-2 gap-2 border-b border-border-subtle px-3 pb-3 text-center md:grid-cols-3 lg:px-5 lg:pb-5">
           <div className="flex flex-col items-center justify-center gap-1">
             <div className="text-muted-foreground text-xs uppercase">Current Level</div>
             <div className="relative">
@@ -92,20 +92,20 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
 
           {/* <div className="flex flex-col items-center justify-center gap-1">
             <div className="text-muted-foreground text-xs uppercase">GS Point</div>
-            <div className="border-black-2-600 flex size-25 flex-col items-center justify-center gap-1 rounded-full border-4 p-2">
+            <div className="border-border flex size-25 flex-col items-center justify-center gap-1 rounded-full border-4 p-2">
               <div className="text-lg font-semibold">{0}</div>
               <div className="flex items-center justify-center">
-                <p className="bg-orange-2-100 -ml-1 size-3 rounded-full" />
-                <p className="bg-orange-2-200 -ml-1 size-3 rounded-full" />
-                <p className="bg-orange-2-300 -ml-1 size-3 rounded-full" />
-                <p className="bg-orange-2-400 -ml-1 size-3 rounded-full" />
+                <p className="bg-primary/30 -ml-1 size-3 rounded-full" />
+                <p className="bg-primary/45 -ml-1 size-3 rounded-full" />
+                <p className="bg-primary/60 -ml-1 size-3 rounded-full" />
+                <p className="bg-primary/90 -ml-1 size-3 rounded-full" />
               </div>
             </div>
           </div> */}
 
           <div className="flex flex-col items-center justify-center gap-1">
             <div className="text-muted-foreground text-xs uppercase">Votes</div>
-            <div className="border-black-2-600 flex size-25 flex-col items-center justify-center gap-1 rounded-full border-4 p-1">
+            <div className="border-border flex size-25 flex-col items-center justify-center gap-1 rounded-full border-4 p-1">
               <div className="text-lg font-semibold">{contest?.level_data.totalVotes}</div>
               <small className="text-muted-foreground text-[10px]">
                 <span className="text-foreground">
@@ -119,10 +119,10 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
           <div className="flex flex-col items-center justify-center gap-2">
             <div className="text-muted-foreground text-xs uppercase">Exposure</div>
 
-            <div className="border-black-2-600 relative flex size-25 flex-col items-center justify-center rounded-full border-4">
-              <div className="flex w-full justify-between px-3 text-[10px] text-gray-400">
+            <div className="border-border relative flex size-25 flex-col items-center justify-center rounded-full border-4">
+              <div className="flex w-full justify-between px-3 text-[10px] text-caption-foreground">
                 {labels.map((l, i) => (
-                  <span key={i} className={cn(i + 1 <= level && 'font-semibold text-[#FD8533]')}>
+                  <span key={i} className={cn(i + 1 <= level && 'font-semibold text-primary')}>
                     {l}
                   </span>
                 ))}
@@ -136,7 +136,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
                       key={i}
                       className={cn(
                         'h-1.5 w-3.5 rounded transition',
-                        active ? 'bg-[#FD8533]' : 'bg-white/20',
+                        active ? 'bg-primary' : 'bg-surface-tertiary',
                       )}
                     ></div>
                   );
