@@ -202,7 +202,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
                               alt={`Vote Image`}
                               fill
                               sizes="(max-width: 768px) 50vw, 25vw"
-                              className="rounded bg-black object-cover transition duration-300 group-hover:opacity-90"
+                              className="rounded bg-zinc-950 object-cover transition duration-300 group-hover:opacity-90"
                             />
 
                             {selected && (
@@ -243,7 +243,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
               <div ref={observerRef} className="h-10 w-full" />
             </>
           ) : (
-            <div className="flex size-full items-center justify-center p-5 text-center text-lg text-gray-500">
+            <div className="flex size-full items-center justify-center p-5 text-center text-lg text-muted-foreground">
               No photos available for voting yet. Stay tuned and be ready to cast your vote soon!
             </div>
           )}

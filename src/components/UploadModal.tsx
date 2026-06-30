@@ -143,7 +143,7 @@ function ProfilePhotoJustifiedPicker({
                 style={{
                   width: `${width}px`,
                   height: `${height}px`,
-                  outline: isSelected ? '2px solid var(--color-primary, #a855f7)' : 'none',
+                  outline: isSelected ? '2px solid var(--color-primary)' : 'none',
                   outlineOffset: '-2px',
                 }}
               >
@@ -155,7 +155,7 @@ function ProfilePhotoJustifiedPicker({
                   className="object-cover"
                 />
                 {isSelected && (
-                  <span className="bg-primary absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-background shadow">
+                  <span className="bg-primary absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-primary-foreground shadow">
                     ✓
                   </span>
                 )}
@@ -436,7 +436,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                 </button>
                 <button
                   onClick={() => setModalContentType('choose')}
-                  className="bg-primary text-background rounded-sm px-5 py-2 text-sm"
+                  className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm"
                 >
                   Continue
                 </button>
@@ -593,7 +593,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                     isSubmitting ||
                     (uploadSource === 'computer' ? !file : selectedImages.length === 0)
                   }
-                  className="bg-primary text-background rounded-sm px-5 py-2 text-sm"
+                  className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm"
                 >
                   {isSubmitting ? resolvedLoadingLabel : resolvedSubmitLabel}
                 </button>
@@ -674,7 +674,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                     setUploadModal(true);
                   }
                 }}
-                className="bg-primary text-background hover:bg-primary/95 w-full rounded-md py-2.5 text-sm font-semibold transition"
+                className="bg-primary text-primary-foreground hover:bg-primary/95 w-full rounded-md py-2.5 text-sm font-semibold transition"
               >
                 Continue
               </button>

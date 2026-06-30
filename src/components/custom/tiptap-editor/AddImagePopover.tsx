@@ -49,14 +49,14 @@ export const AddImagePopover: React.FC<Props> = ({ editor, className }) => {
         <Toggle
           size="sm"
           pressed={false}
-          className={`text-gray-300 hover:bg-gray-700 data-[state=on]:bg-gray-700 ${className ?? ''}`}
+          className={`text-muted-foreground hover:bg-surface-secondary data-[state=on]:bg-surface-secondary ${className ?? ''}`}
           title="Insert image"
         >
           <ImageIcon className="h-4 w-4" />
         </Toggle>
       </PopoverTrigger>
 
-      <PopoverContent className="w-80 space-y-3 bg-gray-800 p-3" align="start">
+      <PopoverContent className="w-80 space-y-3 bg-surface p-3" align="start">
         {/* URL input */}
         <div className="flex gap-2">
           <Input
@@ -65,7 +65,7 @@ export const AddImagePopover: React.FC<Props> = ({ editor, className }) => {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addImageByUrl()}
-            className="border-gray-600 bg-gray-700 text-primary-foreground placeholder:text-gray-400"
+            className="border-border bg-surface-secondary text-primary-foreground placeholder:text-placeholder-foreground"
           />
           <Button onClick={addImageByUrl} className="text-primary-foreground">
             Add

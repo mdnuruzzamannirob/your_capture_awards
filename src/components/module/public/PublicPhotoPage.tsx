@@ -423,7 +423,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
     <main className="min-h-screen overflow-hidden bg-background text-primary-foreground">
       <div className="flex h-screen flex-col lg:flex-row">
         {/* Left: Photo Viewer */}
-        <section className="relative flex h-full w-full min-w-0 flex-1 items-center justify-center overflow-hidden bg-black">
+        <section className="relative flex h-full w-full min-w-0 flex-1 items-center justify-center overflow-hidden bg-zinc-950">
           <PhotoViewer
             photo={photo}
             slidePhotos={slides}

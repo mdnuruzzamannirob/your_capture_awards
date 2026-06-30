@@ -73,10 +73,10 @@ export function SidebarHeader({
                 alt={ownerDisplayName}
                 width={64}
                 height={64}
-                className="size-full rounded-full border-4 border-[#d7764f] object-cover"
+                className="size-full rounded-full border-4 border-primary object-cover"
               />
             ) : (
-              <div className="flex size-full items-center justify-center rounded-full border-4 border-[#d7764f] bg-surface-secondary text-sm font-bold text-muted-foreground">
+              <div className="flex size-full items-center justify-center rounded-full border-4 border-primary bg-surface-secondary text-sm font-bold text-muted-foreground">
                 {ownerDisplayName.slice(0, 1).toUpperCase()}
               </div>
             )}

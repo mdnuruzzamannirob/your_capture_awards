@@ -30,14 +30,14 @@ export function SharePanel() {
 
   return (
     <div className="absolute top-6 left-6 z-20 flex flex-col items-center gap-4 text-primary-foreground drop-shadow-md select-none">
-      <span className="text-[10px] font-black tracking-widest text-muted-foreground uppercase">Share</span>
+      <span className="text-[10px] font-black tracking-widest text-caption-foreground uppercase">Share</span>
       <div className="flex flex-col gap-3">
         <button
           onClick={() => handleShareClick('Facebook')}
           className="grid size-8 cursor-pointer place-items-center rounded-full border border-border-subtle bg-overlay text-primary-foreground transition duration-200 hover:scale-105 hover:bg-overlay"
           title="Share on Facebook"
         >
-          <Facebook className="size-4 fill-white" />
+          <Facebook className="size-4 fill-current" />
         </button>
 
         <button
@@ -45,7 +45,7 @@ export function SharePanel() {
           className="grid size-8 cursor-pointer place-items-center rounded-full border border-border-subtle bg-overlay text-primary-foreground transition duration-200 hover:scale-105 hover:bg-overlay"
           title="Share on Twitter"
         >
-          <Twitter className="size-4 fill-white" />
+          <Twitter className="size-4 fill-current" />
         </button>
 
         <button
@@ -53,7 +53,7 @@ export function SharePanel() {
           className="grid size-8 cursor-pointer place-items-center rounded-full border border-border-subtle bg-overlay text-primary-foreground transition duration-200 hover:scale-105 hover:bg-overlay"
           title="Share on Pinterest"
         >
-          <Pinterest className="size-4 fill-white" />
+          <Pinterest className="size-4 fill-current" />
         </button>
 
         <button
@@ -61,7 +61,7 @@ export function SharePanel() {
           className="grid size-8 cursor-pointer place-items-center rounded-full border border-border-subtle bg-overlay text-primary-foreground transition duration-200 hover:scale-105 hover:bg-overlay"
           title="Share on Tumblr"
         >
-          <CustomTumblrIcon className="size-4 fill-white" />
+          <CustomTumblrIcon className="size-4 fill-current" />
         </button>
       </div>
     </div>

@@ -279,7 +279,7 @@ export function ImageCropper({
           }}
         />
 
-        <div className="pointer-events-none absolute inset-0 bg-black/15" />
+        <div className="pointer-events-none absolute inset-0 bg-zinc-950/15" />
 
         {imageRect.w > 0 && (
           <div
@@ -288,7 +288,7 @@ export function ImageCropper({
             onPointerDown={startDrag('move')}
           >
             {/* Frame border + dim overlay */}
-            <div className="absolute inset-0 border-2 border-white/90 shadow-[0_0_0_9999px_color-mix(in_oklab,var(--background)_45%,transparent)]" />
+            <div className="absolute inset-0 border-2 border-primary-foreground/90 shadow-[0_0_0_9999px_color-mix(in_oklab,var(--background)_45%,transparent)]" />
 
             {/* Rule-of-thirds grid */}
             <div className="pointer-events-none absolute inset-0 opacity-30">
@@ -306,7 +306,7 @@ export function ImageCropper({
                 aria-label={`Resize from ${h}`}
                 onPointerDown={startDrag(h)}
                 className={cn(
-                  'bg-primary absolute size-4 rounded-full border-2 border-white shadow-md transition-transform hover:scale-110',
+                  'bg-primary absolute size-4 rounded-full border-2 border-background shadow-md transition-transform hover:scale-110',
                   h === 'nw' && '-top-2 -left-2',
                   h === 'ne' && '-top-2 -right-2',
                   h === 'sw' && '-bottom-2 -left-2',
@@ -335,7 +335,7 @@ export function ImageCropper({
         >
           {processing ? (
             <span className="flex items-center gap-2">
-              <span className="inline-block h-3 w-3 animate-spin rounded-sm border border-white/30 border-t-white" />
+              <span className="inline-block h-3 w-3 animate-spin rounded-sm border border-primary-foreground/30 border-t-primary-foreground" />
               Applying…
             </span>
           ) : (

@@ -161,7 +161,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
                   className={`relative min-h-30 overflow-hidden rounded-2xl border-2 transition-all ${
                     isActive
                       ? 'border-primary scale-[0.98]'
-                      : 'border-transparent hover:border-white/30'
+                      : 'border-transparent hover:border-border-subtle'
                   }`}
                 >
                   <Image
@@ -185,7 +185,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
         {/* LEFT */}
 
         <div className="flex min-w-0 items-center gap-5">
-          <div className="border-foreground size-28 shrink-0 overflow-hidden rounded-full border-4 bg-black">
+          <div className="border-foreground size-28 shrink-0 overflow-hidden rounded-full border-4 bg-zinc-950">
             <Image
               alt="Profile"
               src={normalizeImageUrl(winner?.participant?.user?.avatar)}

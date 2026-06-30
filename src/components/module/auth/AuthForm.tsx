@@ -177,7 +177,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         <button
           type="button"
           onClick={() => setRememberMe(!rememberMe)}
-          className="flex items-center gap-2 text-sm font-medium text-gray-100 select-none"
+          className="flex items-center gap-2 text-sm font-medium text-foreground select-none"
         >
           {rememberMe ? (
             <IoCheckbox className="text-primary size-6" />
@@ -186,7 +186,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
           )}
           Remember Me
         </button>
-        <Link href="/forgot-password" className="text-sm font-medium text-gray-100 hover:underline">
+        <Link href="/forgot-password" className="text-sm font-medium text-foreground hover:underline">
           Forgot Password?
         </Link>
       </div>
@@ -304,7 +304,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
       </div>
 
       <div className="mt-1 flex flex-col gap-1">
-        <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-100 select-none">
+        <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground select-none">
           <input type="checkbox" id="agree" className="sr-only" {...signupForm.register('agree')} />
           <span className="mt-0.5 shrink-0">
             {agreeValue ? (
@@ -370,9 +370,9 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
           </button>
         </div>
         <div className="my-10 flex w-full items-center">
-          <hr className="border-0.5 border-white-2-darker flex-1" />
+          <hr className="border-0.5 border-border flex-1" />
           <span className="px-5 font-medium">or</span>
-          <hr className="border-0.5 border-white-2-darker flex-1" />
+          <hr className="border-0.5 border-border flex-1" />
         </div>
       </header>
 

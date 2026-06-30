@@ -30,8 +30,8 @@ function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardPro
           height={560}
           className="h-72 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
         />
-        <div className="absolute inset-0 bg-black/35" />
-        <CornerCount count={match.photosRequired} className="bg-black/85 text-primary-foreground" />
+        <div className="absolute inset-0 bg-zinc-950/35" />
+        <CornerCount count={match.photosRequired} className="bg-zinc-950/85 text-primary-foreground" />
 
         <div className="absolute inset-0 flex flex-col justify-between p-4 sm:p-5">
           <div className="space-y-2 text-center text-primary-foreground drop-shadow-[0_1px_1px_color-mix(in_oklab,var(--background)_75%,transparent)]">

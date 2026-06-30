@@ -405,7 +405,7 @@ function CommentBubble({
                   setReplyingToId(isReplying ? null : comment.id);
                   setReplyText('');
                 }}
-                className="inline-flex items-center gap-1 font-bold text-[#2995f3] transition-colors duration-150 hover:text-[#1a85e2]"
+                className="inline-flex items-center gap-1 font-bold text-info transition-colors duration-150 hover:text-info/80"
               >
                 <Reply className="size-3" />
                 reply
@@ -416,7 +416,7 @@ function CommentBubble({
                 <>
                   <button
                     onClick={() => { setIsEditing(true); setEditText(comment.text); }}
-                    className="inline-flex items-center gap-1 font-bold text-caption-foreground transition-colors duration-150 hover:text-[#2995f3]"
+                    className="inline-flex items-center gap-1 font-bold text-caption-foreground transition-colors duration-150 hover:text-info"
                   >
                     <Pencil className="size-3" />
                     edit
