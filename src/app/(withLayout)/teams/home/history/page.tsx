@@ -85,7 +85,7 @@ const TeamHistory = () => {
     <section className="margin-user container space-y-6 py-6">
       <div>
         <h2 className="font-kumbh text-xl font-bold">Team History</h2>
-        <p className="mt-1 text-sm text-zinc-400">All matches played by your team</p>
+        <p className="mt-1 text-sm text-muted-foreground">All matches played by your team</p>
       </div>
 
       {isLoading ? (
@@ -120,7 +120,7 @@ const TeamHistory = () => {
             >
               <div>
                 <p className="font-semibold">{match.contest?.title}</p>
-                <p className="mt-1 text-sm text-zinc-400">vs {match.opponent_team.name}</p>
+                <p className="mt-1 text-sm text-muted-foreground">vs {match.opponent_team.name}</p>
               </div>
               <StatusBadge
                 label={normalizeResult(match.result)}
@@ -130,9 +130,9 @@ const TeamHistory = () => {
                 <p className="font-semibold">
                   {match.team_score} - {match.opponent_score}
                 </p>
-                <p className="text-xs text-zinc-500">Score</p>
+                <p className="text-xs text-caption-foreground">Score</p>
               </div>
-              <p className="text-sm text-zinc-400 md:text-right">
+              <p className="text-sm text-muted-foreground md:text-right">
                 {formatMatchDate(match.match_date)}
               </p>
             </div>

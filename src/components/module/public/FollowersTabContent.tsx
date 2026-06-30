@@ -51,9 +51,9 @@ function PersonCard({ item, isFollowedByMe }: { item: any; isFollowedByMe: boole
     'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80';
 
   return (
-    <div className="overflow-hidden rounded-lg border border-zinc-800/80 bg-zinc-900/40 shadow-lg backdrop-blur-xs">
+    <div className="overflow-hidden rounded-lg border border-border/80 bg-surface/40 shadow-lg backdrop-blur-xs">
       {/* Banner */}
-      <div className="relative h-24 bg-zinc-800">
+      <div className="relative h-24 bg-surface-secondary">
         <Image src={cover} alt={`${name} cover`} fill className="object-cover" />
 
         {/* Banner bottom fade */}
@@ -64,7 +64,7 @@ function PersonCard({ item, isFollowedByMe }: { item: any; isFollowedByMe: boole
       <div className="relative z-20 -mt-6 px-4 pb-4">
         <div className="flex items-center gap-3">
           {isMe ? (
-            <div className="relative z-30 size-16 shrink-0 overflow-hidden rounded-full border-2 border-zinc-800 bg-zinc-900 shadow-md">
+            <div className="relative z-30 size-16 shrink-0 overflow-hidden rounded-full border-2 border-border bg-surface shadow-md">
               {avatar ? (
                 <Image
                   src={avatar}
@@ -74,7 +74,7 @@ function PersonCard({ item, isFollowedByMe }: { item: any; isFollowedByMe: boole
                   className="size-full object-cover"
                 />
               ) : (
-                <div className="flex size-full items-center justify-center bg-zinc-800 text-[10px] font-bold text-zinc-500">
+                <div className="flex size-full items-center justify-center bg-surface-secondary text-[10px] font-bold text-caption-foreground">
                   NO AVATAR
                 </div>
               )}
@@ -82,7 +82,7 @@ function PersonCard({ item, isFollowedByMe }: { item: any; isFollowedByMe: boole
           ) : (
             <Link
               href={`/profile/${followerId}`}
-              className="relative z-30 size-16 shrink-0 overflow-hidden rounded-full border-2 border-zinc-800 bg-zinc-900 shadow-md transition hover:opacity-80"
+              className="relative z-30 size-16 shrink-0 overflow-hidden rounded-full border-2 border-border bg-surface shadow-md transition hover:opacity-80"
             >
               {avatar ? (
                 <Image
@@ -93,7 +93,7 @@ function PersonCard({ item, isFollowedByMe }: { item: any; isFollowedByMe: boole
                   className="size-full object-cover"
                 />
               ) : (
-                <div className="flex size-full items-center justify-center bg-zinc-800 text-[10px] font-bold text-zinc-500">
+                <div className="flex size-full items-center justify-center bg-surface-secondary text-[10px] font-bold text-caption-foreground">
                   NO AVATAR
                 </div>
               )}
@@ -102,17 +102,17 @@ function PersonCard({ item, isFollowedByMe }: { item: any; isFollowedByMe: boole
 
           <div className="min-w-0 flex-1 pt-2">
             {isMe ? (
-              <span className="block truncate font-semibold text-white">{name}</span>
+              <span className="block truncate font-semibold text-primary-foreground">{name}</span>
             ) : (
               <Link
                 href={`/profile/${followerId}`}
-                className="hover:text-primary block truncate font-semibold text-white transition"
+                className="hover:text-primary block truncate font-semibold text-primary-foreground transition"
               >
                 {name}
               </Link>
             )}
 
-            <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-zinc-500">
+            <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-caption-foreground">
               <MapPin size={14} className="shrink-0" /> {country}
             </p>
           </div>
@@ -126,12 +126,12 @@ function PersonCard({ item, isFollowedByMe }: { item: any; isFollowedByMe: boole
             className={cn(
               'mt-5 inline-flex w-full cursor-pointer items-center justify-center rounded-sm py-2 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-80',
               following
-                ? 'bg-zinc-850 bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
-                : 'bg-primary hover:bg-primary/90 text-white',
+                ? 'bg-surface-secondary bg-surface-secondary text-foreground hover:bg-surface-secondary'
+                : 'bg-primary hover:bg-primary/90 text-primary-foreground',
             )}
           >
             {isToggling ? (
-              <Loader2 className="size-4 animate-spin text-white" />
+              <Loader2 className="size-4 animate-spin text-primary-foreground" />
             ) : following ? (
               'Following'
             ) : (
@@ -231,7 +231,7 @@ const FollowersTabContent = ({ username, userId, isOwn = false }: Props) => {
       ) : (
         <>
           {people.length === 0 && !isFetching ? (
-            <div className="py-12 text-center text-zinc-500">No followers found.</div>
+            <div className="py-12 text-center text-caption-foreground">No followers found.</div>
           ) : (
             <div className="grid grid-cols-2 gap-6 md:grid-cols-3 xl:grid-cols-4">
               {people.map((item) => {

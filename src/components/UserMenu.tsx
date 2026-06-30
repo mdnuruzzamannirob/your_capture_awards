@@ -45,7 +45,7 @@ const UserMenu = () => {
   };
 
   if (!user || !token)
-    return <div className="size-8.5 shrink-0 animate-pulse rounded-full bg-zinc-800"></div>;
+    return <div className="size-8.5 shrink-0 animate-pulse rounded-full bg-surface-secondary"></div>;
 
   const avatar = user?.avatar;
   const fullName = `${user?.firstName || 'Name'} ${user?.lastName || 'Not found'}`;
@@ -65,7 +65,7 @@ const UserMenu = () => {
           <button
             className={cn(
               'size-8.5 shrink-0 overflow-hidden rounded-full border text-xs leading-none font-medium',
-              'bg-primary/10 border-primary text-white',
+              'bg-primary/10 border-primary text-primary-foreground',
             )}
           >
             {user?.firstName?.charAt(0) || 'U'}
@@ -87,7 +87,7 @@ const UserMenu = () => {
           <button
             type="button"
             onClick={openStore}
-            className="border-black-2-600 flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-white/5"
+            className="border-black-2-600 flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-surface-secondary"
           >
             <span className="flex items-center gap-2">
               <IoKeyOutline className="text-primary size-4" />
@@ -109,7 +109,7 @@ const UserMenu = () => {
           <button
             type="button"
             onClick={openStore}
-            className="border-black-2-600 flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-white/5"
+            className="border-black-2-600 flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-surface-secondary"
           >
             <span className="text-black-2-300">Coins</span>
             <span className="flex items-center gap-2">
@@ -136,7 +136,7 @@ const UserMenu = () => {
             onClick={() => setOpen(false)}
             className={cn(
               'flex items-center gap-2 rounded-sm p-2 transition-colors outline-none',
-              pathname === '/profile' ? 'bg-white/5' : 'hover:bg-white/5',
+              pathname === '/profile' ? 'bg-surface-secondary' : 'hover:bg-surface-secondary',
             )}
           >
             <Settings className="size-4" />
@@ -147,7 +147,7 @@ const UserMenu = () => {
             onClick={() => setOpen(false)}
             className={cn(
               'flex items-center gap-2 rounded-sm p-2 transition-colors outline-none',
-              pathname === '/settings' ? 'bg-white/5' : 'hover:bg-white/5',
+              pathname === '/settings' ? 'bg-surface-secondary' : 'hover:bg-surface-secondary',
             )}
           >
             <Settings className="size-4" />

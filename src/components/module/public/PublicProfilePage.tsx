@@ -56,8 +56,8 @@ function TabButton({
       className={cn(
         'relative flex h-full min-w-20 flex-1 cursor-pointer flex-col items-center justify-center px-5 transition duration-200 outline-none select-none',
         active
-          ? 'bg-primary font-bold text-white'
-          : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300',
+          ? 'bg-primary font-bold text-primary-foreground'
+          : 'text-muted-foreground hover:bg-surface-secondary hover:text-foreground',
       )}
     >
       <span className="text-sm leading-tight">{value.toLocaleString()}</span>
@@ -222,11 +222,11 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
   }, [isOwn, stats, photos.length]);
 
   return (
-    <main className="margin min-h-screen bg-zinc-950 text-white">
+    <main className="margin min-h-screen bg-background text-foreground">
       {/* Banner */}
-      <section className="relative h-60 w-full overflow-hidden bg-zinc-900 md:h-96">
+      <section className="relative h-60 w-full overflow-hidden bg-surface md:h-96">
         {isLoading && !profile ? (
-          <div className="size-full animate-pulse bg-zinc-900/60" />
+          <div className="size-full animate-pulse bg-surface-secondary/60" />
         ) : !coverError && profile?.cover ? (
           <Image
             src={profile.cover}
@@ -238,7 +238,7 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
             onError={() => setCoverError(true)}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-zinc-900 text-zinc-500">
+          <div className="flex h-full w-full items-center justify-center bg-surface text-muted-foreground">
             <p>No cover photo</p>
           </div>
         )}
@@ -247,11 +247,11 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
             <AddCoverDialog />
           </div>
         )}
-        <div className="absolute inset-0 bg-linear-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-background via-background/20 to-transparent" />
       </section>
 
       {/* Profile Header Bar */}
-      <section className="relative z-10 border-b border-zinc-800/80 bg-zinc-900/60 backdrop-blur-md">
+      <section className="relative z-10 border-b border-border bg-surface/60 backdrop-blur-md">
         <div className="container py-2">
           <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-center">
             {/* Left/Center Group: Avatar, Info, Team, Follow Button */}
@@ -259,13 +259,13 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
               {/* Avatar */}
               <div className="relative -mt-20 shrink-0">
                 {isLoading && !profile ? (
-                  <div className="bg-zinc-850 size-28 animate-pulse rounded-full border-4 border-black bg-zinc-800 sm:size-34" />
+                  <div className="size-28 animate-pulse rounded-full border-4 border-background bg-surface-secondary sm:size-34" />
                 ) : isOwn ? (
-                  <div className="group/avatar relative size-28 overflow-hidden rounded-full border-4 border-black bg-zinc-800 object-cover shadow-2xl sm:size-34">
+                  <div className="group/avatar relative size-28 overflow-hidden rounded-full border-4 border-background bg-surface-secondary object-cover shadow-2xl sm:size-34">
                     <AvatarDialog />
                   </div>
                 ) : (
-                  <div className="relative size-28 overflow-hidden rounded-full border-4 border-black bg-zinc-800 shadow-2xl sm:size-34">
+                  <div className="relative size-28 overflow-hidden rounded-full border-4 border-background bg-surface-secondary shadow-2xl sm:size-34">
                     {!avatarError && profile?.avatar ? (
                       <Image
                         src={profile.avatar}
@@ -275,7 +275,7 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                         onError={() => setAvatarError(true)}
                       />
                     ) : (
-                      <div className="flex size-full items-center justify-center text-xs text-zinc-500">
+                      <div className="flex size-full items-center justify-center text-xs text-muted-foreground">
                         No Avatar
                       </div>
                     )}
@@ -288,17 +288,17 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                 {/* Name, Location, Votes stacked in Column */}
                 {isLoading && !profile ? (
                   <div className="flex shrink-0 flex-col justify-center gap-2">
-                    <div className="h-6 w-36 animate-pulse rounded bg-zinc-800" />
-                    <div className="h-4 w-24 animate-pulse rounded bg-zinc-800" />
+                    <div className="h-6 w-36 animate-pulse rounded bg-surface-secondary" />
+                    <div className="h-4 w-24 animate-pulse rounded bg-surface-secondary" />
                   </div>
                 ) : (
                   <div className="flex shrink-0 flex-col justify-center">
-                    <h1 className="mb-1.5 leading-tight font-bold tracking-tight text-white sm:text-lg">
+                    <h1 className="mb-1.5 leading-tight font-bold tracking-tight text-foreground sm:text-lg">
                       {fullName}
                     </h1>
                     <div className="space-y-1">
-                      <span className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400">
-                        <MapPin className="size-3.5 text-zinc-500" />
+                      <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                        <MapPin className="text-muted-foreground size-3.5" />
                         {profile?.location || profile?.country || 'Bangladesh'}
                       </span>
                     </div>
@@ -309,15 +309,15 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                 {/* Team Group — from API joinedTeam, with conditional divider */}
                 {isLoading && !profile ? (
                   <>
-                    <div className="hidden h-10 w-px shrink-0 self-center bg-zinc-700/50 sm:block" />
+                    <div className="hidden h-10 w-px shrink-0 self-center bg-border sm:block" />
                     <div className="flex animate-pulse items-center gap-2.5">
-                      <div className="size-10 rounded-full bg-zinc-800" />
-                      <div className="h-4 w-20 rounded bg-zinc-800" />
+                      <div className="size-10 rounded-full bg-surface-secondary" />
+                      <div className="h-4 w-20 rounded bg-surface-secondary" />
                     </div>
                   </>
                 ) : joinedTeam?.team ? (
                   <>
-                    <div className="hidden h-10 w-px shrink-0 self-center bg-zinc-700/50 sm:block" />
+                    <div className="hidden h-10 w-px shrink-0 self-center bg-border sm:block" />
                     <a
                       href={`/teams/${joinedTeam.team.id || joinedTeam.team.slug || ''}`}
                       className="group/team flex shrink-0 cursor-pointer items-center gap-2.5 self-center transition hover:opacity-80"
@@ -328,14 +328,14 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                           alt={joinedTeam.team.name}
                           width={40}
                           height={40}
-                          className="size-10 rounded-full border border-zinc-700 bg-zinc-800 object-cover transition group-hover/team:border-zinc-500"
+                          className="size-10 rounded-full border border-border bg-surface-secondary object-cover transition group-hover/team:border-border-strong"
                         />
                       ) : (
-                        <div className="flex size-10 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 text-xs font-bold text-zinc-200 transition group-hover/team:border-zinc-500">
+                        <div className="flex size-10 items-center justify-center rounded-full border border-border bg-surface-secondary text-xs font-bold text-foreground transition group-hover/team:border-border-strong">
                           {joinedTeam.team.name?.slice(0, 2).toUpperCase() || 'T'}
                         </div>
                       )}
-                      <span className="text-sm font-semibold text-zinc-200 transition group-hover/team:text-white">
+                      <span className="text-sm font-semibold text-foreground transition group-hover/team:text-foreground">
                         {joinedTeam.team.name}
                       </span>
                     </a>
@@ -346,13 +346,13 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                 {isLoading && !profile ? (
                   !isOwn && (
                     <>
-                      <div className="hidden h-10 w-px shrink-0 self-center bg-zinc-700/50 sm:block" />
-                      <div className="h-8 w-20 animate-pulse rounded bg-zinc-800" />
+                      <div className="hidden h-10 w-px shrink-0 self-center bg-border sm:block" />
+                      <div className="h-8 w-20 animate-pulse rounded bg-surface-secondary" />
                     </>
                   )
                 ) : !isOwn ? (
                   <>
-                    <div className="hidden h-10 w-px shrink-0 self-center bg-zinc-700/50 sm:block" />
+                    <div className="hidden h-10 w-px shrink-0 self-center bg-surface-secondary/50 sm:block" />
                     <button
                       type="button"
                       onClick={handleToggleFollow}
@@ -360,8 +360,8 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                       className={cn(
                         'inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 self-center rounded-sm px-5 py-2 text-xs font-semibold transition select-none disabled:cursor-wait disabled:opacity-80',
                         isFollowing
-                          ? 'bg-zinc-850 bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
-                          : 'bg-primary hover:bg-primary/90 text-white',
+                          ? 'bg-surface-secondary text-foreground hover:bg-surface-tertiary'
+                          : 'bg-primary hover:bg-primary/90 text-primary-foreground',
                       )}
                     >
                       {isFollowToggling ? (
@@ -379,15 +379,15 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
 
             {/* Right side: Scrollable Modern Tabs Box */}
             <div className="w-full overflow-hidden lg:w-auto">
-              <div className="divide-zinc-850 flex h-12 max-w-full scrollbar-none items-center divide-x overflow-x-auto rounded-sm border border-zinc-800 bg-zinc-900/30 shadow-md">
+              <div className="divide-border flex h-12 max-w-full scrollbar-none items-center divide-x overflow-x-auto rounded-sm border border-border bg-surface/30 shadow-md">
                 {isLoading && !stats
                   ? Array.from({ length: isOwn ? 5 : 4 }).map((_, idx) => (
                       <div
                         key={idx}
                         className="flex h-full min-w-20 flex-1 animate-pulse flex-col items-center justify-center gap-1.5 px-5"
                       >
-                        <div className="h-4 w-8 rounded bg-zinc-800" />
-                        <div className="h-2 w-12 rounded bg-zinc-800" />
+                        <div className="h-4 w-8 rounded bg-surface-secondary" />
+                        <div className="h-2 w-12 rounded bg-surface-secondary" />
                       </div>
                     ))
                   : tabs.map((tab) => (

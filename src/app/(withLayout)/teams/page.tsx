@@ -102,26 +102,26 @@ function JoinTeamButton({ teamId, className }: { teamId: string; className?: str
 
 function TeamCardSkeleton() {
   return (
-    <article className="border-black-2-600 rounded-xl border bg-transparent p-4">
+    <article className="border-border rounded-xl border bg-transparent p-4">
       <div className="flex items-start gap-3">
-        <div className="bg-black-2-700 relative size-12 shrink-0 rounded-full" />
+        <div className="bg-surface-secondary relative size-12 shrink-0 rounded-full" />
         <div className="min-w-0 flex-1 space-y-2">
-          <div className="bg-black-2-700 h-4 w-36 rounded" />
-          <div className="bg-black-2-700 h-3 w-full rounded" />
-          <div className="bg-black-2-700 h-3 w-4/5 rounded" />
+          <div className="bg-surface-secondary h-4 w-36 rounded" />
+          <div className="bg-surface-secondary h-3 w-full rounded" />
+          <div className="bg-surface-secondary h-3 w-4/5 rounded" />
         </div>
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <div className="bg-black-2-700 h-8 rounded" />
-        <div className="bg-black-2-700 h-8 rounded" />
-        <div className="bg-black-2-700 h-8 rounded" />
-        <div className="bg-black-2-700 h-8 rounded" />
+        <div className="bg-surface-secondary h-8 rounded" />
+        <div className="bg-surface-secondary h-8 rounded" />
+        <div className="bg-surface-secondary h-8 rounded" />
+        <div className="bg-surface-secondary h-8 rounded" />
       </div>
 
       <div className="mt-4 flex items-center justify-end gap-2">
-        <div className="bg-black-2-700 h-9 w-20 rounded-md" />
-        <div className="bg-black-2-700 h-9 w-20 rounded-md" />
+        <div className="bg-surface-secondary h-9 w-20 rounded-md" />
+        <div className="bg-surface-secondary h-9 w-20 rounded-md" />
       </div>
     </article>
   );
@@ -131,10 +131,10 @@ function FeaturedTeamCard({ team }: { team: TeamListItem }) {
   const avatars = getTeamAvatars(team);
 
   return (
-    <article className="border-black-2-600 hover:border-orange-2-500/40 h-full overflow-hidden rounded-md border bg-transparent p-3 transition duration-200">
-      <div className="border-black-2-600 flex items-start justify-between gap-3 border-b pb-3">
+    <article className="border-border hover:border-primary/40 h-full overflow-hidden rounded-md border bg-transparent p-3 transition duration-200">
+      <div className="border-border flex items-start justify-between gap-3 border-b pb-3">
         <div className="flex min-w-0 items-start gap-3">
-          <div className="border-black-2-600 bg-black-2-800 relative size-11 shrink-0 overflow-hidden rounded-full border">
+          <div className="border-border bg-surface-secondary relative size-11 shrink-0 overflow-hidden rounded-full border">
             <Image
               src={getTeamBanner(team)}
               alt={team.name}
@@ -158,7 +158,7 @@ function FeaturedTeamCard({ team }: { team: TeamListItem }) {
                 {team.country}
               </span>
               <span className="text-muted-foreground inline-flex items-center gap-1 font-medium">
-                <Trophy className="text-orange-2-200 size-3.5" />
+                <Trophy className="text-primary-soft-foreground size-3.5" />
                 {team.score.toLocaleString()}
               </span>
             </div>
@@ -184,7 +184,7 @@ function FeaturedTeamCard({ team }: { team: TeamListItem }) {
                 className="border-black-2-700 border"
               >
                 {user.avatar ? <AvatarImage src={user.avatar} alt={getUserName(user)} /> : null}
-                <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-semibold">
+        <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-semibold">
                   {getInitials(getUserName(user))}
                 </AvatarFallback>
               </Avatar>
@@ -196,7 +196,7 @@ function FeaturedTeamCard({ team }: { team: TeamListItem }) {
         </div>
       </div>
 
-      <p className="text-muted-foreground border-black-2-600 min-h-22 border-t pt-3 text-sm leading-6">
+      <p className="text-muted-foreground border-border min-h-22 border-t pt-3 text-sm leading-6">
         {team.description}
       </p>
 
@@ -204,13 +204,13 @@ function FeaturedTeamCard({ team }: { team: TeamListItem }) {
         <Button
           asChild
           variant="outline"
-          className="border-black-2-600 bg-black-2-800/70 text-primary h-10 flex-1"
+          className="border-border bg-surface-secondary/70 text-primary h-10 flex-1"
         >
           <Link href={`/teams/${team.id}`}>View Team</Link>
         </Button>
         <JoinTeamButton
           teamId={team.id}
-          className="bg-primary text-primary-foreground hover:bg-orange-2-400 h-10 flex-1"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 flex-1"
         />
       </div>
     </article>
@@ -219,9 +219,9 @@ function FeaturedTeamCard({ team }: { team: TeamListItem }) {
 
 function MoreTeamCard({ team }: { team: TeamListItem }) {
   return (
-    <article className="border-black-2-600 rounded-xl border p-4 transition duration-200">
+    <article className="border-border rounded-xl border p-4 transition duration-200">
       <div className="flex items-start gap-3">
-        <div className="border-black-2-600 bg-black-2-800 relative size-14 shrink-0 overflow-hidden rounded-full border">
+        <div className="border-border bg-surface-secondary relative size-14 shrink-0 overflow-hidden rounded-full border">
           <Image
             src={getTeamBanner(team)}
             alt={team.name}
@@ -238,22 +238,22 @@ function MoreTeamCard({ team }: { team: TeamListItem }) {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+        <span className="border-border bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
           <Languages size={12} />
           {team.language}
         </span>
-        <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+        <span className="border-border bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
           <MapPin size={12} />
           {team.country}
         </span>
-        <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+        <span className="border-border bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
           <BarChartBig size={12} />{' '}
           {team.min_requirement ? formatSkillLabel(team.min_requirement) : 'N/A'}
         </span>
-        <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+        <span className="border-border bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
           <Users size={12} /> {team.member_count}/{team.member_slots}
         </span>
-        <span className="border-black-2-600 bg-black-2-700 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
+        <span className="border-border bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
           <Trophy size={12} /> {team.score.toLocaleString()}
         </span>
       </div>
@@ -358,7 +358,7 @@ export default function Team() {
   return (
     <main className="margin relative isolate container overflow-hidden py-6 sm:py-8 lg:py-10">
       <div className="pointer-events-none absolute -top-24 left-8 h-72 w-72 rounded-full blur-3xl" />
-      <div className="pointer-events-none absolute top-32 right-0 h-80 w-80 rounded-full bg-white/5 blur-3xl" />
+      <div className="pointer-events-none absolute top-32 right-0 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
 
       <div className="relative space-y-8">
         {featuredTeams.length > 0 ? (
@@ -397,7 +397,7 @@ export default function Team() {
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search by team's name"
-              className="border-black-2-600 bg-black-2-700/90 text-foreground placeholder:text-muted-foreground h-12 rounded-full pr-11"
+              className="border-border bg-surface-secondary/90 text-foreground placeholder:text-muted-foreground h-12 rounded-full pr-11"
             />
           </div>
 

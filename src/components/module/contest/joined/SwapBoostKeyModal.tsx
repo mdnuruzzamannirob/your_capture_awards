@@ -246,7 +246,7 @@ export default function SwapBoostKeyModal() {
             onValueChange={(value: any) => setActiveTab(value)}
             className="h-full"
           >
-            <TabsList className="text-foreground h-auto w-full bg-white/5">
+            <TabsList className="text-foreground h-auto w-full bg-surface-secondary">
               <TabsTrigger
                 value="swap"
                 className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary py-2"
@@ -284,7 +284,7 @@ export default function SwapBoostKeyModal() {
                   {swapPackage.map((swap, index) => (
                     <div
                       key={index}
-                      className="border-black-2-600 flex flex-col items-center justify-center gap-3 rounded-md border bg-white/5 p-5"
+                      className="border-black-2-600 flex flex-col items-center justify-center gap-3 rounded-md border bg-surface-secondary p-5"
                     >
                       <h1>{swap.title}</h1>
                       <p>{swap.amount} Swap</p>
@@ -317,7 +317,7 @@ export default function SwapBoostKeyModal() {
                   {boostPackage.map((boost, index) => (
                     <div
                       key={index}
-                      className="border-black-2-600 flex flex-col items-center justify-center gap-3 rounded-md border bg-white/5 p-5"
+                      className="border-black-2-600 flex flex-col items-center justify-center gap-3 rounded-md border bg-surface-secondary p-5"
                     >
                       <h1>{boost.title}</h1>
                       <p>{boost.amount} Boost</p>
@@ -347,7 +347,7 @@ export default function SwapBoostKeyModal() {
                   {keyPackage.map((key, index) => (
                     <div
                       key={index}
-                      className="border-black-2-600 flex flex-col items-center justify-center gap-3 rounded-md border bg-white/5 p-5"
+                      className="border-black-2-600 flex flex-col items-center justify-center gap-3 rounded-md border bg-surface-secondary p-5"
                     >
                       <h1>{key.title}</h1>
                       <p>{key.amount} Key</p>

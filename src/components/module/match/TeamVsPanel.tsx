@@ -40,7 +40,7 @@ function TeamVsPanel({ teamA, teamB, aPct, bPct, aWinning }: TeamVsPanelProps) {
         </div>
         <div className="bg-muted flex h-2 overflow-hidden rounded-full">
           <div className="bg-primary transition-all duration-700" style={{ width: `${aPct}%` }} />
-          <div className="bg-zinc-600 transition-all duration-700" style={{ width: `${bPct}%` }} />
+          <div className="bg-border transition-all duration-700" style={{ width: `${bPct}%` }} />
         </div>
       </div> */}
     </div>
@@ -60,7 +60,7 @@ function TeamVoteCard({
     <div className={cn('flex flex-1 flex-col items-center gap-2', align === 'right' && 'flex-col')}>
       {/* Avatar */}
       <div className="relative">
-        <div className="border-border flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 bg-zinc-700">
+        <div className="border-border flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 bg-surface-secondary">
           {team.badge ? (
             <Image
               src={team.badge}
@@ -70,7 +70,7 @@ function TeamVoteCard({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="text-xl font-bold text-zinc-400">{getInitials(team.name)}</span>
+            <span className="text-xl font-bold text-muted-foreground">{getInitials(team.name)}</span>
           )}
         </div>
         {isWinning && (

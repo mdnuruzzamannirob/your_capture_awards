@@ -45,8 +45,8 @@ export default function SupportPage() {
       <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-semibold text-white">Support</h1>
-            <p className="mt-2 text-sm text-white/60">
+            <h1 className="text-3xl font-semibold text-primary-foreground">Support</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
               Send us a message if you have a question, bug report, or account issue.
             </p>
           </div>
@@ -57,7 +57,7 @@ export default function SupportPage() {
           >
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm text-white/80" htmlFor="name">
+                <label className="text-sm text-foreground" htmlFor="name">
                   Name
                 </label>
                 <Input
@@ -68,7 +68,7 @@ export default function SupportPage() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-white/80" htmlFor="email">
+                <label className="text-sm text-foreground" htmlFor="email">
                   Email
                 </label>
                 <Input
@@ -81,7 +81,7 @@ export default function SupportPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm text-white/80" htmlFor="subject">
+              <label className="text-sm text-foreground" htmlFor="subject">
                 Subject
               </label>
               <Input
@@ -93,7 +93,7 @@ export default function SupportPage() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm text-white/80" htmlFor="message">
+              <label className="text-sm text-foreground" htmlFor="message">
                 Message
               </label>
               <Textarea
@@ -117,8 +117,8 @@ export default function SupportPage() {
         </div>
 
         <aside className="border-black-2-600 bg-black-2-800/90 space-y-4 rounded-2xl border p-5 md:p-6">
-          <h2 className="text-xl font-semibold text-white">Other details</h2>
-          <div className="space-y-3 text-sm text-white/65">
+          <h2 className="text-xl font-semibold text-primary-foreground">Other details</h2>
+          <div className="space-y-3 text-sm text-muted-foreground">
             <p>Email: support@yourcaptureawards.com</p>
             <p>Response time: 1 to 2 business days</p>
             <p>For urgent account issues, include your registered email.</p>

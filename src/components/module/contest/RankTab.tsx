@@ -166,7 +166,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                     className="h-72 w-full rounded-xl object-cover transition-all duration-500 group-hover:brightness-60"
                   />
 
-                  <div className="absolute top-2 left-2 rounded bg-black/50 px-2 py-1 font-bold">
+                  <div className="absolute top-2 left-2 rounded bg-overlay px-2 py-1 font-bold">
                     #{index + 1}
                   </div>
 

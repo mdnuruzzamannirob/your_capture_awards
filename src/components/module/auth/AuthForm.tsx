@@ -194,7 +194,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
       <button
         type="submit"
         disabled={isSigninLoading}
-        className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-4 w-full rounded-sm py-2.25 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+        className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-4 w-full rounded-sm py-2.25 text-primary-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSigninLoading ? 'Signing in...' : 'Sign In'}
       </button>
@@ -313,7 +313,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
               <IoCheckboxOutline className="text-primary size-5" />
             )}
           </span>
-          <span className="text-xs leading-normal text-white/70">
+          <span className="text-xs leading-normal text-muted-foreground">
             I agree to the{' '}
             <Link
               href="/terms"
@@ -341,7 +341,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
       <button
         type="submit"
         disabled={isSignupLoading}
-        className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-2 w-full rounded-sm py-2.25 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+        className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-2 w-full rounded-sm py-2.25 text-primary-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSignupLoading ? 'Creating account...' : 'Sign Up'}
       </button>

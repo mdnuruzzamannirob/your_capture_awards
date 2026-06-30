@@ -23,7 +23,7 @@ const UpcomingContestCardSkeleton = () => {
           </div>
 
           {/* Footer stats skeleton */}
-          <div className="flex w-full items-center justify-between bg-black/80 py-2 text-white">
+          <div className="flex w-full items-center justify-between bg-black/80 py-2 text-primary-foreground">
             <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-2">
               <Skeleton className="bg-black-2-600 h-4 w-24" />
               <Skeleton className="bg-black-2-600 mt-1 h-3 w-12" />

@@ -135,7 +135,7 @@ const JoinedContest = () => {
       {/* Level Progress Tracker */}
       <div className="mb-8">
         {!mounted || isLevelsLoading || (isAuthenticated && isProgressLoading) ? (
-          <div className="h-11 w-full animate-pulse rounded-lg bg-zinc-800/80" />
+          <div className="h-11 w-full animate-pulse rounded-lg bg-surface-secondary/80" />
         ) : allLevels.length > 0 ? (
           <LevelProgressBar levels={allLevels} currentLevelOrder={currentLevelOrder} />
         ) : null}

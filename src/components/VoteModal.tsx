@@ -206,7 +206,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
                             />
 
                             {selected && (
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-[2px] transition">
+                              <div className="absolute inset-0 flex items-center justify-center bg-overlay backdrop-blur-[2px] transition">
                                 <Image
                                   src="/icons/voting-power.png"
                                   alt="voted"

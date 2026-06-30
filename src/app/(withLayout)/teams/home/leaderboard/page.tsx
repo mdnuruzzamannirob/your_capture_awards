@@ -79,7 +79,7 @@ const TeamLeaderboard = () => {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="font-kumbh text-xl font-bold">Team Leaderboard</h2>
-          <p className="mt-1 text-sm text-zinc-400">Fair matchmaking by skill level</p>
+          <p className="mt-1 text-sm text-muted-foreground">Fair matchmaking by skill level</p>
         </div>
 
         <div className="border-black-2-700 bg-black-2-900/50 grid grid-cols-3 gap-1 rounded-md border p-1">
@@ -90,8 +90,8 @@ const TeamLeaderboard = () => {
               className={cn(
                 'rounded-sm px-3 py-2 text-sm font-medium capitalize transition-colors',
                 leaderboardPeriod === period
-                  ? 'bg-primary text-white'
-                  : 'text-zinc-400 hover:bg-white/5 hover:text-white',
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground',
               )}
             >
               {period}
@@ -148,7 +148,7 @@ const TeamLeaderboard = () => {
 
                 <div>
                   <p className="font-semibold">{row.score}</p>
-                  <p className="text-xs text-zinc-500">Score</p>
+                  <p className="text-xs text-caption-foreground">Score</p>
                 </div>
               </div>
             );

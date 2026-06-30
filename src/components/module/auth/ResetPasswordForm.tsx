@@ -126,7 +126,7 @@ export default function ResetPasswordForm() {
           <button
             type="submit"
             disabled={isLoading}
-            className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-4 w-full rounded-sm py-2.25 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-4 w-full rounded-sm py-2.25 text-primary-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoading ? 'Submitting...' : 'Submit'}
           </button>

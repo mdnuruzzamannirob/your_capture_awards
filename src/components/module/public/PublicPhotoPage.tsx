@@ -420,7 +420,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <main className="min-h-screen overflow-hidden bg-zinc-950 text-white">
+    <main className="min-h-screen overflow-hidden bg-background text-primary-foreground">
       <div className="flex h-screen flex-col lg:flex-row">
         {/* Left: Photo Viewer */}
         <section className="relative flex h-full w-full min-w-0 flex-1 items-center justify-center overflow-hidden bg-black">
@@ -445,7 +445,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
         {/* Right: Detail Sidebar */}
         <aside
           className={cn(
-            'flex flex-col border-zinc-800 bg-zinc-950 text-zinc-100',
+            'flex flex-col border-border bg-background text-foreground',
             transitionReady && 'transition-all duration-300 ease-in-out',
             'lg:static lg:z-auto lg:h-full lg:shrink-0 lg:border-l',
             isSidebarOpen ? 'lg:w-108.75' : 'lg:w-0 lg:overflow-hidden lg:border-l-0',
@@ -466,7 +466,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
             isFollowToggling={isFollowToggling}
           />
 
-          <div className="min-h-0 flex-1 scrollbar-thin overflow-y-auto bg-zinc-950">
+          <div className="min-h-0 flex-1 scrollbar-thin overflow-y-auto bg-background">
             <SidebarMetrics
               votes={photo.totalVotes ?? photo.votes ?? 0}
               views={photo.views ?? 0}

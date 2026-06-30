@@ -32,10 +32,10 @@ const ClosedContestCard = ({ contest }: { contest: any }) => {
               height={44}
               className="bg-black-2-500 size-12 min-w-12 rounded-full object-cover"
             />
-            <p className="font-medium text-white">{`By ${contest?.creator?.fullName ?? 'Unknown User'}`}</p>
+            <p className="font-medium text-primary-foreground">{`By ${contest?.creator?.fullName ?? 'Unknown User'}`}</p>
           </div>
 
-          <div className="flex w-full items-center justify-between bg-black/80 py-2 text-white">
+          <div className="flex w-full items-center justify-between bg-black/80 py-2 text-primary-foreground">
             {contest?.isMoneyContest ? (
               <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
                 <p className="font-semibold">

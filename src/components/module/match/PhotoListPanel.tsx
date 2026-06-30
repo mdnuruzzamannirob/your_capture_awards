@@ -98,7 +98,7 @@ function PhotoRow({
         </div>
 
         {/* Votes */}
-        <div className="flex shrink-0 items-center gap-1 rounded-full bg-zinc-800 px-2.5 py-0.5 text-xs font-semibold text-white">
+        <div className="flex shrink-0 items-center gap-1 rounded-full bg-surface-secondary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground">
           {photo.votes.toLocaleString()}
           <Vote size={10} />
         </div>
