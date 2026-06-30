@@ -334,7 +334,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
           </span>
         </label>
         {signupForm.formState.errors.agree && (
-          <p className="mt-0.5 text-xs text-red-500">{signupForm.formState.errors.agree.message}</p>
+          <p className="mt-0.5 text-xs text-destructive">{signupForm.formState.errors.agree.message}</p>
         )}
       </div>
 
@@ -358,13 +358,13 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         <div className="font-kumbh w-full space-y-6 font-light">
           <button
             onClick={() => handleOAuthLogin('google')}
-            className="text-foreground flex w-full items-center gap-4 rounded-md border border-orange-400/60 px-5 py-3"
+            className="text-foreground flex w-full items-center gap-4 rounded-md border border-primary/40 px-5 py-3"
           >
             <FaGoogle size={20} /> Continue With Google
           </button>
           <button
             onClick={() => handleOAuthLogin('facebook')}
-            className="text-foreground flex w-full items-center gap-4 rounded-md border border-orange-400/60 px-5 py-3"
+            className="text-foreground flex w-full items-center gap-4 rounded-md border border-primary/40 px-5 py-3"
           >
             <FaFacebookF size={20} /> Continue With Facebook
           </button>

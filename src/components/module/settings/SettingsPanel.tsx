@@ -405,7 +405,7 @@ const SettingsPanel = () => {
                 <Button
                   type="submit"
                   disabled={isPasswordSaving}
-                  className="border-primary bg-primary hover:bg-primary/90 h-11 rounded-md border px-8 text-black"
+                  className="border-primary bg-primary hover:bg-primary/90 h-11 rounded-md border px-8 text-background"
                 >
                   {isPasswordSaving ? (
                     <>

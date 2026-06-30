@@ -89,7 +89,7 @@ export default function DiscoverPage() {
             {Array.from({ length: 6 }).map((_, index) => (
               <div
                 key={index}
-                className="bg-black-2-700/40 border-black-2-600 aspect-4/3 animate-pulse overflow-hidden rounded-xl border"
+                className="bg-surface-secondary/40 border-border aspect-4/3 animate-pulse overflow-hidden rounded-xl border"
               />
             ))}
           </div>
@@ -128,7 +128,7 @@ export default function DiscoverPage() {
                 return (
                   <div
                     key={item.id}
-                    className="group border-black-2-600 bg-black-2-800 relative aspect-4/3 cursor-pointer overflow-hidden rounded-xl border transition-all duration-300"
+                    className="group border-border bg-surface-secondary relative aspect-4/3 cursor-pointer overflow-hidden rounded-xl border transition-all duration-300"
                   >
                     {/* Main Image */}
                     <Image
@@ -163,7 +163,7 @@ export default function DiscoverPage() {
 
                     {/* Bottom Info overlay (Votes count) */}
                     <div className="absolute inset-x-0 bottom-0 flex translate-y-2 transform items-center justify-between p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                      <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-black/40 px-3 py-1 text-xs text-primary-foreground backdrop-blur-md">
+                      <div className="flex items-center gap-1.5 rounded-full border border-border-subtle bg-overlay px-3 py-1 text-xs text-primary-foreground backdrop-blur-md">
                         <span className="font-semibold">{item.voteCount ?? 0} Votes</span>
                       </div>
                     </div>

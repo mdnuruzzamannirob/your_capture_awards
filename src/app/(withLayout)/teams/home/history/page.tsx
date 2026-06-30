@@ -38,7 +38,7 @@ function HistorySkeleton() {
       {Array.from({ length: 5 }).map((_, index) => (
         <div
           key={index}
-          className="border-black-2-700 bg-black-2-800/50 grid gap-3 border-b p-4 last:border-b-0 md:grid-cols-[minmax(0,1fr)_120px_130px_110px]"
+          className="border-border bg-surface-secondary/50 grid gap-3 border-b p-4 last:border-b-0 md:grid-cols-[minmax(0,1fr)_120px_130px_110px]"
         >
           <div>
             <Skeleton className="h-4 w-40" />
@@ -116,7 +116,7 @@ const TeamHistory = () => {
           {rows.map((match) => (
             <div
               key={match.id}
-              className="border-black-2-700 bg-black-2-800/50 grid gap-3 rounded-md border-b p-4 last:border-b-0 md:grid-cols-[minmax(0,1fr)_120px_130px_110px]"
+              className="border-border bg-surface-secondary/50 grid gap-3 rounded-md border-b p-4 last:border-b-0 md:grid-cols-[minmax(0,1fr)_120px_130px_110px]"
             >
               <div>
                 <p className="font-semibold">{match.contest?.title}</p>
@@ -141,7 +141,7 @@ const TeamHistory = () => {
       )}
 
       {!isLoading && !isHistoryError && totalPage > 1 ? (
-        <div className="border-black-2-700 mt-4 flex items-center justify-between gap-3 rounded-md border px-3 py-2">
+        <div className="border-border mt-4 flex items-center justify-between gap-3 rounded-md border px-3 py-2">
           <p className="text-muted-foreground text-sm">
             Page {page} of {totalPage}
           </p>
@@ -188,9 +188,9 @@ export function StatusBadge({
       className={cn(
         'inline-flex w-fit items-center gap-1 rounded-sm border px-2 py-0.5 text-xs font-medium',
         tone === 'default' && 'border-border/60 bg-background/60 text-muted-foreground',
-        tone === 'gold' && 'border-orange-2-500/40 bg-orange-2-500/10 text-orange-2-100',
+        tone === 'gold' && 'border-primary/40 bg-primary/10 text-primary-soft-foreground',
         tone === 'green' && 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200',
-        tone === 'red' && 'border-red-normal/40 bg-red-normal/10 text-red-light',
+        tone === 'red' && 'border-destructive/40 bg-destructive/10 text-destructive',
         tone === 'blue' && 'border-sky-500/30 bg-sky-500/10 text-sky-200',
         className,
       )}

@@ -91,7 +91,7 @@ const ContestDetails = ({ id }: { id: string }) => {
 
   return (
     <main className="margin-user space-y-10">
-      <section className="bg-black-2-600 relative h-64 w-full overflow-hidden text-gray-300 sm:h-80 md:h-96 lg:h-125">
+      <section className="bg-surface-secondary relative h-64 w-full overflow-hidden text-gray-300 sm:h-80 md:h-96 lg:h-125">
         {contest?.banner ? (
           <Image
             src={contest?.banner}
@@ -101,7 +101,7 @@ const ContestDetails = ({ id }: { id: string }) => {
             className="size-full object-cover opacity-60"
           />
         ) : (
-          <div className="bg-black-2-600 flex h-full w-full items-center justify-center text-gray-300">
+          <div className="bg-surface-secondary flex h-full w-full items-center justify-center text-gray-300">
             <p>No banner photo</p>
           </div>
         )}
@@ -140,8 +140,8 @@ const ContestDetails = ({ id }: { id: string }) => {
                         {!isJoined &&
                           (contest?.coin_requirement ?? contest?.coinRequirement) &&
                           (contest?.coin_required ?? contest?.coinRequired ?? 0) > 0 && (
-                            <div className="absolute -right-3 -bottom-2.5 flex items-center gap-1.5 rounded-full border border-sky-400 bg-white py-1 pr-3 pl-1 text-sm font-bold text-sky-500 shadow-md select-none">
-                              <div className="h-5 w-5 animate-pulse rounded-full border border-amber-200 bg-linear-to-tr from-amber-500 to-amber-300" />
+                            <div className="absolute -right-3 -bottom-2.5 flex items-center gap-1.5 rounded-full border border-sky-400 bg-primary-foreground py-1 pr-3 pl-1 text-sm font-bold text-sky-500 shadow-md select-none">
+                              <div className="h-5 w-5 animate-pulse rounded-full border border-warning/40 bg-linear-to-tr from-warning-500 to-warning-500" />
                               <span>{contest?.coin_required ?? contest?.coinRequired}</span>
                             </div>
                           )}

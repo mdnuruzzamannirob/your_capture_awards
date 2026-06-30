@@ -35,10 +35,10 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
               <Globe size={16} /> {contest?.creator?.location}
             </h2>
             {/* <div className="flex items-center gap-2">
-            <button className="flex items-center justify-center gap-1.5 rounded bg-blue-500 px-4 py-1.5 text-sm text-primary-foreground">
+            <button className="flex items-center justify-center gap-1.5 rounded bg-info px-4 py-1.5 text-sm text-primary-foreground">
               Follow <FaPlus />
             </button>
-            <button className="flex size-8 items-center justify-center rounded border border-blue-500 text-blue-500">
+            <button className="flex size-8 items-center justify-center rounded border border-info text-info">
               <FaFacebookF />
             </button>
           </div> */}

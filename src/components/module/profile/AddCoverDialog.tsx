@@ -143,7 +143,7 @@ export default function AddCoverDialog() {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="gap-0 overflow-hidden border-0 bg-background p-0 text-primary-foreground shadow-2xl ring-1 shadow-black/70 ring-white/8 sm:max-w-2xl">
+      <DialogContent className="gap-0 overflow-hidden border-0 bg-background p-0 text-primary-foreground shadow-2xl ring-1 shadow-black/70 ring-border-subtle sm:max-w-2xl">
         {/* ── Header ── */}
         <DialogHeader className="relative px-7 pt-6 pb-5">
           <div className="flex items-start justify-between">
@@ -176,7 +176,7 @@ export default function AddCoverDialog() {
           </div>
         </DialogHeader>
 
-        <div className="mx-7 h-px bg-white/6" />
+        <div className="mx-7 h-px bg-border-subtle" />
 
         {/* ── Body ── */}
         <div className="px-7 py-5">
@@ -194,7 +194,7 @@ export default function AddCoverDialog() {
               className={[
                 'group relative flex aspect-21/9 w-full cursor-pointer items-center justify-center overflow-hidden rounded border-2 text-left transition-all duration-300',
                 isDragging
-                  ? 'border-primary bg-primary/8 shadow-[inset_0_0_30px_-10px_rgba(252,102,0,0.12)]'
+                  ? 'border-primary bg-primary/8 shadow-[inset_0_0_30px_-10px_color-mix(in_oklab,var(--primary)_12%,transparent)]'
                   : displaySrc
                     ? 'border-border hover:border-border'
                     : 'border-dashed border-border bg-surface/40 hover:border-border hover:bg-surface/60',
@@ -225,7 +225,7 @@ export default function AddCoverDialog() {
                       'flex h-12 w-12 items-center justify-center rounded ring-1 transition-all duration-300',
                       isDragging
                         ? 'bg-primary/20 ring-primary/40 text-primary'
-                        : 'bg-surface-secondary text-muted-foreground ring-white/10 group-hover:bg-surface-secondary/80 group-hover:text-muted-foreground group-hover:ring-white/15',
+                        : 'bg-surface-secondary text-muted-foreground ring-border-subtle group-hover:bg-surface-secondary/80 group-hover:text-muted-foreground group-hover:ring-white/15',
                     ].join(' ')}
                   >
                     <FiImage className="size-5" />
@@ -265,11 +265,11 @@ export default function AddCoverDialog() {
           {/* Step: preview */}
           {step === 'preview' && croppedPreview && (
             <div className="flex flex-col items-center gap-3">
-              <div className="relative w-full overflow-hidden rounded shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)] ring-1 ring-white/10">
+              <div className="relative w-full overflow-hidden rounded shadow-modal ring-1 ring-border-subtle">
                 <div className="relative aspect-21/9 w-full">
                   <Image src={croppedPreview} alt="Cover preview" fill className="object-cover" />
                 </div>
-                <div className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]" />
+                <div className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_color-mix(in_oklab,var(--foreground)_6%,transparent)]" />
               </div>
 
               <div className="flex items-center gap-3 text-[11px] text-caption-foreground">
@@ -280,7 +280,7 @@ export default function AddCoverDialog() {
                 >
                   Adjust crop
                 </button>
-                <span className="text-zinc-700">·</span>
+                <span className="text-muted-foreground">·</span>
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -301,9 +301,9 @@ export default function AddCoverDialog() {
           />
 
           {error && (
-            <div className="mt-4 flex items-start gap-2 rounded border border-red-500/20 bg-red-500/8 px-3.5 py-2.5">
-              <span className="mt-px shrink-0 text-[11px] text-red-400">⚠</span>
-              <p className="text-[11px] leading-relaxed text-red-400">{error}</p>
+            <div className="mt-4 flex items-start gap-2 rounded border border-destructive/20 bg-destructive/8 px-3.5 py-2.5">
+              <span className="mt-px shrink-0 text-[11px] text-destructive">⚠</span>
+              <p className="text-[11px] leading-relaxed text-destructive">{error}</p>
             </div>
           )}
         </div>
@@ -311,7 +311,7 @@ export default function AddCoverDialog() {
         {/* ── Footer ── */}
         {step !== 'crop' && (
           <>
-            <div className="mx-7 h-px bg-white/6" />
+            <div className="mx-7 h-px bg-border-subtle" />
             <DialogFooter className="flex items-center justify-between px-7 py-4">
               <DialogClose asChild>
                 <button
@@ -326,7 +326,7 @@ export default function AddCoverDialog() {
                 type="button"
                 disabled={isLoading || step !== 'preview'}
                 onClick={handleSubmit}
-                className="bg-primary hover:bg-primary/90 rounded-sm px-6 py-2 text-[13px] font-semibold text-primary-foreground shadow-[0_2px_12px_-3px_rgba(252,102,0,0.45)] transition-all hover:shadow-[0_2px_16px_-3px_rgba(252,102,0,0.6)] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+                className="bg-primary hover:bg-primary/90 rounded-sm px-6 py-2 text-[13px] font-semibold text-primary-foreground shadow-[0_2px_12px_-3px_color-mix(in_oklab,var(--primary)_45%,transparent)] transition-all hover:shadow-[0_2px_16px_-3px_color-mix(in_oklab,var(--primary)_60%,transparent)] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">

@@ -156,7 +156,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="border-black-2-600 flex h-[95vh] max-h-[95vh] w-[95vw] max-w-[95vw] flex-col overflow-hidden border-2 p-0 sm:max-h-[95vh] sm:max-w-[95vw]">
+      <DialogContent className="border-border flex h-[95vh] max-h-[95vh] w-[95vw] max-w-[95vw] flex-col overflow-hidden border-2 p-0 sm:max-h-[95vh] sm:max-w-[95vw]">
         <VisuallyHidden>
           <DialogTitle />
         </VisuallyHidden>
@@ -170,7 +170,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
                 return (
                   <Skeleton
                     key={i}
-                    className="bg-black-2-600 rounded"
+                    className="bg-surface-secondary rounded"
                     style={{ height: 350, width: 350 * a, flexShrink: 0 }}
                   />
                 );
@@ -232,7 +232,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
                     return (
                       <Skeleton
                         key={i}
-                        className="bg-black-2-600 rounded"
+                        className="bg-surface-secondary rounded"
                         style={{ height: 200, width: 200 * a, flexShrink: 0 }}
                       />
                     );

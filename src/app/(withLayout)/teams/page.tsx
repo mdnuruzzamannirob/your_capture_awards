@@ -181,7 +181,7 @@ function FeaturedTeamCard({ team }: { team: TeamListItem }) {
               <Avatar
                 key={`${team.id}-${avatarIndex}`}
                 size="sm"
-                className="border-black-2-700 border"
+                className="border-border border"
               >
                 {user.avatar ? <AvatarImage src={user.avatar} alt={getUserName(user)} /> : null}
         <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-semibold">
@@ -264,7 +264,7 @@ function MoreTeamCard({ team }: { team: TeamListItem }) {
         </Button>
         <JoinTeamButton
           teamId={team.id}
-          className="bg-primary text-primary-foreground hover:bg-orange-2-400 flex-1 px-3"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 flex-1 px-3"
         />
       </div>
     </article>

@@ -11,14 +11,14 @@ const ClosedContestCard = ({ contest }: { contest: any }) => {
 
       <Link
         href={`/contest/${contest?.id}`}
-        className="group border-black-2-600 relative block h-72 overflow-hidden rounded-xl border-2"
+        className="group border-border relative block h-72 overflow-hidden rounded-xl border-2"
       >
         <Image
           alt="Banner"
           src={contest?.banner}
           width={500}
           height={500}
-          className="bg-black-2-600 size-full object-cover transition-all duration-300 group-hover:brightness-50"
+          className="bg-surface-secondary size-full object-cover transition-all duration-300 group-hover:brightness-50"
         />
 
         <CornerCount count={contest?.maxUploads} />
@@ -30,7 +30,7 @@ const ClosedContestCard = ({ contest }: { contest: any }) => {
               alt="Author"
               width={44}
               height={44}
-              className="bg-black-2-500 size-12 min-w-12 rounded-full object-cover"
+              className="bg-border size-12 min-w-12 rounded-full object-cover"
             />
             <p className="font-medium text-primary-foreground">{`By ${contest?.creator?.fullName ?? 'Unknown User'}`}</p>
           </div>

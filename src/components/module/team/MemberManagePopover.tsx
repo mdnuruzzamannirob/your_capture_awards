@@ -25,7 +25,7 @@ function RoleOption({ role, icon, isActive, onSelect }: RoleOptionProps) {
     <button
       disabled={isActive}
       onClick={() => onSelect(role)}
-      className="hover:bg-black-2-700 flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors disabled:cursor-default disabled:opacity-40"
+      className="hover:bg-surface-secondary flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors disabled:cursor-default disabled:opacity-40"
     >
       {icon}
       <span className="capitalize">{role.toLowerCase()}</span>
@@ -93,7 +93,7 @@ function MemberManagePopover({
 
             <RoleOption
               role="MODERATOR"
-              icon={<Shield size={13} className="text-blue-600" />}
+              icon={<Shield size={13} className="text-info" />}
               isActive={member.level === 'MODERATOR'}
               onSelect={handleRole}
             />

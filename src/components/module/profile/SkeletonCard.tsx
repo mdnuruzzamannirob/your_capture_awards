@@ -1,11 +1,11 @@
 export default function SkeletonCard() {
   return (
-    <div className="relative animate-pulse overflow-hidden rounded-2xl bg-surface-secondary shadow-lg ring-1 shadow-black/20 ring-white/10">
+    <div className="relative animate-pulse overflow-hidden rounded-2xl bg-surface-secondary shadow-lg ring-1 shadow-black/20 ring-border-subtle">
       <div className="h-52 w-full bg-surface-secondary" />
 
       <div className="flex flex-col gap-3 p-4">
-        <div className="h-4 w-3/4 rounded bg-white/20" />
-        <div className="h-3 w-1/2 rounded bg-white/20" />
+        <div className="h-4 w-3/4 rounded bg-surface-tertiary" />
+        <div className="h-3 w-1/2 rounded bg-surface-tertiary" />
         <div className="grid grid-cols-3 gap-2 rounded-xl bg-surface-secondary p-2">
           <div className="h-10 rounded-lg bg-surface-secondary" />
           <div className="h-10 rounded-lg bg-surface-secondary" />

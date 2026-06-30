@@ -256,7 +256,7 @@ export function ImageCropper({
       {/* ── Stage ── */}
       <div
         ref={stageRef}
-        className="relative w-full overflow-hidden bg-background ring-1 ring-white/10"
+        className="relative w-full overflow-hidden bg-background ring-1 ring-border-subtle"
         style={{ aspectRatio, touchAction: 'none' }}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -288,14 +288,14 @@ export function ImageCropper({
             onPointerDown={startDrag('move')}
           >
             {/* Frame border + dim overlay */}
-            <div className="absolute inset-0 border-2 border-white/90 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]" />
+            <div className="absolute inset-0 border-2 border-white/90 shadow-[0_0_0_9999px_color-mix(in_oklab,var(--background)_45%,transparent)]" />
 
             {/* Rule-of-thirds grid */}
             <div className="pointer-events-none absolute inset-0 opacity-30">
-              <div className="absolute inset-y-0 left-1/3 w-px bg-white" />
-              <div className="absolute inset-y-0 left-2/3 w-px bg-white" />
-              <div className="absolute inset-x-0 top-1/3 h-px bg-white" />
-              <div className="absolute inset-x-0 top-2/3 h-px bg-white" />
+              <div className="absolute inset-y-0 left-1/3 w-px bg-primary-foreground" />
+              <div className="absolute inset-y-0 left-2/3 w-px bg-primary-foreground" />
+              <div className="absolute inset-x-0 top-1/3 h-px bg-primary-foreground" />
+              <div className="absolute inset-x-0 top-2/3 h-px bg-primary-foreground" />
             </div>
 
             {/* Corner handles */}
@@ -331,7 +331,7 @@ export function ImageCropper({
           type="button"
           onClick={confirm}
           disabled={processing || !natW}
-          className="bg-primary hover:bg-primary/90 rounded-sm px-5 py-2 text-[13px] font-semibold text-primary-foreground shadow-[0_2px_12px_-3px_rgba(252,102,0,0.5)] transition hover:shadow-[0_2px_16px_-3px_rgba(252,102,0,0.6)] disabled:opacity-50 disabled:shadow-none"
+          className="bg-primary hover:bg-primary/90 rounded-sm px-5 py-2 text-[13px] font-semibold text-primary-foreground shadow-[0_2px_12px_-3px_rgba(252,102,0,0.5)] transition hover:shadow-[0_2px_16px_-3px_color-mix(in_oklab,var(--primary)_60%,transparent)] disabled:opacity-50 disabled:shadow-none"
         >
           {processing ? (
             <span className="flex items-center gap-2">

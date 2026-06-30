@@ -227,7 +227,7 @@ function TopLevelComment({
         <div className="ml-4 mt-3 space-y-3 border-l border-border pl-3 md:ml-6 md:pl-4">
           {flatReplies.map((reply) => (
             <div key={reply.id} className="flex gap-1.5 text-xs">
-              <CornerDownRight className="mt-1.5 size-3 shrink-0 text-zinc-700" />
+              <CornerDownRight className="mt-1.5 size-3 shrink-0 text-muted-foreground" />
               <div className="min-w-0 flex-1">
                 <CommentBubble
                   comment={reply}
@@ -375,7 +375,7 @@ function CommentBubble({
                   <Button
                     type="submit"
                     size="sm"
-                    className="h-7 bg-[#2995f3] px-3 text-xs font-bold text-primary-foreground hover:bg-[#1a85e2]"
+                    className="h-7 bg-info px-3 text-xs font-bold text-primary-foreground hover:bg-info/90"
                     disabled={!editText.trim() || isSaving}
                   >
                     {isSaving ? 'Saving…' : 'Save'}
@@ -425,7 +425,7 @@ function CommentBubble({
                   <button
                     onClick={handleDelete}
                     disabled={isDeleting}
-                    className="inline-flex items-center gap-1 font-bold text-caption-foreground transition-colors duration-150 hover:text-red-400 disabled:opacity-50"
+                    className="inline-flex items-center gap-1 font-bold text-caption-foreground transition-colors duration-150 hover:text-destructive disabled:opacity-50"
                   >
                     <Trash2 className="size-3" />
                     {isDeleting ? 'deleting…' : 'delete'}
@@ -463,7 +463,7 @@ function CommentBubble({
                 <Button
                   type="submit"
                   size="sm"
-                  className="h-7 bg-[#2995f3] px-3 text-xs font-bold text-primary-foreground hover:bg-[#1a85e2]"
+                  className="h-7 bg-info px-3 text-xs font-bold text-primary-foreground hover:bg-info/90"
                   disabled={!replyText.trim() || isSubmittingReply}
                 >
                   {isSubmittingReply ? 'Replying…' : 'Reply'}

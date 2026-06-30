@@ -88,7 +88,7 @@ const PortfolioCard = ({
             e.stopPropagation();
             handleDelete(item.id);
           }}
-          className="absolute top-3 right-3 z-10 flex size-9 items-center justify-center rounded-full bg-red-500/10 text-red-300 opacity-0 shadow-lg ring-1 ring-red-500/30 transition group-focus-within:opacity-100 group-hover:opacity-100 hover:bg-red-500 hover:text-primary-foreground active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+          className="absolute top-3 right-3 z-10 flex size-9 items-center justify-center rounded-full bg-destructive/10 text-destructive opacity-0 shadow-lg ring-1 ring-destructive/30 transition group-focus-within:opacity-100 group-hover:opacity-100 hover:bg-destructive hover:text-primary-foreground active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isLoading ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
         </button>

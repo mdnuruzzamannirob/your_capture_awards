@@ -67,11 +67,11 @@ export const AddLinkPopover: React.FC<Props> = ({ editor, className }) => {
         />
         {/* The button group still uses flex gap for horizontal arrangement */}
         <div className="flex gap-2">
-          <Button onClick={setLink} className="bg-green-600 text-primary-foreground hover:bg-green-700">
+          <Button onClick={setLink} className="bg-success text-primary-foreground hover:bg-success/90">
             {editor?.isActive('link') ? 'Update' : 'Add'}
           </Button>
           {editor?.isActive('link') && (
-            <Button onClick={unsetLink} className="bg-red-700 p-2 text-primary-foreground hover:bg-red-800">
+            <Button onClick={unsetLink} className="bg-destructive p-2 text-primary-foreground hover:bg-destructive/90">
               <Link2Off className="size-4" />
             </Button>
           )}

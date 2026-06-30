@@ -65,11 +65,11 @@ function PhotoRow({
             className={cn(
               'flex size-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold',
               rank === 1
-                ? 'bg-amber-400 text-amber-900'
+                ? 'bg-warning text-warning-foreground'
                 : rank === 2
-                  ? 'bg-zinc-300 text-zinc-700'
+                  ? 'bg-surface-secondary text-muted-foreground'
                   : rank === 3
-                    ? 'bg-orange-400 text-orange-900'
+                    ? 'bg-primary text-primary-foreground'
                     : 'bg-muted text-muted-foreground',
             )}
           >

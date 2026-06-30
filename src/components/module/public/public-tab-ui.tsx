@@ -101,7 +101,7 @@ export function PhotoCard({
         type="button"
         onClick={handleToggleLike}
         disabled={isLiking}
-        className="absolute top-3 right-3 z-10 cursor-pointer rounded-full border border-white/10 bg-black/40 p-2 text-primary-foreground backdrop-blur-xs transition duration-200 select-none hover:bg-overlay disabled:cursor-wait disabled:opacity-70"
+        className="absolute top-3 right-3 z-10 cursor-pointer rounded-full border border-border-subtle bg-overlay p-2 text-primary-foreground backdrop-blur-xs transition duration-200 select-none hover:bg-overlay disabled:cursor-wait disabled:opacity-70"
       >
         {isLiking ? (
           <Loader2 className="size-4.5 animate-spin text-primary-foreground" />
@@ -169,14 +169,14 @@ export function TabErrorState({
 }) {
   return (
     <section className="container py-10">
-      <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 text-red-50">
+      <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6 text-primary-foreground">
         <p className="font-semibold">{title}</p>
-        <p className="mt-1 text-sm text-red-50/75">{description}</p>
+        <p className="mt-1 text-sm text-primary-foreground/75">{description}</p>
         {onRetry ? (
           <button
             type="button"
             onClick={onRetry}
-            className="mt-4 rounded-md bg-red-500 px-4 py-2 text-sm font-semibold text-primary-foreground"
+            className="mt-4 rounded-md bg-destructive px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             Retry
           </button>
@@ -200,7 +200,7 @@ export function PhotoGridLoadingState({ count = 8 }: { count?: number }) {
         return (
           <div
             key={index}
-            className="relative h-48 animate-pulse overflow-hidden rounded-lg bg-surface ring-1 ring-white/5 sm:h-60 md:h-72"
+            className="relative h-48 animate-pulse overflow-hidden rounded-lg bg-surface ring-1 ring-border-subtle sm:h-60 md:h-72"
             style={{
               flexGrow: aspect,
               flexBasis: `${aspect * 180}px`,

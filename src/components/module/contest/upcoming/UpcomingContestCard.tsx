@@ -25,14 +25,14 @@ const UpcomingContestCard = ({
 
       <Link
         href={`/contest/${contest.id}`}
-        className="group border-black-2-600 relative block h-72 overflow-hidden rounded-xl border-2"
+        className="group border-border relative block h-72 overflow-hidden rounded-xl border-2"
       >
         <Image
           alt="Banner"
           src={contest.banner}
           width={500}
           height={500}
-          className="bg-black-2-600 size-full object-cover transition-all duration-300 group-hover:brightness-50"
+          className="bg-surface-secondary size-full object-cover transition-all duration-300 group-hover:brightness-50"
         />
 
         <CornerCount count={contest?.maxUploads} />
@@ -44,13 +44,13 @@ const UpcomingContestCard = ({
               alt="Author"
               width={44}
               height={44}
-              className="bg-black-2-500 size-12 min-w-12 rounded-full object-cover"
+              className="bg-border size-12 min-w-12 rounded-full object-cover"
             />
             <p className="font-medium text-primary-foreground">{`By ${contest?.creator?.fullName ?? 'Unknown User'}`}</p>
           </div>
 
           <div className="flex translate-y-3 justify-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-            <button className="bg-foreground text-background rounded px-3 py-2 text-sm font-medium uppercase transition">
+            <button className="bg-primary text-primary-foreground rounded px-3 py-2 text-sm font-medium uppercase transition">
               View Details
             </button>
           </div>
