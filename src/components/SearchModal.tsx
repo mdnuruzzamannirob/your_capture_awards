@@ -34,7 +34,7 @@ function UserResultCard({ user }: { user: SearchUser }) {
   const [imgError, setImgError] = useState(false);
   const levelName = user.level?.level?.levelName;
   const displayName = user.fullName || `${user.firstName} ${user.lastName}`;
-  const profileHref = user.username ? `/profile/${user.username}` : `/profile/${user.id}`;
+  const profileHref = `/profile/${user.id}`;
 
   return (
     <Link
