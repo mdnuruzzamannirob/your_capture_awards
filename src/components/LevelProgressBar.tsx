@@ -35,7 +35,7 @@ export function LevelProgressBar({
     <div className={cn('relative w-full', className)}>
       <div className="w-full scrollbar-none overflow-x-auto pt-10 pb-2">
         {/* Single wrapper — border only, NO overflow-hidden */}
-        <div className="relative flex h-11 w-full min-w-275 rounded-sm border border-zinc-800">
+        <div className="relative flex h-11 w-full min-w-275 rounded-sm border border-border">
           {sortedLevels.map((level, index) => {
             const isUnlocked = index <= safeCurrentIdx;
             const isActive = index === safeCurrentIdx;
@@ -67,9 +67,9 @@ export function LevelProgressBar({
               <div
                 key={`lvl-${level.id}`}
                 className={cn(
-                  'relative flex h-full flex-1 items-center justify-center border-r border-zinc-800/40 px-8 transition-all duration-300 last:border-r-0',
+                  'relative flex h-full flex-1 items-center justify-center border-r border-border/40 px-8 transition-all duration-300 last:border-r-0',
                   // ✅ bg each section itself
-                  isUnlocked ? 'bg-primary text-white' : 'bg-zinc-900 text-zinc-400',
+                  isUnlocked ? 'bg-primary text-primary-foreground' : 'bg-surface text-muted-foreground',
                   // ✅ rounded on first/last — no overflow-hidden needed
                   isFirst && 'rounded-l-sm',
                   isLast && 'rounded-r-sm',
@@ -93,22 +93,22 @@ export function LevelProgressBar({
                   >
                     {/* ✅ Tooltip — overflow নেই তাই সবসময় দেখাবে */}
                     {hoveredLock === lockId && (
-                      <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-3 -translate-x-1/2 rounded-sm border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-[9px] font-bold whitespace-nowrap text-white shadow-xl">
+                      <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-3 -translate-x-1/2 rounded-sm border border-border bg-background px-3 py-1.5 text-[9px] font-bold whitespace-nowrap text-primary-foreground shadow-xl">
                         {reqText}
-                        <div className="absolute top-full left-1/2 -mt-1 size-1.5 -translate-x-1/2 rotate-45 border-r border-b border-zinc-800 bg-zinc-950" />
+                        <div className="absolute top-full left-1/2 -mt-1 size-1.5 -translate-x-1/2 rotate-45 border-r border-b border-border bg-background" />
                       </div>
                     )}
 
                     {isLockUnlocked ? (
-                      <div className="flex size-7 items-center justify-center text-white">
+                      <div className="flex size-7 items-center justify-center text-primary-foreground">
                         <Unlock className="size-4.5 stroke-[2.5]" />
                       </div>
                     ) : isBoundaryLock ? (
-                      <div className="flex size-7 items-center justify-center rounded-full border border-zinc-600 bg-[#333] text-white shadow-md">
+                      <div className="flex size-7 items-center justify-center rounded-full border border-border bg-[#333] text-primary-foreground shadow-md">
                         <Lock className="size-3.5 stroke-[2.5]" />
                       </div>
                     ) : (
-                      <div className="flex size-7 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900 text-white shadow-md">
+                      <div className="flex size-7 items-center justify-center rounded-full border border-border bg-surface text-primary-foreground shadow-md">
                         <Lock className="size-3.5 stroke-[2.5]" />
                       </div>
                     )}

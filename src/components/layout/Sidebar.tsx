@@ -42,19 +42,19 @@ const Sidebar = () => {
     <div className="flex-1 lg:hidden">
       <Drawer direction="left" open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
-          <button className="border-black-2-600 flex size-8.5 items-center justify-center rounded-full border">
+          <button className="border-border flex size-8.5 items-center justify-center rounded-full border bg-surface-secondary">
             <RiMenuFill />
           </button>
         </DrawerTrigger>
 
-        <DrawerContent className="bg-background text-foreground border-y-none border-l-none border-black-2-600 border-r">
+        <DrawerContent className="bg-background text-foreground border-y-none border-l-none border-border border-r">
           <VisuallyHidden>
             <DrawerTitle />
           </VisuallyHidden>
 
           <div className="flex h-full flex-col">
             {/* Header */}
-            <div className="border-black-2-600 flex items-center justify-between border-b px-4 py-1">
+            <div className="border-border flex items-center justify-between border-b px-4 py-1">
               <LogoName className="w-44" />
               <button aria-label="Close menu" onClick={() => setOpen(false)}>
                 <IoCloseOutline className="size-6" />
@@ -76,8 +76,8 @@ const Sidebar = () => {
                         className={cn(
                           'flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors',
                           isActive
-                            ? 'text-primary bg-white/5'
-                            : 'text-foreground hover:bg-white/5 hover:text-inherit',
+                            ? 'text-primary bg-surface-secondary'
+                            : 'text-foreground hover:bg-surface-secondary hover:text-inherit',
                         )}
                       >
                         {item.name}
@@ -88,11 +88,11 @@ const Sidebar = () => {
               </ul>
             </nav>
 
-            <div className="border-black-2-600 mt-auto border-t px-4 py-4">
+            <div className="border-border mt-auto border-t px-4 py-4">
               {isAuthenticated ? (
                 <button
                   onClick={handleLogout}
-                  className="flex w-full items-center justify-center gap-2 rounded-md bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600"
+                  className="flex w-full items-center justify-center gap-2 rounded-md bg-destructive px-4 py-2 text-destructive-foreground transition-colors hover:bg-destructive/90"
                 >
                   <LogOut className="size-4" />
                   Logout

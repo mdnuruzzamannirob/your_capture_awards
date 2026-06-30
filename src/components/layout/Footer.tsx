@@ -5,11 +5,11 @@ import { FaFacebookF, FaLinkedin, FaXTwitter } from 'react-icons/fa6';
 
 const Footer = () => {
   return (
-    <footer className="border-primary mt-20 border-t py-20">
+    <footer className="border-border mt-20 border-t py-20">
       <div className="container flex flex-col-reverse items-center justify-center gap-20 md:flex-row">
         <div className="space-y-5">
           <div className="flex items-center gap-3">
-            <p className="border-primary text-primary flex items-center justify-center rounded-full border p-3">
+            <p className="border-border text-primary flex items-center justify-center rounded-full border bg-surface-secondary p-3">
               <MdOutlineMail className="size-5" />
             </p>
             <div className="space-y-1">
@@ -18,7 +18,7 @@ const Footer = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <p className="border-primary text-primary flex items-center justify-center rounded-full border p-3">
+            <p className="border-border text-primary flex items-center justify-center rounded-full border bg-surface-secondary p-3">
               <MdLocationCity className="size-5" />
             </p>
             <div className="space-y-1">
@@ -29,33 +29,33 @@ const Footer = () => {
         </div>
 
         {/* divider */}
-        <div className="border-primary hidden h-40 border-r md:block" />
+        <div className="border-border hidden h-40 border-r md:block" />
 
         {/* Quick Links Column */}
         <div className="flex flex-col items-center gap-3 md:items-start">
           <h4 className="text-lg font-semibold">Quick Links</h4>
           <Link
             href="/about"
-            className="hover:text-primary text-sm text-white/60 transition-colors"
+            className="text-muted-foreground hover:text-primary text-sm transition-colors"
           >
             About Us
           </Link>
           <Link
             href="/terms"
-            className="hover:text-primary text-sm text-white/60 transition-colors"
+            className="text-muted-foreground hover:text-primary text-sm transition-colors"
           >
             Terms & Conditions
           </Link>
           <Link
             href="/privacy-policy"
-            className="hover:text-primary text-sm text-white/60 transition-colors"
+            className="text-muted-foreground hover:text-primary text-sm transition-colors"
           >
             Privacy Policy
           </Link>
         </div>
 
         {/* divider */}
-        <div className="border-primary hidden h-40 border-r md:block" />
+        <div className="border-border hidden h-40 border-r md:block" />
 
         <div className="space-y-5">
           <LogoName className="scale-125" />
@@ -65,19 +65,19 @@ const Footer = () => {
           <div className="flex items-center justify-center gap-3">
             <Link
               href="/"
-              className="bg-primary text-background flex items-center justify-center rounded-full p-3"
+              className="bg-primary text-primary-foreground flex items-center justify-center rounded-full p-3"
             >
               <FaXTwitter className="size-5" />
             </Link>{' '}
             <Link
               href="/"
-              className="bg-primary text-background flex items-center justify-center rounded-full p-3"
+              className="bg-primary text-primary-foreground flex items-center justify-center rounded-full p-3"
             >
               <FaFacebookF className="size-5" />
             </Link>
             <Link
               href="/"
-              className="bg-primary text-background flex items-center justify-center rounded-full p-3"
+              className="bg-primary text-primary-foreground flex items-center justify-center rounded-full p-3"
             >
               <FaLinkedin className="size-5" />
             </Link>

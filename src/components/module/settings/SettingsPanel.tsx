@@ -28,9 +28,9 @@ import { FieldValues, Path, UseFormRegister, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 const inputFieldClassName =
-  'h-11 rounded-md border-black-2-600 bg-black-2-800/80 px-4 text-sm text-white placeholder:text-white/35 shadow-none focus-visible:border-primary focus-visible:ring-0';
+  'h-11 rounded-md border-border bg-surface-secondary/80 px-4 text-sm text-foreground placeholder:text-placeholder-foreground shadow-none focus-visible:border-primary focus-visible:ring-0';
 
-const cardClassName = 'rounded-2xl border border-black-2-600 bg-black-2-800/90 p-5 md:p-6';
+const cardClassName = 'rounded-2xl border border-border bg-surface/90 p-5 md:p-6';
 
 function getErrorMessage(error: unknown) {
   const err = error as {
@@ -53,22 +53,22 @@ function SettingsSkeleton() {
   return (
     <section className="margin container py-8">
       <div className="flex gap-3">
-        <Skeleton className="bg-black-2-700 h-12 w-32 rounded-md" />
-        <Skeleton className="bg-black-2-700 h-12 w-32 rounded-md" />
-        <Skeleton className="bg-black-2-700 h-12 w-40 rounded-md" />
+        <Skeleton className="bg-surface-secondary h-12 w-32 rounded-md" />
+        <Skeleton className="bg-surface-secondary h-12 w-32 rounded-md" />
+        <Skeleton className="bg-surface-secondary h-12 w-40 rounded-md" />
       </div>
 
-      <div className="border-black-2-600 bg-black-2-800/90 mt-8 rounded-2xl border p-5 md:p-6">
-        <Skeleton className="bg-black-2-700 h-6 w-28 rounded-md" />
-        <Skeleton className="bg-black-2-700 mt-3 h-4 w-96 max-w-full rounded-md" />
-        <Skeleton className="bg-black-2-700 mt-8 h-11 w-full rounded-md" />
+      <div className="border-border bg-surface/90 mt-8 rounded-2xl border p-5 md:p-6">
+        <Skeleton className="bg-surface-secondary h-6 w-28 rounded-md" />
+        <Skeleton className="bg-surface-secondary mt-3 h-4 w-96 max-w-full rounded-md" />
+        <Skeleton className="bg-surface-secondary mt-8 h-11 w-full rounded-md" />
         <div className="mt-5 grid gap-4 md:grid-cols-2">
-          <Skeleton className="bg-black-2-700 h-11 w-full rounded-md" />
-          <Skeleton className="bg-black-2-700 h-11 w-full rounded-md" />
+          <Skeleton className="bg-surface-secondary h-11 w-full rounded-md" />
+          <Skeleton className="bg-surface-secondary h-11 w-full rounded-md" />
         </div>
-        <Skeleton className="bg-black-2-700 mt-4 h-11 w-full rounded-md" />
+        <Skeleton className="bg-surface-secondary mt-4 h-11 w-full rounded-md" />
         <div className="mt-8 flex justify-end">
-          <Skeleton className="bg-black-2-700 h-11 w-40 rounded-md" />
+          <Skeleton className="bg-surface-secondary h-11 w-40 rounded-md" />
         </div>
       </div>
     </section>
@@ -98,7 +98,7 @@ function PasswordField<TFieldValues extends FieldValues>({
 }) {
   return (
     <div className="space-y-2">
-      <label htmlFor={name} className="text-sm font-medium text-white/80">
+      <label htmlFor={name} className="text-sm font-medium text-foreground">
         {label}
       </label>
       <div className="relative">
@@ -116,7 +116,7 @@ function PasswordField<TFieldValues extends FieldValues>({
           onMouseDown={(e) => e.preventDefault()}
           onClick={onToggle}
           disabled={disabled}
-          className="hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 rounded-md p-1 text-white/55 transition disabled:cursor-not-allowed disabled:opacity-50"
+          className="hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition disabled:cursor-not-allowed disabled:opacity-50"
           aria-label={`Toggle ${label.toLowerCase()}`}
         >
           {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -249,19 +249,19 @@ const SettingsPanel = () => {
         <TabsList className="inline-flex h-auto gap-3 bg-transparent p-0">
           <TabsTrigger
             value="profile"
-            className="border-black-2-600 bg-black-2-800 data-[state=active]:border-primary data-[state=active]:bg-primary h-12 rounded-md border px-10 text-white transition-colors data-[state=active]:text-black"
+            className="border-border bg-surface-secondary data-[state=active]:border-primary data-[state=active]:bg-primary h-12 rounded-md border px-10 text-foreground transition-colors data-[state=active]:text-primary-foreground"
           >
             Profile
           </TabsTrigger>
           <TabsTrigger
             value="security"
-            className="border-black-2-600 bg-black-2-800 data-[state=active]:border-primary data-[state=active]:bg-primary h-12 rounded-md border px-10 text-white transition-colors data-[state=active]:text-black"
+            className="border-border bg-surface-secondary data-[state=active]:border-primary data-[state=active]:bg-primary h-12 rounded-md border px-10 text-foreground transition-colors data-[state=active]:text-primary-foreground"
           >
             Security
           </TabsTrigger>
           <TabsTrigger
             value="delete"
-            className="border-black-2-600 bg-black-2-800 data-[state=active]:border-primary data-[state=active]:bg-primary h-12 rounded-md border px-10 text-white transition-colors data-[state=active]:text-black"
+            className="border-border bg-surface-secondary data-[state=active]:border-primary data-[state=active]:bg-primary h-12 rounded-md border px-10 text-foreground transition-colors data-[state=active]:text-primary-foreground"
           >
             Delete Account
           </TabsTrigger>
@@ -271,15 +271,15 @@ const SettingsPanel = () => {
           <form onSubmit={profileForm.handleSubmit(onProfileSubmit)}>
             <div className={cardClassName}>
               <div className="mb-5 space-y-1">
-                <h3 className="text-lg font-semibold text-white">Profile</h3>
-                <p className="text-sm text-white/55">
+                <h3 className="text-lg font-semibold text-foreground">Profile</h3>
+                <p className="text-sm text-muted-foreground">
                   Update the name and location visible on your account.
                 </p>
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <label htmlFor="firstName" className="text-sm font-medium text-white/80">
+                  <label htmlFor="firstName" className="text-sm font-medium text-foreground">
                     First name
                   </label>
                   <Input
@@ -297,7 +297,7 @@ const SettingsPanel = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="lastName" className="text-sm font-medium text-white/80">
+                  <label htmlFor="lastName" className="text-sm font-medium text-foreground">
                     Last name
                   </label>
                   <Input
@@ -316,7 +316,7 @@ const SettingsPanel = () => {
               </div>
 
               <div className="mt-4 space-y-2">
-                <label htmlFor="location" className="text-sm font-medium text-white/80">
+                <label htmlFor="location" className="text-sm font-medium text-foreground">
                   Location
                 </label>
                 <Input
@@ -337,7 +337,7 @@ const SettingsPanel = () => {
                 <Button
                   type="submit"
                   disabled={isProfileSaving}
-                  className="border-primary bg-primary hover:bg-primary/90 h-11 rounded-md border px-8 text-black"
+                  className="border-primary bg-primary hover:bg-primary/90 h-11 rounded-md border px-8 text-primary-foreground"
                 >
                   {isProfileSaving ? (
                     <>
@@ -357,8 +357,8 @@ const SettingsPanel = () => {
           <form onSubmit={securityForm.handleSubmit(onPasswordSubmit)}>
             <div className={cardClassName}>
               <div className="mb-5 space-y-1">
-                <h3 className="text-lg font-semibold text-white">Security</h3>
-                <p className="text-sm text-white/55">
+                <h3 className="text-lg font-semibold text-foreground">Security</h3>
+                <p className="text-sm text-muted-foreground">
                   Use a new password that is hard to guess and unique to this account.
                 </p>
               </div>
@@ -425,14 +425,14 @@ const SettingsPanel = () => {
           <form onSubmit={deleteForm.handleSubmit(onDeleteSubmit)}>
             <div className={cardClassName}>
               <div className="mb-5">
-                <h3 className="text-lg font-semibold text-white">Delete Account</h3>
-                <p className="mt-1 text-sm text-white/60">
+                <h3 className="text-lg font-semibold text-foreground">Delete Account</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
                   This removes your profile, access, and all account-owned data that the backend
                   deletes with your account.
                 </p>
               </div>
 
-              <div className="border-black-2-600 bg-black-2-900/50 rounded-2xl border p-4 text-sm text-white/70">
+              <div className="border-border bg-surface-tertiary/50 rounded-2xl border p-4 text-sm text-muted-foreground">
                 <p>Before continuing, remember that account deletion is permanent.</p>
                 <p className="mt-2">
                   You will need to create a new account if you want to return later.
@@ -459,7 +459,7 @@ const SettingsPanel = () => {
                   type="submit"
                   disabled={isDeleteLoading}
                   variant="destructive"
-                  className="h-11 rounded-md border border-red-500 bg-red-500 px-8 text-white hover:bg-red-600"
+                  className="h-11 rounded-md border border-destructive bg-destructive px-8 text-destructive-foreground hover:bg-destructive/90"
                 >
                   {isDeleteLoading ? (
                     <>

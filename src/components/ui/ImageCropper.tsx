@@ -256,7 +256,7 @@ export function ImageCropper({
       {/* ── Stage ── */}
       <div
         ref={stageRef}
-        className="relative w-full overflow-hidden bg-zinc-950 ring-1 ring-white/10"
+        className="relative w-full overflow-hidden bg-background ring-1 ring-white/10"
         style={{ aspectRatio, touchAction: 'none' }}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -323,7 +323,7 @@ export function ImageCropper({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-sm border border-zinc-800 bg-zinc-900/60 px-4 py-2 text-[13px] text-zinc-300 transition hover:bg-zinc-800"
+          className="rounded-sm border border-border bg-surface/60 px-4 py-2 text-[13px] text-muted-foreground transition hover:bg-surface-secondary"
         >
           Cancel
         </button>
@@ -331,7 +331,7 @@ export function ImageCropper({
           type="button"
           onClick={confirm}
           disabled={processing || !natW}
-          className="bg-primary hover:bg-primary/90 rounded-sm px-5 py-2 text-[13px] font-semibold text-white shadow-[0_2px_12px_-3px_rgba(252,102,0,0.5)] transition hover:shadow-[0_2px_16px_-3px_rgba(252,102,0,0.6)] disabled:opacity-50 disabled:shadow-none"
+          className="bg-primary hover:bg-primary/90 rounded-sm px-5 py-2 text-[13px] font-semibold text-primary-foreground shadow-[0_2px_12px_-3px_rgba(252,102,0,0.5)] transition hover:shadow-[0_2px_16px_-3px_rgba(252,102,0,0.6)] disabled:opacity-50 disabled:shadow-none"
         >
           {processing ? (
             <span className="flex items-center gap-2">

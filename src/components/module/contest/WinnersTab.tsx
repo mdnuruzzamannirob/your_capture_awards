@@ -101,7 +101,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
 
   const renderDynamicGallery = () => {
     if (!photographerPhotos.length) {
-      return <div className="h-125 rounded-2xl bg-white/10" />;
+      return <div className="h-125 rounded-2xl bg-surface-secondary" />;
     }
 
     if (photographerPhotos.length === 1) {
@@ -251,7 +251,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
 
           {/* PHOTO */}
 
-          <div className="relative h-125 overflow-hidden rounded-2xl bg-white/10">
+          <div className="relative h-125 overflow-hidden rounded-2xl bg-surface-secondary">
             {topPhotoWinner?.photo?.photo?.url ? (
               <Image
                 alt="Top Photo"
@@ -260,7 +260,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
                 className="object-cover"
               />
             ) : (
-              <div className="size-full bg-white/10" />
+              <div className="size-full bg-surface-secondary" />
             )}
           </div>
 

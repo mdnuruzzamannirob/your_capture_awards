@@ -507,7 +507,7 @@ export default function TeamChatPage() {
         <div className="rounded-2xl border border-white/10 bg-white/3 p-6 text-center">
           <TriangleAlert className="mx-auto size-10 text-orange-400" />
           <p className="mt-3 text-lg font-semibold">Failed to load team chat</p>
-          <p className="mt-1 text-sm text-white/60">We could not load your team data.</p>
+          <p className="mt-1 text-sm text-muted-foreground">We could not load your team data.</p>
           <Button className="mt-4" onClick={() => refetchTeam()}>
             Retry
           </Button>
@@ -520,7 +520,7 @@ export default function TeamChatPage() {
     return (
       <section className="margin-user container py-6">
         <div className="flex min-h-[50vh] items-center justify-center">
-          <p className="text-sm text-white/60">Team not found</p>
+          <p className="text-sm text-muted-foreground">Team not found</p>
         </div>
       </section>
     );
@@ -533,12 +533,12 @@ export default function TeamChatPage() {
           <div className="flex min-w-0 items-center gap-3">
             <Avatar className="size-10 shrink-0 border border-white/10">
               <AvatarImage src={user?.avatar ?? undefined} alt={currentUserName} />
-              <AvatarFallback className="bg-primary text-xs font-semibold text-white">
+              <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
                 {currentUserName.charAt(0).toUpperCase() || 'Y'}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-white">{currentUserName}</p>
+              <p className="truncate text-sm font-semibold text-primary-foreground">{currentUserName}</p>
               <p className="mt-0.5 text-xs text-emerald-300">Active</p>
             </div>
           </div>
@@ -574,8 +574,8 @@ export default function TeamChatPage() {
                     <AvatarImage src={group.sender.avatar ?? undefined} alt={senderName} />
                     <AvatarFallback
                       className={cn(
-                        'text-xs font-semibold text-white',
-                        isMine ? 'bg-primary' : 'bg-white/15',
+                        'text-xs font-semibold text-primary-foreground',
+                        isMine ? 'bg-primary' : 'bg-surface-tertiary',
                       )}
                     >
                       {getInitial(group.sender)}
@@ -603,8 +603,8 @@ export default function TeamChatPage() {
                             className={cn(
                               'w-fit max-w-full overflow-hidden px-4 py-3 text-sm leading-relaxed shadow-sm',
                               isMine
-                                ? 'bg-primary text-white'
-                                : 'border border-white/10 bg-white/5 text-white/90',
+                                ? 'bg-primary text-primary-foreground'
+                                : 'border border-white/10 bg-surface-secondary text-foreground',
                               bubbleRadius,
                               bubbleAlign,
                             )}
@@ -640,7 +640,7 @@ export default function TeamChatPage() {
                                   </>
                                 )}
                                 {message.message && (
-                                  <p className="text-sm text-white/85">{message.message}</p>
+                                  <p className="text-sm text-primary-foreground/85">{message.message}</p>
                                 )}
                               </div>
                             ) : (
@@ -653,11 +653,11 @@ export default function TeamChatPage() {
 
                     <div
                       className={cn(
-                        'flex items-center gap-2 px-1 text-xs text-white/50',
+                        'flex items-center gap-2 px-1 text-xs text-primary-foreground/50',
                         isMine ? 'justify-end' : 'justify-start',
                       )}
                     >
-                      <span className="font-medium text-white/75">{senderName}</span>
+                      <span className="font-medium text-primary-foreground/75">{senderName}</span>
                       <span>{timeFormatter.format(new Date(group.createdAt))}</span>
                     </div>
                   </div>
@@ -670,17 +670,17 @@ export default function TeamChatPage() {
 
         <div className="shrink-0 border-t border-white/10 bg-white/3 p-3 backdrop-blur">
           {pendingFile && (
-            <div className="mb-3 flex min-w-0 items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm">
+            <div className="mb-3 flex min-w-0 items-center justify-between gap-3 rounded-xl border border-white/10 bg-surface-secondary px-3 py-2 text-sm">
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-white">{pendingFile.name}</p>
-                <p className="text-xs text-white/50">
+                <p className="truncate font-medium text-primary-foreground">{pendingFile.name}</p>
+                <p className="text-xs text-primary-foreground/50">
                   {Math.round(pendingFile.size / 1024)} KB selected
                 </p>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-white/60 hover:text-white"
+                className="text-muted-foreground hover:text-primary-foreground"
                 onClick={() => setPendingFile(null)}
               >
                 Remove
@@ -700,7 +700,7 @@ export default function TeamChatPage() {
               type="button"
               size="icon"
               variant="ghost"
-              className="size-10 shrink-0 text-white/60 hover:bg-white/7 hover:text-white"
+              className="size-10 shrink-0 text-muted-foreground hover:bg-white/7 hover:text-primary-foreground"
               onClick={() => fileInputRef.current?.click()}
             >
               <ImagePlus className="size-4" />
@@ -711,7 +711,7 @@ export default function TeamChatPage() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder="Write a message to your team..."
-                className="focus-visible:ring-primary/40 h-11 border-white/10 bg-white/5 text-white placeholder:text-white/35"
+                className="focus-visible:ring-primary/40 h-11 border-white/10 bg-surface-secondary text-primary-foreground placeholder:text-primary-foreground/35"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -723,7 +723,7 @@ export default function TeamChatPage() {
 
             <Button
               type="button"
-              className="bg-primary hover:bg-primary/90 h-11 shrink-0 px-4 text-white"
+              className="bg-primary hover:bg-primary/90 h-11 shrink-0 px-4 text-primary-foreground"
               disabled={isSending || (!draft.trim() && !pendingFile)}
               onClick={() => void handleSubmit()}
             >
@@ -748,7 +748,7 @@ export default function TeamChatPage() {
           <button
             type="button"
             onClick={() => scrollToBottom()}
-            className="bg-primary flex size-9 items-center justify-center rounded-full text-white shadow-lg shadow-black/30 transition active:scale-95"
+            className="bg-primary flex size-9 items-center justify-center rounded-full text-primary-foreground shadow-lg shadow-black/30 transition active:scale-95"
           >
             <ArrowDown className="size-4" />
           </button>
@@ -764,8 +764,8 @@ function MessageState({ isReady }: { isReady: boolean | string }) {
       <div className="bg-primary/12 text-primary mx-auto flex size-12 items-center justify-center rounded-2xl">
         <Send className="size-5" />
       </div>
-      <p className="mt-4 text-lg font-semibold text-white">No messages yet</p>
-      <p className="mt-2 text-sm leading-6 text-white/55">
+      <p className="mt-4 text-lg font-semibold text-primary-foreground">No messages yet</p>
+      <p className="mt-2 text-sm leading-6 text-primary-foreground/55">
         {isReady
           ? 'Be the first to start the conversation. Your message will appear here in real time for the entire team.'
           : 'The chat is connecting right now. Once the socket authenticates, the conversation will load automatically.'}

@@ -536,7 +536,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                     />
                     {selectedImages.length > 0 && (
                       <div className="border-black-2-500 flex flex-wrap gap-0 border-t pt-5">
-                        <h4 className="mb-2 flex w-full items-center gap-2 text-sm text-white/80">
+                        <h4 className="mb-2 flex w-full items-center gap-2 text-sm text-foreground">
                           <IoImagesOutline className="size-4" /> Selected Images
                         </h4>
                         {selectedImages?.slice(0, 4)?.map((img, i) => (
@@ -561,7 +561,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                                     selectedImages.filter((image) => image.url !== img.url),
                                   )
                                 }
-                                className="flex items-center justify-center rounded-full bg-black/60 p-1.5 text-red-500 opacity-0 transition-all duration-300 group-hover:opacity-100"
+                                className="flex items-center justify-center rounded-full bg-overlay p-1.5 text-red-500 opacity-0 transition-all duration-300 group-hover:opacity-100"
                               >
                                 <AiOutlineDelete className="size-4" />
                               </button>
@@ -631,7 +631,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                           : 'preview',
                     )
                   }
-                  className="hover:text-primary flex size-10 items-center justify-center rounded-full transition hover:bg-white/5"
+                  className="hover:text-primary flex size-10 items-center justify-center rounded-full transition hover:bg-surface-secondary"
                 >
                   <ArrowLeft />
                 </button>

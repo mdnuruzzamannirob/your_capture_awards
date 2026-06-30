@@ -85,7 +85,7 @@ const ContestDetails = ({ id }: { id: string }) => {
 
   const buttonSkeleton = (
     <div className="relative w-full max-w-54">
-      <div className="h-13 w-full animate-pulse rounded-md bg-white/10" />
+      <div className="h-13 w-full animate-pulse rounded-md bg-surface-secondary" />
     </div>
   );
 
@@ -131,7 +131,7 @@ const ContestDetails = ({ id }: { id: string }) => {
                       <div className="relative w-full max-w-54">
                         <button
                           onClick={() => uploadModalRef.current?.open()}
-                          className="bg-background/20 text-foreground border-foreground w-full rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10"
+                          className="bg-background/20 text-foreground border-foreground w-full rounded-md border p-3 text-xl font-medium shadow transition hover:bg-surface-secondary"
                         >
                           {isJoined ? 'Submit Photo' : 'JOIN'}
                         </button>
@@ -155,7 +155,7 @@ const ContestDetails = ({ id }: { id: string }) => {
                   <>
                     <button
                       onClick={() => voteModalRef.current?.open()}
-                      className="bg-background/20 text-foreground border-foreground w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition hover:bg-white/10"
+                      className="bg-background/20 text-foreground border-foreground w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition hover:bg-surface-secondary"
                     >
                       Vote
                     </button>
@@ -185,7 +185,7 @@ const ContestDetails = ({ id }: { id: string }) => {
         onValueChange={(value: any) => setActiveTab(value)}
         className="space-y-10"
       >
-        <TabsList className="text-foreground mx-auto flex size-full max-w-xl items-center rounded-md bg-white/5 p-1">
+        <TabsList className="text-foreground mx-auto flex size-full max-w-xl items-center rounded-md bg-surface-secondary p-1">
           {tabs?.map((tab) => (
             <TabsTrigger
               key={tab.key}

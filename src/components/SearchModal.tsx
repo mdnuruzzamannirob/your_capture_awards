@@ -52,10 +52,10 @@ function UserResultCard({ user }: { user: SearchUser }) {
   return (
     <Link
       href={profileHref}
-      className="group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-zinc-800/80"
+      className="group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface-secondary"
     >
       {/* Avatar */}
-      <div className="relative size-10 shrink-0 overflow-hidden rounded-full border border-zinc-700 bg-zinc-800">
+      <div className="relative size-10 shrink-0 overflow-hidden rounded-full border border-border bg-surface-secondary">
         {user.avatar && !imgError ? (
           <Image
             src={user.avatar}
@@ -65,7 +65,7 @@ function UserResultCard({ user }: { user: SearchUser }) {
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="flex size-full items-center justify-center text-xs font-bold text-zinc-400">
+          <div className="flex size-full items-center justify-center text-xs font-bold text-muted-foreground">
             {getInitials(displayName)}
           </div>
         )}
@@ -73,17 +73,17 @@ function UserResultCard({ user }: { user: SearchUser }) {
 
       {/* Info */}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-zinc-100 group-hover:text-white">
+        <p className="truncate text-sm font-semibold text-foreground group-hover:text-foreground">
           {displayName}
         </p>
         {user.username && (
-          <p className="truncate text-xs text-zinc-500">@{user.username}</p>
+          <p className="truncate text-xs text-muted-foreground">@{user.username}</p>
         )}
       </div>
 
       {/* Level badge */}
       {levelName && (
-        <span className="shrink-0 rounded-full border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+        <span className="shrink-0 rounded-full border border-border bg-surface-secondary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
           {levelName}
         </span>
       )}
@@ -167,7 +167,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-9998 bg-black/70 backdrop-blur-sm"
+        className="fixed inset-0 z-9998 bg-overlay backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -175,7 +175,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       {/* Modal panel */}
       <div
         className={cn(
-          'fixed top-[10vh] left-1/2 z-9999 w-full max-w-xl -translate-x-1/2 rounded-xl border border-zinc-700 bg-zinc-950 shadow-2xl',
+          'fixed top-[10vh] left-1/2 z-9999 w-full max-w-xl -translate-x-1/2 rounded-xl border border-border bg-background shadow-modal',
           'animate-fade-in',
         )}
         role="dialog"
@@ -183,11 +183,11 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
         aria-label="Search"
       >
         {/* Search Input */}
-        <div className="flex items-center gap-3 border-b border-zinc-800 px-4 py-3">
+        <div className="flex items-center gap-3 border-b border-border px-4 py-3">
           {isLoading ? (
             <Loader2 className="text-primary size-4 shrink-0 animate-spin" />
           ) : (
-            <Search className="size-4 shrink-0 text-zinc-400" />
+            <Search className="text-muted-foreground size-4 shrink-0" />
           )}
           <input
             ref={inputRef}
@@ -195,7 +195,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             value={query}
             onChange={handleChange}
             placeholder="Search users by name or username…"
-            className="min-w-0 flex-1 bg-transparent text-sm text-zinc-100 outline-none placeholder:text-zinc-500"
+            className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-placeholder-foreground"
             autoComplete="off"
             spellCheck={false}
           />
@@ -203,7 +203,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <button
               type="button"
               onClick={() => { setQuery(''); setResults([]); }}
-              className="shrink-0 text-zinc-500 transition hover:text-zinc-300"
+              className="shrink-0 text-muted-foreground transition hover:text-foreground"
               aria-label="Clear search"
             >
               <X className="size-4" />
@@ -212,7 +212,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="shrink-0 text-zinc-500 transition hover:text-zinc-300 sm:hidden"
+            className="shrink-0 text-muted-foreground transition hover:text-foreground sm:hidden"
             aria-label="Close"
           >
             <X className="size-4" />
@@ -224,17 +224,17 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           {error ? (
             <p className="py-6 text-center text-sm text-red-400">{error}</p>
           ) : !query.trim() ? (
-            <p className="py-8 text-center text-xs text-zinc-600">
+            <p className="py-8 text-center text-xs text-caption-foreground">
               Start typing to search for users…
             </p>
           ) : results.length === 0 && !isLoading ? (
-            <p className="py-8 text-center text-sm text-zinc-500">
+            <p className="py-8 text-center text-sm text-muted-foreground">
               No users found for &ldquo;{query}&rdquo;
             </p>
           ) : (
             <>
               {results.length > 0 && (
-                <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
+                <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-caption-foreground">
                   {total} result{total !== 1 ? 's' : ''}
                 </p>
               )}
@@ -250,8 +250,8 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
         </div>
 
         {/* Footer hint */}
-        <div className="flex items-center justify-between border-t border-zinc-800 px-4 py-2 text-[10px] text-zinc-600">
-          <span>Press <kbd className="rounded bg-zinc-800 px-1 py-0.5 font-mono">Esc</kbd> to close</span>
+        <div className="flex items-center justify-between border-t border-border px-4 py-2 text-[10px] text-caption-foreground">
+          <span>Press <kbd className="rounded bg-surface-secondary px-1 py-0.5 font-mono">Esc</kbd> to close</span>
           <span>
             Powered by{' '}
             <span className="text-primary font-semibold">Capture Awards</span>

@@ -84,7 +84,7 @@ const BundleItems = ({ items }: { items: StoreProductItem[] }) => {
             key={item.type}
             className={`bg-linear-to-r ${itemGradient[item.type]} flex items-center justify-between rounded-md px-2 py-1 ring-1 ring-white/5`}
           >
-            <span className="flex items-center gap-1 text-[11px] font-medium text-white/75">
+            <span className="flex items-center gap-1 text-[11px] font-medium text-primary-foreground/75">
               {itemIcon[item.type]}
               {itemLabel[item.type]}
             </span>
@@ -159,12 +159,12 @@ const CoinCard = ({
 
       {/* Info */}
       <div className="flex flex-1 flex-col items-center justify-center text-center">
-        <p className="mb-0.5 text-[10px] font-medium tracking-widest text-white/35 uppercase">
+        <p className="mb-0.5 text-[10px] font-medium tracking-widest text-primary-foreground/35 uppercase">
           {offer.title}
         </p>
         <div className="flex items-center gap-1">
           <Image src="/icons/dollar.png" alt="" width={18} height={18} className="object-contain" />
-          <span className="text-lg font-semibold text-white">{offer.quantity ?? 0}</span>
+          <span className="text-lg font-semibold text-primary-foreground">{offer.quantity ?? 0}</span>
         </div>
       </div>
 
@@ -194,7 +194,7 @@ const BundleCard = ({
   <div className="group relative flex h-52.5 w-43.75 shrink-0 flex-col overflow-hidden rounded-xl border border-white/8 bg-white/4">
     <div className="relative flex flex-1 flex-col p-3">
       {/* Title */}
-      <p className="mb-2 text-center text-[12px] font-semibold tracking-wide text-white">
+      <p className="mb-2 text-center text-[12px] font-semibold tracking-wide text-primary-foreground">
         {bundle.title}
       </p>
 
@@ -220,7 +220,7 @@ const BundleCard = ({
 /* ─── Section Header ──────────────────────────────────────────────── */
 const SectionHeader = ({ title, subtitle }: { title: string; subtitle: string }) => (
   <div className="mb-4">
-    <h3 className="text-center text-xl font-bold tracking-tight text-white">{title}</h3>
+    <h3 className="text-center text-xl font-bold tracking-tight text-primary-foreground">{title}</h3>
     <p className="text-muted-foreground text-center text-xs">{subtitle}</p>
   </div>
 );
@@ -283,7 +283,7 @@ const StoreModal = () => {
           {/* Mobile: stacked layout */}
           <div className="flex flex-col items-center gap-2 sm:hidden">
             <DialogTitle className="text-sm font-semibold tracking-wide">Store</DialogTitle>
-            <div className="flex h-8 items-stretch overflow-hidden rounded-lg border border-white/8 bg-white/5">
+            <div className="flex h-8 items-stretch overflow-hidden rounded-lg border border-white/8 bg-surface-secondary">
               {[
                 {
                   icon: <IoKeyOutline className="text-primary size-3" />,
@@ -316,7 +316,7 @@ const StoreModal = () => {
               ].map((item, i) => (
                 <div key={i} className="flex items-center" title={item.label}>
                   {i > 0 && <div className="my-1.5 w-px bg-white/8" />}
-                  <div className="flex items-center gap-1 px-2 text-[11px] font-medium text-white/80">
+                  <div className="flex items-center gap-1 px-2 text-[11px] font-medium text-foreground">
                     {item.icon}
                     <ResourceValue loading={isStatsLoading} value={item.value} />
                   </div>
@@ -331,7 +331,7 @@ const StoreModal = () => {
               Store
             </DialogTitle>
             <div className="flex justify-center">
-              <div className="flex h-9 items-stretch overflow-hidden rounded-xl border border-white/8 bg-white/5 backdrop-blur-sm">
+              <div className="flex h-9 items-stretch overflow-hidden rounded-xl border border-white/8 bg-surface-secondary backdrop-blur-sm">
                 {[
                   {
                     icon: <IoKeyOutline className="text-primary size-3.5" />,
@@ -364,7 +364,7 @@ const StoreModal = () => {
                 ].map((item, i) => (
                   <div key={i} className="flex items-center" title={item.label}>
                     {i > 0 && <div className="my-2 w-px bg-white/8" />}
-                    <div className="flex items-center gap-1.5 px-3 text-xs font-medium text-white/80">
+                    <div className="flex items-center gap-1.5 px-3 text-xs font-medium text-foreground">
                       {item.icon}
                       <ResourceValue loading={isStatsLoading} value={item.value} />
                     </div>
@@ -408,8 +408,8 @@ const StoreModal = () => {
                 </CarouselContent>
                 {coinOffers.length > 3 && (
                   <>
-                    <CarouselPrevious className="-left-3 border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white" />
-                    <CarouselNext className="-right-3 border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white" />
+                    <CarouselPrevious className="-left-3 border-white/10 bg-surface-secondary text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground" />
+                    <CarouselNext className="-right-3 border-white/10 bg-surface-secondary text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground" />
                   </>
                 )}
               </Carousel>
@@ -419,7 +419,7 @@ const StoreModal = () => {
           </section>
 
           {/* ── Divider ── */}
-          <div className="my-4 h-px bg-white/5" />
+          <div className="my-4 h-px bg-surface-secondary" />
 
           {/* ── Bundles Section ── */}
           <section>
@@ -449,8 +449,8 @@ const StoreModal = () => {
                 </CarouselContent>
                 {bundleOffers.length > 4 && (
                   <>
-                    <CarouselPrevious className="-left-3 border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white" />
-                    <CarouselNext className="-right-3 border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white" />
+                    <CarouselPrevious className="-left-3 border-white/10 bg-surface-secondary text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground" />
+                    <CarouselNext className="-right-3 border-white/10 bg-surface-secondary text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground" />
                   </>
                 )}
               </Carousel>

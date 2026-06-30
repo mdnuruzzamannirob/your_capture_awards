@@ -96,7 +96,7 @@ function ContestPhotoJustifiedPicker({
                 <span
                   className={cn(
                     'absolute top-2 right-2 rounded-full px-2 py-0.5 text-[10px] font-medium transition',
-                    isSelected ? 'bg-primary text-black' : 'bg-black/60 text-white/80',
+                    isSelected ? 'bg-primary text-black' : 'bg-overlay text-foreground',
                   )}
                 >
                   {isSelected ? '✓ Selected' : 'Select'}
@@ -425,7 +425,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
               <button
                 type="button"
                 onClick={goBack}
-                className="hover:text-primary flex size-10 items-center justify-center rounded-full transition hover:bg-white/5"
+                className="hover:text-primary flex size-10 items-center justify-center rounded-full transition hover:bg-surface-secondary"
               >
                 <ArrowLeft />
               </button>
@@ -481,7 +481,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                     {contestTitle && <span className="text-primary">{contestTitle}</span>}
                     {!contestTitle && 'THIS CONTEST'}
                   </h1>
-                  <p className="text-sm text-white/50">
+                  <p className="text-sm text-primary-foreground/50">
                     Select where your replacement photo comes from
                   </p>
                 </div>
@@ -528,7 +528,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                       ? 'Upload replacement photo'
                       : 'Select replacement photo'}
                   </h1>
-                  <p className="text-sm text-white/50">
+                  <p className="text-sm text-primary-foreground/50">
                     {swapSource === 'computer'
                       ? 'Choose a photo from your computer'
                       : 'Pick one photo from your uploaded photos'}
@@ -609,7 +609,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                 <div className="grid gap-4 md:grid-cols-2">
                   {/* Left: selected contest photo */}
                   <div className="flex flex-col items-center gap-2 rounded-xl bg-white/3 p-4">
-                    <p className="text-xs font-medium tracking-wider text-white/40 uppercase">
+                    <p className="text-xs font-medium tracking-wider text-primary-foreground/40 uppercase">
                       Contest photo
                     </p>
                     <div className="flex w-full items-center justify-center overflow-hidden rounded-lg">
@@ -632,13 +632,13 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                   {actionType === 'boost' ? (
                     <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-white/3 p-4">
                       <AiOutlineThunderbolt className="text-primary size-10" />
-                      <p className="text-center text-sm text-white/60">
+                      <p className="text-center text-sm text-muted-foreground">
                         This photo will be boosted to the top of the contest rankings.
                       </p>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-2 rounded-xl bg-white/3 p-4">
-                      <p className="text-xs font-medium tracking-wider text-white/40 uppercase">
+                      <p className="text-xs font-medium tracking-wider text-primary-foreground/40 uppercase">
                         Replacement photo
                       </p>
                       <div className="flex w-full items-center justify-center overflow-hidden rounded-lg">
