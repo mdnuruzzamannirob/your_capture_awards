@@ -1,14 +1,14 @@
 'use client';
 
-import { cn } from '@/utils/cn';
-import { Eye, Heart, Vote, Loader2 } from 'lucide-react';
-import Image from 'next/image';
-import type { ReactNode } from 'react';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useToggleLikeMutation } from '@/store/apis/socialApi';
 import { useAppDispatch } from '@/store/hooks';
 import { setSwiperPhotos } from '@/store/slices/profileSlice';
-import { useToggleLikeMutation } from '@/store/apis/socialApi';
+import { cn } from '@/utils/cn';
+import { Eye, Heart, Loader2, Vote } from 'lucide-react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
 
 export const getPhotoAspect = (id: string) => {
   const aspects: Record<string, number> = {
@@ -71,12 +71,14 @@ export function PhotoCard({
 
   return (
     <div
-      className="group relative cursor-pointer overflow-hidden rounded-sm bg-surface shadow-md transition-all duration-300 hover:border-border/80 hover:shadow-xl"
-      style={style || {
-        height: '300px',
-        flexGrow: aspect,
-        flexBasis: `${aspect * 200}px`,
-      }}
+      className="group bg-surface hover:border-border/80 relative cursor-pointer overflow-hidden rounded-sm shadow-md transition-all duration-300 hover:shadow-xl"
+      style={
+        style || {
+          height: '300px',
+          flexGrow: aspect,
+          flexBasis: `${aspect * 200}px`,
+        }
+      }
       onClick={handleClick}
     >
       <div className="relative block size-full">
@@ -89,7 +91,7 @@ export function PhotoCard({
             className="object-cover transition-all duration-700 ease-out group-hover:scale-105"
           />
         ) : (
-          <div className="flex size-full items-center justify-center bg-surface-secondary text-xs text-caption-foreground">
+          <div className="bg-surface-secondary text-caption-foreground flex size-full items-center justify-center text-xs">
             No Image
           </div>
         )}
@@ -101,15 +103,17 @@ export function PhotoCard({
         type="button"
         onClick={handleToggleLike}
         disabled={isLiking}
-        className="absolute top-3 right-3 z-10 cursor-pointer rounded-full border border-border-subtle bg-overlay p-2 text-primary-foreground backdrop-blur-xs transition duration-200 select-none hover:bg-overlay disabled:cursor-wait disabled:opacity-70"
+        className="border-border-subtle bg-overlay text-primary-foreground hover:bg-overlay absolute top-3 right-3 z-10 cursor-pointer rounded-full border p-2 backdrop-blur-xs transition duration-200 select-none disabled:cursor-wait disabled:opacity-70"
       >
         {isLiking ? (
-          <Loader2 className="size-4.5 animate-spin text-primary-foreground" />
+          <Loader2 className="text-primary-foreground size-4.5 animate-spin" />
         ) : (
           <Heart
             className={cn(
               'size-4.5 transition duration-200',
-              liked ? 'scale-110 fill-rose-500 text-rose-500' : 'text-primary-foreground hover:text-rose-400',
+              liked
+                ? 'scale-110 fill-rose-500 text-rose-500'
+                : 'text-primary-foreground hover:text-rose-400',
             )}
           />
         )}
@@ -118,7 +122,7 @@ export function PhotoCard({
       {/* Hover Information overlay */}
       {showMetrics && (
         <div className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 p-3 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
-          <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-foreground">
+          <div className="text-foreground flex flex-wrap items-center gap-3 text-sm font-semibold">
             <span className="inline-flex items-center gap-1">
               <Vote size={18} />
               {(photo.totalVotes ?? photo.votes ?? 0).toLocaleString()}
@@ -150,8 +154,8 @@ export function TabSectionHeader({
   return (
     <div className="mb-6 flex justify-between gap-3">
       <div>
-        <h3 className="font-medium text-foreground uppercase">{title}</h3>
-        {countLabel ? <p className="text-xs text-primary-foreground/45">{countLabel}</p> : null}
+        <h3 className="text-foreground font-medium uppercase">{title}</h3>
+        {countLabel ? <p className="text-primary-foreground/45 text-xs">{countLabel}</p> : null}
       </div>
       {action ? <div>{action}</div> : null}
     </div>
@@ -169,14 +173,14 @@ export function TabErrorState({
 }) {
   return (
     <section className="container py-10">
-      <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6 text-primary-foreground">
+      <div className="border-destructive/20 bg-destructive/10 text-primary-foreground rounded-2xl border p-6">
         <p className="font-semibold">{title}</p>
-        <p className="mt-1 text-sm text-primary-foreground/75">{description}</p>
+        <p className="text-primary-foreground/75 mt-1 text-sm">{description}</p>
         {onRetry ? (
           <button
             type="button"
             onClick={onRetry}
-            className="mt-4 rounded-md bg-destructive px-4 py-2 text-sm font-semibold text-primary-foreground"
+            className="bg-destructive text-primary-foreground mt-4 rounded-md px-4 py-2 text-sm font-semibold"
           >
             Retry
           </button>
@@ -200,14 +204,15 @@ export function PhotoGridLoadingState({ count = 8 }: { count?: number }) {
         return (
           <div
             key={index}
-            className="relative h-48 animate-pulse overflow-hidden rounded-lg bg-surface ring-1 ring-border-subtle sm:h-60 md:h-72"
+            className="bg-surface ring-border-subtle relative animate-pulse overflow-hidden rounded-lg ring-1"
             style={{
               flexGrow: aspect,
-              flexBasis: `${aspect * 180}px`,
+              flexBasis: `${aspect * 220}px`,
+              height: '300px',
             }}
           >
-            <div className="absolute inset-0 bg-surface-secondary/60" />
-            <div className="absolute top-3 right-3 size-7 rounded-full bg-surface-secondary/60" />
+            <div className="bg-surface-secondary/60 absolute inset-0" />
+            <div className="bg-surface-secondary/60 absolute top-3 right-3 size-7 rounded-full" />
           </div>
         );
       })}
@@ -217,26 +222,26 @@ export function PhotoGridLoadingState({ count = 8 }: { count?: number }) {
 
 export function CardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-lg border border-border/80 bg-surface/40 shadow-lg backdrop-blur-xs">
+    <div className="border-border/80 bg-surface/40 overflow-hidden rounded-lg border shadow-lg backdrop-blur-xs">
       {/* Banner */}
-      <div className="relative h-24 animate-pulse bg-surface-secondary" />
+      <div className="bg-surface-secondary relative h-24 animate-pulse" />
 
       {/* Content */}
       <div className="relative -mt-6 px-4 pb-4">
         <div className="flex items-center gap-3">
           {/* Avatar */}
-          <div className="size-16 shrink-0 animate-pulse rounded-full border-2 border-border bg-surface-secondary" />
+          <div className="border-border bg-surface-secondary size-16 shrink-0 animate-pulse rounded-full border-2" />
 
           {/* Text */}
           <div className="flex-1 pt-2">
-            <div className="h-5 w-28 animate-pulse rounded bg-surface-secondary" />
+            <div className="bg-surface-secondary h-5 w-28 animate-pulse rounded" />
 
-            <div className="mt-2 h-3 w-20 animate-pulse rounded bg-surface-secondary/70" />
+            <div className="bg-surface-secondary/70 mt-2 h-3 w-20 animate-pulse rounded" />
           </div>
         </div>
 
         {/* Button */}
-        <div className="mt-5 h-9 w-full animate-pulse rounded-sm bg-surface-secondary" />
+        <div className="bg-surface-secondary mt-5 h-9 w-full animate-pulse rounded-sm" />
       </div>
     </div>
   );
@@ -258,12 +263,12 @@ export function PeopleLoadingState({ count = 4 }: { count?: number }) {
 
 export function AchievementLoadingState() {
   return (
-    <div className="rounded-2xl border border-dashed border-border bg-surface/20 p-8">
-      <div className="mx-auto h-5 w-40 animate-pulse rounded bg-surface-secondary" />
-      <div className="mx-auto mt-3 h-4 w-56 animate-pulse rounded bg-surface-secondary/60" />
+    <div className="border-border bg-surface/20 rounded-2xl border border-dashed p-8">
+      <div className="bg-surface-secondary mx-auto h-5 w-40 animate-pulse rounded" />
+      <div className="bg-surface-secondary/60 mx-auto mt-3 h-4 w-56 animate-pulse rounded" />
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="h-8 w-24 animate-pulse rounded-full bg-surface-secondary" />
+          <div key={index} className="bg-surface-secondary h-8 w-24 animate-pulse rounded-full" />
         ))}
       </div>
     </div>

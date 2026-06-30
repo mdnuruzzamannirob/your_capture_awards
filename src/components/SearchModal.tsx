@@ -1,8 +1,9 @@
 'use client';
 
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useLazySearchUsersQuery } from '@/store/apis/userApi';
 import { cn } from '@/utils/cn';
-import { Loader2, Search, X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -87,10 +88,14 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchUser[]>([]);
   const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [triggerSearch, { isFetching: isLoading }] = useLazySearchUsersQuery();
+  const [triggerSearch, { isFetching }] = useLazySearchUsersQuery();
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isInitialLoading = isFetching && results.length === 0;
+  const isLoadingMore = isFetching && results.length > 0;
 
   // Auto-focus input when modal opens
   useEffect(() => {
@@ -120,14 +125,19 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       if (!trimmed) {
         setResults([]);
         setTotal(0);
+        setPage(1);
+        setHasMore(false);
         return;
       }
 
       setError(null);
       try {
         const response = await triggerSearch({ query: trimmed, page: 1, limit: 20 }).unwrap();
-        setResults(response.data?.data ?? []);
+        const users = response.data?.users ?? [];
+        setResults(users);
         setTotal(response.data?.meta?.total ?? 0);
+        setPage(2);
+        setHasMore(response.data?.meta?.hasNextPage ?? false);
       } catch {
         setError('Search failed. Please try again.');
       }
@@ -141,6 +151,26 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => doSearch(val), 350);
   };
+
+  const loadMore = useCallback(async () => {
+    if (isFetching || !hasMore || !query.trim()) return;
+
+    try {
+      const response = await triggerSearch({ query: query.trim(), page, limit: 20 }).unwrap();
+      const users = response.data?.users ?? [];
+      setResults((prev) => [...prev, ...users]);
+      setPage((prev) => prev + 1);
+      setHasMore(response.data?.meta?.hasNextPage ?? false);
+    } catch {
+      setError('Unable to load more users.');
+    }
+  }, [hasMore, isFetching, page, query, triggerSearch]);
+
+  const { loadMoreRef } = useInfiniteScroll({
+    hasMore,
+    isLoading: isFetching,
+    onLoadMore: loadMore,
+  });
 
   if (!isOpen) return null;
 
@@ -165,11 +195,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       >
         {/* Search Input */}
         <div className="border-border flex items-center gap-3 border-b px-4 py-3">
-          {isLoading ? (
-            <Loader2 className="text-primary size-4 shrink-0 animate-spin" />
-          ) : (
-            <Search className="text-muted-foreground size-4 shrink-0" />
-          )}
+          <Search className="text-muted-foreground size-4 shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -211,7 +237,22 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <p className="text-caption-foreground py-8 text-center text-xs">
               Start typing to search for members…
             </p>
-          ) : results.length === 0 && !isLoading ? (
+          ) : isInitialLoading ? (
+            <div className="space-y-3 py-6">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="bg-surface-secondary flex animate-pulse items-center gap-3 rounded-xl p-3"
+                >
+                  <div className="bg-surface-tertiary h-10 w-10 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <div className="bg-surface-tertiary h-4 w-3/4 rounded" />
+                    <div className="bg-surface-tertiary h-3 w-1/2 rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : results.length === 0 ? (
             <p className="text-muted-foreground py-8 text-center text-sm">
               No members found for &ldquo;{query}&rdquo;
             </p>
@@ -229,6 +270,12 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   </div>
                 ))}
               </div>
+              <div ref={loadMoreRef} className="h-0" />
+              {isLoadingMore && hasMore ? (
+                <div className="flex justify-center py-4">
+                  <div className="border-primary h-6 w-6 animate-spin rounded-full border-2 border-t-transparent" />
+                </div>
+              ) : null}
             </>
           )}
         </div>
