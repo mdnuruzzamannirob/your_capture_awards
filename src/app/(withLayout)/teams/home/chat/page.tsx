@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
-import { useGetMyTeamQuery } from '@/store/apis/teamApi';
+import { useGetMyTeamQuery, useUploadChatFileMutation } from '@/store/apis/teamApi';
 import { cn } from '@/utils/cn';
 import { ArrowDown, FileUp, ImagePlus, Loader2, Send, TriangleAlert } from 'lucide-react';
 import Image from 'next/image';
@@ -107,6 +107,7 @@ export default function TeamChatPage() {
     isError: teamError,
     refetch: refetchTeam,
   } = useGetMyTeamQuery();
+  const [uploadChatFile] = useUploadChatFileMutation();
 
   const team = teamData?.data?.team;
   const teamId = team?.id ?? '';
@@ -187,20 +188,7 @@ export default function TeamChatPage() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch(`${socketBaseUrl}/api/v1/chats/upload`, {
-        method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to upload file');
-      }
-
-      const result = (await response.json()) as {
-        success?: boolean;
-        data?: { url?: string; fileUrl?: string };
-      };
+      const result = await uploadChatFile(formData).unwrap();
       const fileUrl = result?.data?.fileUrl || result?.data?.url;
 
       if (!fileUrl) {
@@ -209,7 +197,7 @@ export default function TeamChatPage() {
 
       return fileUrl;
     },
-    [socketBaseUrl, token],
+    [uploadChatFile],
   );
 
   const loadTeamMessages = useCallback(
@@ -488,7 +476,7 @@ export default function TeamChatPage() {
   if (teamLoading || authLoading) {
     return (
       <section className="margin-user container py-6" aria-busy="true" aria-live="polite">
-        <div className="rounded-2xl border border-border-subtle bg-surface-secondary p-5">
+        <div className="border-border-subtle bg-surface-secondary rounded-2xl border p-5">
           <Skeleton className="h-6 w-40" />
           <Skeleton className="mt-2 h-4 w-60" />
           <div className="mt-6 space-y-3">
@@ -504,10 +492,10 @@ export default function TeamChatPage() {
   if (teamError) {
     return (
       <section className="margin-user container py-6">
-        <div className="rounded-2xl border border-border-subtle bg-surface-secondary p-6 text-center">
-          <TriangleAlert className="mx-auto size-10 text-primary" />
+        <div className="border-border-subtle bg-surface-secondary rounded-2xl border p-6 text-center">
+          <TriangleAlert className="text-primary mx-auto size-10" />
           <p className="mt-3 text-lg font-semibold">Failed to load team chat</p>
-          <p className="mt-1 text-sm text-muted-foreground">We could not load your team data.</p>
+          <p className="text-muted-foreground mt-1 text-sm">We could not load your team data.</p>
           <Button className="mt-4" onClick={() => refetchTeam()}>
             Retry
           </Button>
@@ -520,7 +508,7 @@ export default function TeamChatPage() {
     return (
       <section className="margin-user container py-6">
         <div className="flex min-h-[50vh] items-center justify-center">
-          <p className="text-sm text-muted-foreground">Team not found</p>
+          <p className="text-muted-foreground text-sm">Team not found</p>
         </div>
       </section>
     );
@@ -528,17 +516,19 @@ export default function TeamChatPage() {
 
   return (
     <section className="margin-user container flex h-[calc(100dvh-110px)] min-w-0 flex-col overflow-x-hidden py-6">
-      <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border-subtle bg-background/95 shadow-overlay">
-        <div className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-border-subtle bg-background/95 px-4 py-3 backdrop-blur">
+      <div className="border-border-subtle bg-background/95 shadow-overlay relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border">
+        <div className="border-border-subtle bg-background/95 sticky top-0 z-20 flex items-center justify-between gap-3 border-b px-4 py-3 backdrop-blur">
           <div className="flex min-w-0 items-center gap-3">
-            <Avatar className="size-10 shrink-0 border border-border-subtle">
+            <Avatar className="border-border-subtle size-10 shrink-0 border">
               <AvatarImage src={user?.avatar ?? undefined} alt={currentUserName} />
-              <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
+              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
                 {currentUserName.charAt(0).toUpperCase() || 'Y'}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-primary-foreground">{currentUserName}</p>
+              <p className="text-primary-foreground truncate text-sm font-semibold">
+                {currentUserName}
+              </p>
               <p className="mt-0.5 text-xs text-emerald-300">Active</p>
             </div>
           </div>
@@ -554,7 +544,7 @@ export default function TeamChatPage() {
           className="flex min-w-0 flex-1 scrollbar-thin flex-col gap-4 overflow-x-hidden overflow-y-auto px-4 py-5"
         >
           {groupedMessages.length === 0 ? (
-            <div className="flex min-h-70 flex-col items-center justify-center rounded-2xl border border-dashed border-border-subtle bg-surface-secondary text-center">
+            <div className="border-border-subtle bg-surface-secondary flex min-h-70 flex-col items-center justify-center rounded-2xl border border-dashed text-center">
               <MessageState isReady={isReady} />
             </div>
           ) : (
@@ -570,11 +560,11 @@ export default function TeamChatPage() {
                     isMine ? 'flex-row-reverse' : 'flex-row',
                   )}
                 >
-                  <Avatar className="size-9 shrink-0 border border-border-subtle">
+                  <Avatar className="border-border-subtle size-9 shrink-0 border">
                     <AvatarImage src={group.sender.avatar ?? undefined} alt={senderName} />
                     <AvatarFallback
                       className={cn(
-                        'text-xs font-semibold text-primary-foreground',
+                        'text-primary-foreground text-xs font-semibold',
                         isMine ? 'bg-primary' : 'bg-surface-tertiary',
                       )}
                     >
@@ -604,7 +594,7 @@ export default function TeamChatPage() {
                               'w-fit max-w-full overflow-hidden px-4 py-3 text-sm leading-relaxed shadow-sm',
                               isMine
                                 ? 'bg-primary text-primary-foreground'
-                                : 'border border-border-subtle bg-surface-secondary text-foreground',
+                                : 'border-border-subtle bg-surface-secondary text-foreground border',
                               bubbleRadius,
                               bubbleAlign,
                             )}
@@ -621,7 +611,7 @@ export default function TeamChatPage() {
                                           width={900}
                                           height={600}
                                           unoptimized
-                                          className="h-auto max-h-64 w-auto max-w-full rounded-xl border border-border-subtle object-cover"
+                                          className="border-border-subtle h-auto max-h-64 w-auto max-w-full rounded-xl border object-cover"
                                         />
                                       </a>
                                     ) : (
@@ -640,7 +630,9 @@ export default function TeamChatPage() {
                                   </>
                                 )}
                                 {message.message && (
-                                  <p className="text-sm text-primary-foreground/85">{message.message}</p>
+                                  <p className="text-primary-foreground/85 text-sm">
+                                    {message.message}
+                                  </p>
                                 )}
                               </div>
                             ) : (
@@ -653,11 +645,11 @@ export default function TeamChatPage() {
 
                     <div
                       className={cn(
-                        'flex items-center gap-2 px-1 text-xs text-primary-foreground/50',
+                        'text-primary-foreground/50 flex items-center gap-2 px-1 text-xs',
                         isMine ? 'justify-end' : 'justify-start',
                       )}
                     >
-                      <span className="font-medium text-primary-foreground/75">{senderName}</span>
+                      <span className="text-primary-foreground/75 font-medium">{senderName}</span>
                       <span>{timeFormatter.format(new Date(group.createdAt))}</span>
                     </div>
                   </div>
@@ -668,12 +660,12 @@ export default function TeamChatPage() {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="shrink-0 border-t border-border-subtle bg-surface-secondary p-3 backdrop-blur">
+        <div className="border-border-subtle bg-surface-secondary shrink-0 border-t p-3 backdrop-blur">
           {pendingFile && (
-            <div className="mb-3 flex min-w-0 items-center justify-between gap-3 rounded-xl border border-border-subtle bg-surface-secondary px-3 py-2 text-sm">
+            <div className="border-border-subtle bg-surface-secondary mb-3 flex min-w-0 items-center justify-between gap-3 rounded-xl border px-3 py-2 text-sm">
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-primary-foreground">{pendingFile.name}</p>
-                <p className="text-xs text-primary-foreground/50">
+                <p className="text-primary-foreground truncate font-medium">{pendingFile.name}</p>
+                <p className="text-primary-foreground/50 text-xs">
                   {Math.round(pendingFile.size / 1024)} KB selected
                 </p>
               </div>
@@ -700,7 +692,7 @@ export default function TeamChatPage() {
               type="button"
               size="icon"
               variant="ghost"
-              className="size-10 shrink-0 text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground"
+              className="text-muted-foreground hover:bg-surface-secondary hover:text-primary-foreground size-10 shrink-0"
               onClick={() => fileInputRef.current?.click()}
             >
               <ImagePlus className="size-4" />
@@ -711,7 +703,7 @@ export default function TeamChatPage() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder="Write a message to your team..."
-                className="focus-visible:ring-primary/40 h-11 border-border-subtle bg-surface-secondary text-primary-foreground placeholder:text-primary-foreground/35"
+                className="focus-visible:ring-primary/40 border-border-subtle bg-surface-secondary text-primary-foreground placeholder:text-primary-foreground/35 h-11"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -723,7 +715,7 @@ export default function TeamChatPage() {
 
             <Button
               type="button"
-              className="bg-primary hover:bg-primary/90 h-11 shrink-0 px-4 text-primary-foreground"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground h-11 shrink-0 px-4"
               disabled={isSending || (!draft.trim() && !pendingFile)}
               onClick={() => void handleSubmit()}
             >
@@ -748,7 +740,7 @@ export default function TeamChatPage() {
           <button
             type="button"
             onClick={() => scrollToBottom()}
-            className="bg-primary flex size-9 items-center justify-center rounded-full text-primary-foreground shadow-lg shadow-overlay transition active:scale-95"
+            className="bg-primary text-primary-foreground shadow-overlay flex size-9 items-center justify-center rounded-full shadow-lg transition active:scale-95"
           >
             <ArrowDown className="size-4" />
           </button>
@@ -764,8 +756,8 @@ function MessageState({ isReady }: { isReady: boolean | string }) {
       <div className="bg-primary/12 text-primary mx-auto flex size-12 items-center justify-center rounded-2xl">
         <Send className="size-5" />
       </div>
-      <p className="mt-4 text-lg font-semibold text-primary-foreground">No messages yet</p>
-      <p className="mt-2 text-sm leading-6 text-primary-foreground/55">
+      <p className="text-primary-foreground mt-4 text-lg font-semibold">No messages yet</p>
+      <p className="text-primary-foreground/55 mt-2 text-sm leading-6">
         {isReady
           ? 'Be the first to start the conversation. Your message will appear here in real time for the entire team.'
           : 'The chat is connecting right now. Once the socket authenticates, the conversation will load automatically.'}
