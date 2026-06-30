@@ -1,7 +1,7 @@
 'use client';
 
-import { Search } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { Search } from 'lucide-react';
 
 interface SearchBarProps {
   onClick?: () => void;
@@ -9,7 +9,7 @@ interface SearchBarProps {
 }
 
 /**
- * Decorative search bar trigger — clicking it opens the SearchModal.
+ * Decorative search icon trigger — clicking it opens the SearchModal.
  */
 export function SearchBar({ onClick, className }: SearchBarProps) {
   return (
@@ -18,15 +18,11 @@ export function SearchBar({ onClick, className }: SearchBarProps) {
       onClick={onClick}
       aria-label="Open search"
       className={cn(
-        'group flex h-8.5 cursor-pointer items-center gap-2 rounded-md border border-border bg-surface-secondary px-3 text-sm text-muted-foreground transition-all hover:border-border-strong hover:text-foreground',
+        'group border-border bg-surface-secondary text-muted-foreground hover:border-border-strong hover:text-foreground inline-flex h-8.5 w-8.5 items-center justify-center rounded-md border transition',
         className,
       )}
     >
-      <Search className="size-3.5 shrink-0 transition-colors group-hover:text-primary" />
-      <span className="hidden text-xs sm:inline">Search users…</span>
-      <kbd className="ml-1 hidden rounded bg-surface-tertiary px-1.5 py-0.5 text-[10px] font-mono text-caption-foreground sm:inline">
-        /
-      </kbd>
+      <Search className="group-hover:text-primary size-4 transition-colors" />
     </button>
   );
 }
