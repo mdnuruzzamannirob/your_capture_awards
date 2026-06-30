@@ -1,8 +1,9 @@
 'use client';
 
 import { cn } from '@/utils/cn';
-import { MapPin, Loader2 } from 'lucide-react';
+import { AlertTriangle, Loader2, MapPin } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import AchievementsTabContent from './AchievementsTabContent';
 import FollowersTabContent from './FollowersTabContent';
@@ -20,10 +21,9 @@ import {
 } from '@/store/apis/profileApi';
 import { useAppSelector } from '@/store/hooks';
 
-import { toast } from 'sonner';
+import { useToggleFollowMutation } from '@/store/apis/socialApi';
 import AddCoverDialog from '../profile/AddCoverDialog';
 import AvatarDialog from '../profile/AvatarDialog';
-import { useToggleFollowMutation } from '@/store/apis/socialApi';
 
 type Props = {
   isOwn?: boolean;
@@ -56,7 +56,7 @@ function TabButton({
       className={cn(
         'relative flex h-full min-w-20 flex-1 cursor-pointer flex-col items-center justify-center px-5 transition duration-200 outline-none select-none',
         active
-          ? 'bg-primary font-bold text-primary-foreground'
+          ? 'bg-primary text-primary-foreground font-bold'
           : 'text-muted-foreground hover:bg-surface-secondary hover:text-foreground',
       )}
     >
@@ -131,12 +131,15 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
   const ownPhotos = useAppSelector((state) => state.profile.photos);
 
   // 2. Fetch Profile, Stats and Photos for Other User Profile
-  const { data: otherProfileData, isLoading: isOtherProfileLoading } = useGetOtherUserProfileQuery(
-    targetUserId || '',
-    {
-      skip: isOwn || !targetUserId,
-    },
-  );
+  const {
+    data: otherProfileData,
+    isLoading: isOtherProfileLoading,
+    isError: isOtherProfileError,
+    error: otherProfileError,
+    refetch: refetchOtherProfile,
+  } = useGetOtherUserProfileQuery(targetUserId || '', {
+    skip: isOwn || !targetUserId,
+  });
   const { data: otherStatsData, isLoading: isOtherStatsLoading } = useGetOtherUserStatsQuery(
     targetUserId || '',
     {
@@ -155,6 +158,14 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
 
   // Resolved joined team: for own profile from currentUser, for public from API data
   const joinedTeam = (profile as any)?.joinedTeam ?? null;
+
+  const showProfileError =
+    !isOwn && !isOtherProfileLoading && (isOtherProfileError || !otherProfileData?.data);
+
+  const errorMessage =
+    (otherProfileError as any)?.data?.message ||
+    (otherProfileError as any)?.message ||
+    'This user profile could not be found. Please check the link or try again later.';
 
   const isLoading = isOwn
     ? isOwnStatsLoading || isOwnPhotosLoading
@@ -221,12 +232,35 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
     return list;
   }, [isOwn, stats, photos.length]);
 
+  const router = useRouter();
+
+  if (showProfileError) {
+    return (
+      <main className="margin bg-background text-foreground min-h-screen">
+        <section className="container py-20">
+          <div className="mx-auto max-w-xl rounded-3xl p-10 text-center shadow-sm">
+            <AlertTriangle className="text-destructive mx-auto mb-4 size-12" />
+            <h1 className="text-foreground text-2xl font-semibold">Profile not found</h1>
+
+            <button
+              type="button"
+              onClick={() => router.push('/')}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 mt-6 rounded-md px-5 py-2 text-sm font-semibold transition"
+            >
+              Go home
+            </button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
-    <main className="margin min-h-screen bg-background text-foreground">
+    <main className="margin bg-background text-foreground min-h-screen">
       {/* Banner */}
-      <section className="relative h-60 w-full overflow-hidden bg-surface md:h-96">
+      <section className="bg-surface relative h-60 w-full overflow-hidden md:h-96">
         {isLoading && !profile ? (
-          <div className="size-full animate-pulse bg-surface-secondary/60" />
+          <div className="bg-surface-secondary/60 size-full animate-pulse" />
         ) : !coverError && profile?.cover ? (
           <Image
             src={profile.cover}
@@ -238,7 +272,7 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
             onError={() => setCoverError(true)}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-surface text-muted-foreground">
+          <div className="bg-surface text-muted-foreground flex h-full w-full items-center justify-center">
             <p>No cover photo</p>
           </div>
         )}
@@ -247,11 +281,11 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
             <AddCoverDialog />
           </div>
         )}
-        <div className="absolute inset-0 bg-linear-to-t from-background via-background/20 to-transparent" />
+        <div className="from-background via-background/20 absolute inset-0 bg-linear-to-t to-transparent" />
       </section>
 
       {/* Profile Header Bar */}
-      <section className="relative z-10 border-b border-border bg-surface/60 backdrop-blur-md">
+      <section className="border-border bg-surface/60 relative z-10 border-b backdrop-blur-md">
         <div className="container py-2">
           <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-center">
             {/* Left/Center Group: Avatar, Info, Team, Follow Button */}
@@ -259,13 +293,13 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
               {/* Avatar */}
               <div className="relative -mt-20 shrink-0">
                 {isLoading && !profile ? (
-                  <div className="size-28 animate-pulse rounded-full border-4 border-background bg-surface-secondary sm:size-34" />
+                  <div className="border-background bg-surface-secondary size-28 animate-pulse rounded-full border-4 sm:size-34" />
                 ) : isOwn ? (
-                  <div className="group/avatar relative size-28 overflow-hidden rounded-full border-4 border-background bg-surface-secondary object-cover shadow-2xl sm:size-34">
+                  <div className="group/avatar border-background bg-surface-secondary relative size-28 overflow-hidden rounded-full border-4 object-cover shadow-2xl sm:size-34">
                     <AvatarDialog />
                   </div>
                 ) : (
-                  <div className="relative size-28 overflow-hidden rounded-full border-4 border-background bg-surface-secondary shadow-2xl sm:size-34">
+                  <div className="border-background bg-surface-secondary relative size-28 overflow-hidden rounded-full border-4 shadow-2xl sm:size-34">
                     {!avatarError && profile?.avatar ? (
                       <Image
                         src={profile.avatar}
@@ -275,7 +309,7 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                         onError={() => setAvatarError(true)}
                       />
                     ) : (
-                      <div className="flex size-full items-center justify-center text-xs text-muted-foreground">
+                      <div className="text-muted-foreground flex size-full items-center justify-center text-xs">
                         No Avatar
                       </div>
                     )}
@@ -288,16 +322,16 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                 {/* Name, Location, Votes stacked in Column */}
                 {isLoading && !profile ? (
                   <div className="flex shrink-0 flex-col justify-center gap-2">
-                    <div className="h-6 w-36 animate-pulse rounded bg-surface-secondary" />
-                    <div className="h-4 w-24 animate-pulse rounded bg-surface-secondary" />
+                    <div className="bg-surface-secondary h-6 w-36 animate-pulse rounded" />
+                    <div className="bg-surface-secondary h-4 w-24 animate-pulse rounded" />
                   </div>
                 ) : (
                   <div className="flex shrink-0 flex-col justify-center">
-                    <h1 className="mb-1.5 leading-tight font-bold tracking-tight text-foreground sm:text-lg">
+                    <h1 className="text-foreground mb-1.5 leading-tight font-bold tracking-tight sm:text-lg">
                       {fullName}
                     </h1>
                     <div className="space-y-1">
-                      <span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                      <span className="text-muted-foreground flex items-center gap-1.5 text-xs font-semibold">
                         <MapPin className="text-muted-foreground size-3.5" />
                         {profile?.location || profile?.country || 'Bangladesh'}
                       </span>
@@ -309,15 +343,15 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                 {/* Team Group — from API joinedTeam, with conditional divider */}
                 {isLoading && !profile ? (
                   <>
-                    <div className="hidden h-10 w-px shrink-0 self-center bg-border sm:block" />
+                    <div className="bg-border hidden h-10 w-px shrink-0 self-center sm:block" />
                     <div className="flex animate-pulse items-center gap-2.5">
-                      <div className="size-10 rounded-full bg-surface-secondary" />
-                      <div className="h-4 w-20 rounded bg-surface-secondary" />
+                      <div className="bg-surface-secondary size-10 rounded-full" />
+                      <div className="bg-surface-secondary h-4 w-20 rounded" />
                     </div>
                   </>
                 ) : joinedTeam?.team ? (
                   <>
-                    <div className="hidden h-10 w-px shrink-0 self-center bg-border sm:block" />
+                    <div className="bg-border hidden h-10 w-px shrink-0 self-center sm:block" />
                     <a
                       href={`/teams/${joinedTeam.team.id || joinedTeam.team.slug || ''}`}
                       className="group/team flex shrink-0 cursor-pointer items-center gap-2.5 self-center transition hover:opacity-80"
@@ -328,14 +362,14 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                           alt={joinedTeam.team.name}
                           width={40}
                           height={40}
-                          className="size-10 rounded-full border border-border bg-surface-secondary object-cover transition group-hover/team:border-border-strong"
+                          className="border-border bg-surface-secondary group-hover/team:border-border-strong size-10 rounded-full border object-cover transition"
                         />
                       ) : (
-                        <div className="flex size-10 items-center justify-center rounded-full border border-border bg-surface-secondary text-xs font-bold text-foreground transition group-hover/team:border-border-strong">
+                        <div className="border-border bg-surface-secondary text-foreground group-hover/team:border-border-strong flex size-10 items-center justify-center rounded-full border text-xs font-bold transition">
                           {joinedTeam.team.name?.slice(0, 2).toUpperCase() || 'T'}
                         </div>
                       )}
-                      <span className="text-sm font-semibold text-foreground transition group-hover/team:text-foreground">
+                      <span className="text-foreground group-hover/team:text-foreground text-sm font-semibold transition">
                         {joinedTeam.team.name}
                       </span>
                     </a>
@@ -346,13 +380,13 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                 {isLoading && !profile ? (
                   !isOwn && (
                     <>
-                      <div className="hidden h-10 w-px shrink-0 self-center bg-border sm:block" />
-                      <div className="h-8 w-20 animate-pulse rounded bg-surface-secondary" />
+                      <div className="bg-border hidden h-10 w-px shrink-0 self-center sm:block" />
+                      <div className="bg-surface-secondary h-8 w-20 animate-pulse rounded" />
                     </>
                   )
                 ) : !isOwn ? (
                   <>
-                    <div className="hidden h-10 w-px shrink-0 self-center bg-surface-secondary/50 sm:block" />
+                    <div className="bg-surface-secondary/50 hidden h-10 w-px shrink-0 self-center sm:block" />
                     <button
                       type="button"
                       onClick={handleToggleFollow}
@@ -379,15 +413,15 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
 
             {/* Right side: Scrollable Modern Tabs Box */}
             <div className="w-full overflow-hidden lg:w-auto">
-              <div className="divide-border flex h-12 max-w-full scrollbar-none items-center divide-x overflow-x-auto rounded-sm border border-border bg-surface/30 shadow-md">
+              <div className="divide-border border-border bg-surface/30 flex h-12 max-w-full scrollbar-none items-center divide-x overflow-x-auto rounded-sm border shadow-md">
                 {isLoading && !stats
                   ? Array.from({ length: isOwn ? 5 : 4 }).map((_, idx) => (
                       <div
                         key={idx}
                         className="flex h-full min-w-20 flex-1 animate-pulse flex-col items-center justify-center gap-1.5 px-5"
                       >
-                        <div className="h-4 w-8 rounded bg-surface-secondary" />
-                        <div className="h-2 w-12 rounded bg-surface-secondary" />
+                        <div className="bg-surface-secondary h-4 w-8 rounded" />
+                        <div className="bg-surface-secondary h-2 w-12 rounded" />
                       </div>
                     ))
                   : tabs.map((tab) => (
