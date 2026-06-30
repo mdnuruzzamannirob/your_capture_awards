@@ -107,6 +107,17 @@ export const teamApi = createApi({
       providesTags: (result, error, teamId) => (result ? [{ type: 'Team', id: teamId }] : []),
     }),
 
+    uploadChatFile: builder.mutation<
+      { success?: boolean; data?: { url?: string; fileUrl?: string } },
+      FormData
+    >({
+      query: (body) => ({
+        url: '/chats/upload',
+        method: 'POST',
+        body,
+      }),
+    }),
+
     // ── Get Team Members ──────────────────────────────────────────────────
     getTeamMembers: builder.query<GetTeamMembersResponse, string>({
       query: (teamId) => ({
@@ -328,6 +339,7 @@ export const {
   useJoinTeamMutation,
   useCreateTeamMutation,
   useGetMyTeamQuery,
+  useUploadChatFileMutation,
   useGetTeamMembersQuery,
   useInviteMemberMutation,
   useRemoveMemberMutation,

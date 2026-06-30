@@ -1,8 +1,8 @@
-import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQuery } from '@/store/baseQuery';
-import { User } from '../types/userTypes';
-import { AuthUser } from '../types/authTypes';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { setUser } from '../slices/authSlice';
+import { AuthUser } from '../types/authTypes';
+import { User } from '../types/userTypes';
 import { authApi } from './authApi';
 
 type ApiResponse<T> = {
@@ -26,6 +26,28 @@ type DeleteAccountBody = {
   password: string;
 };
 
+type SearchUser = {
+  id: string;
+  avatar?: string | null;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  username: string | null;
+  currentLevel: number;
+  level?: { level?: { levelName?: string } } | null;
+};
+
+type SearchUsersResponse = {
+  success: boolean;
+  data: {
+    data: SearchUser[];
+    meta: {
+      total: number;
+      hasNextPage: boolean;
+    };
+  };
+};
+
 export const userApi = createApi({
   reducerPath: 'userApi',
   tagTypes: ['User', 'Users'],
@@ -35,6 +57,18 @@ export const userApi = createApi({
     getUser: builder.query<User, string>({
       query: (id) => ({ url: `/users/${id}`, method: 'GET' }),
       providesTags: (result, error, id) => [{ type: 'User', id }],
+    }),
+
+    searchUsers: builder.query<
+      SearchUsersResponse,
+      { query: string; page?: number; limit?: number }
+    >({
+      query: ({ query, page = 1, limit = 20 }) => ({
+        url: '/users/search',
+        method: 'GET',
+        params: { query, page, limit },
+      }),
+      providesTags: ['Users'],
     }),
 
     // Update user (partial)
@@ -76,6 +110,8 @@ export const userApi = createApi({
 
 export const {
   useGetUserQuery,
+  useSearchUsersQuery,
+  useLazySearchUsersQuery,
   useUpdateUserMutation,
   useChangePasswordMutation,
   useDeleteAccountMutation,

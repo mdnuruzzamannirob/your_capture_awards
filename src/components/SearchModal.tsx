@@ -1,5 +1,6 @@
 'use client';
 
+import { useLazySearchUsersQuery } from '@/store/apis/userApi';
 import { cn } from '@/utils/cn';
 import { Loader2, Search, X } from 'lucide-react';
 import Image from 'next/image';
@@ -17,21 +18,6 @@ interface SearchUser {
   currentLevel: number;
   level?: { level?: { levelName?: string } } | null;
 }
-
-interface SearchResponse {
-  success: boolean;
-  data: {
-    data: SearchUser[];
-    meta: {
-      total: number;
-      hasNextPage: boolean;
-    };
-  };
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL_V1 || 'https://fttfmf0j-5002.inc1.devtunnels.ms/api/v1';
 
 function getInitials(name: string): string {
   return name
@@ -52,10 +38,10 @@ function UserResultCard({ user }: { user: SearchUser }) {
   return (
     <Link
       href={profileHref}
-      className="group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-surface-secondary"
+      className="group hover:bg-surface-secondary flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors"
     >
       {/* Avatar */}
-      <div className="relative size-10 shrink-0 overflow-hidden rounded-full border border-border bg-surface-secondary">
+      <div className="border-border bg-surface-secondary relative size-10 shrink-0 overflow-hidden rounded-full border">
         {user.avatar && !imgError ? (
           <Image
             src={user.avatar}
@@ -65,7 +51,7 @@ function UserResultCard({ user }: { user: SearchUser }) {
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="flex size-full items-center justify-center text-xs font-bold text-muted-foreground">
+          <div className="text-muted-foreground flex size-full items-center justify-center text-xs font-bold">
             {getInitials(displayName)}
           </div>
         )}
@@ -73,17 +59,17 @@ function UserResultCard({ user }: { user: SearchUser }) {
 
       {/* Info */}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-foreground group-hover:text-foreground">
+        <p className="text-foreground group-hover:text-foreground truncate text-sm font-semibold">
           {displayName}
         </p>
         {user.username && (
-          <p className="truncate text-xs text-muted-foreground">@{user.username}</p>
+          <p className="text-muted-foreground truncate text-xs">@{user.username}</p>
         )}
       </div>
 
       {/* Level badge */}
       {levelName && (
-        <span className="shrink-0 rounded-full border border-border bg-surface-secondary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+        <span className="border-border bg-surface-secondary text-muted-foreground shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase">
           {levelName}
         </span>
       )}
@@ -101,8 +87,8 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchUser[]>([]);
   const [total, setTotal] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [triggerSearch, { isFetching: isLoading }] = useLazySearchUsersQuery();
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -128,31 +114,26 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   // "/" shortcut to open (when modal is closed, handled by Header)
   // Debounced search
-  const doSearch = useCallback(async (q: string) => {
-    const trimmed = q.trim();
-    if (!trimmed) {
-      setResults([]);
-      setTotal(0);
-      return;
-    }
+  const doSearch = useCallback(
+    async (q: string) => {
+      const trimmed = q.trim();
+      if (!trimmed) {
+        setResults([]);
+        setTotal(0);
+        return;
+      }
 
-    setIsLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(
-        `${BASE_URL}/users/search?query=${encodeURIComponent(trimmed)}&page=1&limit=20`,
-        { credentials: 'include' },
-      );
-      if (!res.ok) throw new Error('Search failed');
-      const json: SearchResponse = await res.json();
-      setResults(json.data?.data ?? []);
-      setTotal(json.data?.meta?.total ?? 0);
-    } catch (err: any) {
-      setError('Search failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      setError(null);
+      try {
+        const response = await triggerSearch({ query: trimmed, page: 1, limit: 20 }).unwrap();
+        setResults(response.data?.data ?? []);
+        setTotal(response.data?.meta?.total ?? 0);
+      } catch {
+        setError('Search failed. Please try again.');
+      }
+    },
+    [triggerSearch],
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -167,7 +148,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-9998 bg-overlay backdrop-blur-sm"
+        className="bg-overlay fixed inset-0 z-9998 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -175,7 +156,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       {/* Modal panel */}
       <div
         className={cn(
-          'fixed top-[10vh] left-1/2 z-9999 w-full max-w-xl -translate-x-1/2 rounded-xl border border-border bg-background shadow-modal',
+          'border-border bg-background shadow-modal fixed top-[10vh] left-1/2 z-9999 w-full max-w-xl -translate-x-1/2 rounded-xl border',
           'animate-fade-in',
         )}
         role="dialog"
@@ -183,7 +164,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
         aria-label="Search"
       >
         {/* Search Input */}
-        <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+        <div className="border-border flex items-center gap-3 border-b px-4 py-3">
           {isLoading ? (
             <Loader2 className="text-primary size-4 shrink-0 animate-spin" />
           ) : (
@@ -194,16 +175,19 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             type="text"
             value={query}
             onChange={handleChange}
-            placeholder="Search users by name or username…"
-            className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-placeholder-foreground"
+            placeholder="Search Members"
+            className="text-foreground placeholder:text-placeholder-foreground min-w-0 flex-1 bg-transparent text-sm outline-none"
             autoComplete="off"
             spellCheck={false}
           />
           {query && (
             <button
               type="button"
-              onClick={() => { setQuery(''); setResults([]); }}
-              className="shrink-0 text-muted-foreground transition hover:text-foreground"
+              onClick={() => {
+                setQuery('');
+                setResults([]);
+              }}
+              className="text-muted-foreground hover:text-foreground shrink-0 transition"
               aria-label="Clear search"
             >
               <X className="size-4" />
@@ -212,7 +196,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="shrink-0 text-muted-foreground transition hover:text-foreground sm:hidden"
+            className="text-muted-foreground hover:text-foreground shrink-0 transition sm:hidden"
             aria-label="Close"
           >
             <X className="size-4" />
@@ -222,19 +206,19 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
         {/* Results Area */}
         <div className="max-h-[55vh] overflow-y-auto p-2">
           {error ? (
-            <p className="py-6 text-center text-sm text-destructive">{error}</p>
+            <p className="text-destructive py-6 text-center text-sm">{error}</p>
           ) : !query.trim() ? (
-            <p className="py-8 text-center text-xs text-caption-foreground">
-              Start typing to search for users…
+            <p className="text-caption-foreground py-8 text-center text-xs">
+              Start typing to search for members…
             </p>
           ) : results.length === 0 && !isLoading ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              No users found for &ldquo;{query}&rdquo;
+            <p className="text-muted-foreground py-8 text-center text-sm">
+              No members found for &ldquo;{query}&rdquo;
             </p>
           ) : (
             <>
               {results.length > 0 && (
-                <p className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-caption-foreground">
+                <p className="text-caption-foreground mb-1 px-3 text-[10px] font-semibold tracking-widest uppercase">
                   {total} result{total !== 1 ? 's' : ''}
                 </p>
               )}
@@ -250,11 +234,10 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
         </div>
 
         {/* Footer hint */}
-        <div className="flex items-center justify-between border-t border-border px-4 py-2 text-[10px] text-caption-foreground">
-          <span>Press <kbd className="rounded bg-surface-secondary px-1 py-0.5 font-mono">Esc</kbd> to close</span>
+        <div className="border-border text-caption-foreground flex items-center justify-between border-t px-4 py-2 text-[10px]">
           <span>
-            Powered by{' '}
-            <span className="text-primary font-semibold">Capture Awards</span>
+            Press <kbd className="bg-surface-secondary rounded px-1 py-0.5 font-mono">Esc</kbd> to
+            close
           </span>
         </div>
       </div>
