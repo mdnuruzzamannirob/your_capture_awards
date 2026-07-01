@@ -18,6 +18,7 @@ export interface AuthUser {
 export type SigninData = {
   email: string;
   password: string;
+  remember_me?: boolean;
 };
 
 export type SignupData = {
@@ -27,6 +28,7 @@ export type SignupData = {
   phone: string;
   password: string;
   confirmPassword: string;
+  remember_me?: boolean;
 };
 
 export interface AuthState {
