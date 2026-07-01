@@ -46,7 +46,11 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
 
   const signInSubmit = async (data: SigninFormData) => {
     try {
-      const result = await signin({ email: data?.email, password: data?.password }).unwrap();
+      const result = await signin({
+        email: data?.email,
+        password: data?.password,
+        remember_me: rememberMe,
+      }).unwrap();
 
       toast.success('Login Successful', {
         description: `Welcome back, ${result.data.user.firstName}!`,
@@ -74,6 +78,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         phone: data?.phone,
         password: data?.password,
         confirmPassword: data?.confirmPassword,
+        remember_me: rememberMe,
       }).unwrap();
 
       toast.success('Account Created Successfully', {
@@ -177,7 +182,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         <button
           type="button"
           onClick={() => setRememberMe(!rememberMe)}
-          className="flex items-center gap-2 text-sm font-medium text-foreground select-none"
+          className="text-foreground flex items-center gap-2 text-sm font-medium select-none"
         >
           {rememberMe ? (
             <IoCheckbox className="text-primary size-6" />
@@ -186,7 +191,10 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
           )}
           Remember Me
         </button>
-        <Link href="/forgot-password" className="text-sm font-medium text-foreground hover:underline">
+        <Link
+          href="/forgot-password"
+          className="text-foreground text-sm font-medium hover:underline"
+        >
           Forgot Password?
         </Link>
       </div>
@@ -194,7 +202,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
       <button
         type="submit"
         disabled={isSigninLoading}
-        className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-4 w-full rounded-sm py-2.25 text-primary-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+        className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary text-primary-foreground mt-4 w-full rounded-sm py-2.25 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSigninLoading ? 'Signing in...' : 'Sign In'}
       </button>
@@ -304,7 +312,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
       </div>
 
       <div className="mt-1 flex flex-col gap-1">
-        <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground select-none">
+        <label className="text-foreground flex cursor-pointer items-center gap-2 text-sm font-medium select-none">
           <input type="checkbox" id="agree" className="sr-only" {...signupForm.register('agree')} />
           <span className="mt-0.5 shrink-0">
             {agreeValue ? (
@@ -313,7 +321,7 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
               <IoCheckboxOutline className="text-primary size-5" />
             )}
           </span>
-          <span className="text-xs leading-normal text-muted-foreground">
+          <span className="text-muted-foreground text-xs leading-normal">
             I agree to the{' '}
             <Link
               href="/terms"
@@ -334,14 +342,16 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
           </span>
         </label>
         {signupForm.formState.errors.agree && (
-          <p className="mt-0.5 text-xs text-destructive">{signupForm.formState.errors.agree.message}</p>
+          <p className="text-destructive mt-0.5 text-xs">
+            {signupForm.formState.errors.agree.message}
+          </p>
         )}
       </div>
 
       <button
         type="submit"
         disabled={isSignupLoading}
-        className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary mt-2 w-full rounded-sm py-2.25 text-primary-foreground transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+        className="bg-primary hover:bg-primary/90 disabled:hover:bg-primary text-primary-foreground mt-2 w-full rounded-sm py-2.25 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isSignupLoading ? 'Creating account...' : 'Sign Up'}
       </button>
@@ -358,13 +368,13 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         <div className="font-kumbh w-full space-y-6 font-light">
           <button
             onClick={() => handleOAuthLogin('google')}
-            className="text-foreground flex w-full items-center gap-4 rounded-md border border-primary/40 px-5 py-3"
+            className="text-foreground border-primary/40 flex w-full items-center gap-4 rounded-md border px-5 py-3"
           >
             <FaGoogle size={20} /> Continue With Google
           </button>
           <button
             onClick={() => handleOAuthLogin('facebook')}
-            className="text-foreground flex w-full items-center gap-4 rounded-md border border-primary/40 px-5 py-3"
+            className="text-foreground border-primary/40 flex w-full items-center gap-4 rounded-md border px-5 py-3"
           >
             <FaFacebookF size={20} /> Continue With Facebook
           </button>
