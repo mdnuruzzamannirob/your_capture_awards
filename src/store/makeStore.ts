@@ -10,6 +10,7 @@ import { sitePolicyApi } from '@/store/apis/sitePolicyApi';
 import { socialApi } from '@/store/apis/socialApi';
 import { commentsApi } from '@/store/apis/commentsApi';
 import { levelsApi } from '@/store/apis/levelsApi';
+import { notificationApi } from '@/store/apis/notificationApi';
 import authReducer from '@/store/slices/authSlice';
 import profileReducer from '@/store/slices/profileSlice';
 import { configureStore } from '@reduxjs/toolkit';
@@ -31,6 +32,7 @@ export const makeStore = (preloadedState = {}) => {
       [socialApi.reducerPath]: socialApi.reducer,
       [commentsApi.reducerPath]: commentsApi.reducer,
       [levelsApi.reducerPath]: levelsApi.reducer,
+      [notificationApi.reducerPath]: notificationApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
@@ -48,6 +50,7 @@ export const makeStore = (preloadedState = {}) => {
         socialApi.middleware,
         commentsApi.middleware,
         levelsApi.middleware,
+        notificationApi.middleware,
       ),
     preloadedState,
     devTools: process.env.NODE_ENV !== 'production',
