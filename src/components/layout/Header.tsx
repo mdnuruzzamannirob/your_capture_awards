@@ -2,6 +2,7 @@
 
 import { SearchBar } from '@/components/SearchBar';
 import { SearchModal } from '@/components/SearchModal';
+import NotificationModal from '@/components/NotificationModal';
 import UserMenu from '@/components/UserMenu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { loggedInNavLinks, navLinks } from '@/constants';
@@ -166,7 +167,7 @@ const Navbar = () => {
                 </div>
 
                 <SearchBar onClick={() => setIsSearchOpen(true)} />
-                {/* <NotificationModal /> */}
+                <NotificationModal />
 
                 <div className="lg:hidden">
                   <UserMenu />
