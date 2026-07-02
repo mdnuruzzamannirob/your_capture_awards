@@ -27,7 +27,7 @@ function MemberList({
 }: MemberListProps) {
   return (
     <div className="overflow-hidden rounded-xl border">
-      <div className="flex items-center justify-between border-b px-5 py-3.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-3.5 sm:px-5">
         <p className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
           Members ({members.length})
         </p>
@@ -44,9 +44,9 @@ function MemberList({
           const openUp = index >= members.length - 2;
 
           return (
-            <div key={m.id} className="flex items-center gap-3 px-5 py-3">
+            <div key={m.id} className="flex items-center gap-3 px-4 py-3 sm:px-5">
               <Avatar className="size-9 shrink-0">
-                {m.member.avatar && <AvatarImage src={m.member.avatar} />}
+                {m.member.avatar && <AvatarImage src={m.member.avatar} className='object-cover' />}
                 <AvatarFallback className={`text-[11px] font-semibold ${getAvatarClass(m.level)}`}>
                   {getInitials(
                     m.member.fullName,
@@ -57,22 +57,22 @@ function MemberList({
               </Avatar>
 
               <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-medium">{name}</span>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="truncate text-sm font-medium">{name}</span>
                   <span
-                    className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${getRoleChipClass(m.level)}`}
+                    className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${getRoleChipClass(m.level)}`}
                   >
                     {m.level}
                   </span>
                 </div>
-                <p className="text-muted-foreground text-xs">
+                <p className="text-muted-foreground truncate text-xs">
                   Joined {formatDateToDayMonYear(m.createdAt)}
                   {m.member.location ? ` · ${m.member.location}` : ''}
                 </p>
               </div>
 
               {isMe ? (
-                <span className="text-muted-foreground text-xs">You</span>
+                <span className="text-muted-foreground shrink-0 text-xs">You</span>
               ) : isMod ? (
                 <MemberManagePopover
                   member={m}
