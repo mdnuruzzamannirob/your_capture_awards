@@ -31,7 +31,7 @@ const ContestHeader = () => {
   if (!mounted) return null;
 
   return (
-    <header className="bg-background fixed top-[68.38px] right-0 left-0 z-50 border-b border-border">
+    <header className="bg-background border-border fixed top-[59.45px] right-0 left-0 z-50 border-b">
       <nav className="container">
         <div className="flex h-10 scrollbar-none items-stretch overflow-x-auto lg:justify-center">
           {tabs.map((tab) => {
@@ -44,7 +44,7 @@ const ContestHeader = () => {
                 className={cn(
                   'relative flex min-w-max shrink-0 items-center justify-center px-4 text-sm font-medium transition-colors sm:px-5 lg:min-w-fit lg:px-6 lg:text-[15px]',
                   active
-                  ? 'bg-primary/12 text-primary shadow-[inset_0_-2px_0_0_color-mix(in_oklab,var(--primary)_90%,transparent)]'
+                    ? 'bg-primary/12 text-primary shadow-[inset_0_-2px_0_0_color-mix(in_oklab,var(--primary)_90%,transparent)]'
                     : 'text-muted-foreground hover:bg-surface-secondary hover:text-foreground',
                 )}
               >

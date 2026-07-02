@@ -3,6 +3,7 @@
 import { cn } from '@/utils/cn';
 import { Lock, Unlock } from 'lucide-react';
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 
 export interface LevelItem {
   id: string;
@@ -24,6 +25,8 @@ export function LevelProgressBar({
   className,
 }: LevelProgressBarProps) {
   const [hoveredLock, setHoveredLock] = useState<string | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const [tooltipContent, setTooltipContent] = useState<React.ReactNode>(null);
 
   if (!levels || levels.length === 0) return null;
 
@@ -31,11 +34,29 @@ export function LevelProgressBar({
   const currentIdx = sortedLevels.findIndex((l) => l.order === currentLevelOrder);
   const safeCurrentIdx = currentIdx === -1 ? 0 : currentIdx;
 
+  const handleEnter = (
+    e: React.MouseEvent<HTMLDivElement>,
+    lockId: string,
+    content: React.ReactNode,
+  ) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setTooltipPos({
+      top: rect.top,
+      left: rect.left + rect.width / 2,
+    });
+    setTooltipContent(content);
+    setHoveredLock(lockId);
+  };
+
+  const handleLeave = () => {
+    setHoveredLock(null);
+  };
+
   return (
     <div className={cn('relative w-full', className)}>
-      <div className="w-full scrollbar-none overflow-x-auto pt-10 pb-2">
+      <div className="w-full scrollbar-auto overflow-x-auto">
         {/* Single wrapper — border only, NO overflow-hidden */}
-        <div className="relative flex h-11 w-full min-w-275 rounded-sm border border-border">
+        <div className="border-border relative flex h-11 w-full min-w-275 rounded-sm border">
           {sortedLevels.map((level, index) => {
             const isUnlocked = index <= safeCurrentIdx;
             const isActive = index === safeCurrentIdx;
@@ -67,10 +88,10 @@ export function LevelProgressBar({
               <div
                 key={`lvl-${level.id}`}
                 className={cn(
-                  'relative flex h-full flex-1 items-center justify-center border-r border-border/40 px-8 transition-all duration-300 last:border-r-0',
-                  // ✅ bg each section itself
-                  isUnlocked ? 'bg-primary text-primary-foreground' : 'bg-surface text-muted-foreground',
-                  // ✅ rounded on first/last — no overflow-hidden needed
+                  'border-border/40 relative flex h-full flex-1 items-center justify-center border-r px-8 transition-all duration-300 last:border-r-0',
+                  isUnlocked
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-surface text-muted-foreground',
                   isFirst && 'rounded-l-sm',
                   isLast && 'rounded-r-sm',
                 )}
@@ -88,27 +109,19 @@ export function LevelProgressBar({
                   <div
                     className="absolute top-1/2 right-0 z-20 flex cursor-help items-center justify-center"
                     style={{ transform: 'translate(50%, -50%)', width: '28px', height: '28px' }}
-                    onMouseEnter={() => setHoveredLock(lockId)}
-                    onMouseLeave={() => setHoveredLock(null)}
+                    onMouseEnter={(e) => handleEnter(e, lockId, reqText)}
+                    onMouseLeave={handleLeave}
                   >
-                    {/* ✅ Tooltip — overflow নেই তাই সবসময় দেখাবে */}
-                    {hoveredLock === lockId && (
-                      <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-3 -translate-x-1/2 rounded-sm border border-border bg-background px-3 py-1.5 text-[9px] font-bold whitespace-nowrap text-primary-foreground shadow-xl">
-                        {reqText}
-                        <div className="absolute top-full left-1/2 -mt-1 size-1.5 -translate-x-1/2 rotate-45 border-r border-b border-border bg-background" />
-                      </div>
-                    )}
-
                     {isLockUnlocked ? (
-                      <div className="flex size-7 items-center justify-center text-primary-foreground">
+                      <div className="text-primary-foreground flex size-7 items-center justify-center">
                         <Unlock className="size-4.5 stroke-[2.5]" />
                       </div>
                     ) : isBoundaryLock ? (
-                      <div className="flex size-7 items-center justify-center rounded-full border border-border bg-surface-tertiary text-primary-foreground shadow-md">
+                      <div className="border-border bg-surface-tertiary text-primary-foreground flex size-7 items-center justify-center rounded-full border shadow-md">
                         <Lock className="size-3.5 stroke-[2.5]" />
                       </div>
                     ) : (
-                      <div className="flex size-7 items-center justify-center rounded-full border border-border bg-surface text-primary-foreground shadow-md">
+                      <div className="border-border bg-surface text-primary-foreground flex size-7 items-center justify-center rounded-full border shadow-md">
                         <Lock className="size-3.5 stroke-[2.5]" />
                       </div>
                     )}
@@ -119,6 +132,25 @@ export function LevelProgressBar({
           })}
         </div>
       </div>
+
+      {/* ✅ Tooltip rendered via portal directly under <body> — escapes overflow-x-auto clipping */}
+      {hoveredLock &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="border-border bg-background text-primary-foreground pointer-events-none fixed rounded-sm border px-3 py-1.5 text-[9px] font-bold whitespace-nowrap shadow-xl"
+            style={{
+              top: tooltipPos.top - 12,
+              left: tooltipPos.left,
+              transform: 'translate(-50%, -100%)',
+              zIndex: 9999,
+            }}
+          >
+            {tooltipContent}
+            <div className="border-border bg-background absolute top-full left-1/2 -mt-1 size-1.5 -translate-x-1/2 rotate-45 border-r border-b" />
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

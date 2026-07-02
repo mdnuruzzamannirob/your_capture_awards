@@ -7,7 +7,7 @@ import { useStoreModal } from '@/providers/StoreModalProvider';
 import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { cn } from '@/utils/cn';
 import { logout } from '@/utils/logout';
-import { LogOut, Settings } from 'lucide-react';
+import { LogOut, Settings, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -45,7 +45,9 @@ const UserMenu = () => {
   };
 
   if (!user || !token)
-    return <div className="size-8.5 shrink-0 animate-pulse rounded-full bg-surface-secondary"></div>;
+    return (
+      <div className="bg-surface-secondary size-8.5 shrink-0 animate-pulse rounded-full"></div>
+    );
 
   const avatar = user?.avatar;
   const fullName = `${user?.firstName || 'Name'} ${user?.lastName || 'Not found'}`;
@@ -74,10 +76,7 @@ const UserMenu = () => {
         )}
       </PopoverTrigger>
 
-      <PopoverContent
-        align="end"
-        className="bg-background border-border text-foreground w-72 rounded-xl border p-4"
-      >
+      <PopoverContent align="end">
         <div className="mb-3 flex flex-col">
           <span className="font-medium">{fullName}</span>
           <span className="text-background-2-300 text-xs">{user?.email}</span>
@@ -87,7 +86,7 @@ const UserMenu = () => {
           <button
             type="button"
             onClick={openStore}
-            className="border-border flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-surface-secondary"
+            className="border-border hover:bg-surface-secondary flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition"
           >
             <span className="flex items-center gap-2">
               <IoKeyOutline className="text-primary size-4" />
@@ -109,15 +108,15 @@ const UserMenu = () => {
           <button
             type="button"
             onClick={openStore}
-            className="border-border flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition hover:bg-surface-secondary"
+            className="border-border hover:bg-surface-secondary flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition"
           >
-            <span className="text-background-2-300">Coins</span>
+
             <span className="flex items-center gap-2">
               <Image
                 src="/icons/dollar.png"
                 alt="Dollar"
-                width={14}
-                height={14}
+                width={16}
+                height={16}
                 className="object-contain"
               />
               <ResourceValue isLoading={isStatsLoading} value={stats?.coins ?? 0} />
@@ -139,7 +138,7 @@ const UserMenu = () => {
               pathname === '/profile' ? 'bg-surface-secondary' : 'hover:bg-surface-secondary',
             )}
           >
-            <Settings className="size-4" />
+            <User className="size-4" />
             Profile
           </Link>
           <Link
@@ -155,7 +154,7 @@ const UserMenu = () => {
           </Link>
           <button
             onClick={handleLogout}
-            className="mt-1 flex items-center gap-2 rounded-sm p-2 text-destructive transition-colors outline-none hover:bg-destructive/10"
+            className="text-destructive hover:bg-destructive/10 mt-1 flex items-center gap-2 rounded-sm p-2 transition-colors outline-none"
           >
             <LogOut className="size-4" />
             Logout

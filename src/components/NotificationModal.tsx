@@ -7,7 +7,8 @@ import {
   useMarkAllNotificationsReadMutation,
 } from '@/store/apis/notificationApi';
 import { NotificationItem, NotificationType } from '@/store/types/notificationTypes';
-import { cn, formatTime } from '@/utils/cn';
+import { cn } from '@/utils/cn';
+import { formatDistanceToNow } from 'date-fns';
 import { Bell, BellOff, CheckCheck } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -21,6 +22,14 @@ const typeLabel: Record<NotificationType, string> = {
   [NotificationType.TEAM_JOIN_REQUEST]: 'Team request',
   [NotificationType.TEAM_JOIN_APPROVED]: 'Team approved',
   [NotificationType.TEAM_JOIN_REJECTED]: 'Team rejected',
+};
+
+const formatRelative = (dateString: string) => {
+  try {
+    return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+  } catch {
+    return dateString;
+  }
 };
 
 export default function NotificationModal() {
@@ -54,7 +63,7 @@ export default function NotificationModal() {
         <button
           type="button"
           aria-label="Open notifications"
-          className="group border-border bg-surface-secondary text-muted-foreground hover:border-border-strong hover:text-foreground relative inline-flex h-8.5 items-center justify-center rounded-md border p-2 transition"
+          className="group border-border bg-surface-secondary text-muted-foreground hover:border-border-strong hover:text-foreground relative inline-flex h-8.5 items-center justify-center rounded-full border p-2 transition"
         >
           <Bell className="group-hover:text-primary size-4 transition-colors" />
           {unreadCount > 0 && (
@@ -63,14 +72,16 @@ export default function NotificationModal() {
         </button>
       </PopoverTrigger>
 
-      <PopoverContent align="end" side="bottom" sideOffset={8} className="w-88 p-0">
+      <PopoverContent
+        align="end"
+        side="bottom"
+        sideOffset={8}
+        className="w-80 p-0 max-lg:-mr-10.5 lg:w-88"
+      >
         <div className="border-border flex items-center justify-between border-b p-4">
-          <div>
+
             <p className="text-sm font-semibold">Notifications</p>
-            <p className="text-muted-foreground text-xs">
-              {unreadCount > 0 ? `${unreadCount} unread notifications` : 'No unread items'}
-            </p>
-          </div>
+
           <button
             type="button"
             onClick={handleMarkAllRead}
@@ -90,35 +101,36 @@ export default function NotificationModal() {
               <div
                 key={notification.id}
                 className={cn(
-                  'relative flex items-start gap-3 rounded-2xl border p-4',
+                  'relative flex items-start gap-3 rounded-xl border p-3 transition',
                   notification.isRead
-                    ? 'border-border bg-surface-secondary'
+                    ? 'border-border bg-background'
                     : 'border-primary/20 bg-primary/5',
                 )}
               >
                 <div
                   className={cn(
-                    'flex h-10 w-10 items-center justify-center rounded-2xl text-xs font-semibold',
+                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold',
                     notification.isRead
-                      ? 'bg-surface text-foreground'
-                      : 'bg-primary text-primary-foreground',
+                      ? 'bg-surface-secondary text-foreground'
+                      : 'bg-primary text-white',
                   )}
                 >
                   {typeLabel[notification.type].slice(0, 1)}
                 </div>
+
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-foreground truncate font-semibold">{notification.title}</p>
-                      <p className="text-muted-foreground text-sm">{notification.message}</p>
+                      <p className="truncate text-sm font-semibold">{notification.title}</p>
+                      <p className="text-muted-foreground mt-0.5 text-xs">{notification.message}</p>
                     </div>
                     {!notification.isRead && (
                       <span className="bg-primary mt-1 size-2 shrink-0 rounded-full" />
                     )}
                   </div>
-                  <div className="text-muted-foreground mt-2 flex items-center justify-between text-xs">
+                  <div className="text-muted-foreground mt-2 flex items-center justify-between text-[11px]">
                     <span>{typeLabel[notification.type]}</span>
-                    <span>{formatTime(notification.createdAt)}</span>
+                    <span>{formatRelative(notification.createdAt)}</span>
                   </div>
                 </div>
               </div>
