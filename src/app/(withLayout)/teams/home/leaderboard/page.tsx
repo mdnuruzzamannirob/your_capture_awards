@@ -79,7 +79,7 @@ const TeamLeaderboard = () => {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="font-kumbh text-xl font-bold">Team Leaderboard</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Fair matchmaking by skill level</p>
+          <p className="text-muted-foreground mt-1 text-sm">Fair matchmaking by skill level</p>
         </div>
 
         <div className="border-border bg-surface/50 grid grid-cols-3 gap-1 rounded-md border p-1">
@@ -107,6 +107,13 @@ const TeamLeaderboard = () => {
           <p className="font-semibold">Unable to load leaderboard</p>
           <p className="text-muted-foreground mt-1 text-sm">Refresh the page or try again later.</p>
         </div>
+      ) : rows.length === 0 ? (
+        <div className="border-border mt-5 rounded-md border p-6 text-center">
+          <p className="font-semibold">No teams on the leaderboard yet</p>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Rankings will appear here once teams start competing.
+          </p>
+        </div>
       ) : (
         <div className="border-border mt-5 overflow-hidden rounded-md border">
           {rows.map((row) => {
@@ -116,15 +123,15 @@ const TeamLeaderboard = () => {
               <div
                 key={row.id}
                 className={cn(
-                  'border-border grid gap-3 border-b p-4 last:border-b-0 sm:grid-cols-[56px_minmax(0,1fr)_96px]',
+                  'border-border flex items-center gap-3 border-b p-4 last:border-b-0 sm:grid sm:grid-cols-[56px_minmax(0,1fr)_96px]',
                   row.id === highlightId && 'bg-primary/10',
                 )}
               >
-                <div className="bg-primary/10 text-primary flex size-8 items-center justify-center rounded-full text-sm font-bold">
+                <div className="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold">
                   {row.rank}
                 </div>
 
-                <div className="flex min-w-0 items-center gap-3">
+                <div className="flex min-w-0 flex-1 items-center gap-3 sm:flex-none">
                   <div className="border-border bg-surface-secondary relative size-11 shrink-0 overflow-hidden rounded-full border">
                     {badgeUrl ? (
                       <Image
@@ -146,9 +153,9 @@ const TeamLeaderboard = () => {
                   </div>
                 </div>
 
-                <div>
+                <div className="shrink-0 text-right sm:text-left">
                   <p className="font-semibold">{row.score}</p>
-                  <p className="text-xs text-caption-foreground">Score</p>
+                  <p className="text-caption-foreground text-xs">Score</p>
                 </div>
               </div>
             );

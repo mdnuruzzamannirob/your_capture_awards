@@ -62,29 +62,71 @@ function TeamInfo({
 
   return (
     <div className="space-y-5 rounded-xl border p-5">
-      {/* Header row */}
-      <div className="flex items-start gap-4">
-        {/* Badge */}
-        <div className="bg-surface-secondary flex size-18 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
-          {team.badge ? (
-            <Image
-              src={team.badge}
-              alt="team badge"
-              width={72}
-              height={72}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <span className="text-muted-foreground text-lg font-bold">
-              {team.name.slice(0, 2).toUpperCase()}
-            </span>
-          )}
+      <div className="flex flex-col gap-4 md:flex-row md:items-start">
+        {/* Top row on mobile: Badge + Action | On md+: just Badge */}
+        <div className="flex items-start justify-between gap-4 md:contents">
+          {/* Badge */}
+          <div className="bg-surface-secondary flex size-18 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
+            {team.badge ? (
+              <Image
+                src={team.badge}
+                alt="team badge"
+                width={72}
+                height={72}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span className="text-muted-foreground text-lg font-bold">
+                {team.name.slice(0, 2).toUpperCase()}
+              </span>
+            )}
+          </div>
+
+          {/* Action - shown here only on mobile (md:hidden), moved to end on md+ */}
+          <div className="md:hidden">
+            {isLeader ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="shrink-0">
+                    <MoreHorizontal size={13} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52">
+                  <DropdownMenuItem onSelect={onEdit}>
+                    <Pencil size={13} /> Edit team
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={onTogglePrivacy}>
+                    {team.accessibility === 'PUBLIC' ? (
+                      <>
+                        <Lock size={13} /> Make private
+                      </>
+                    ) : (
+                      <>
+                        <Unlock size={13} /> Make public
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={onLeave}>
+                    <LogOut size={13} /> Leave team
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem variant="destructive" onSelect={onDisband}>
+                    <Trash2 size={13} /> Delete team
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="outline" size="sm" className="shrink-0" onClick={onLeave}>
+                <LogOut size={13} className="mr-1.5" /> Leave team
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Info */}
         <div className="min-w-0 flex-1">
           <div className="mb-1.5 flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-bold">{team.name}</h1>
+            <h1 className="text-lg font-bold md:text-xl">{team.name}</h1>
             <Badge
               variant="outline"
               className="border-warning/40 bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning-foreground"
@@ -103,7 +145,7 @@ function TeamInfo({
             </Badge>
           </div>
 
-          <p className="text-muted-foreground mb-3 max-w-md text-sm leading-relaxed">
+          <p className="text-muted-foreground mb-3 text-sm leading-relaxed md:max-w-md">
             {team.description}
           </p>
 
@@ -121,44 +163,45 @@ function TeamInfo({
           </div>
         </div>
 
-        {isLeader && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="shrink-0">
-                <MoreHorizontal size={13} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuItem onSelect={onEdit}>
-                <Pencil size={13} /> Edit team
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={onTogglePrivacy}>
-                {team.accessibility === 'PUBLIC' ? (
-                  <>
-                    <Lock size={13} /> Make private
-                  </>
-                ) : (
-                  <>
-                    <Unlock size={13} /> Make public
-                  </>
-                )}
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={onLeave}>
-                <LogOut size={13} /> Leave team
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive" onSelect={onDisband}>
-                <Trash2 size={13} /> Delete team
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-
-        {!isLeader && (
-          <Button variant="outline" size="sm" className="shrink-0" onClick={onLeave}>
-            <LogOut size={13} className="mr-1.5" /> Leave team
-          </Button>
-        )}
+        {/* Action - shown here only on md+ */}
+        <div className="hidden shrink-0 md:block">
+          {isLeader ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="shrink-0">
+                  <MoreHorizontal size={13} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem onSelect={onEdit}>
+                  <Pencil size={13} /> Edit team
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={onTogglePrivacy}>
+                  {team.accessibility === 'PUBLIC' ? (
+                    <>
+                      <Lock size={13} /> Make private
+                    </>
+                  ) : (
+                    <>
+                      <Unlock size={13} /> Make public
+                    </>
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={onLeave}>
+                  <LogOut size={13} /> Leave team
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive" onSelect={onDisband}>
+                  <Trash2 size={13} /> Delete team
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button variant="outline" size="sm" className="shrink-0" onClick={onLeave}>
+              <LogOut size={13} className="mr-1.5" /> Leave team
+            </Button>
+          )}
+        </div>
       </div>
 
       <Separator />
@@ -168,10 +211,10 @@ function TeamInfo({
         <p className="text-muted-foreground mb-3 text-[11px] font-semibold tracking-wider uppercase">
           Team Stats
         </p>
-        <div className="flex flex-wrap">
+        <div className="grid grid-cols-3 gap-y-4 sm:flex sm:flex-wrap">
           {stats.map((s, i) => (
             <div key={s.label} className="flex items-stretch pr-4">
-              {i > 0 && <div className="bg-border mx-4 w-px self-stretch" />}
+              {i > 0 && <div className="bg-border mr-4 hidden w-px self-stretch sm:block" />}
               <div>
                 <div className="text-xl font-bold tabular-nums">{s.value}</div>
                 <div className="text-muted-foreground mt-0.5 flex items-center gap-1 text-[11px]">
