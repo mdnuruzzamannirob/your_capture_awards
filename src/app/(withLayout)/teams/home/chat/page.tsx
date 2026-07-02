@@ -9,7 +9,6 @@ import { useGetMyTeamQuery, useUploadChatFileMutation } from '@/store/apis/teamA
 import { cn } from '@/utils/cn';
 import { ArrowDown, FileUp, ImagePlus, Loader2, Send, TriangleAlert } from 'lucide-react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { toast } from 'sonner';
@@ -99,8 +98,7 @@ const timeFormatter = new Intl.DateTimeFormat('en-US', {
 });
 
 export default function TeamChatPage() {
-  const router = useRouter();
-  const { user, token, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, token, isLoading: authLoading } = useAuth();
   const {
     data: teamData,
     isLoading: teamLoading,
@@ -122,7 +120,7 @@ export default function TeamChatPage() {
   const [draft, setDraft] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [isAuthenticatedSocket, setIsAuthenticatedSocket] = useState(false);
-  const [isJoiningTeam, setIsJoiningTeam] = useState(false);
+  const [, setIsJoiningTeam] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -414,7 +412,16 @@ export default function TeamChatPage() {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [handleNewMessage, loadTeamMessages, socketBaseUrl, teamId, token]);
+  }, [
+    handleNewMessage,
+    loadTeamMessages,
+    normalizeMessages,
+    scrollToBottom,
+    socketBaseUrl,
+    sortMessages,
+    teamId,
+    token,
+  ]);
 
   useEffect(() => {
     if (messages.length === 0 || !initialLoaded || isLoadingOlder || isPrependingOlderRef.current)
@@ -432,11 +439,6 @@ export default function TeamChatPage() {
 
     return () => cancelAnimationFrame(frame1);
   }, [initialLoaded, isLoadingOlder, messages, scrollToBottom]);
-
-  const currentUserName = useMemo(() => {
-    if (!user) return 'You';
-    return `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || 'You';
-  }, [user]);
 
   const groupedMessages = useMemo<ChatMessageGroup[]>(() => {
     const sortedMessages = [...messages].sort(
@@ -471,7 +473,7 @@ export default function TeamChatPage() {
     }, []);
   }, [messages]);
 
-  const isReady = isConnected && isAuthenticatedSocket && teamId;
+  const isReady = isConnected && isAuthenticatedSocket && !!teamId;
 
   if (teamLoading || authLoading) {
     return (
@@ -515,26 +517,43 @@ export default function TeamChatPage() {
   }
 
   return (
-    <section className="margin-user container flex h-[calc(100dvh-110px)] min-w-0 flex-col overflow-x-hidden py-6">
+    <section className="margin-user container flex h-[calc(100dvh-93px)] min-w-0 flex-col overflow-x-hidden py-6">
       <div className="border-border-subtle bg-background/95 shadow-overlay relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border">
+        {/* Header — shows TEAM info, not the current user */}
         <div className="border-border-subtle bg-background/95 sticky top-0 z-20 flex items-center justify-between gap-3 border-b px-4 py-3 backdrop-blur">
           <div className="flex min-w-0 items-center gap-3">
             <Avatar className="border-border-subtle size-10 shrink-0 border">
-              <AvatarImage src={user?.avatar ?? undefined} alt={currentUserName} />
+              <AvatarImage src={team.badge ?? undefined} alt={team.name} />
               <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
-                {currentUserName.charAt(0).toUpperCase() || 'Y'}
+                {team.name?.slice(0, 2).toUpperCase() || 'T'}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0">
               <p className="text-primary-foreground truncate text-sm font-semibold">
-                {currentUserName}
+                {team.name || 'Team Chat'}
               </p>
-              <p className="mt-0.5 text-xs text-emerald-300">Active</p>
+              <p className="text-muted-foreground mt-0.5 flex items-center gap-1.5 text-xs">
+                <span
+                  className={cn(
+                    'size-1.5 shrink-0 rounded-full',
+                    isReady ? 'bg-success-500' : 'bg-warning-500',
+                  )}
+                />
+                {isReady ? 'Connected' : 'Connecting...'}
+              </p>
             </div>
           </div>
-          <div className="inline-flex shrink-0 items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">
+
+          <div
+            className={cn(
+              'hidden shrink-0 items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium sm:inline-flex',
+              isReady
+                ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300'
+                : 'border-amber-400/30 bg-amber-400/10 text-amber-300',
+            )}
+          >
             <span className="size-2 rounded-full bg-current" />
-            Live
+            {isReady ? 'Live' : 'Connecting'}
           </div>
         </div>
 
@@ -544,7 +563,7 @@ export default function TeamChatPage() {
           className="flex min-w-0 flex-1 scrollbar-thin flex-col gap-4 overflow-x-hidden overflow-y-auto px-4 py-5"
         >
           {groupedMessages.length === 0 ? (
-            <div className="border-border-subtle bg-surface-secondary flex min-h-70 flex-col items-center justify-center rounded-2xl border border-dashed text-center">
+            <div className=" flex min-h-[50vh] flex-1 flex-col items-center justify-center sm:min-h-70">
               <MessageState isReady={isReady} />
             </div>
           ) : (
@@ -579,9 +598,7 @@ export default function TeamChatPage() {
                     )}
                   >
                     <div className="flex flex-col gap-2">
-                      {group.messages.map((message, index) => {
-                        const isFirst = index === 0;
-                        const isLast = index === group.messages.length - 1;
+                      {group.messages.map((message) => {
                         const bubbleRadius = isMine
                           ? 'rounded-t-2xl rounded-bl-2xl rounded-br-none'
                           : 'rounded-t-2xl rounded-tr-2xl rounded-bl-none rounded-br-2xl';
@@ -715,7 +732,7 @@ export default function TeamChatPage() {
 
             <Button
               type="button"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground h-11 shrink-0 px-4"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground h-11 shrink-0 px-3 sm:px-4"
               disabled={isSending || (!draft.trim() && !pendingFile)}
               onClick={() => void handleSubmit()}
             >
@@ -750,18 +767,27 @@ export default function TeamChatPage() {
   );
 }
 
-function MessageState({ isReady }: { isReady: boolean | string }) {
+function MessageState({ isReady }: { isReady: boolean }) {
   return (
-    <div className="max-w-sm px-4">
-      <div className="bg-primary/12 text-primary mx-auto flex size-12 items-center justify-center rounded-2xl">
-        <Send className="size-5" />
+    <div className="mx-auto max-w-xs px-4 text-center">
+      <div className="bg-primary/10 border-primary/20 mx-auto flex size-14 items-center justify-center rounded-full border">
+        <Send className="text-primary size-6" />
       </div>
-      <p className="text-primary-foreground mt-4 text-lg font-semibold">No messages yet</p>
-      <p className="text-primary-foreground/55 mt-2 text-sm leading-6">
-        {isReady
-          ? 'Be the first to start the conversation. Your message will appear here in real time for the entire team.'
-          : 'The chat is connecting right now. Once the socket authenticates, the conversation will load automatically.'}
+      <p className="text-primary-foreground mt-4 text-base font-semibold">
+        {isReady ? 'No messages yet' : 'Connecting to chat'}
       </p>
+      <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">
+        {isReady
+          ? 'Send the first message to start the conversation with your team.'
+          : ''}
+      </p>
+      {!isReady && (
+        <div className="mt-4 flex items-center justify-center gap-1.5">
+          <span className="bg-primary/60 size-1.5 animate-bounce rounded-full [animation-delay:-0.3s]" />
+          <span className="bg-primary/60 size-1.5 animate-bounce rounded-full [animation-delay:-0.15s]" />
+          <span className="bg-primary/60 size-1.5 animate-bounce rounded-full" />
+        </div>
+      )}
     </div>
   );
 }
