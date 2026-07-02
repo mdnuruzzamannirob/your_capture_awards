@@ -1,8 +1,8 @@
 'use client';
 
-import { useGetSitePolicyQuery } from '@/store/apis/sitePolicyApi';
 import TipTapViewer from '@/components/custom/tiptap-editor/TipTapViewer';
 import { Spinner } from '@/components/ui/spinner';
+import { useGetSitePolicyQuery } from '@/store/apis/sitePolicyApi';
 
 export default function PrivacyPolicyPage() {
   const { data, isLoading, error } = useGetSitePolicyQuery({ type: 'POLICY' });
@@ -10,22 +10,29 @@ export default function PrivacyPolicyPage() {
 
   return (
     <section className="margin container py-10">
-      <div className="border-border bg-surface-secondary/90 mx-auto max-w-4xl rounded-2xl border p-5 md:p-8">
-        <h1 className="border-border mb-6 border-b pb-4 text-3xl font-semibold text-primary-foreground">
-          Privacy Policy
-        </h1>
+      <div>
+        <div className="flex flex-col gap-2">
+          <h1 className="text-primary-foreground text-3xl font-semibold">Privacy Policy</h1>
+          {policy?.updatedAt && (
+            <p className="text-muted-foreground text-sm">
+              Last updated on {new Date(policy.updatedAt).toLocaleDateString()}
+            </p>
+          )}
+        </div>
+
+        <hr className="my-6" />
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center gap-3 py-20">
             <Spinner className="text-primary size-8" />
-            <p className="text-sm text-muted-foreground">Loading privacy policy...</p>
+            <p className="text-muted-foreground text-sm">Loading privacy policy...</p>
           </div>
         ) : error ? (
-          <div className="py-10 text-center text-destructive">
+          <div className="text-destructive py-10 text-center">
             Failed to load content. Please try again later.
           </div>
         ) : !policy?.content ? (
-          <div className="py-10 text-center text-primary-foreground/50">No content available.</div>
+          <div className="text-primary-foreground/50 py-10 text-center">No content available.</div>
         ) : (
           <TipTapViewer content={policy.content} className="text-foreground" />
         )}
