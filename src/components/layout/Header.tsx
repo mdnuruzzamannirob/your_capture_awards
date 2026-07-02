@@ -1,8 +1,8 @@
 'use client';
 
+import NotificationModal from '@/components/NotificationModal';
 import { SearchBar } from '@/components/SearchBar';
 import { SearchModal } from '@/components/SearchModal';
-import NotificationModal from '@/components/NotificationModal';
 import UserMenu from '@/components/UserMenu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { loggedInNavLinks, navLinks } from '@/constants';
@@ -75,9 +75,9 @@ const Navbar = () => {
         <nav className="container flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Sidebar />
-            <LogoName className="max-lg:w-44" />
+            <LogoName className="w-38" />
 
-            <ul className="font-kumbh ml-3 hidden flex-1 items-center justify-center gap-5 uppercase select-none lg:flex">
+            <ul className="font-kumbh ml-3 hidden flex-1 items-center justify-center gap-4 uppercase select-none lg:flex">
               {menuLinks.map((link, index) => {
                 const href = link.href;
                 const isActive =
@@ -89,7 +89,7 @@ const Navbar = () => {
                     <Link
                       href={isActive ? '#' : href}
                       className={cn(
-                        'hover:text-primary p-1 text-sm transition-colors',
+                        'hover:text-primary p-1 font-medium text-sm transition-colors',
                         isActive
                           ? 'text-primary pointer-events-none cursor-default'
                           : 'text-muted-foreground hover:text-foreground',
@@ -106,37 +106,37 @@ const Navbar = () => {
           <div className="flex items-center gap-2 max-lg:gap-2">
             {isAuthenticated ? (
               <>
-                <div className="hidden items-center gap-2 xl:flex">
+                <div className="hidden items-center gap-2 text-sm lg:flex">
                   <button
                     type="button"
                     onClick={openStore}
                     className="group bg-surface-secondary hover:bg-surface-tertiary flex h-8.5 items-stretch overflow-hidden rounded-md transition"
                     aria-label="Open store resources"
                   >
-                    <div className="text-foreground flex items-center px-2 text-sm">
-                      <div className="flex items-center gap-2" title="Keys">
+                    <span className="text-foreground flex items-center px-2 text-sm">
+                      <span className="flex items-center gap-2" title="Keys">
                         <IoKeyOutline className="text-primary size-4" />
                         <ResourceValue isLoading={isStatsLoading} value={stats?.key ?? 0} />
-                      </div>
+                      </span>
 
                       <span className="text-border-strong mx-3">|</span>
 
-                      <div className="flex items-center gap-2" title="Trades">
+                      <span className="flex items-center gap-2" title="Trades">
                         <MdOutlineCameraswitch className="text-primary size-4 rotate-90" />
                         <ResourceValue isLoading={isStatsLoading} value={stats?.swap ?? 0} />
-                      </div>
+                      </span>
 
                       <span className="text-border-strong mx-3">|</span>
 
-                      <div className="flex items-center gap-2" title="Charges">
+                      <span className="flex items-center gap-2" title="Charges">
                         <AiOutlineThunderbolt className="text-primary size-4" />
                         <ResourceValue isLoading={isStatsLoading} value={stats?.boost ?? 0} />
-                      </div>
-                    </div>
+                      </span>
+                    </span>
 
-                    <div className="bg-primary/90 text-primary-foreground group-hover:bg-primary flex w-10 items-center justify-center transition">
+                    <span className="bg-primary/90 text-primary-foreground group-hover:bg-primary flex shrink-0 items-center justify-center px-1.5 transition">
                       <FaPlus className="size-3" />
-                    </div>
+                    </span>
                   </button>
 
                   <button
@@ -145,7 +145,7 @@ const Navbar = () => {
                     className="group bg-surface-secondary hover:bg-surface-tertiary flex h-8.5 items-stretch overflow-hidden rounded-md transition"
                     aria-label="Open coin store"
                   >
-                    <div className="flex items-center gap-2 px-2">
+                    <span className="flex items-center gap-2 px-2">
                       <Image
                         src="/icons/dollar.png"
                         alt="Dollar"
@@ -158,23 +158,17 @@ const Navbar = () => {
                         value={stats?.coins ?? 0}
                         className="w-8"
                       />
-                    </div>
+                    </span>
 
-                    <div className="bg-primary/90 text-primary-foreground group-hover:bg-primary flex w-10 items-center justify-center transition">
+                    <span className="bg-primary/90 text-primary-foreground group-hover:bg-primary flex shrink-0 items-center justify-center px-1.5 transition">
                       <FaPlus className="size-3" />
-                    </div>
+                    </span>
                   </button>
                 </div>
 
                 <SearchBar onClick={() => setIsSearchOpen(true)} />
                 <NotificationModal />
-
-                <div className="lg:hidden">
-                  <UserMenu />
-                </div>
-                <div className="hidden lg:block">
-                  <UserMenu />
-                </div>
+                <UserMenu />
               </>
             ) : (
               <>

@@ -18,7 +18,7 @@ export function SearchBar({ onClick, className }: SearchBarProps) {
       onClick={onClick}
       aria-label="Open search"
       className={cn(
-        'group border-border bg-surface-secondary text-muted-foreground hover:border-border-strong hover:text-foreground inline-flex h-8.5 w-8.5 items-center justify-center rounded-md border transition',
+        'group border-border bg-surface-secondary text-muted-foreground hover:border-border-strong hover:text-foreground inline-flex h-8.5 w-8.5 items-center justify-center rounded-full border transition',
         className,
       )}
     >

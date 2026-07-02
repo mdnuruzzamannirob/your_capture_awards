@@ -270,11 +270,11 @@
   }
 
   .margin {
-    @apply mt-[68.38px];
+    @apply mt-[59.45px];
   }
 
   .margin-user {
-    @apply mt-[109.38px];
+    @apply mt-[100.45px];
   }
 }
 
