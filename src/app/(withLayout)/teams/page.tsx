@@ -104,7 +104,7 @@ function TeamCardSkeleton() {
   return (
     <article className="border-border rounded-xl border bg-transparent p-4">
       <div className="flex items-start gap-3">
-        <div className="bg-surface-secondary relative size-12 shrink-0 rounded-full" />
+        <div className="bg-surface-secondary relative size-12 shrink-0 rounded-md" />
         <div className="min-w-0 flex-1 space-y-2">
           <div className="bg-surface-secondary h-4 w-36 rounded" />
           <div className="bg-surface-secondary h-3 w-full rounded" />
@@ -384,7 +384,7 @@ export default function Team() {
 
         <section className="space-y-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-foreground font-light uppercase">More Teams</div>
+            <div className="text-foreground font-light uppercase">All Teams</div>
 
             <Button asChild className="w-full sm:w-auto">
               <Link href="/teams/create">Create Team</Link>
@@ -397,7 +397,7 @@ export default function Team() {
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search by team's name"
-              className="border-border bg-surface-secondary/90 text-foreground placeholder:text-muted-foreground h-12 rounded-full pr-11"
+              className="border-border bg-surface-secondary/90 text-foreground placeholder:text-muted-foreground h-12 rounded-md pr-11"
             />
           </div>
 

@@ -183,7 +183,7 @@ const ContestDetails = ({ id }: { id: string }) => {
       <Tabs
         value={activeTab}
         onValueChange={(value: any) => setActiveTab(value)}
-        className="space-y-10"
+        className="space-y-10 container"
       >
         <TabsList className="text-foreground mx-auto flex size-full max-w-xl items-center rounded-md bg-surface-secondary p-1">
           {tabs?.map((tab) => (

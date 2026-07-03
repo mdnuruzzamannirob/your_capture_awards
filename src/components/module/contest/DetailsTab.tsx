@@ -20,8 +20,8 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
 
   return (
     <TabsContent value={value} className="mx-auto w-full max-w-4xl space-y-10">
-      <div className="flex">
-        <div className="flex flex-1 flex-col items-center justify-center gap-3">
+      <div className="flex flex-col max-md:gap-3 md:flex-row">
+        <div className="flex flex-1 items-center gap-3 md:flex-col md:justify-center">
           <Image
             alt="Profile Photo"
             src={contest?.creator?.avatar}
@@ -29,7 +29,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
             height={200}
             className="size-28 rounded-full object-cover"
           />
-          <div className="flex flex-col items-center space-y-1">
+          <div className="flex flex-col space-y-1 md:items-center">
             <h2 className="font-medium">{contest?.creator?.fullName}</h2>
             <h2 className="flex items-center gap-1.5 text-sm">
               <Globe size={16} /> {contest?.creator?.location}
@@ -48,10 +48,10 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
         <div className="mr-10 border-r"></div>
 
         <div className="col-span-2 flex-3">
-          <h1 className="mb-6 text-3xl font-light">
+          <h1 className="mb-3 text-xl font-light md:mb-6 md:text-3xl">
             <span className="text-primary font-semibold">{contest?.title}</span> Challenge
           </h1>
-          <TipTapViewer content={contest?.description} />
+          <TipTapViewer content={contest?.description} className="max-md:text-sm" />
         </div>
       </div>
 
