@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Upload } from 'lucide-react';
+import { Upload, Trophy } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -32,6 +32,7 @@ import TeamMembershipLoading from '@/components/module/team/TeamMembershipLoadin
 import { COUNTRIES, LANGUAGES } from '@/constants/team';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeamMembership } from '@/hooks/useTeamMembership';
+import { useGetUserProgressQuery } from '@/store/apis/levelsApi';
 import { useCreateTeamMutation } from '@/store/apis/teamApi';
 import { showErrorToast } from '@/utils/team-feedback';
 
@@ -103,6 +104,15 @@ function TeamCreatePage() {
 
   const { isCheckingMembership, hasTeam } = useTeamMembership();
 
+  const { data: progressData, isLoading: isProgressLoading } = useGetUserProgressQuery(undefined, {
+    skip: !token,
+  });
+
+  const userProgress = progressData?.data ?? null;
+  const currentLevelOrder = userProgress?.currentLevel?.order ?? 1;
+  const currentLevelName = userProgress?.currentLevel?.name ?? 'APPRENTICE';
+  const isLevelTooLow = currentLevelOrder < 3;
+
   useEffect(() => {
     if (isCheckingMembership) return;
     if (hasTeam) {
@@ -110,8 +120,32 @@ function TeamCreatePage() {
     }
   }, [hasTeam, isCheckingMembership, router]);
 
-  if (isCheckingMembership || hasTeam) {
-    return <TeamMembershipLoading />;
+  if (isCheckingMembership || hasTeam || isProgressLoading) {
+    return <CreateTeamSkeleton />;
+  }
+
+  if (isLevelTooLow) {
+    return (
+      <main className="margin container py-8 lg:py-10">
+        <div className="space-y-5 max-w-xl mx-auto text-center py-12">
+          <div className="bg-primary/10 border-primary/20 text-primary mx-auto flex size-16 items-center justify-center rounded-full border">
+            <Trophy className="size-8" />
+          </div>
+          <h1 className="font-kumbh text-foreground text-2xl font-bold">
+            Team Creation Locked
+          </h1>
+          <p className="text-muted-foreground text-sm leading-6">
+            You must reach at least <strong className="text-foreground">Level 3 (TRAINED)</strong> to build your own team.
+            Your current level is <strong className="text-foreground">Level {currentLevelOrder} ({currentLevelName})</strong>.
+          </p>
+          <div className="pt-4">
+            <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+              <Link href="/teams">Back to Teams</Link>
+            </Button>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
