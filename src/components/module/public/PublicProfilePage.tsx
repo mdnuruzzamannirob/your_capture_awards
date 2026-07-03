@@ -54,7 +54,7 @@ function TabButton({
       type="button"
       onClick={onClick}
       className={cn(
-        'relative flex h-full min-w-20 flex-1 cursor-pointer flex-col items-center justify-center px-5 transition duration-200 outline-none select-none',
+        'relative flex h-full flex-1 cursor-pointer flex-col items-center justify-center px-5 transition duration-200 outline-none select-none',
         active
           ? 'bg-primary text-primary-foreground font-bold'
           : 'text-muted-foreground hover:bg-surface-secondary hover:text-foreground',
@@ -413,12 +413,12 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
 
             {/* Right side: Scrollable Modern Tabs Box */}
             <div className="w-full overflow-hidden lg:w-auto">
-              <div className="divide-border border-border bg-surface/30 flex h-12 max-w-full scrollbar-none items-center divide-x overflow-x-auto rounded-sm border shadow-md">
+              <div className="divide-border border-border bg-surface/30 flex h-12 items-center divide-x overflow-x-auto rounded-sm border shadow-md">
                 {isLoading && !stats
                   ? Array.from({ length: isOwn ? 5 : 4 }).map((_, idx) => (
                       <div
                         key={idx}
-                        className="flex h-full min-w-20 flex-1 animate-pulse flex-col items-center justify-center gap-1.5 px-5"
+                        className="flex h-full flex-1 animate-pulse flex-col items-center whitespace-nowrap justify-center gap-1.5 px-5"
                       >
                         <div className="bg-surface-secondary h-4 w-8 rounded" />
                         <div className="bg-surface-secondary h-2 w-12 rounded" />
