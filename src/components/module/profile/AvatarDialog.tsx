@@ -13,11 +13,11 @@ import { ImageCropper } from '@/components/ui/ImageCropper';
 import { useAuth } from '@/hooks/useAuth';
 import { useGetMeQuery } from '@/store/apis/authApi';
 import { useUpdateAvatarMutation } from '@/store/apis/userApi';
+import { compressImage } from '@/utils/compressImage';
 import Image from 'next/image';
 import { ChangeEvent, useRef, useState } from 'react';
 import { FiCamera, FiEdit2, FiUpload } from 'react-icons/fi';
 import { toast } from 'sonner';
-import { compressImage } from '@/utils/compressImage';
 
 type Step = 'idle' | 'crop' | 'preview';
 
@@ -126,7 +126,7 @@ export default function AvatarDialog() {
       <DialogTrigger asChild>
         <button
           onClick={() => setOpen(true)}
-          className="group relative flex size-full items-center justify-center overflow-hidden rounded-full bg-surface-secondary"
+          className="group bg-surface-secondary relative flex size-full items-center justify-center overflow-hidden rounded-full"
         >
           {user?.avatar ? (
             <>
@@ -137,12 +137,14 @@ export default function AvatarDialog() {
                 className="object-cover transition-all duration-300 group-hover:brightness-50"
               />
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                <FiEdit2 className="size-4 text-primary-foreground drop-shadow" />
-                <span className="text-[9px] font-semibold text-primary-foreground drop-shadow">Edit</span>
+                <FiEdit2 className="text-primary-foreground size-4 drop-shadow" />
+                <span className="text-primary-foreground text-[9px] font-semibold drop-shadow">
+                  Edit
+                </span>
               </div>
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors group-hover:text-foreground">
+            <div className="text-muted-foreground group-hover:text-foreground flex flex-col items-center justify-center gap-1 transition-colors">
               <FiCamera className="size-5" />
               <span className="text-[10px] font-medium">Add photo</span>
             </div>
@@ -151,15 +153,15 @@ export default function AvatarDialog() {
       </DialogTrigger>
 
       {/* ── Dialog ── */}
-      <DialogContent className="gap-0 overflow-hidden border-0 bg-background p-0 text-primary-foreground shadow-modal ring-1 shadow-overlay ring-border-subtle sm:max-w-sm">
+      <DialogContent className="bg-background text-primary-foreground shadow-modal shadow-overlay ring-border-subtle gap-0 overflow-hidden border-0 p-0 ring-1 sm:max-w-sm">
         {/* ── Header ── */}
         <DialogHeader className="relative px-6 pt-6 pb-5">
           <div className="flex items-start justify-between">
             <div>
-              <DialogTitle className="text-[15px] font-semibold tracking-tight text-primary-foreground">
+              <DialogTitle className="text-primary-foreground text-[15px] font-semibold tracking-tight">
                 {user?.avatar ? 'Update profile photo' : 'Add profile photo'}
               </DialogTitle>
-              <p className="mt-1 text-[11px] text-caption-foreground">
+              <p className="text-caption-foreground mt-1 text-[11px]">
                 JPG · PNG · AVIF · WebP &nbsp;·&nbsp; 20 KB – 5 MB
               </p>
             </div>
@@ -176,7 +178,7 @@ export default function AvatarDialog() {
                         ? 'bg-primary w-4'
                         : steps.indexOf(s) < steps.indexOf(step)
                           ? 'bg-primary/40 w-1.5'
-                          : 'w-1.5 bg-surface-secondary',
+                          : 'bg-surface-secondary w-1.5',
                     ].join(' ')}
                   />
                 ))}
@@ -185,7 +187,7 @@ export default function AvatarDialog() {
           </div>
         </DialogHeader>
 
-        <div className="mx-6 h-px bg-border-subtle" />
+        <div className="bg-border-subtle mx-6 h-px" />
 
         {/* ── Body ── */}
         <div className="relative px-6 py-5">
@@ -197,33 +199,37 @@ export default function AvatarDialog() {
                 className={[
                   'rounded-full p-0.5 transition-all duration-500',
                   displaySrc
-                    ? 'from-primary bg-linear-to-br via-primary/80 to-warning-500 shadow-[0_0_28px_-4px_color-mix(in_oklab,var(--primary)_45%,transparent)]'
-                    : 'bg-linear-to-br from-surface-secondary via-border to-surface-secondary',
+                    ? 'from-primary via-primary/80 to-warning-500 bg-linear-to-br shadow-[0_0_28px_-4px_color-mix(in_oklab,var(--primary)_45%,transparent)]'
+                    : 'from-surface-secondary via-border to-surface-secondary bg-linear-to-br',
                 ].join(' ')}
               >
                 <button
                   type="button"
                   onClick={openFilePicker}
-                  className="group/inner relative flex h-44 w-44 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-surface transition-all duration-200"
+                  className="group/inner bg-surface relative flex h-44 w-44 cursor-pointer items-center justify-center overflow-hidden rounded-full transition-all duration-200"
                 >
                   {displaySrc ? (
                     <>
                       <Image src={displaySrc} alt="Photo preview" fill className="object-cover" />
                       <div className="bg-overlay absolute inset-0 flex flex-col items-center justify-center gap-1.5 opacity-0 backdrop-blur-[2px] transition-opacity duration-200 group-hover/inner:opacity-100">
-                        <FiCamera className="size-5 text-primary-foreground" />
-                        <span className="text-[11px] font-semibold text-primary-foreground">Change photo</span>
+                        <FiCamera className="text-primary-foreground size-5" />
+                        <span className="text-primary-foreground text-[11px] font-semibold">
+                          Change photo
+                        </span>
                       </div>
                     </>
                   ) : (
                     <div className="flex flex-col items-center gap-3 px-4 text-center">
-                      <div className="group-hover/inner:bg-primary/15 group-hover/inner:ring-primary/30 flex h-12 w-12 items-center justify-center rounded-full bg-surface-secondary ring-1 ring-border-subtle transition-all duration-200">
-                        <FiUpload className="group-hover/inner:text-primary size-5 text-muted-foreground transition-colors" />
+                      <div className="group-hover/inner:bg-primary/15 group-hover/inner:ring-primary/30 bg-surface-secondary ring-border-subtle flex h-12 w-12 items-center justify-center rounded-full ring-1 transition-all duration-200">
+                        <FiUpload className="group-hover/inner:text-primary text-muted-foreground size-5 transition-colors" />
                       </div>
                       <div>
-                        <p className="text-[12px] font-medium text-muted-foreground transition-colors group-hover/inner:text-primary-foreground">
+                        <p className="text-muted-foreground group-hover/inner:text-primary-foreground text-[12px] font-medium transition-colors">
                           Upload a photo
                         </p>
-                        <p className="mt-0.5 text-[10px] text-caption-foreground">Square image works best</p>
+                        <p className="text-caption-foreground mt-0.5 text-[10px]">
+                          Square image works best
+                        </p>
                       </div>
                     </div>
                   )}
@@ -234,7 +240,7 @@ export default function AvatarDialog() {
                 <button
                   type="button"
                   onClick={openFilePicker}
-                  className="group/link flex items-center gap-1.5 text-[11px] text-caption-foreground transition-colors hover:text-muted-foreground"
+                  className="group/link text-caption-foreground hover:text-muted-foreground flex items-center gap-1.5 text-[11px] transition-colors"
                 >
                   <FiUpload className="size-3 transition-transform" />
                   Choose a different photo
@@ -264,17 +270,17 @@ export default function AvatarDialog() {
           {/* Step: preview */}
           {step === 'preview' && croppedPreview && (
             <div className="flex flex-col items-center gap-4">
-              <div className="from-primary rounded-full bg-linear-to-br via-primary/80 to-warning-500 p-0.5 shadow-[0_0_28px_-4px_color-mix(in_oklab,var(--primary)_45%,transparent)]">
-                <div className="relative h-44 w-44 overflow-hidden rounded-full bg-surface">
+              <div className="from-primary via-primary/80 to-warning-500 rounded-full bg-linear-to-br p-0.5 shadow-[0_0_28px_-4px_color-mix(in_oklab,var(--primary)_45%,transparent)]">
+                <div className="bg-surface relative h-44 w-44 overflow-hidden rounded-full">
                   <Image src={croppedPreview} alt="Cropped preview" fill className="object-cover" />
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 text-[11px] text-caption-foreground">
+              <div className="text-caption-foreground flex items-center gap-3 text-[11px]">
                 <button
                   type="button"
                   onClick={() => setStep('crop')}
-                  className="transition-colors hover:text-muted-foreground"
+                  className="hover:text-muted-foreground transition-colors"
                 >
                   Adjust crop
                 </button>
@@ -282,7 +288,7 @@ export default function AvatarDialog() {
                 <button
                   type="button"
                   onClick={openFilePicker}
-                  className="transition-colors hover:text-muted-foreground"
+                  className="hover:text-muted-foreground transition-colors"
                 >
                   Choose different photo
                 </button>
@@ -299,9 +305,9 @@ export default function AvatarDialog() {
           />
 
           {error && (
-            <div className="mt-4 flex items-start gap-2 rounded-xl border border-destructive/20 bg-destructive/10 px-3.5 py-2.5">
-              <span className="mt-px shrink-0 text-[11px] text-destructive">⚠</span>
-              <p className="text-[11px] leading-relaxed text-destructive">{error}</p>
+            <div className="border-destructive/20 bg-destructive/10 mt-4 flex items-start gap-2 rounded-xl border px-3.5 py-2.5">
+              <span className="text-destructive mt-px shrink-0 text-[11px]">⚠</span>
+              <p className="text-destructive text-[11px] leading-relaxed">{error}</p>
             </div>
           )}
         </div>
@@ -309,12 +315,12 @@ export default function AvatarDialog() {
         {/* ── Footer ── */}
         {step !== 'crop' && (
           <>
-            <div className="mx-6 h-px bg-border-subtle" />
+            <div className="bg-border-subtle mx-6 h-px" />
             <DialogFooter className="flex items-center justify-between px-6 py-4">
               <DialogClose asChild>
                 <button
                   type="button"
-                  className="rounded-sm border border-border bg-surface/60 px-4 py-2 text-[13px] text-muted-foreground transition hover:bg-surface-secondary"
+                  className="border-border bg-surface/60 text-muted-foreground hover:bg-surface-secondary w-full rounded-sm border px-4 py-2 text-[13px] transition sm:w-auto"
                 >
                   Cancel
                 </button>
@@ -324,11 +330,11 @@ export default function AvatarDialog() {
                 type="button"
                 disabled={isUpdating || step !== 'preview'}
                 onClick={handleSave}
-                className="bg-primary hover:bg-primary/90 rounded-sm px-5 py-2 text-[13px] font-semibold text-primary-foreground shadow-[0_2px_12px_-3px_color-mix(in_oklab,var(--primary)_45%,transparent)] transition-all hover:shadow-[0_2px_16px_-3px_color-mix(in_oklab,var(--primary)_60%,transparent)] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground w-full rounded-sm px-5 py-2 text-[13px] font-semibold shadow-[0_2px_12px_-3px_color-mix(in_oklab,var(--primary)_45%,transparent)] transition-all hover:shadow-[0_2px_16px_-3px_color-mix(in_oklab,var(--primary)_60%,transparent)] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none sm:w-auto"
               >
                 {isUpdating ? (
                   <span className="flex items-center gap-2">
-                    <span className="inline-block h-3 w-3 animate-spin rounded-full border border-primary-foreground/30 border-t-primary-foreground" />
+                    <span className="border-primary-foreground/30 border-t-primary-foreground inline-block h-3 w-3 animate-spin rounded-full border" />
                     Saving…
                   </span>
                 ) : user?.avatar ? (
