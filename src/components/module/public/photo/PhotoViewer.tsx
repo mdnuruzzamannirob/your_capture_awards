@@ -201,7 +201,7 @@ export function PhotoViewer({
       {slidePhotos.length > 1 && (
         <button
           onClick={onPrev}
-          className="absolute left-4 z-10 grid size-16 cursor-pointer place-items-center rounded-full bg-overlay text-primary-foreground transition-all duration-200 outline-none hover:scale-105 hover:bg-overlay"
+          className="absolute left-4 z-20 grid size-16 cursor-pointer place-items-center rounded-full bg-overlay text-primary-foreground transition-all duration-200 outline-none hover:scale-105 hover:bg-overlay"
           aria-label="Previous photo"
         >
           <ChevronLeft className="size-14 stroke-[1.2]" />
@@ -242,7 +242,7 @@ export function PhotoViewer({
       {slidePhotos.length > 1 && (
         <button
           onClick={onNext}
-          className="absolute right-4 z-10 grid size-16 cursor-pointer place-items-center rounded-full bg-overlay text-primary-foreground transition-all duration-200 outline-none hover:scale-105 hover:bg-overlay"
+          className="absolute right-4 z-20 grid size-16 cursor-pointer place-items-center rounded-full bg-overlay text-primary-foreground transition-all duration-200 outline-none hover:scale-105 hover:bg-overlay"
           aria-label="Next photo"
         >
           <ChevronRight className="size-14 stroke-[1.2]" />

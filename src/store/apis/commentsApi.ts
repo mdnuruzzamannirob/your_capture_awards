@@ -4,6 +4,9 @@ import { baseQuery } from '@/store/baseQuery';
 export interface CommentProvider {
   id?: string;
   name?: string;
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
   avatar?: string;
 }
 

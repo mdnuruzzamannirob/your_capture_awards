@@ -1,14 +1,19 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/utils/cn';
 import { CornerDownRight, Pencil, Reply, Trash2, X } from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export interface CommentProvider {
   id?: string;
   name?: string;
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
   avatar?: string;
 }
 
@@ -295,8 +300,18 @@ function CommentBubble({
   const isReplying = replyingToId === comment.id;
   const canManage = isOwner(comment, currentUserId);
 
-  const avatarSize = depth > 0 ? 'size-7 text-[10px] shrink-0' : 'size-9 text-xs shrink-0';
-  const displayName = comment.author || comment.provider?.name || 'User';
+  const avatarSize = depth > 0 ? 'size-7 text-[10px] shrink-0' : 'size-8 text-xs shrink-0';
+  const p = comment.provider;
+  const displayName =
+    comment.author ||
+    p?.fullName ||
+    (p?.firstName && p?.lastName ? `${p.firstName} ${p.lastName}` : '') ||
+    p?.firstName ||
+    p?.name ||
+    'User';
+
+  // Resolve the commenter's profile ID for the link
+  const commenterProfileId = comment.providerId || p?.id || comment.userId;
 
   const handleDelete = async () => {
     if (isDeleting) return;
@@ -324,19 +339,49 @@ function CommentBubble({
 
   return (
     <div className="group/node text-sm">
-      <div className="flex gap-3">
-        {/* Avatar */}
-        <div
-          className={cn(
-            'grid place-items-center rounded-full border border-border bg-surface-secondary font-black text-muted-foreground uppercase shadow-xs',
-            avatarSize,
-          )}
-        >
-          {displayName.substring(0, 2)}
-        </div>
+      <div className="flex gap-2.5">
+        {/* Avatar — clickable to commenter's public profile */}
+        {commenterProfileId ? (
+          <Link href={`/profile/${commenterProfileId}`} className="shrink-0">
+            <Avatar className={avatarSize}>
+              {p?.avatar && (
+                <AvatarImage src={p.avatar} alt={displayName} className="object-cover" />
+              )}
+              <AvatarFallback className="bg-surface-secondary text-muted-foreground flex items-center justify-center text-[10px] font-bold uppercase">
+                {displayName.slice(0, 2)}
+              </AvatarFallback>
+            </Avatar>
+          </Link>
+        ) : (
+          <Avatar className={avatarSize}>
+            {p?.avatar && (
+              <AvatarImage src={p.avatar} alt={displayName} className="object-cover" />
+            )}
+            <AvatarFallback className="bg-surface-secondary text-muted-foreground flex items-center justify-center text-[10px] font-bold uppercase">
+              {displayName.slice(0, 2)}
+            </AvatarFallback>
+          </Avatar>
+        )}
 
         {/* Content */}
         <div className="min-w-0 flex-1">
+          {/* Name + time row */}
+          <div className="mb-1 flex items-baseline gap-2">
+            {commenterProfileId ? (
+              <Link
+                href={`/profile/${commenterProfileId}`}
+                className="truncate text-xs font-bold text-foreground hover:text-primary transition-colors"
+              >
+                {displayName}
+              </Link>
+            ) : (
+              <span className="truncate text-xs font-bold text-foreground">{displayName}</span>
+            )}
+            <span className="shrink-0 text-[10px] text-caption-foreground">
+              {formatCommentTime(comment.createdAt, comment.time)}
+            </span>
+          </div>
+
           <div className="rounded-lg border border-border/80 bg-surface px-3 py-2">
             {isEditing ? (
               <form
@@ -383,22 +428,15 @@ function CommentBubble({
                 </div>
               </form>
             ) : (
-              <>
-                <span className="mr-2 font-bold text-foreground">{displayName}</span>
-                <span className="leading-relaxed wrap-break-word whitespace-pre-wrap text-muted-foreground">
-                  {comment.text}
-                </span>
-              </>
+              <span className="leading-relaxed wrap-break-word whitespace-pre-wrap text-sm text-muted-foreground">
+                {comment.text}
+              </span>
             )}
           </div>
 
           {/* Action row */}
           {!isEditing && (
             <div className="mt-1.5 flex flex-wrap items-center gap-3 px-1 text-xs">
-              <span className="font-medium text-caption-foreground">
-                {formatCommentTime(comment.createdAt, comment.time)}
-              </span>
-
               {/* Reply — visible to everyone */}
               <button
                 onClick={() => {
