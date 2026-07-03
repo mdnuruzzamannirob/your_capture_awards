@@ -84,31 +84,51 @@ function ProfileContent({
   isLoading: boolean;
 }) {
   const username = profile?.username || profile?.id || '';
+  // Track which tabs have been visited so we only mount them once.
+  const [visitedTabs, setVisitedTabs] = useState<Set<TabKey>>(new Set([activeTab]));
 
-  if (activeTab === 'achievements') {
-    return <AchievementsTabContent username={username} isOwn={isOwn} />;
-  }
+  useEffect(() => {
+    setVisitedTabs((prev) => {
+      if (prev.has(activeTab)) return prev;
+      const next = new Set(prev);
+      next.add(activeTab);
+      return next;
+    });
+  }, [activeTab]);
 
-  if (activeTab === 'followers') {
-    return <FollowersTabContent username={username} userId={profile?.id} isOwn={isOwn} />;
-  }
-
-  if (activeTab === 'following') {
-    return <FollowingTabContent username={username} userId={profile?.id} isOwn={isOwn} />;
-  }
-
-  if (activeTab === 'likes') {
-    return <LikeTabContent username={username} userId={profile?.id} isOwn={isOwn} />;
-  }
+  const ALL_TABS: TabKey[] = ['photos', 'likes', 'achievements', 'followers', 'following'];
 
   return (
-    <PhotosTabContent
-      username={username}
-      isOwn={isOwn}
-      photos={photos}
-      isLoading={isLoading}
-      userId={userId}
-    />
+    <>
+      {ALL_TABS.map((tab) => {
+        if (!visitedTabs.has(tab)) return null;
+        return (
+          <div key={tab} className={tab === activeTab ? 'block' : 'hidden'}>
+            {tab === 'achievements' && (
+              <AchievementsTabContent username={username} isOwn={isOwn} />
+            )}
+            {tab === 'followers' && (
+              <FollowersTabContent username={username} userId={profile?.id} isOwn={isOwn} />
+            )}
+            {tab === 'following' && (
+              <FollowingTabContent username={username} userId={profile?.id} isOwn={isOwn} />
+            )}
+            {tab === 'likes' && (
+              <LikeTabContent username={username} userId={profile?.id} isOwn={isOwn} />
+            )}
+            {tab === 'photos' && (
+              <PhotosTabContent
+                username={username}
+                isOwn={isOwn}
+                photos={photos}
+                isLoading={isLoading}
+                userId={userId}
+              />
+            )}
+          </div>
+        );
+      })}
+    </>
   );
 }
 
