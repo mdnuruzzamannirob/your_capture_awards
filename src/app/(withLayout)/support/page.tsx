@@ -133,6 +133,7 @@ export default function SupportPage() {
             <p className="text-muted-foreground text-center text-xs sm:text-left">
               By submitting, you agree to be contacted at the email above.
             </p>
+            
             <Button
               type="submit"
               disabled={submitting}

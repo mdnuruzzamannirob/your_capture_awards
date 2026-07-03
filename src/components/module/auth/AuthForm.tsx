@@ -109,9 +109,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         throw new Error('Missing NEXT_PUBLIC_API_URL');
       }
 
-      // Inform user something is happening
-      toast.loading(`Redirecting to ${provider}...`);
-
       // Track redirect attempt to avoid double-tap
       if (typeof window !== 'undefined') {
         if ((window as any).isRedirecting) return;
