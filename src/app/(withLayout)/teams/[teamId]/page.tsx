@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/hooks/useAuth';
 import type { TeamDetail } from '@/lib/mock/teamDetails';
 import { useGetTeamQuery, useJoinTeamMutation } from '@/store/apis/teamApi';
 import { showErrorToast } from '@/utils/team-feedback';
@@ -67,12 +68,14 @@ function TeamDetailSkeleton() {
                 </div>
               </div>
 
-              <Skeleton className="h-12 w-32 rounded-md" />
+              <div className="flex w-full justify-end lg:w-auto lg:shrink-0">
+                <Skeleton className="h-12 w-full rounded-md lg:w-32" />
+              </div>
             </div>
 
             <div className={`${teamCardClass} relative mt-8 px-4 py-4 sm:px-5`}>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
-                {Array.from({ length: 6 }).map((_, index) => (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <Skeleton className="size-10 shrink-0 rounded-full" />
                     <div className="min-w-0 space-y-2">
@@ -91,20 +94,21 @@ function TeamDetailSkeleton() {
             {Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={index}
-                className="grid grid-cols-1 items-center gap-4 px-5 py-4 sm:grid-cols-[56px_minmax(0,1fr)_240px] sm:px-6 lg:grid-cols-[64px_minmax(0,1fr)_280px]"
+                className="flex items-center justify-between gap-3 px-4 py-4 sm:grid sm:grid-cols-[56px_minmax(0,1fr)_240px] sm:px-6 lg:grid-cols-[64px_minmax(0,1fr)_280px]"
               >
-                <Skeleton className="mx-auto h-6 w-6 rounded-full" />
+                <Skeleton className="mx-auto hidden h-6 w-6 rounded-full sm:block" />
 
-                <div className="flex min-w-0 items-center gap-3">
-                  <Skeleton className="size-12 shrink-0 rounded-full" />
-                  <div className="min-w-0 space-y-2">
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <Skeleton className="block h-4 w-5 shrink-0 rounded sm:hidden" />
+                  <Skeleton className="size-10 shrink-0 rounded-full sm:size-12" />
+                  <div className="min-w-0 flex-1 space-y-2">
                     <Skeleton className="h-4 w-36" />
                     <Skeleton className="h-3 w-24" />
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end">
-                  <Skeleton className="h-6 w-24 rounded-sm" />
+                <div className="flex shrink-0 items-center justify-end">
+                  <Skeleton className="h-6 w-20 rounded-sm sm:w-24" />
                 </div>
               </div>
             ))}
@@ -119,6 +123,7 @@ export default function TeamDetailPage() {
   const params = useParams();
   const router = useRouter();
   const teamId = params?.teamId as string | undefined;
+  const { user } = useAuth();
 
   const {
     data: apiResp,
@@ -132,6 +137,10 @@ export default function TeamDetailPage() {
 
   const apiTeam = ((apiResp as any)?.data ?? apiResp) as TeamDetail | undefined;
   const resolvedTeam = apiTeam;
+
+  const isJoined =
+    user?.joinedTeam?.teamId === resolvedTeam?.id ||
+    user?.joinedTeam?.team?.id === resolvedTeam?.id;
 
   const members = resolvedTeam?.members ?? [];
 
@@ -259,20 +268,20 @@ export default function TeamDetailPage() {
                 </div>
               </div>
 
-              <div className="flex shrink-0 justify-end">
+              <div className="flex w-full shrink-0 justify-end lg:w-auto">
                 <Button
                   type="button"
                   onClick={handleJoinTeam}
-                  disabled={isJoining}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 rounded-md px-8 font-semibold disabled:cursor-not-allowed disabled:opacity-70"
+                  disabled={isJoining || isJoined}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 w-full rounded-md px-8 font-semibold disabled:cursor-not-allowed disabled:opacity-70 lg:w-auto"
                 >
-                  {isJoining ? 'Joining...' : 'Join Team'}
+                  {isJoined ? 'Joined' : isJoining ? 'Joining...' : 'Join Team'}
                 </Button>
               </div>
             </div>
 
             <div className={`${teamCardClass} relative mt-8 px-4 py-4 sm:px-5`}>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="sm:grid-cols-2 grid gap-4 lg:grid-cols-4">
                 {metrics.map((metric) => {
                   const Icon = metric.icon;
 
@@ -306,15 +315,18 @@ export default function TeamDetailPage() {
                 return (
                   <div
                     key={member.id}
-                    className="hover:bg-surface-secondary/40 grid grid-cols-1 items-center gap-4 px-5 py-4 transition-colors sm:grid-cols-[56px_minmax(0,1fr)_240px] sm:px-6 lg:grid-cols-[64px_minmax(0,1fr)_280px]"
+                    className="hover:bg-surface-secondary/40 flex items-center justify-between gap-3 px-4 py-4 transition-colors sm:grid sm:grid-cols-[56px_minmax(0,1fr)_240px] sm:px-6 lg:grid-cols-[64px_minmax(0,1fr)_280px]"
                   >
-                    <div className="text-muted-foreground text-center text-lg font-medium">
+                    <div className="text-muted-foreground hidden text-center text-lg font-medium sm:block">
                       {index + 1}
                     </div>
 
-                    <div className="flex min-w-0 items-center gap-3">
-                      <Avatar className="size-12 shrink-0">
-                        {member.member.avatar && <AvatarImage src={member.member.avatar} />}
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <span className="text-muted-foreground block w-5 shrink-0 text-center text-sm font-medium sm:hidden">
+                        {index + 1}
+                      </span>
+                      <Avatar className="size-10 shrink-0 sm:size-12">
+                        {member.member.avatar && <AvatarImage src={member.member.avatar} className='object-cover'/>}
                         <AvatarFallback
                           className={`text-sm font-semibold ${getAvatarClass(member.level)}`}
                         >
@@ -327,16 +339,16 @@ export default function TeamDetailPage() {
                       </Avatar>
 
                       <div className="min-w-0">
-                        <p className="truncate font-semibold max-sm:text-sm">{name}</p>
-                        <p className="text-muted-foreground text-xs sm:text-sm">
+                        <p className="truncate text-sm font-semibold sm:text-base">{name}</p>
+                        <p className="text-muted-foreground text-xs">
                           {member.member.location ?? 'Unknown location'}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-end">
+                    <div className="flex shrink-0 items-center justify-end">
                       <span
-                        className={`inline-flex rounded-sm border px-2 py-1 text-xs font-semibold tracking-[0.24em] uppercase ${getRoleBadgeClass(member.level)}`}
+                        className={`inline-flex rounded-sm border px-2 py-0.5 text-[10px] font-semibold tracking-[0.24em] uppercase sm:py-1 sm:text-xs ${getRoleBadgeClass(member.level)}`}
                       >
                         {member.level.replace('_', ' ')}
                       </span>

@@ -323,7 +323,7 @@ export default function Team() {
 
   const isSearching = deferredSearch.length > 0;
   const hasResults = allTeams.length > 0;
-  const showInitialSkeleton = teamsQuery.isLoading && !teamsQuery.data;
+  const showInitialSkeleton = (teamsQuery.isLoading || teamsQuery.isFetching) && !hasResults;
 
   useEffect(() => {
     if (!teamsQuery.data) return;

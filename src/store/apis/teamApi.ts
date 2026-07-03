@@ -27,6 +27,7 @@ import {
   UpdateTeamRequest,
   UpdateTeamResponse,
 } from '@/store/types/teamTypes';
+import { authApi } from '@/store/apis/authApi';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 export const teamApi = createApi({
@@ -87,6 +88,12 @@ export const teamApi = createApi({
         body: data,
       }),
       invalidatesTags: ['Teams', 'SuggestedTeams', 'Team'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(authApi.util.invalidateTags(['Auth']));
+        } catch {}
+      },
     }),
 
     // ── Get Team Data ─────────────────────────────────────────────────────
@@ -204,7 +211,13 @@ export const teamApi = createApi({
         url: `/teams/join/${teamId}`,
         method: 'POST',
       }),
-      invalidatesTags: ['Team', 'TeamMembers', 'Teams'],
+      invalidatesTags: ['Team', 'TeamMembers', 'Teams', 'SuggestedTeams'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(authApi.util.invalidateTags(['Auth']));
+        } catch {}
+      },
     }),
 
     // ── Invite Member ─────────────────────────────────────────────────────
@@ -237,7 +250,7 @@ export const teamApi = createApi({
         method: 'POST',
         body: { role: level },
       }),
-      invalidatesTags: ['TeamMembers'],
+      invalidatesTags: ['TeamMembers', 'Team'],
     }),
 
     // ── Revoke Role from Member ───────────────────────────────────────────
@@ -246,7 +259,7 @@ export const teamApi = createApi({
         url: `/teams/${teamId}/members/${memberId}/revoke-role`,
         method: 'POST',
       }),
-      invalidatesTags: ['TeamMembers'],
+      invalidatesTags: ['TeamMembers', 'Team'],
     }),
 
     // ── Update Team ───────────────────────────────────────────────────────
@@ -259,7 +272,13 @@ export const teamApi = createApi({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['Team'],
+      invalidatesTags: ['Team', 'Teams', 'SuggestedTeams'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(authApi.util.invalidateTags(['Auth']));
+        } catch {}
+      },
     }),
 
     // ── Get Pending Join Requests ─────────────────────────────────────────
@@ -300,6 +319,7 @@ export const teamApi = createApi({
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled;
+          dispatch(authApi.util.invalidateTags(['Auth']));
           dispatch(teamApi.util.resetApiState());
         } catch {
           // Leave failed — keep existing membership cache.
@@ -317,6 +337,7 @@ export const teamApi = createApi({
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled;
+          dispatch(authApi.util.invalidateTags(['Auth']));
           dispatch(teamApi.util.resetApiState());
         } catch {
           // Delete failed — keep existing membership cache.
