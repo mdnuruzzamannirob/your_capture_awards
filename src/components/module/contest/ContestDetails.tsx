@@ -14,7 +14,7 @@ import getContestTabs from '@/utils/getContestTabs';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import CountdownTimer from './CountdownTimer';
+import CountdownTimer from '@/components/CountdownTimer';
 import DetailsTab from './DetailsTab';
 import PrizesTab from './PrizesTab';
 import RankTab from './RankTab';

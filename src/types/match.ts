@@ -26,4 +26,5 @@ export interface Match {
   teamsJoined: number;
   maxTeams: number;
   minRequirement: string; // e.g. "APPRENTICE"
+  hasJoined?: boolean;
 }

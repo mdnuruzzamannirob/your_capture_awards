@@ -1,8 +1,8 @@
 import CornerCount from '@/components/CornerCount';
 import { Button } from '@/components/ui/button';
-import CountdownTimer from '@/components/module/contest/CountdownTimer';
+import CountdownTimer from '@/components/CountdownTimer';
 import { Match } from '@/types/match';
-import { Clock, Play } from 'lucide-react';
+import { Play } from 'lucide-react';
 import Image from 'next/image';
 
 interface MatchCardProps {
@@ -12,50 +12,71 @@ interface MatchCardProps {
 }
 
 function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardProps) {
-  const teamMembersLabel =
-    match.teamsJoined <= 0
-      ? 'No Team members in the Challenge'
-      : `${match.teamsJoined} Team members in the Challenge`;
+  let teamMembersLabel = '';
+  if (match.hasJoined) {
+    if (match.teamsJoined <= 0) {
+      teamMembersLabel = 'You participated';
+    } else if (match.teamsJoined === 1) {
+      teamMembersLabel = 'You & 1 other participated';
+    } else {
+      teamMembersLabel = `You & ${match.teamsJoined} others participated`;
+    }
+  } else {
+    if (match.teamsJoined <= 0) {
+      teamMembersLabel = '0 Participated';
+    } else if (match.teamsJoined === 1) {
+      teamMembersLabel = '1 Participated';
+    } else {
+      teamMembersLabel = `${match.teamsJoined} Participated`;
+    }
+  }
   const banner = match.teamA.badge || '/images/TeamPhoto.png';
   const startDate = new Date(match.endsAt.getTime() - 1000 * 60 * 60 * 24 * 30).toISOString();
   const endDate = match.endsAt.toISOString();
 
   return (
-    <article className="group border-border bg-surface-secondary/80 overflow-hidden rounded-xl border">
-      <div className="relative overflow-hidden">
+    <article className="group border-border bg-surface-secondary/80 overflow-hidden rounded-xl border-2">
+      <div className="relative h-72 overflow-hidden">
+        {/* Banner image */}
         <Image
           src={banner}
           alt={match.theme}
-          width={960}
-          height={560}
-          className="h-72 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+          fill
+          className="object-cover transition duration-300 group-hover:brightness-50"
+          sizes="(max-width: 768px) 100vw, 500px"
         />
-        <div className="absolute inset-0 bg-zinc-950/35" />
-        <CornerCount count={match.photosRequired} className="bg-zinc-950/85 text-primary-foreground" />
 
-        <div className="absolute inset-0 flex flex-col justify-between p-4 sm:p-5">
-          <div className="space-y-2 text-center text-primary-foreground drop-shadow-[0_1px_1px_color-mix(in_oklab,var(--background)_75%,transparent)]">
-            <h3 className="text-[22px] leading-tight font-extrabold sm:text-[26px]">
-              {match.theme}
-            </h3>
-            <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-overlay px-3 py-1 text-sm font-medium">
-              <Clock className="size-4" />
-              <CountdownTimer startDate={startDate} endDate={endDate} className="mt-0 text-sm" />
-            </div>
+        {/* Top gradient — ensures title is always readable */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-linear-to-b from-black/85 to-transparent z-10" />
+
+        {/* Upload limit badge */}
+        <CornerCount count={match.photosRequired} label="PHOTOS" className="z-10" />
+
+        {/* Title — top left, always visible, large */}
+        <div className="absolute top-3 left-3 right-14 z-10">
+          <h3 className="line-clamp-2 text-base font-bold leading-snug text-white [text-shadow:0_1px_6px_rgba(0,0,0,1)]">
+            {match.theme}
+          </h3>
+        </div>
+
+        {/* Action Button — center, hover only */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100 z-10">
+          <Button
+            className="pointer-events-auto bg-primary text-primary-foreground hover:bg-primary/90 rounded px-6 py-2 text-sm font-medium uppercase transition disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => onStart(match)}
+            disabled={match.hasJoined}
+          >
+            {match.hasJoined ? 'Joined' : actionLabel}
+          </Button>
+        </div>
+
+        {/* Footer stats — absolute bottom, zero gap */}
+        <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-zinc-950/90 py-2 text-primary-foreground z-10">
+          <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1 text-center">
+            <p className="font-semibold text-sm">{teamMembersLabel}</p>
           </div>
-
-          <div className="flex justify-center">
-            <Button
-              className="min-w-36 rounded-md bg-primary-foreground px-6 py-2 text-sm font-bold text-background hover:bg-surface-secondary"
-              onClick={() => onStart(match)}
-            >
-              <Play className="mr-2 size-4" />
-              {actionLabel}
-            </Button>
-          </div>
-
-          <div className="rounded-md bg-overlay px-3 py-3 text-center text-primary-foreground">
-            <p className="font-semibold max-sm:text-sm">{teamMembersLabel}</p>
+          <div className="flex h-12 flex-[1.3] flex-col items-center justify-center px-1">
+            <CountdownTimer startDate={startDate} endDate={endDate} />
           </div>
         </div>
       </div>
