@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { SKILL_LEVELS } from '@/constants/team';
+import { useGetAllLevelsQuery } from '@/store/apis/levelsApi';
 import { teamSettingsSchema, TeamSettingsValues } from '@/lib/schemas/teamSchema';
 import { TeamData } from '@/types/team';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,7 +43,9 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
     TeamSettingsValues
   >;
 
-  const defaultRequirement = resolveSkillLevel(team.min_requirement ?? team.skill_level);
+  const { data: levelsData } = useGetAllLevelsQuery({ page: 1, limit: 50 }, { skip: !open });
+  const levelOptions = levelsData?.data ?? [];
+  const defaultRequirement = team.min_requirement ?? team.skill_level ?? levelOptions[0]?.levelName ?? '';
 
   const form = useForm<TeamSettingsValues, any, TeamSettingsValues>({
     resolver,
@@ -58,7 +60,7 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
 
     form.reset({
       member_slots: team.member_slots,
-      min_requirement: resolveSkillLevel(team.min_requirement ?? team.skill_level),
+      min_requirement: team.min_requirement ?? team.skill_level ?? levelOptions[0]?.levelName ?? '',
     });
   }, [form, open, team]);
 
@@ -92,19 +94,19 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
               name="min_requirement"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-muted-foreground text-xs tracking-wider uppercase">
-                    Min Requirement
-                  </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormLabel className="text-muted-foreground text-xs tracking-wider uppercase">
+                  Min Requirement
+                </FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="w-full!">
-                        <SelectValue />
+                        <SelectValue placeholder="Select minimum requirement" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {SKILL_LEVELS.map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {s}
+                      {levelOptions.map((level) => (
+                        <SelectItem key={level.id} value={level.levelName}>
+                          {level.levelName}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -128,12 +130,3 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
 }
 
 export default TeamSettingsModal;
-const SKILL_LEVEL_SET = new Set(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT']);
-
-function resolveSkillLevel(
-  value?: string | null,
-): 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT' {
-  return SKILL_LEVEL_SET.has(value ?? '')
-    ? (value as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT')
-    : 'BEGINNER';
-}

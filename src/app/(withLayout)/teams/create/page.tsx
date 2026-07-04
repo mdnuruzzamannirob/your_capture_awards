@@ -32,16 +32,18 @@ import TeamMembershipLoading from '@/components/module/team/TeamMembershipLoadin
 import { COUNTRIES, LANGUAGES } from '@/constants/team';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeamMembership } from '@/hooks/useTeamMembership';
-import { useGetUserProgressQuery } from '@/store/apis/levelsApi';
+import { useGetAllLevelsQuery, useGetUserProgressQuery } from '@/store/apis/levelsApi';
 import { useCreateTeamMutation } from '@/store/apis/teamApi';
+import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
+import { useStoreModal } from '@/providers/StoreModalProvider';
 import { showErrorToast } from '@/utils/team-feedback';
 
-const TEAM_REQUIREMENTS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'] as const;
+const TEAM_KEY_COST = 5;
 
 const createTeamSchema = z.object({
   name: z.string().min(3, 'Team name should be at least 3 characters').max(50, 'Too long'),
-  level: z.string(),
-  min_requirement: z.enum(TEAM_REQUIREMENTS),
+  level: z.string().min(1, 'Select a team level'),
+  min_requirement: z.string().min(1, 'Select a minimum requirement'),
   language: z.string().min(1, 'Select a language'),
   country: z.string().min(1, 'Select a country'),
   description: z.string().min(20, 'Add a stronger description').max(300, 'Max 300 characters'),
@@ -52,8 +54,8 @@ type CreateTeamValues = z.infer<typeof createTeamSchema>;
 
 const defaultValues: CreateTeamValues = {
   name: '',
-  level: 'Beginner',
-  min_requirement: 'BEGINNER',
+  level: '',
+  min_requirement: '',
   language: 'English',
   country: 'United States',
   description: '',
@@ -91,6 +93,7 @@ function CreateTeamSkeleton() {
 function TeamCreatePage() {
   const router = useRouter();
   const { token } = useAuth();
+  const { openStore } = useStoreModal();
   const fileRef = useRef<HTMLInputElement>(null);
   const [badgePreview, setBadgePreview] = useState<string | null>(null);
   const [badgeFileName, setBadgeFileName] = useState('No badge selected');
@@ -104,11 +107,21 @@ function TeamCreatePage() {
 
   const { isCheckingMembership, hasTeam } = useTeamMembership();
 
+  const { data: levelsData, isLoading: isLevelsLoading } = useGetAllLevelsQuery(
+    { page: 1, limit: 50 },
+    { skip: !token },
+  );
+
   const { data: progressData, isLoading: isProgressLoading } = useGetUserProgressQuery(undefined, {
+    skip: !token,
+  });
+  const { data: storeStatsData, isLoading: isStoreStatsLoading } = useGetStoreStatsQuery(undefined, {
     skip: !token,
   });
 
   const userProgress = progressData?.data ?? null;
+  const teamLevels = levelsData?.data ?? [];
+  const storeStats = storeStatsData?.data ?? null;
   const currentLevelOrder = userProgress?.currentLevel?.order ?? 1;
   const currentLevelName = userProgress?.currentLevel?.name ?? 'APPRENTICE';
   const isLevelTooLow = currentLevelOrder < 3;
@@ -120,7 +133,18 @@ function TeamCreatePage() {
     }
   }, [hasTeam, isCheckingMembership, router]);
 
-  if (isCheckingMembership || hasTeam || isProgressLoading) {
+  useEffect(() => {
+    if (!teamLevels.length) return;
+
+    const firstLevel = teamLevels[0];
+    form.reset({
+      ...defaultValues,
+      level: firstLevel?.levelName ?? '',
+      min_requirement: firstLevel?.levelName ?? '',
+    });
+  }, [form, teamLevels]);
+
+  if (isCheckingMembership || hasTeam || isProgressLoading || isLevelsLoading || isStoreStatsLoading) {
     return <CreateTeamSkeleton />;
   }
 
@@ -149,7 +173,10 @@ function TeamCreatePage() {
   }
 
   const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
-    void form.handleSubmit(onSubmit)(event);
+    void form.handleSubmit(onSubmit, (errors) => {
+      const firstError = Object.values(errors)[0];
+      toast.error(firstError?.message || 'Please complete the form before creating a team.');
+    })(event);
   };
 
   const handleBadgeChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -189,10 +216,22 @@ function TeamCreatePage() {
 
   const onSubmit = async (values: CreateTeamValues) => {
     try {
+      const availableKeys = storeStats?.key ?? 0;
+      if (availableKeys < TEAM_KEY_COST) {
+        toast.error(`You need ${TEAM_KEY_COST} keys to create a team.`);
+        openStore();
+        return;
+      }
+
+      if (!token) {
+        toast.error('Please sign in first.');
+        return;
+      }
+
       const payload = new FormData();
 
       payload.append('name', values.name);
-      payload.append('level', values.level || 'Beginner');
+      payload.append('level', values.level);
       payload.append('language', values.language);
       payload.append('country', values.country);
       payload.append('description', values.description);
@@ -337,9 +376,9 @@ function TeamCreatePage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {TEAM_REQUIREMENTS.map((requirement) => (
-                          <SelectItem key={requirement} value={requirement}>
-                            {requirement}
+                        {teamLevels.map((requirement) => (
+                          <SelectItem key={requirement.id} value={requirement.levelName}>
+                            {requirement.levelName}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -459,9 +498,13 @@ function TeamCreatePage() {
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={isCreating}
               >
-                {isCreating ? 'Creating...' : 'Create team'}
+                {isCreating ? `Creating... (${TEAM_KEY_COST} keys)` : `Create team (${TEAM_KEY_COST} keys)`}
               </Button>
             </div>
+            <p className="text-muted-foreground text-right text-xs">
+              You need {TEAM_KEY_COST} keys to create a team. If you do not have enough keys, the
+              store can be opened to top up.
+            </p>
           </form>
         </Form>
       </div>
