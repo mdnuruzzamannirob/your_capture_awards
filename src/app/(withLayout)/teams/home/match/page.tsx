@@ -94,16 +94,28 @@ function mapActiveMatchToMatch(activeMatch: ActiveTeamMatch): Match {
   };
 }
 
-function mapContestToMatch(contest: AvailableTeamContest): Match {
+function mapContestToMatch(contest: AvailableTeamContest, currentUserId?: string): Match {
+  // Exclude current user from participants if present in participantDetails
+  const otherParticipants = currentUserId && Array.isArray(contest.participantDetails)
+    ? contest.participantDetails.filter(p => p.userId !== currentUserId && p.id !== currentUserId)
+    : contest.participantDetails || [];
+
+  const participantsCount = otherParticipants.length;
+
+  const hasJoined = currentUserId && Array.isArray(contest.participantDetails)
+    ? contest.participantDetails.some(p => p.userId === currentUserId || p.id === currentUserId)
+    : false;
+
   return {
     id: contest.id,
     theme: contest.title,
     photosRequired: contest.maxUploads,
     status: 'OPEN',
     endsAt: new Date(contest.endDate),
-    teamsJoined: contest.totalParticipants,
-    maxTeams: Math.max(contest.totalParticipants + 1, 2),
+    teamsJoined: participantsCount,
+    maxTeams: Math.max(participantsCount + 1, 2),
     minRequirement: 'BEGINNER',
+    hasJoined: !!hasJoined,
     teamA: {
       id: contest.id,
       name: contest.title,
@@ -195,7 +207,7 @@ export default function TeamMatchPage() {
 
   const activeMatchView = activeMatch ? mapActiveMatchToMatch(activeMatch) : null;
   const availableContests = useMemo(() => contestsQuery.data?.data ?? [], [contestsQuery.data]);
-  const matches = useMemo(() => availableContests.map(mapContestToMatch), [availableContests]);
+  const matches = useMemo(() => availableContests.map((c) => mapContestToMatch(c, currentUserId)), [availableContests, currentUserId]);
   const activeContest = useMemo(
     () =>
       activeMatch

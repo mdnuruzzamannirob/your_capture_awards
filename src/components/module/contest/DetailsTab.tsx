@@ -8,7 +8,7 @@ import { Globe } from 'lucide-react';
 import Image from 'next/image';
 import { FaHourglassHalf } from 'react-icons/fa';
 import { MdOutlineHowToVote, MdOutlinePaid } from 'react-icons/md';
-import CountdownTimer from './CountdownTimer';
+import CountdownTimer from '@/components/CountdownTimer';
 
 const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
   const now = new Date();

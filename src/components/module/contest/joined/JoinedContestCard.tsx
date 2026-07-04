@@ -6,7 +6,7 @@ import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { cn } from '@/utils/cn';
 import Link from 'next/link';
 import UploadPhoto from './UploadPhoto';
-import CountdownTimer from '../CountdownTimer';
+import CountdownTimer from '@/components/CountdownTimer';
 import { labels, totalLevels, valueToLevel } from '@/utils/valueToExposureLabel';
 import { useEffect, useRef, useState } from 'react';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
