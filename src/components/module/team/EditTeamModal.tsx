@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { COUNTRIES, LANGUAGES, SKILL_LEVELS } from '@/constants/team';
+import { useGetAllLevelsQuery } from '@/store/apis/levelsApi';
 import { editTeamSchema, EditTeamValues } from '@/lib/schemas/teamSchema';
 import { TeamData } from '@/types/team';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,14 +34,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
-
-const SKILL_LEVEL_SET = new Set(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT']);
-
-function resolveSkillLevel(value?: string | null): EditTeamValues['min_requirement'] {
-  return SKILL_LEVEL_SET.has(value ?? '')
-    ? (value as EditTeamValues['min_requirement'])
-    : 'BEGINNER';
-}
 
 interface EditTeamModalProps {
   open: boolean;
@@ -55,7 +48,9 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
   const [badgeFile, setBadgeFile] = useState<File | null>(null);
   const [badgePreview, setBadgePreview] = useState<string | null>(team.badge);
   const fileRef = useRef<HTMLInputElement>(null);
-  const defaultRequirement = resolveSkillLevel(team.min_requirement ?? team.skill_level);
+  const { data: levelsData, isLoading: isLevelsLoading } = useGetAllLevelsQuery({ page: 1, limit: 50 });
+  const levelOptions = levelsData?.data ?? [];
+  const defaultRequirement = team.min_requirement ?? team.skill_level ?? levelOptions[0]?.levelName ?? '';
 
   const form = useForm<z.input<typeof editTeamSchema>, any, z.output<typeof editTeamSchema>>({
     resolver: zodResolver(editTeamSchema),
@@ -76,11 +71,11 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
       description: team.description,
       language: team.language,
       country: team.country,
-      min_requirement: resolveSkillLevel(team.min_requirement ?? team.skill_level),
+      min_requirement: team.min_requirement ?? team.skill_level ?? levelOptions[0]?.levelName ?? '',
     });
     setBadgePreview(team.badge);
     setBadgeFile(null);
-  }, [form, open, team]);
+  }, [form, open, team, levelOptions]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -271,18 +266,23 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
                   <FormLabel className="text-muted-foreground text-xs tracking-wider uppercase">
                     Min Requirement
                   </FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="w-full!">
-                        <SelectValue />
+                        <SelectValue placeholder="Select minimum requirement" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {SKILL_LEVELS.map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {s}
+                      {levelOptions.map((level) => (
+                        <SelectItem key={level.id} value={level.levelName}>
+                          {level.levelName}
                         </SelectItem>
                       ))}
+                      {isLevelsLoading ? (
+                        <SelectItem value={field.value} disabled>
+                          Loading levels...
+                        </SelectItem>
+                      ) : null}
                     </SelectContent>
                   </Select>
                   <FormMessage />

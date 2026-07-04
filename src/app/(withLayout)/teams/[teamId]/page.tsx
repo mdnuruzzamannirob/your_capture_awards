@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import type { TeamDetail } from '@/lib/mock/teamDetails';
+import { useGetAllLevelsQuery, useGetUserProgressQuery } from '@/store/apis/levelsApi';
 import { useGetTeamQuery, useJoinTeamMutation } from '@/store/apis/teamApi';
 import { showErrorToast } from '@/utils/team-feedback';
 import { getAvatarClass, getInitials, getMemberName } from '@/utils/team-utils';
@@ -134,9 +135,17 @@ export default function TeamDetailPage() {
   });
 
   const [joinTeam, { isLoading: isJoining }] = useJoinTeamMutation();
+  const { data: levelsData } = useGetAllLevelsQuery({ page: 1, limit: 50 });
+  const { data: progressData } = useGetUserProgressQuery(undefined, {
+    skip: !user,
+  });
 
   const apiTeam = ((apiResp as any)?.data ?? apiResp) as TeamDetail | undefined;
   const resolvedTeam = apiTeam;
+  const userLevelOrder = progressData?.data?.currentLevel?.order ?? 0;
+  const requiredLevelOrder =
+    levelsData?.data?.find((level) => level.levelName === resolvedTeam?.min_requirement)?.order ??
+    0;
 
   const isJoined =
     user?.joinedTeam?.teamId === resolvedTeam?.id ||
@@ -175,6 +184,11 @@ export default function TeamDetailPage() {
 
   const handleJoinTeam = async () => {
     if (!teamId || isJoining) return;
+
+    if (requiredLevelOrder > 0 && userLevelOrder > 0 && userLevelOrder < requiredLevelOrder) {
+      showErrorToast(null, 'Your level does not meet this team minimum requirement');
+      return;
+    }
 
     try {
       await joinTeam(teamId).unwrap();

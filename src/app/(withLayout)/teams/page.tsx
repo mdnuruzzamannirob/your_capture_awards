@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useTeamMembership } from '@/hooks/useTeamMembership';
+import { useGetAllLevelsQuery, useGetUserProgressQuery } from '@/store/apis/levelsApi';
 import {
   useGetSuggestedTeamsQuery,
   useGetTeamsQuery,
@@ -78,14 +79,35 @@ function getTeamAvatars(team: TeamListItem) {
   return team.creator ? [team.creator] : [];
 }
 
-function JoinTeamButton({ teamId, className }: { teamId: string; className?: string }) {
+function JoinTeamButton({
+  teamId,
+  minRequirement,
+  className,
+}: {
+  teamId: string;
+  minRequirement?: string | null;
+  className?: string;
+}) {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [joinTeam, { isLoading }] = useJoinTeamMutation();
+  const { data: levelsData } = useGetAllLevelsQuery({ page: 1, limit: 50 }, { skip: !isAuthenticated });
+  const { data: progressData } = useGetUserProgressQuery(undefined, { skip: !isAuthenticated });
+  const userLevelOrder = progressData?.data?.currentLevel?.order ?? 0;
+  const teamLevels = levelsData?.data ?? [];
+  const requiredLevelOrder = teamLevels.find((level) => level.levelName === minRequirement)?.order ?? 0;
 
   const handleJoin = async () => {
     if (isLoading) return;
 
     try {
+      if (isAuthenticated && requiredLevelOrder > 0 && userLevelOrder > 0) {
+        if (userLevelOrder < requiredLevelOrder) {
+          showErrorToast(null, 'Your level does not meet this team minimum requirement');
+          return;
+        }
+      }
+
       await joinTeam(teamId).unwrap();
       router.replace('/teams/home');
     } catch (error) {
@@ -210,6 +232,7 @@ function FeaturedTeamCard({ team }: { team: TeamListItem }) {
         </Button>
         <JoinTeamButton
           teamId={team.id}
+          minRequirement={team.min_requirement}
           className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 flex-1"
         />
       </div>
@@ -264,6 +287,7 @@ function MoreTeamCard({ team }: { team: TeamListItem }) {
         </Button>
         <JoinTeamButton
           teamId={team.id}
+          minRequirement={team.min_requirement}
           className="bg-primary text-primary-foreground hover:bg-primary/90 flex-1 px-3"
         />
       </div>
