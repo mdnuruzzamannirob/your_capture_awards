@@ -91,11 +91,15 @@ function JoinTeamButton({
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const [joinTeam, { isLoading }] = useJoinTeamMutation();
-  const { data: levelsData } = useGetAllLevelsQuery({ page: 1, limit: 50 }, { skip: !isAuthenticated });
+  const { data: levelsData } = useGetAllLevelsQuery(
+    { page: 1, limit: 50 },
+    { skip: !isAuthenticated },
+  );
   const { data: progressData } = useGetUserProgressQuery(undefined, { skip: !isAuthenticated });
   const userLevelOrder = progressData?.data?.currentLevel?.order ?? 0;
   const teamLevels = levelsData?.data ?? [];
-  const requiredLevelOrder = teamLevels.find((level) => level.levelName === minRequirement)?.order ?? 0;
+  const requiredLevelOrder =
+    teamLevels.find((level) => level.levelName === minRequirement)?.order ?? 0;
 
   const handleJoin = async () => {
     if (isLoading) return;
@@ -200,13 +204,9 @@ function FeaturedTeamCard({ team }: { team: TeamListItem }) {
         <div className="flex items-center justify-center gap-2">
           <AvatarGroup className="justify-center">
             {avatars.map((user, avatarIndex) => (
-              <Avatar
-                key={`${team.id}-${avatarIndex}`}
-                size="sm"
-                className="border-border border"
-              >
+              <Avatar key={`${team.id}-${avatarIndex}`} size="sm" className="border-border border">
                 {user.avatar ? <AvatarImage src={user.avatar} alt={getUserName(user)} /> : null}
-        <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-semibold">
+                <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-semibold">
                   {getInitials(getUserName(user))}
                 </AvatarFallback>
               </Avatar>
@@ -381,9 +381,6 @@ export default function Team() {
 
   return (
     <main className="margin relative isolate container overflow-hidden py-6 sm:py-8 lg:py-10">
-      <div className="pointer-events-none absolute -top-24 left-8 h-72 w-72 rounded-full blur-3xl" />
-      <div className="pointer-events-none absolute top-32 right-0 h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
-
       <div className="relative space-y-8">
         {featuredTeams.length > 0 ? (
           <section className="space-y-4">
