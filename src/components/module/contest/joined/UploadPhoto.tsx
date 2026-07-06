@@ -29,10 +29,10 @@ export default function UploadPhoto({
     <>
       <button
         onClick={() => modalRef.current?.open()}
-        className="flex h-24 flex-1 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-border transition hover:bg-surface-secondary"
+        className="border-border hover:bg-surface-secondary flex h-24 flex-1 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed transition"
       >
         <UploadCloud className="text-primary" size={20} />
-        <span className="mt-1 text-xs text-muted-foreground">Upload Photo</span>
+        <span className="text-muted-foreground mt-1 text-xs">Upload Photo</span>
       </button>
 
       <UploadModal

@@ -125,26 +125,26 @@ export function SidebarComments({
   };
 
   return (
-    <section className="bg-background p-6 text-foreground">
-      <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+    <section className="bg-background text-foreground p-6">
+      <h4 className="text-muted-foreground mb-4 text-xs font-bold tracking-wider uppercase">
         Comments ({countAllComments(comments)})
       </h4>
 
       {/* Main Comment Box */}
       <form onSubmit={handleSubmitComment} className="mb-6">
-        <div className="relative rounded-md border border-border bg-surface p-2 focus-within:border-border">
+        <div className="border-border bg-surface focus-within:border-border relative rounded-md border p-2">
           <textarea
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             placeholder="Write a comment"
-            className="min-h-20 w-full resize-none bg-transparent px-2 py-1 text-sm text-foreground outline-hidden placeholder:text-caption-foreground"
+            className="text-foreground placeholder:text-caption-foreground min-h-20 w-full resize-none bg-transparent px-2 py-1 text-sm outline-hidden"
             disabled={isSubmitting || isLoading}
           />
-          <div className="mt-2 flex justify-end border-t border-border pt-2">
+          <div className="border-border mt-2 flex justify-end border-t pt-2">
             <Button
               type="submit"
               size="sm"
-              className="bg-primary hover:bg-primary/90 h-8 rounded-sm px-5 text-xs font-medium text-primary-foreground transition-colors duration-200"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground h-8 rounded-sm px-5 text-xs font-medium transition-colors duration-200"
               disabled={!commentText.trim() || isSubmitting || isLoading}
             >
               {isSubmitting ? 'SUBMITTING...' : 'SUBMIT'}
@@ -159,16 +159,16 @@ export function SidebarComments({
           <div className="space-y-4 pt-2">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="flex animate-pulse gap-3">
-                <div className="size-9 shrink-0 rounded-full bg-surface-secondary" />
+                <div className="bg-surface-secondary size-9 shrink-0 rounded-full" />
                 <div className="flex-1 space-y-1.5">
-                  <div className="h-3.5 w-24 rounded bg-surface-secondary" />
-                  <div className="h-5 w-full rounded bg-surface" />
+                  <div className="bg-surface-secondary h-3.5 w-24 rounded" />
+                  <div className="bg-surface h-5 w-full rounded" />
                 </div>
               </div>
             ))}
           </div>
         ) : comments.length === 0 ? (
-          <p className="py-4 text-center text-xs font-medium text-caption-foreground">
+          <p className="text-caption-foreground py-4 text-center text-xs font-medium">
             No comments yet. Be the first to comment!
           </p>
         ) : (
@@ -229,10 +229,10 @@ function TopLevelComment({
 
       {/* Nested replies — all shown at exactly ONE indent level */}
       {flatReplies.length > 0 && (
-        <div className="ml-4 mt-3 space-y-3 border-l border-border pl-3 md:ml-6 md:pl-4">
+        <div className="border-border mt-3 ml-4 space-y-3 border-l pl-3 md:ml-6 md:pl-4">
           {flatReplies.map((reply) => (
             <div key={reply.id} className="flex gap-1.5 text-xs">
-              <CornerDownRight className="mt-1.5 size-3 shrink-0 text-muted-foreground" />
+              <CornerDownRight className="text-muted-foreground mt-1.5 size-3 shrink-0" />
               <div className="min-w-0 flex-1">
                 <CommentBubble
                   comment={reply}
@@ -354,9 +354,7 @@ function CommentBubble({
           </Link>
         ) : (
           <Avatar className={avatarSize}>
-            {p?.avatar && (
-              <AvatarImage src={p.avatar} alt={displayName} className="object-cover" />
-            )}
+            {p?.avatar && <AvatarImage src={p.avatar} alt={displayName} className="object-cover" />}
             <AvatarFallback className="bg-surface-secondary text-muted-foreground flex items-center justify-center text-[10px] font-bold uppercase">
               {displayName.slice(0, 2)}
             </AvatarFallback>
@@ -370,19 +368,19 @@ function CommentBubble({
             {commenterProfileId ? (
               <Link
                 href={`/profile/${commenterProfileId}`}
-                className="truncate text-xs font-bold text-foreground hover:text-primary transition-colors"
+                className="text-foreground hover:text-primary truncate text-xs font-bold transition-colors"
               >
                 {displayName}
               </Link>
             ) : (
-              <span className="truncate text-xs font-bold text-foreground">{displayName}</span>
+              <span className="text-foreground truncate text-xs font-bold">{displayName}</span>
             )}
-            <span className="shrink-0 text-[10px] text-caption-foreground">
+            <span className="text-caption-foreground shrink-0 text-[10px]">
               {formatCommentTime(comment.createdAt, comment.time)}
             </span>
           </div>
 
-          <div className="rounded-lg border border-border/80 bg-surface px-3 py-2">
+          <div className="border-border/80 bg-surface rounded-lg border px-3 py-2">
             {isEditing ? (
               <form
                 onSubmit={async (e) => {
@@ -402,25 +400,28 @@ function CommentBubble({
                 <textarea
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
-                  className="w-full min-h-15 resize-none bg-background border border-border rounded px-2 py-1 text-sm text-foreground outline-hidden focus:border-border"
+                  className="bg-background border-border text-foreground focus:border-border min-h-15 w-full resize-none rounded border px-2 py-1 text-sm outline-hidden"
                   disabled={isSaving}
                   autoFocus
                 />
-                <div className="flex justify-end gap-2 mt-2">
+                <div className="mt-2 flex justify-end gap-2">
                   <Button
                     type="button"
                     size="sm"
                     variant="ghost"
-                    onClick={() => { setIsEditing(false); setEditText(comment.text); }}
-                    className="h-7 text-xs text-muted-foreground hover:bg-surface-secondary/50 hover:text-foreground"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setEditText(comment.text);
+                    }}
+                    className="text-muted-foreground hover:bg-surface-secondary/50 hover:text-foreground h-7 text-xs"
                     disabled={isSaving}
                   >
-                    <X className="size-3 mr-1" /> Cancel
+                    <X className="mr-1 size-3" /> Cancel
                   </Button>
                   <Button
                     type="submit"
                     size="sm"
-                    className="h-7 bg-info px-3 text-xs font-bold text-primary-foreground hover:bg-info/90"
+                    className="bg-info text-primary-foreground hover:bg-info/90 h-7 px-3 text-xs font-bold"
                     disabled={!editText.trim() || isSaving}
                   >
                     {isSaving ? 'Saving…' : 'Save'}
@@ -428,7 +429,7 @@ function CommentBubble({
                 </div>
               </form>
             ) : (
-              <span className="leading-relaxed wrap-break-word whitespace-pre-wrap text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm leading-relaxed wrap-break-word whitespace-pre-wrap">
                 {comment.text}
               </span>
             )}
@@ -443,7 +444,7 @@ function CommentBubble({
                   setReplyingToId(isReplying ? null : comment.id);
                   setReplyText('');
                 }}
-                className="inline-flex items-center gap-1 font-bold text-info transition-colors duration-150 hover:text-info/80"
+                className="text-info hover:text-info/80 inline-flex items-center gap-1 font-bold transition-colors duration-150"
               >
                 <Reply className="size-3" />
                 reply
@@ -453,8 +454,11 @@ function CommentBubble({
               {canManage && (
                 <>
                   <button
-                    onClick={() => { setIsEditing(true); setEditText(comment.text); }}
-                    className="inline-flex items-center gap-1 font-bold text-caption-foreground transition-colors duration-150 hover:text-info"
+                    onClick={() => {
+                      setIsEditing(true);
+                      setEditText(comment.text);
+                    }}
+                    className="text-caption-foreground hover:text-info inline-flex items-center gap-1 font-bold transition-colors duration-150"
                   >
                     <Pencil className="size-3" />
                     edit
@@ -463,7 +467,7 @@ function CommentBubble({
                   <button
                     onClick={handleDelete}
                     disabled={isDeleting}
-                    className="inline-flex items-center gap-1 font-bold text-caption-foreground transition-colors duration-150 hover:text-destructive disabled:opacity-50"
+                    className="text-caption-foreground hover:text-destructive inline-flex items-center gap-1 font-bold transition-colors duration-150 disabled:opacity-50"
                   >
                     <Trash2 className="size-3" />
                     {isDeleting ? 'deleting…' : 'delete'}
@@ -477,23 +481,23 @@ function CommentBubble({
           {isReplying && (
             <form
               onSubmit={handleSubmitReply}
-              className="mt-3 border border-border bg-surface p-2 focus-within:border-border rounded-md"
+              className="border-border bg-surface focus-within:border-border mt-3 rounded-md border p-2"
             >
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder={`Reply to ${displayName}…`}
-                className="min-h-15 w-full resize-none bg-transparent px-2 py-1 text-sm text-foreground outline-hidden placeholder:text-caption-foreground"
+                className="text-foreground placeholder:text-caption-foreground min-h-15 w-full resize-none bg-transparent px-2 py-1 text-sm outline-hidden"
                 disabled={isSubmittingReply}
                 autoFocus
               />
-              <div className="mt-1 flex justify-end gap-2 border-t border-border pt-2">
+              <div className="border-border mt-1 flex justify-end gap-2 border-t pt-2">
                 <Button
                   type="button"
                   size="sm"
                   variant="ghost"
                   onClick={() => setReplyingToId(null)}
-                  className="h-7 text-xs text-muted-foreground hover:bg-surface-secondary/50 hover:text-foreground"
+                  className="text-muted-foreground hover:bg-surface-secondary/50 hover:text-foreground h-7 text-xs"
                   disabled={isSubmittingReply}
                 >
                   Cancel
@@ -501,7 +505,7 @@ function CommentBubble({
                 <Button
                   type="submit"
                   size="sm"
-                  className="h-7 bg-info px-3 text-xs font-bold text-primary-foreground hover:bg-info/90"
+                  className="bg-info text-primary-foreground hover:bg-info/90 h-7 px-3 text-xs font-bold"
                   disabled={!replyText.trim() || isSubmittingReply}
                 >
                   {isSubmittingReply ? 'Replying…' : 'Reply'}

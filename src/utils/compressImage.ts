@@ -34,7 +34,10 @@ export const compressImage = (
     reader.onerror = () => resolve(file); // fail-safe
     reader.onload = (evt) => {
       const src = evt.target?.result as string;
-      if (!src) { resolve(file); return; }
+      if (!src) {
+        resolve(file);
+        return;
+      }
 
       const img = new window.Image();
       img.onerror = () => resolve(file); // fail-safe
@@ -57,7 +60,10 @@ export const compressImage = (
         canvas.height = height;
 
         const ctx = canvas.getContext('2d');
-        if (!ctx) { resolve(file); return; }
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
 
         ctx.drawImage(img, 0, 0, width, height);
 

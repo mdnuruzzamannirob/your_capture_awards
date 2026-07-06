@@ -104,13 +104,13 @@ const LikeTabContent = ({ username, title = 'Liked Photos' }: Props) => {
       ) : (
         <>
           {photos.length === 0 && !isFetching ? (
-            <div className="py-12 text-center text-caption-foreground">No liked photos found.</div>
+            <div className="text-caption-foreground py-12 text-center">No liked photos found.</div>
           ) : (
             <div ref={containerRef} className="w-full overflow-hidden rounded-2xl">
               {rows.map((row, rowIndex) => (
                 <div
                   key={rowIndex}
-                  className="flex mb-1.5"
+                  className="mb-1.5 flex"
                   style={{ height: `${row.height}px`, gap: '6px' }}
                 >
                   {row.items.map(({ item: photo, width, height }) => (

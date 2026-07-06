@@ -256,7 +256,7 @@ export function ImageCropper({
       {/* ── Stage ── */}
       <div
         ref={stageRef}
-        className="relative w-full overflow-hidden bg-background ring-1 ring-border-subtle"
+        className="bg-background ring-border-subtle relative w-full overflow-hidden ring-1"
         style={{ aspectRatio, touchAction: 'none' }}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -288,14 +288,14 @@ export function ImageCropper({
             onPointerDown={startDrag('move')}
           >
             {/* Frame border + dim overlay */}
-            <div className="absolute inset-0 border-2 border-primary-foreground/90 shadow-[0_0_0_9999px_color-mix(in_oklab,var(--background)_45%,transparent)]" />
+            <div className="border-primary-foreground/90 absolute inset-0 border-2 shadow-[0_0_0_9999px_color-mix(in_oklab,var(--background)_45%,transparent)]" />
 
             {/* Rule-of-thirds grid */}
             <div className="pointer-events-none absolute inset-0 opacity-30">
-              <div className="absolute inset-y-0 left-1/3 w-px bg-primary-foreground" />
-              <div className="absolute inset-y-0 left-2/3 w-px bg-primary-foreground" />
-              <div className="absolute inset-x-0 top-1/3 h-px bg-primary-foreground" />
-              <div className="absolute inset-x-0 top-2/3 h-px bg-primary-foreground" />
+              <div className="bg-primary-foreground absolute inset-y-0 left-1/3 w-px" />
+              <div className="bg-primary-foreground absolute inset-y-0 left-2/3 w-px" />
+              <div className="bg-primary-foreground absolute inset-x-0 top-1/3 h-px" />
+              <div className="bg-primary-foreground absolute inset-x-0 top-2/3 h-px" />
             </div>
 
             {/* Corner handles */}
@@ -306,7 +306,7 @@ export function ImageCropper({
                 aria-label={`Resize from ${h}`}
                 onPointerDown={startDrag(h)}
                 className={cn(
-                  'bg-primary absolute size-4 rounded-full border-2 border-background shadow-md transition-transform hover:scale-110',
+                  'bg-primary border-background absolute size-4 rounded-full border-2 shadow-md transition-transform hover:scale-110',
                   h === 'nw' && '-top-2 -left-2',
                   h === 'ne' && '-top-2 -right-2',
                   h === 'sw' && '-bottom-2 -left-2',
@@ -323,7 +323,7 @@ export function ImageCropper({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-sm border border-border bg-surface/60 px-4 py-2 text-[13px] text-muted-foreground transition hover:bg-surface-secondary"
+          className="border-border bg-surface/60 text-muted-foreground hover:bg-surface-secondary rounded-sm border px-4 py-2 text-[13px] transition"
         >
           Cancel
         </button>
@@ -331,11 +331,11 @@ export function ImageCropper({
           type="button"
           onClick={confirm}
           disabled={processing || !natW}
-          className="bg-primary hover:bg-primary/90 rounded-sm px-5 py-2 text-[13px] font-semibold text-primary-foreground shadow-[0_2px_12px_-3px_rgba(252,102,0,0.5)] transition hover:shadow-[0_2px_16px_-3px_color-mix(in_oklab,var(--primary)_60%,transparent)] disabled:opacity-50 disabled:shadow-none"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-sm px-5 py-2 text-[13px] font-semibold shadow-[0_2px_12px_-3px_rgba(252,102,0,0.5)] transition hover:shadow-[0_2px_16px_-3px_color-mix(in_oklab,var(--primary)_60%,transparent)] disabled:opacity-50 disabled:shadow-none"
         >
           {processing ? (
             <span className="flex items-center gap-2">
-              <span className="inline-block h-3 w-3 animate-spin rounded-sm border border-primary-foreground/30 border-t-primary-foreground" />
+              <span className="border-primary-foreground/30 border-t-primary-foreground inline-block h-3 w-3 animate-spin rounded-sm border" />
               Applying…
             </span>
           ) : (

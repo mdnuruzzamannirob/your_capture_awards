@@ -98,7 +98,7 @@ function PasswordField<TFieldValues extends FieldValues>({
 }) {
   return (
     <div className="space-y-2">
-      <label htmlFor={name} className="text-sm font-medium text-foreground">
+      <label htmlFor={name} className="text-foreground text-sm font-medium">
         {label}
       </label>
       <div className="relative">
@@ -116,7 +116,7 @@ function PasswordField<TFieldValues extends FieldValues>({
           onMouseDown={(e) => e.preventDefault()}
           onClick={onToggle}
           disabled={disabled}
-          className="hover:text-primary absolute top-1/2 right-3 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition disabled:cursor-not-allowed disabled:opacity-50"
+          className="hover:text-primary text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 rounded-md p-1 transition disabled:cursor-not-allowed disabled:opacity-50"
           aria-label={`Toggle ${label.toLowerCase()}`}
         >
           {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -249,19 +249,19 @@ const SettingsPanel = () => {
         <TabsList className="inline-flex h-auto gap-3 bg-transparent p-0">
           <TabsTrigger
             value="profile"
-            className="border-border bg-surface-secondary data-[state=active]:border-primary data-[state=active]:bg-primary h-12 rounded-md border px-10 text-foreground transition-colors data-[state=active]:text-primary-foreground"
+            className="border-border bg-surface-secondary data-[state=active]:border-primary data-[state=active]:bg-primary text-foreground data-[state=active]:text-primary-foreground h-12 rounded-md border px-10 transition-colors"
           >
             Profile
           </TabsTrigger>
           <TabsTrigger
             value="security"
-            className="border-border bg-surface-secondary data-[state=active]:border-primary data-[state=active]:bg-primary h-12 rounded-md border px-10 text-foreground transition-colors data-[state=active]:text-primary-foreground"
+            className="border-border bg-surface-secondary data-[state=active]:border-primary data-[state=active]:bg-primary text-foreground data-[state=active]:text-primary-foreground h-12 rounded-md border px-10 transition-colors"
           >
             Security
           </TabsTrigger>
           <TabsTrigger
             value="delete"
-            className="border-border bg-surface-secondary data-[state=active]:border-primary data-[state=active]:bg-primary h-12 rounded-md border px-10 text-foreground transition-colors data-[state=active]:text-primary-foreground"
+            className="border-border bg-surface-secondary data-[state=active]:border-primary data-[state=active]:bg-primary text-foreground data-[state=active]:text-primary-foreground h-12 rounded-md border px-10 transition-colors"
           >
             Delete Account
           </TabsTrigger>
@@ -271,15 +271,15 @@ const SettingsPanel = () => {
           <form onSubmit={profileForm.handleSubmit(onProfileSubmit)}>
             <div className={cardClassName}>
               <div className="mb-5 space-y-1">
-                <h3 className="text-lg font-semibold text-foreground">Profile</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="text-foreground text-lg font-semibold">Profile</h3>
+                <p className="text-muted-foreground text-sm">
                   Update the name and location visible on your account.
                 </p>
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <label htmlFor="firstName" className="text-sm font-medium text-foreground">
+                  <label htmlFor="firstName" className="text-foreground text-sm font-medium">
                     First name
                   </label>
                   <Input
@@ -297,7 +297,7 @@ const SettingsPanel = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="lastName" className="text-sm font-medium text-foreground">
+                  <label htmlFor="lastName" className="text-foreground text-sm font-medium">
                     Last name
                   </label>
                   <Input
@@ -316,7 +316,7 @@ const SettingsPanel = () => {
               </div>
 
               <div className="mt-4 space-y-2">
-                <label htmlFor="location" className="text-sm font-medium text-foreground">
+                <label htmlFor="location" className="text-foreground text-sm font-medium">
                   Location
                 </label>
                 <Input
@@ -337,7 +337,7 @@ const SettingsPanel = () => {
                 <Button
                   type="submit"
                   disabled={isProfileSaving}
-                  className="border-primary bg-primary hover:bg-primary/90 h-11 rounded-md border px-8 text-primary-foreground"
+                  className="border-primary bg-primary hover:bg-primary/90 text-primary-foreground h-11 rounded-md border px-8"
                 >
                   {isProfileSaving ? (
                     <>
@@ -357,8 +357,8 @@ const SettingsPanel = () => {
           <form onSubmit={securityForm.handleSubmit(onPasswordSubmit)}>
             <div className={cardClassName}>
               <div className="mb-5 space-y-1">
-                <h3 className="text-lg font-semibold text-foreground">Security</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="text-foreground text-lg font-semibold">Security</h3>
+                <p className="text-muted-foreground text-sm">
                   Use a new password that is hard to guess and unique to this account.
                 </p>
               </div>
@@ -405,7 +405,7 @@ const SettingsPanel = () => {
                 <Button
                   type="submit"
                   disabled={isPasswordSaving}
-                  className="border-primary bg-primary hover:bg-primary/90 h-11 rounded-md border px-8 text-background"
+                  className="border-primary bg-primary hover:bg-primary/90 text-background h-11 rounded-md border px-8"
                 >
                   {isPasswordSaving ? (
                     <>
@@ -425,14 +425,14 @@ const SettingsPanel = () => {
           <form onSubmit={deleteForm.handleSubmit(onDeleteSubmit)}>
             <div className={cardClassName}>
               <div className="mb-5">
-                <h3 className="text-lg font-semibold text-foreground">Delete Account</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <h3 className="text-foreground text-lg font-semibold">Delete Account</h3>
+                <p className="text-muted-foreground mt-1 text-sm">
                   This removes your profile, access, and all account-owned data that the backend
                   deletes with your account.
                 </p>
               </div>
 
-              <div className="border-border bg-surface-tertiary/50 rounded-2xl border p-4 text-sm text-muted-foreground">
+              <div className="border-border bg-surface-tertiary/50 text-muted-foreground rounded-2xl border p-4 text-sm">
                 <p>Before continuing, remember that account deletion is permanent.</p>
                 <p className="mt-2">
                   You will need to create a new account if you want to return later.
@@ -459,7 +459,7 @@ const SettingsPanel = () => {
                   type="submit"
                   disabled={isDeleteLoading}
                   variant="destructive"
-                  className="h-11 rounded-md border border-destructive bg-destructive px-8 text-destructive-foreground hover:bg-destructive/90"
+                  className="border-destructive bg-destructive text-destructive-foreground hover:bg-destructive/90 h-11 rounded-md border px-8"
                 >
                   {isDeleteLoading ? (
                     <>

@@ -295,7 +295,7 @@ export default function TeamDetailPage() {
             </div>
 
             <div className={`${teamCardClass} relative mt-8 px-4 py-4 sm:px-5`}>
-              <div className="sm:grid-cols-2 grid gap-4 lg:grid-cols-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {metrics.map((metric) => {
                   const Icon = metric.icon;
 
@@ -340,7 +340,9 @@ export default function TeamDetailPage() {
                         {index + 1}
                       </span>
                       <Avatar className="size-10 shrink-0 sm:size-12">
-                        {member.member.avatar && <AvatarImage src={member.member.avatar} className='object-cover'/>}
+                        {member.member.avatar && (
+                          <AvatarImage src={member.member.avatar} className="object-cover" />
+                        )}
                         <AvatarFallback
                           className={`text-sm font-semibold ${getAvatarClass(member.level)}`}
                         >

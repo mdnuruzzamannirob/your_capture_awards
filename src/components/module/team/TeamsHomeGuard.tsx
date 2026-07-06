@@ -26,11 +26,7 @@ export default function TeamsHomeGuard({ children }: Readonly<{ children: React.
   return (
     <>
       <TeamsHeader />
-      {isCheckingMembership || !hasTeam ? (
-        <TeamMembershipLoading />
-      ) : (
-        children
-      )}
+      {isCheckingMembership || !hasTeam ? <TeamMembershipLoading /> : children}
     </>
   );
 }

@@ -45,7 +45,8 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
 
   const { data: levelsData } = useGetAllLevelsQuery({ page: 1, limit: 50 }, { skip: !open });
   const levelOptions = levelsData?.data ?? [];
-  const defaultRequirement = team.min_requirement ?? team.skill_level ?? levelOptions[0]?.levelName ?? '';
+  const defaultRequirement =
+    team.min_requirement ?? team.skill_level ?? levelOptions[0]?.levelName ?? '';
 
   const form = useForm<TeamSettingsValues, any, TeamSettingsValues>({
     resolver,
@@ -94,9 +95,9 @@ function TeamSettingsModal({ open, onClose, team, onSave }: TeamSettingsModalPro
               name="min_requirement"
               render={({ field }) => (
                 <FormItem>
-                <FormLabel className="text-muted-foreground text-xs tracking-wider uppercase">
-                  Min Requirement
-                </FormLabel>
+                  <FormLabel className="text-muted-foreground text-xs tracking-wider uppercase">
+                    Min Requirement
+                  </FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger className="w-full!">

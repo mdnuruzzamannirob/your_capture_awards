@@ -32,19 +32,19 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
         </Link>
 
         {/* Top gradient — ensures title is always readable */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-linear-to-b from-black/85 to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-linear-to-b from-black/85 to-transparent" />
 
         {/* Upload limit badge */}
         <CornerCount count={contest?.maxUploads} className="z-10" />
 
         {/* Creator Info on hover — top left */}
-        <div className="absolute top-3 left-3 flex -translate-y-3 items-center gap-2 z-20 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 pointer-events-none">
+        <div className="pointer-events-none absolute top-3 left-3 z-20 flex -translate-y-3 items-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
           <Image
             src={contest?.creator?.avatar}
             alt="Author"
             width={28}
             height={28}
-            className="size-7 min-w-7 rounded-full object-cover border border-white/20"
+            className="size-7 min-w-7 rounded-full border border-white/20 object-cover"
           />
           <p className="text-xs font-semibold text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]">
             By {contest?.creator?.fullName ?? 'Unknown'}
@@ -52,14 +52,17 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
         </div>
 
         {/* Title — top left (visible normally, hidden when hovered to show Creator Info) */}
-        <Link href={`/contest/${contest.id}`} className="absolute top-3 left-3 right-14 z-10 block transition-all duration-300 group-hover:opacity-0">
-          <h3 className="line-clamp-2 text-base font-bold leading-snug text-white [text-shadow:0_1px_6px_rgba(0,0,0,1)] hover:underline">
+        <Link
+          href={`/contest/${contest.id}`}
+          className="absolute top-3 right-14 left-3 z-10 block transition-all duration-300 group-hover:opacity-0"
+        >
+          <h3 className="line-clamp-2 text-base leading-snug font-bold text-white [text-shadow:0_1px_6px_rgba(0,0,0,1)] hover:underline">
             {contest.title}
           </h3>
         </Link>
 
         {/* JOIN Button — center, hover only */}
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100 z-10">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
           <div className="pointer-events-auto relative">
             <button
               onClick={(e) => {
@@ -73,8 +76,8 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
             </button>
             {(contest?.coin_requirement ?? contest?.coinRequirement) &&
               (contest?.coin_required ?? contest?.coinRequired) > 0 && (
-                <div className="absolute -right-4 -bottom-2 flex items-center gap-1 rounded-full border border-sky-400 bg-primary-foreground py-0.5 pr-2 pl-0.5 text-[10px] font-bold text-sky-500 shadow-sm select-none">
-                  <div className="h-4 w-4 animate-pulse rounded-full border border-warning/40 bg-linear-to-tr from-warning-500 to-warning-500" />
+                <div className="bg-primary-foreground absolute -right-4 -bottom-2 flex items-center gap-1 rounded-full border border-sky-400 py-0.5 pr-2 pl-0.5 text-[10px] font-bold text-sky-500 shadow-sm select-none">
+                  <div className="border-warning/40 from-warning-500 to-warning-500 h-4 w-4 animate-pulse rounded-full border bg-linear-to-tr" />
                   <span>{contest?.coin_required ?? contest?.coinRequired}</span>
                 </div>
               )}
@@ -82,7 +85,7 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
         </div>
 
         {/* Footer stats — absolute bottom, zero gap */}
-        <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-zinc-950/90 py-2 text-primary-foreground z-10">
+        <div className="text-primary-foreground absolute inset-x-0 bottom-0 z-10 flex items-center justify-between bg-zinc-950/90 py-2">
           {contest?.isMoneyContest ? (
             <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
               <p className="font-semibold">

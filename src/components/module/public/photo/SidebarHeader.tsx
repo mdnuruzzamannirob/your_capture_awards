@@ -28,20 +28,20 @@ export function SidebarHeader({
 }: SidebarHeaderProps) {
   if (isLoading || !owner) {
     return (
-      <div className="relative flex animate-pulse border-b border-border bg-background text-foreground">
+      <div className="border-border bg-background text-foreground relative flex animate-pulse border-b">
         <div className="flex flex-1 items-center justify-between p-6 pr-12">
           <div className="flex items-center gap-4">
-            <div className="size-14 rounded-full bg-surface-secondary md:size-16" />
+            <div className="bg-surface-secondary size-14 rounded-full md:size-16" />
             <div className="space-y-2">
-              <div className="h-4 w-28 rounded bg-surface-secondary" />
-              <div className="h-3 w-16 rounded bg-surface-secondary" />
-              <div className="mt-1.5 h-7 w-20 rounded bg-surface-secondary" />
+              <div className="bg-surface-secondary h-4 w-28 rounded" />
+              <div className="bg-surface-secondary h-3 w-16 rounded" />
+              <div className="bg-surface-secondary mt-1.5 h-7 w-20 rounded" />
             </div>
           </div>
         </div>
         <button
           onClick={onToggleSidebar}
-          className="absolute top-4 right-4 z-10 grid size-8 place-items-center rounded-full text-caption-foreground hover:bg-surface"
+          className="text-caption-foreground hover:bg-surface absolute top-4 right-4 z-10 grid size-8 place-items-center rounded-full"
         >
           <X className="size-5 stroke-[2.5]" />
         </button>
@@ -61,7 +61,7 @@ export function SidebarHeader({
   const ownerLocation = owner?.location || owner?.country || '';
 
   return (
-    <div className="relative flex border-b border-border bg-background text-foreground">
+    <div className="border-border bg-background text-foreground relative flex border-b">
       {/* Profile info */}
       <div className="flex flex-1 items-center justify-between p-6 pr-12">
         <div className="flex items-center gap-4">
@@ -73,10 +73,10 @@ export function SidebarHeader({
                 alt={ownerDisplayName}
                 width={64}
                 height={64}
-                className="size-full rounded-full border-4 border-primary object-cover"
+                className="border-primary size-full rounded-full border-4 object-cover"
               />
             ) : (
-              <div className="flex size-full items-center justify-center rounded-full border-4 border-primary bg-surface-secondary text-sm font-bold text-muted-foreground">
+              <div className="border-primary bg-surface-secondary text-muted-foreground flex size-full items-center justify-center rounded-full border-4 text-sm font-bold">
                 {ownerDisplayName.slice(0, 1).toUpperCase()}
               </div>
             )}
@@ -84,11 +84,13 @@ export function SidebarHeader({
 
           <div>
             {/* Full name as heading, links to profile by ID */}
-            <h3 className="leading-tight font-bold text-foreground hover:underline max-sm:text-sm">
+            <h3 className="text-foreground leading-tight font-bold hover:underline max-sm:text-sm">
               <Link href={profileHref}>{ownerDisplayName}</Link>
             </h3>
             {ownerLocation && (
-              <p className="mt-0.5 text-xs font-semibold text-caption-foreground">{ownerLocation}</p>
+              <p className="text-caption-foreground mt-0.5 text-xs font-semibold">
+                {ownerLocation}
+              </p>
             )}
             {/* Follow button — hidden for own photos */}
             {!isOwnPhoto && (
@@ -119,7 +121,7 @@ export function SidebarHeader({
       {/* Close sidebar button */}
       <button
         onClick={onToggleSidebar}
-        className="absolute top-4 right-4 z-10 grid size-8 place-items-center rounded-full text-caption-foreground transition-colors duration-200 hover:bg-surface hover:text-muted-foreground"
+        className="text-caption-foreground hover:bg-surface hover:text-muted-foreground absolute top-4 right-4 z-10 grid size-8 place-items-center rounded-full transition-colors duration-200"
         title="Close sidebar details"
       >
         <X className="size-5 stroke-[2.5]" />

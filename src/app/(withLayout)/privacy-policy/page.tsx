@@ -9,7 +9,7 @@ export default function PrivacyPolicyPage() {
   const policy = data?.data?.[0];
 
   return (
-    <section className="margin py-6 container">
+    <section className="margin container py-6">
       <div>
         <div className="flex flex-col gap-2">
           <h1 className="text-primary-foreground text-3xl font-semibold">Privacy Policy</h1>

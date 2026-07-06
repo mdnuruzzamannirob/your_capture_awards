@@ -48,9 +48,13 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
   const [badgeFile, setBadgeFile] = useState<File | null>(null);
   const [badgePreview, setBadgePreview] = useState<string | null>(team.badge);
   const fileRef = useRef<HTMLInputElement>(null);
-  const { data: levelsData, isLoading: isLevelsLoading } = useGetAllLevelsQuery({ page: 1, limit: 50 });
+  const { data: levelsData, isLoading: isLevelsLoading } = useGetAllLevelsQuery({
+    page: 1,
+    limit: 50,
+  });
   const levelOptions = levelsData?.data ?? [];
-  const defaultRequirement = team.min_requirement ?? team.skill_level ?? levelOptions[0]?.levelName ?? '';
+  const defaultRequirement =
+    team.min_requirement ?? team.skill_level ?? levelOptions[0]?.levelName ?? '';
 
   const form = useForm<z.input<typeof editTeamSchema>, any, z.output<typeof editTeamSchema>>({
     resolver: zodResolver(editTeamSchema),

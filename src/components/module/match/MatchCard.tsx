@@ -47,22 +47,22 @@ function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardPro
         />
 
         {/* Top gradient — ensures title is always readable */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-linear-to-b from-black/85 to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-linear-to-b from-black/85 to-transparent" />
 
         {/* Upload limit badge */}
         <CornerCount count={match.photosRequired} label="PHOTOS" className="z-10" />
 
         {/* Title — top left, always visible, large */}
-        <div className="absolute top-3 left-3 right-14 z-10">
-          <h3 className="line-clamp-2 text-base font-bold leading-snug text-white [text-shadow:0_1px_6px_rgba(0,0,0,1)]">
+        <div className="absolute top-3 right-14 left-3 z-10">
+          <h3 className="line-clamp-2 text-base leading-snug font-bold text-white [text-shadow:0_1px_6px_rgba(0,0,0,1)]">
             {match.theme}
           </h3>
         </div>
 
         {/* Action Button — center, hover only */}
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100 z-10">
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
           <Button
-            className="pointer-events-auto bg-primary text-primary-foreground hover:bg-primary/90 rounded px-6 py-2 text-sm font-medium uppercase transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 pointer-events-auto rounded px-6 py-2 text-sm font-medium uppercase transition disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => onStart(match)}
             disabled={match.hasJoined}
           >
@@ -71,9 +71,9 @@ function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardPro
         </div>
 
         {/* Footer stats — absolute bottom, zero gap */}
-        <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-zinc-950/90 py-2 text-primary-foreground z-10">
+        <div className="text-primary-foreground absolute inset-x-0 bottom-0 z-10 flex items-center justify-between bg-zinc-950/90 py-2">
           <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1 text-center">
-            <p className="font-semibold text-sm">{teamMembersLabel}</p>
+            <p className="text-sm font-semibold">{teamMembersLabel}</p>
           </div>
           <div className="flex h-12 flex-[1.3] flex-col items-center justify-center px-1">
             <CountdownTimer startDate={startDate} endDate={endDate} />

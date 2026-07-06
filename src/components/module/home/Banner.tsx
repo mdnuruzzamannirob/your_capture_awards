@@ -16,12 +16,12 @@ const Banner = () => {
           className="object-cover object-center"
         />
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-overlay" />
+        <div className="bg-overlay absolute inset-0" />
       </div>
 
       <div className="relative z-10 container flex flex-col items-start justify-between gap-10 py-28 lg:flex-row">
         {/* Left content */}
-        <div className="max-w-2xl space-y-6 text-primary-foreground">
+        <div className="text-primary-foreground max-w-2xl space-y-6">
           {/* Award logo */}
           <div className="flex items-center gap-5">
             <Image alt="Award" src="/icons/award.png" width={90} height={90} />
@@ -32,12 +32,12 @@ const Banner = () => {
           </div>
 
           {/* Heading */}
-          <h1 className="text-5xl leading-normal font-bold text-primary-foreground">
+          <h1 className="text-primary-foreground text-5xl leading-normal font-bold">
             Play, Improve & <br /> Win.
           </h1>
 
           {/* Subtext */}
-          <p className="max-w-md text-body">
+          <p className="text-body max-w-md">
             Your Capture awards the ultimate destination for photographers, discussing, and creating
             stunning imagery.
           </p>
@@ -67,7 +67,7 @@ const Banner = () => {
           {/* Button */}
           <Link
             href="/support"
-            className="border-primary hover:border-primary/90 flex w-fit items-center gap-2 rounded-sm border px-5 py-2 font-medium text-primary-foreground transition-colors"
+            className="border-primary hover:border-primary/90 text-primary-foreground flex w-fit items-center gap-2 rounded-sm border px-5 py-2 font-medium transition-colors"
           >
             Learn More
             <FaArrowDown className="size-4" />

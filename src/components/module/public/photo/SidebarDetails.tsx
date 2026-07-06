@@ -72,11 +72,11 @@ export function SidebarDetails({
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <section className="border-b border-border bg-background">
+    <section className="border-border bg-background border-b">
       {/* Collapsible Trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between px-6 py-4 transition-colors duration-150 hover:bg-surface-secondary"
+        className="hover:bg-surface-secondary flex w-full items-center justify-between px-6 py-4 transition-colors duration-150"
       >
         <span className="text-caption-foreground text-xs font-bold tracking-wider uppercase">
           Details
@@ -98,7 +98,7 @@ export function SidebarDetails({
         <div className="mt-1 grid grid-cols-2 gap-3">
           {/* Camera Info */}
           {camera && (
-            <div className="col-span-2 flex items-center gap-3 rounded-md border border-border bg-surface-secondary p-3">
+            <div className="border-border bg-surface-secondary col-span-2 flex items-center gap-3 rounded-md border p-3">
               <Camera className="text-muted-foreground size-5 shrink-0" />
               <div className="flex flex-col">
                 <span className="text-caption-foreground text-[10px] font-bold tracking-wide uppercase">
@@ -111,7 +111,7 @@ export function SidebarDetails({
 
           {/* ISO Info */}
           {iso && (
-            <div className="flex items-center gap-2.5 rounded-md border border-border bg-surface-secondary p-3">
+            <div className="border-border bg-surface-secondary flex items-center gap-2.5 rounded-md border p-3">
               <IsoIcon className="text-muted-foreground size-5 shrink-0" />
               <div className="flex flex-col">
                 <span className="text-caption-foreground text-[10px] font-bold tracking-wide uppercase">
@@ -124,7 +124,7 @@ export function SidebarDetails({
 
           {/* Shutter Info */}
           {shutter && (
-            <div className="flex items-center gap-2.5 rounded-md border border-border bg-surface-secondary p-3">
+            <div className="border-border bg-surface-secondary flex items-center gap-2.5 rounded-md border p-3">
               <Timer className="text-muted-foreground size-5 shrink-0" />
               <div className="flex flex-col">
                 <span className="text-caption-foreground text-[10px] font-bold tracking-wide uppercase">
@@ -139,7 +139,7 @@ export function SidebarDetails({
 
           {/* Aperture Info */}
           {aperture && (
-            <div className="flex items-center gap-2.5 rounded-md border border-border bg-surface-secondary p-3">
+            <div className="border-border bg-surface-secondary flex items-center gap-2.5 rounded-md border p-3">
               <Aperture className="text-muted-foreground size-5 shrink-0" />
               <div className="flex flex-col">
                 <span className="text-caption-foreground text-[10px] font-bold tracking-wide uppercase">
@@ -156,13 +156,15 @@ export function SidebarDetails({
 
           {/* Focal Length Info */}
           {focalLength && (
-            <div className="flex items-center gap-2.5 rounded-md border border-border bg-surface-secondary p-3">
+            <div className="border-border bg-surface-secondary flex items-center gap-2.5 rounded-md border p-3">
               <FocalLengthIcon className="text-muted-foreground size-5 shrink-0" />
               <div className="flex flex-col">
                 <span className="text-caption-foreground text-[10px] font-bold tracking-wide uppercase">
                   Focal Length
                 </span>
-                <span className="text-foreground text-xs leading-tight font-bold">{focalLength}</span>
+                <span className="text-foreground text-xs leading-tight font-bold">
+                  {focalLength}
+                </span>
               </div>
             </div>
           )}

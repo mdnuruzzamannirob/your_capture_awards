@@ -104,9 +104,7 @@ function ProfileContent({
         if (!visitedTabs.has(tab)) return null;
         return (
           <div key={tab} className={tab === activeTab ? 'block' : 'hidden'}>
-            {tab === 'achievements' && (
-              <AchievementsTabContent username={username} isOwn={isOwn} />
-            )}
+            {tab === 'achievements' && <AchievementsTabContent username={username} isOwn={isOwn} />}
             {tab === 'followers' && (
               <FollowersTabContent username={username} userId={profile?.id} isOwn={isOwn} />
             )}
@@ -438,7 +436,7 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                   ? Array.from({ length: isOwn ? 5 : 4 }).map((_, idx) => (
                       <div
                         key={idx}
-                        className="flex h-full flex-1 animate-pulse flex-col items-center whitespace-nowrap justify-center gap-1.5 px-5"
+                        className="flex h-full flex-1 animate-pulse flex-col items-center justify-center gap-1.5 px-5 whitespace-nowrap"
                       >
                         <div className="bg-surface-secondary h-4 w-8 rounded" />
                         <div className="bg-surface-secondary h-2 w-12 rounded" />

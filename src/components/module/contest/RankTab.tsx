@@ -153,11 +153,17 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                   totalVotes: p.voteCount || 0,
                 }));
                 dispatch(setSwiperPhotos(photosToSet));
-                router.push(`/photo/${topPhoto.id}?source=contest&contest=${id}&ownerId=${topPhoto.userId || topPhoto.user?.id}`);
+                router.push(
+                  `/photo/${topPhoto.id}?source=contest&contest=${id}&ownerId=${topPhoto.userId || topPhoto.user?.id}`,
+                );
               };
 
               return (
-                <div key={index} className="group relative cursor-pointer overflow-hidden rounded-xl" onClick={handlePhotoClick}>
+                <div
+                  key={index}
+                  className="group relative cursor-pointer overflow-hidden rounded-xl"
+                  onClick={handlePhotoClick}
+                >
                   <Image
                     src={topPhoto?.userPhoto?.url}
                     alt=""
@@ -166,19 +172,22 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                     className="h-72 w-full rounded-xl object-cover transition-all duration-500 group-hover:brightness-60"
                   />
 
-                  <div className="absolute top-2 left-2 rounded bg-overlay px-2 py-1 font-bold">
+                  <div className="bg-overlay absolute top-2 left-2 rounded px-2 py-1 font-bold">
                     #{index + 1}
                   </div>
 
-                  <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-overlay px-2 py-1 text-sm">
+                  <div className="bg-overlay absolute bottom-2 left-2 flex items-center gap-1 rounded px-2 py-1 text-sm">
                     <MdOutlineHowToVote />
                     {topPhoto?.voteCount}
                   </div>
 
-                  <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100" onClick={(e) => {
-                    e.stopPropagation();
-                    router.push(`/profile/${topPhoto?.user?.username || topPhoto?.user?.id}`);
-                  }}>
+                  <div
+                    className="absolute inset-0 flex flex-col items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/profile/${topPhoto?.user?.username || topPhoto?.user?.id}`);
+                    }}
+                  >
                     <Image
                       src={topPhoto?.user?.avatar}
                       alt="Profile avatar"
@@ -258,13 +267,18 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
               );
 
               const handleUserClick = () => {
-                router.push(`/profile/${rankPhotographer?.user?.username || rankPhotographer?.user?.id}`);
+                router.push(
+                  `/profile/${rankPhotographer?.user?.username || rankPhotographer?.user?.id}`,
+                );
               };
 
               return (
                 <div className="space-y-5" key={index}>
                   <div className="flex items-center justify-between gap-5">
-                    <div className="flex w-1/3 items-center gap-3 cursor-pointer" onClick={handleUserClick}>
+                    <div
+                      className="flex w-1/3 cursor-pointer items-center gap-3"
+                      onClick={handleUserClick}
+                    >
                       <Image
                         src={rankPhotographer?.user?.avatar}
                         alt=""
@@ -273,7 +287,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                         className="bg-surface-secondary size-20 min-w-20 rounded-full object-cover"
                       />
                       <div className="min-w-0">
-                        <h3 className="truncate text-lg font-semibold whitespace-nowrap hover:text-primary">
+                        <h3 className="hover:text-primary truncate text-lg font-semibold whitespace-nowrap">
                           {rankPhotographer?.user?.fullName}
                         </h3>
                         <p className="text-sm">{rankPhotographer?.user?.location ?? ''}</p>
@@ -310,11 +324,17 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                             totalVotes: p?.voteCount || 0,
                           }));
                           dispatch(setSwiperPhotos(photosToSet));
-                          router.push(`/photo/${photo?.photo?.id}?source=contest&contest=${id}&ownerId=${rankPhotographer.user?.id}`);
+                          router.push(
+                            `/photo/${photo?.photo?.id}?source=contest&contest=${id}&ownerId=${rankPhotographer.user?.id}`,
+                          );
                         };
 
                         return (
-                          <div className="relative cursor-pointer" key={index} onClick={handlePhotoClick}>
+                          <div
+                            className="relative cursor-pointer"
+                            key={index}
+                            onClick={handlePhotoClick}
+                          >
                             <Image
                               src={photo?.photo?.url}
                               alt=""
@@ -323,7 +343,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                               className="h-60 w-full rounded-xl object-cover"
                             />
 
-                            <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-overlay px-2 py-1 text-sm">
+                            <div className="bg-overlay absolute bottom-2 left-2 flex items-center gap-1 rounded px-2 py-1 text-sm">
                               <MdOutlineHowToVote />
                               {photo?.voteCount}
                             </div>

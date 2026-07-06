@@ -79,8 +79,7 @@ export default function NotificationModal() {
         className="w-80 p-0 max-lg:-mr-10.5 lg:w-88"
       >
         <div className="border-border flex items-center justify-between border-b p-4">
-
-            <p className="text-sm font-semibold">Notifications</p>
+          <p className="text-sm font-semibold">Notifications</p>
 
           <button
             type="button"

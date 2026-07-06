@@ -125,7 +125,7 @@ export default function UploadPortfolioCard() {
       onDragOver={handleDragOver}
       onClick={() => document.getElementById('fileInput')?.click()}
       onKeyDown={handleKeyPress}
-      className="group border-primary/60 hover:border-primary hover:bg-primary/5 focus:ring-primary/40 hover:shadow-primary/10 relative flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed bg-surface-secondary p-2 text-muted-foreground shadow-lg ring-1 shadow-overlay ring-border-subtle transition duration-300 hover:shadow-2xl focus:ring-2 focus:outline-none"
+      className="group border-primary/60 hover:border-primary hover:bg-primary/5 focus:ring-primary/40 hover:shadow-primary/10 bg-surface-secondary text-muted-foreground shadow-overlay ring-border-subtle relative flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-sm border-2 border-dashed p-2 shadow-lg ring-1 transition duration-300 hover:shadow-2xl focus:ring-2 focus:outline-none"
     >
       <input type="file" id="fileInput" className="hidden" onChange={handleFileChange} />
 
@@ -133,13 +133,13 @@ export default function UploadPortfolioCard() {
       {!file && !uploading && (
         <div className="flex size-full flex-col items-center justify-center p-3 text-center">
           <LucideCloudUpload className="text-primary mb-2 size-8" />
-          <p className="text-xs font-semibold text-muted-foreground">Drop or browse</p>
+          <p className="text-muted-foreground text-xs font-semibold">Drop or browse</p>
           <span className="text-primary mt-1 text-xs font-semibold group-hover:underline">
             Choose file
           </span>
-          <div className="mt-3 flex w-full max-w-45 flex-col items-center gap-1 border-t border-border/60 pt-2">
-            <span className="text-[10px] text-caption-foreground">JPG · PNG · AVIF · WebP</span>
-            <span className="text-[10px] text-caption-foreground">100 KB – 10 MB</span>
+          <div className="border-border/60 mt-3 flex w-full max-w-45 flex-col items-center gap-1 border-t pt-2">
+            <span className="text-caption-foreground text-[10px]">JPG · PNG · AVIF · WebP</span>
+            <span className="text-caption-foreground text-[10px]">100 KB – 10 MB</span>
           </div>
         </div>
       )}
@@ -148,18 +148,18 @@ export default function UploadPortfolioCard() {
       {uploading && (
         <div className="flex flex-col items-center justify-center text-center">
           <div className="border-primary/20 border-t-primary mb-2 size-10 animate-spin rounded-full border-4" />
-          <p className="text-sm text-muted-foreground">Uploading...</p>
+          <p className="text-muted-foreground text-sm">Uploading...</p>
         </div>
       )}
 
       {/* File preview */}
       {file && !uploading && (
         <div className="relative flex size-full flex-col items-center justify-between">
-          <div className="relative w-full flex-1 overflow-hidden rounded-lg bg-surface-tertiary">
+          <div className="bg-surface-tertiary relative w-full flex-1 overflow-hidden rounded-lg">
             {file.type.startsWith('image/') ? (
               <Image src={previewUrl} alt={file.name} fill className="min-h-20 object-cover" />
             ) : (
-              <div className="flex size-full min-h-20 items-center justify-center bg-surface-tertiary text-sm text-muted-foreground">
+              <div className="bg-surface-tertiary text-muted-foreground flex size-full min-h-20 items-center justify-center text-sm">
                 {file.name}
               </div>
             )}
@@ -168,7 +168,7 @@ export default function UploadPortfolioCard() {
                 e.stopPropagation();
                 removeFile();
               }}
-              className="absolute top-2 right-2 rounded-full bg-overlay p-1 text-muted-foreground hover:text-destructive"
+              className="bg-overlay text-muted-foreground hover:text-destructive absolute top-2 right-2 rounded-full p-1"
             >
               <X size={16} />
             </button>
@@ -176,7 +176,7 @@ export default function UploadPortfolioCard() {
 
           <p
             className={cn(
-              'mt-2 w-full truncate text-center text-sm text-muted-foreground',
+              'text-muted-foreground mt-2 w-full truncate text-center text-sm',
               isError && 'text-destructive',
             )}
           >

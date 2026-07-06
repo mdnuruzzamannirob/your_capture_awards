@@ -96,15 +96,19 @@ function mapActiveMatchToMatch(activeMatch: ActiveTeamMatch): Match {
 
 function mapContestToMatch(contest: AvailableTeamContest, currentUserId?: string): Match {
   // Exclude current user from participants if present in participantDetails
-  const otherParticipants = currentUserId && Array.isArray(contest.participantDetails)
-    ? contest.participantDetails.filter(p => p.userId !== currentUserId && p.id !== currentUserId)
-    : contest.participantDetails || [];
+  const otherParticipants =
+    currentUserId && Array.isArray(contest.participantDetails)
+      ? contest.participantDetails.filter(
+          (p) => p.userId !== currentUserId && p.id !== currentUserId,
+        )
+      : contest.participantDetails || [];
 
   const participantsCount = otherParticipants.length;
 
-  const hasJoined = currentUserId && Array.isArray(contest.participantDetails)
-    ? contest.participantDetails.some(p => p.userId === currentUserId || p.id === currentUserId)
-    : false;
+  const hasJoined =
+    currentUserId && Array.isArray(contest.participantDetails)
+      ? contest.participantDetails.some((p) => p.userId === currentUserId || p.id === currentUserId)
+      : false;
 
   return {
     id: contest.id,
@@ -207,7 +211,10 @@ export default function TeamMatchPage() {
 
   const activeMatchView = activeMatch ? mapActiveMatchToMatch(activeMatch) : null;
   const availableContests = useMemo(() => contestsQuery.data?.data ?? [], [contestsQuery.data]);
-  const matches = useMemo(() => availableContests.map((c) => mapContestToMatch(c, currentUserId)), [availableContests, currentUserId]);
+  const matches = useMemo(
+    () => availableContests.map((c) => mapContestToMatch(c, currentUserId)),
+    [availableContests, currentUserId],
+  );
   const activeContest = useMemo(
     () =>
       activeMatch
@@ -284,9 +291,7 @@ export default function TeamMatchPage() {
         return;
       }
 
-      const filesToUpload = payload.file
-        ? [await compressImage(payload.file)]
-        : undefined;
+      const filesToUpload = payload.file ? [await compressImage(payload.file)] : undefined;
 
       await startMatchAuto({
         teamId,
@@ -332,7 +337,7 @@ export default function TeamMatchPage() {
     <section className="margin-user container space-y-6 py-6">
       <div>
         <h2 className="font-kumbh text-xl font-bold">Team Match</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-muted-foreground mt-1 text-sm">
           {activeMatchView
             ? `Live match · ${activeMatchView.theme}`
             : 'Find and join matches with your team'}
