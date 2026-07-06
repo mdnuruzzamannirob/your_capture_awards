@@ -33,24 +33,24 @@ export default function PortfolioSection() {
 
   return (
     <section className="container mx-auto mt-10 px-4 pb-12">
-      <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-border bg-surface/60 p-4 shadow-xl backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+      <div className="border-border bg-surface/60 mb-6 flex flex-col gap-4 rounded-2xl border p-4 shadow-xl backdrop-blur sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-primary text-sm font-medium">Portfolio</p>
-          <h2 className="text-xl font-bold text-foreground sm:text-2xl">My Uploads</h2>
+          <h2 className="text-foreground text-xl font-bold sm:text-2xl">My Uploads</h2>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded-full bg-surface-secondary px-3 py-1 text-xs font-medium text-foreground">
+          <span className="bg-surface-secondary text-foreground rounded-full px-3 py-1 text-xs font-medium">
             {photos.length} uploads
           </span>
 
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Sort By:</span>
+            <span className="text-muted-foreground text-sm">Sort By:</span>
             <Select
               value={sortBy}
               onValueChange={(value) => setSortBy(value as 'totalVotes' | 'views' | 'likes')}
             >
-              <SelectTrigger className="w-32 border-border bg-surface-secondary text-sm text-foreground">
+              <SelectTrigger className="border-border bg-surface-secondary text-foreground w-32 text-sm">
                 <SelectValue placeholder="Sort" />
               </SelectTrigger>
               <SelectContent className="border-border bg-background text-foreground">
@@ -73,13 +73,13 @@ export default function PortfolioSection() {
           visiblePhotos.map((item) => <PortfolioCard key={item.id} item={item} />)}
 
         {!isLoading && photos.length > 0 && visiblePhotos.length === 0 && (
-          <div className="col-span-full rounded-2xl border border-dashed border-border bg-surface/60 p-8 text-center text-muted-foreground">
+          <div className="border-border bg-surface/60 text-muted-foreground col-span-full rounded-2xl border border-dashed p-8 text-center">
             No uploads found
           </div>
         )}
 
         {!isLoading && photos.length === 0 && (
-          <div className="col-span-full rounded-2xl border border-dashed border-border bg-surface/60 p-8 text-center text-muted-foreground">
+          <div className="border-border bg-surface/60 text-muted-foreground col-span-full rounded-2xl border border-dashed p-8 text-center">
             No uploads yet. Upload your first photo to start building your portfolio.
           </div>
         )}

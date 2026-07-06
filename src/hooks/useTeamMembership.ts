@@ -17,12 +17,10 @@ export function useTeamMembership() {
     skip: !token,
   });
 
-  const team: TeamData | null =
-    data?.success && data?.data?.team?.id ? data.data.team : null;
+  const team: TeamData | null = data?.success && data?.data?.team?.id ? data.data.team : null;
   const hasTeam = Boolean(team?.id);
 
-  const isCheckingMembership =
-    isAuthenticated && (isAuthLoading || (isTeamLoading && !data));
+  const isCheckingMembership = isAuthenticated && (isAuthLoading || (isTeamLoading && !data));
 
   return {
     token,

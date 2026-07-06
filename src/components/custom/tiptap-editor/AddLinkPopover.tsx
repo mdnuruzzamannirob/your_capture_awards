@@ -55,7 +55,7 @@ export const AddLinkPopover: React.FC<Props> = ({ editor, className }) => {
 
       {/* FIX: Changed layout to stacked elements (single column) using space-y-2 */}
       <PopoverContent
-        className="flex w-96 items-center gap-2 border-border bg-surface p-3"
+        className="border-border bg-surface flex w-96 items-center gap-2 p-3"
         align="start"
       >
         <Input
@@ -67,11 +67,17 @@ export const AddLinkPopover: React.FC<Props> = ({ editor, className }) => {
         />
         {/* The button group still uses flex gap for horizontal arrangement */}
         <div className="flex gap-2">
-          <Button onClick={setLink} className="bg-success text-primary-foreground hover:bg-success/90">
+          <Button
+            onClick={setLink}
+            className="bg-success text-primary-foreground hover:bg-success/90"
+          >
             {editor?.isActive('link') ? 'Update' : 'Add'}
           </Button>
           {editor?.isActive('link') && (
-            <Button onClick={unsetLink} className="bg-destructive p-2 text-primary-foreground hover:bg-destructive/90">
+            <Button
+              onClick={unsetLink}
+              className="bg-destructive text-primary-foreground hover:bg-destructive/90 p-2"
+            >
               <Link2Off className="size-4" />
             </Button>
           )}

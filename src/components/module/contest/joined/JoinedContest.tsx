@@ -135,7 +135,7 @@ const JoinedContest = () => {
       {/* Level Progress Tracker */}
       <div className="mb-8">
         {!mounted || isLevelsLoading || (isAuthenticated && isProgressLoading) ? (
-          <div className="h-11 w-full animate-pulse rounded-lg bg-surface-secondary/80" />
+          <div className="bg-surface-secondary/80 h-11 w-full animate-pulse rounded-lg" />
         ) : allLevels.length > 0 ? (
           <LevelProgressBar levels={allLevels} currentLevelOrder={currentLevelOrder} />
         ) : null}
@@ -194,9 +194,9 @@ const JoinedContest = () => {
               <div className="flex flex-col items-center justify-center gap-2">
                 <div className="text-muted-foreground text-xs uppercase">Exposure</div>
                 <div className="border-border relative flex size-25 flex-col items-center justify-center rounded-full border-4">
-                  <div className="flex w-full justify-between px-3 text-[10px] text-caption-foreground">
+                  <div className="text-caption-foreground flex w-full justify-between px-3 text-[10px]">
                     {labels.map((l, i) => (
-                      <span key={i} className={cn(i + 1 <= 0 && 'font-semibold text-primary')}>
+                      <span key={i} className={cn(i + 1 <= 0 && 'text-primary font-semibold')}>
                         {l}
                       </span>
                     ))}

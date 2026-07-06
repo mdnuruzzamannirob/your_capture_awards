@@ -56,7 +56,7 @@ export const AddImagePopover: React.FC<Props> = ({ editor, className }) => {
         </Toggle>
       </PopoverTrigger>
 
-      <PopoverContent className="w-80 space-y-3 bg-surface p-3" align="start">
+      <PopoverContent className="bg-surface w-80 space-y-3 p-3" align="start">
         {/* URL input */}
         <div className="flex gap-2">
           <Input

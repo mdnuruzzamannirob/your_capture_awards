@@ -16,19 +16,13 @@ export interface JustifiedRow<T> {
   height: number;
 }
 
-export function useJustifiedLayout<T extends { url?: string; src?: string; id?: string; isUploadCard?: boolean }>({
-  items,
-  targetHeight = 350,
-  gap = 8,
-}: {
-  items: T[];
-  targetHeight?: number;
-  gap?: number;
-}) {
+export function useJustifiedLayout<
+  T extends { url?: string; src?: string; id?: string; isUploadCard?: boolean },
+>({ items, targetHeight = 350, gap = 8 }: { items: T[]; targetHeight?: number; gap?: number }) {
   // Use state to hold the DOM element so we can react when it changes
   const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null);
   const [containerWidth, setContainerWidth] = useState<number>(
-    typeof window !== 'undefined' ? (window.innerWidth || 1000) : 1000
+    typeof window !== 'undefined' ? window.innerWidth || 1000 : 1000,
   );
   const [loadedAspects, setLoadedAspects] = useState<Record<string, number>>({});
 
@@ -42,7 +36,10 @@ export function useJustifiedLayout<T extends { url?: string; src?: string; id?: 
     if (!containerEl) return;
 
     const measure = () => {
-      const w = containerEl.clientWidth || containerEl.getBoundingClientRect().width || containerEl.offsetWidth;
+      const w =
+        containerEl.clientWidth ||
+        containerEl.getBoundingClientRect().width ||
+        containerEl.offsetWidth;
       if (w > 0) {
         setContainerWidth(w);
       }
@@ -134,7 +131,9 @@ export function useJustifiedLayout<T extends { url?: string; src?: string; id?: 
       };
     });
 
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [items]);
 
   // 3. Partition items into justified rows
@@ -147,7 +146,7 @@ export function useJustifiedLayout<T extends { url?: string; src?: string; id?: 
 
     for (const item of items) {
       const url = item.url || item.src || '';
-      const aspect = item.isUploadCard ? 1.4 : (loadedAspects[url] || getInitialAspect(item));
+      const aspect = item.isUploadCard ? 1.4 : loadedAspects[url] || getInitialAspect(item);
 
       currentRow.push({ item, aspect });
       aspectSum += aspect;

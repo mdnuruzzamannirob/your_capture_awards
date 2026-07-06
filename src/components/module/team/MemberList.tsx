@@ -46,7 +46,7 @@ function MemberList({
           return (
             <div key={m.id} className="flex items-center gap-3 px-4 py-3 sm:px-5">
               <Avatar className="size-9 shrink-0">
-                {m.member.avatar && <AvatarImage src={m.member.avatar} className='object-cover' />}
+                {m.member.avatar && <AvatarImage src={m.member.avatar} className="object-cover" />}
                 <AvatarFallback className={`text-[11px] font-semibold ${getAvatarClass(m.level)}`}>
                   {getInitials(
                     m.member.fullName,

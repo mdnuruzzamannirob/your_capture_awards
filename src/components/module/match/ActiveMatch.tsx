@@ -44,7 +44,7 @@ function ActiveMatch({
             <span
               className={cn(
                 'size-2 rounded-full',
-                isEnded ? 'bg-muted-foreground' : 'animate-pulse bg-success',
+                isEnded ? 'bg-muted-foreground' : 'bg-success animate-pulse',
               )}
             />
             <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
@@ -61,7 +61,7 @@ function ActiveMatch({
           </p>
         </div>
 
-        <div className="relative min-h-28 overflow-hidden rounded-md border bg-surface">
+        <div className="bg-surface relative min-h-28 overflow-hidden rounded-md border">
           {match.banner ? (
             <Image
               src={match.banner}
@@ -73,11 +73,11 @@ function ActiveMatch({
           ) : null}
           <div className="absolute inset-0 bg-linear-to-t from-zinc-950/80 via-zinc-950/40 to-zinc-950/10" />
           <div className="relative z-10 flex h-full flex-col items-center justify-center gap-3 p-4 text-center">
-            <h1 className="text-center text-xl leading-tight font-semibold text-primary-foreground">
+            <h1 className="text-primary-foreground text-center text-xl leading-tight font-semibold">
               {match.theme}
             </h1>
-            <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-primary-foreground">
-              <span className="inline-flex items-center gap-1 rounded-full bg-overlay px-3 py-1">
+            <div className="text-primary-foreground flex flex-wrap items-center justify-center gap-2 text-xs">
+              <span className="bg-overlay inline-flex items-center gap-1 rounded-full px-3 py-1">
                 <Camera size={12} />
                 {match.photosRequired} photos
               </span>
@@ -87,14 +87,14 @@ function ActiveMatch({
                 <Button
                   size="sm"
                   disabled={actionDisabled}
-                  className="h-7 rounded-sm bg-primary-foreground px-3 text-xs font-semibold text-background hover:bg-surface-secondary disabled:bg-surface-secondary"
+                  className="bg-primary-foreground text-background hover:bg-surface-secondary disabled:bg-surface-secondary h-7 rounded-sm px-3 text-xs font-semibold"
                   onClick={onAction}
                 >
                   <Camera size={12} className="mr-1.5" />
                   {actionLabel}
                 </Button>
                 {actionDisabledReason ? (
-                  <p className="text-[10px] font-medium text-foreground">{actionDisabledReason}</p>
+                  <p className="text-foreground text-[10px] font-medium">{actionDisabledReason}</p>
                 ) : null}
               </div>
             ) : null}

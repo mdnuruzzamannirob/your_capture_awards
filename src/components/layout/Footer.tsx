@@ -9,7 +9,7 @@ const Footer = () => {
       <div className="container flex flex-col-reverse items-center justify-center gap-20 md:flex-row">
         <div className="space-y-5">
           <div className="flex items-center gap-3">
-            <p className="border-border text-primary flex items-center justify-center rounded-full border bg-surface-secondary p-3">
+            <p className="border-border text-primary bg-surface-secondary flex items-center justify-center rounded-full border p-3">
               <MdOutlineMail className="size-5" />
             </p>
             <div className="space-y-1">
@@ -18,7 +18,7 @@ const Footer = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <p className="border-border text-primary flex items-center justify-center rounded-full border bg-surface-secondary p-3">
+            <p className="border-border text-primary bg-surface-secondary flex items-center justify-center rounded-full border p-3">
               <MdLocationCity className="size-5" />
             </p>
             <div className="space-y-1">

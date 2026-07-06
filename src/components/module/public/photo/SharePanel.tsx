@@ -29,12 +29,14 @@ export function SharePanel() {
   };
 
   return (
-    <div className="absolute top-6 left-6 z-20 flex flex-col items-center gap-4 text-primary-foreground drop-shadow-md select-none">
-      <span className="text-[10px] font-black tracking-widest text-caption-foreground uppercase">Share</span>
+    <div className="text-primary-foreground absolute top-6 left-6 z-20 flex flex-col items-center gap-4 drop-shadow-md select-none">
+      <span className="text-caption-foreground text-[10px] font-black tracking-widest uppercase">
+        Share
+      </span>
       <div className="flex flex-col gap-3">
         <button
           onClick={() => handleShareClick('Facebook')}
-          className="grid size-8 cursor-pointer place-items-center rounded-full border border-border-subtle bg-overlay text-primary-foreground transition duration-200 hover:scale-105 hover:bg-overlay"
+          className="border-border-subtle bg-overlay text-primary-foreground hover:bg-overlay grid size-8 cursor-pointer place-items-center rounded-full border transition duration-200 hover:scale-105"
           title="Share on Facebook"
         >
           <Facebook className="size-4 fill-current" />
@@ -42,7 +44,7 @@ export function SharePanel() {
 
         <button
           onClick={() => handleShareClick('Twitter')}
-          className="grid size-8 cursor-pointer place-items-center rounded-full border border-border-subtle bg-overlay text-primary-foreground transition duration-200 hover:scale-105 hover:bg-overlay"
+          className="border-border-subtle bg-overlay text-primary-foreground hover:bg-overlay grid size-8 cursor-pointer place-items-center rounded-full border transition duration-200 hover:scale-105"
           title="Share on Twitter"
         >
           <Twitter className="size-4 fill-current" />
@@ -50,7 +52,7 @@ export function SharePanel() {
 
         <button
           onClick={() => handleShareClick('Pinterest')}
-          className="grid size-8 cursor-pointer place-items-center rounded-full border border-border-subtle bg-overlay text-primary-foreground transition duration-200 hover:scale-105 hover:bg-overlay"
+          className="border-border-subtle bg-overlay text-primary-foreground hover:bg-overlay grid size-8 cursor-pointer place-items-center rounded-full border transition duration-200 hover:scale-105"
           title="Share on Pinterest"
         >
           <Pinterest className="size-4 fill-current" />
@@ -58,7 +60,7 @@ export function SharePanel() {
 
         <button
           onClick={() => handleShareClick('Tumblr')}
-          className="grid size-8 cursor-pointer place-items-center rounded-full border border-border-subtle bg-overlay text-primary-foreground transition duration-200 hover:scale-105 hover:bg-overlay"
+          className="border-border-subtle bg-overlay text-primary-foreground hover:bg-overlay grid size-8 cursor-pointer place-items-center rounded-full border transition duration-200 hover:scale-105"
           title="Share on Tumblr"
         >
           <CustomTumblrIcon className="size-4 fill-current" />

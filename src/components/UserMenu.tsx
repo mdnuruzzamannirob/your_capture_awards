@@ -110,7 +110,6 @@ const UserMenu = () => {
             onClick={openStore}
             className="border-border hover:bg-surface-secondary flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition"
           >
-
             <span className="flex items-center gap-2">
               <Image
                 src="/icons/dollar.png"

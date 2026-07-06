@@ -60,7 +60,7 @@ function TeamVoteCard({
     <div className={cn('flex flex-1 flex-col items-center gap-2', align === 'right' && 'flex-col')}>
       {/* Avatar */}
       <div className="relative">
-        <div className="border-border flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 bg-surface-secondary">
+        <div className="border-border bg-surface-secondary flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2">
           {team.badge ? (
             <Image
               src={team.badge}
@@ -70,11 +70,13 @@ function TeamVoteCard({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="text-xl font-bold text-muted-foreground">{getInitials(team.name)}</span>
+            <span className="text-muted-foreground text-xl font-bold">
+              {getInitials(team.name)}
+            </span>
           )}
         </div>
         {isWinning && (
-          <div className="absolute -top-1 -right-1 rounded-full bg-warning p-1">
+          <div className="bg-warning absolute -top-1 -right-1 rounded-full p-1">
             <Trophy size={14} className="text-warning-foreground" />
           </div>
         )}

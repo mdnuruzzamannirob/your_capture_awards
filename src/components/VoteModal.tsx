@@ -161,7 +161,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
           <DialogTitle />
         </VisuallyHidden>
 
-        <div className="relative size-full flex-1 scrollbar-thin overflow-y-auto overflow-x-hidden">
+        <div className="relative size-full flex-1 scrollbar-thin overflow-x-hidden overflow-y-auto">
           {isLoading ? (
             <div className="flex flex-wrap gap-0.5 p-0.5">
               {[...Array(16)].map((_, i) => {
@@ -206,7 +206,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
                             />
 
                             {selected && (
-                              <div className="absolute inset-0 flex items-center justify-center bg-overlay backdrop-blur-[2px] transition">
+                              <div className="bg-overlay absolute inset-0 flex items-center justify-center backdrop-blur-[2px] transition">
                                 <Image
                                   src="/icons/voting-power.png"
                                   alt="voted"
@@ -243,7 +243,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
               <div ref={observerRef} className="h-10 w-full" />
             </>
           ) : (
-            <div className="flex size-full items-center justify-center p-5 text-center text-lg text-muted-foreground">
+            <div className="text-muted-foreground flex size-full items-center justify-center p-5 text-center text-lg">
               No photos available for voting yet. Stay tuned and be ready to cast your vote soon!
             </div>
           )}

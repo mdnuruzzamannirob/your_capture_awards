@@ -66,7 +66,10 @@ function ContestPhotoJustifiedPicker({
   }
 
   return (
-    <div ref={containerRef} className="max-h-105 w-full scrollbar-thin overflow-y-auto overflow-x-hidden">
+    <div
+      ref={containerRef}
+      className="max-h-105 w-full scrollbar-thin overflow-x-hidden overflow-y-auto"
+    >
       {rows.map((row, rowIndex) => (
         <div key={rowIndex} className="mb-1 flex" style={{ height: `${row.height}px`, gap: '4px' }}>
           {row.items.map(({ item: photo, width, height }) => {
@@ -96,7 +99,9 @@ function ContestPhotoJustifiedPicker({
                 <span
                   className={cn(
                     'absolute top-2 right-2 rounded-full px-2 py-0.5 text-[10px] font-medium transition',
-                    isSelected ? 'bg-primary text-primary-foreground' : 'bg-overlay text-foreground',
+                    isSelected
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-overlay text-foreground',
                   )}
                 >
                   {isSelected ? '✓ Selected' : 'Select'}
@@ -132,7 +137,11 @@ function TradePhotoJustifiedPicker({
     return (
       <div className="flex max-h-64 scrollbar-thin flex-wrap gap-0.5 overflow-y-auto">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-          <Skeleton key={item} className="bg-surface-secondary" style={{ height: 150, width: 150 }} />
+          <Skeleton
+            key={item}
+            className="bg-surface-secondary"
+            style={{ height: 150, width: 150 }}
+          />
         ))}
       </div>
     );
@@ -147,7 +156,10 @@ function TradePhotoJustifiedPicker({
   }
 
   return (
-    <div ref={containerRef} className="max-h-64 w-full scrollbar-thin overflow-y-auto overflow-x-hidden">
+    <div
+      ref={containerRef}
+      className="max-h-64 w-full scrollbar-thin overflow-x-hidden overflow-y-auto"
+    >
       {rows.map((row, rowIndex) => (
         <div
           key={rowIndex}
@@ -177,7 +189,7 @@ function TradePhotoJustifiedPicker({
                   className="object-cover"
                 />
                 {isSelected && (
-                  <span className="bg-primary absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-primary-foreground shadow">
+                  <span className="bg-primary text-primary-foreground absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold shadow">
                     ✓
                   </span>
                 )}
@@ -222,7 +234,9 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
       () => contestPhotos.filter((photo) => photo?.id),
       [contestPhotos],
     );
-    const uploadedPhotos = (Array.isArray(userPhotos?.data) ? userPhotos.data : (userPhotos?.data?.data ?? [])) as {
+    const uploadedPhotos = (
+      Array.isArray(userPhotos?.data) ? userPhotos.data : (userPhotos?.data?.data ?? [])
+    ) as {
       id: string;
       url: string;
     }[];
@@ -425,7 +439,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
               <button
                 type="button"
                 onClick={goBack}
-                className="hover:text-primary flex size-10 items-center justify-center rounded-full transition hover:bg-surface-secondary"
+                className="hover:text-primary hover:bg-surface-secondary flex size-10 items-center justify-center rounded-full transition"
               >
                 <ArrowLeft />
               </button>
@@ -481,7 +495,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                     {contestTitle && <span className="text-primary">{contestTitle}</span>}
                     {!contestTitle && 'THIS CONTEST'}
                   </h1>
-                  <p className="text-sm text-primary-foreground/50">
+                  <p className="text-primary-foreground/50 text-sm">
                     Select where your replacement photo comes from
                   </p>
                 </div>
@@ -528,7 +542,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                       ? 'Upload replacement photo'
                       : 'Select replacement photo'}
                   </h1>
-                  <p className="text-sm text-primary-foreground/50">
+                  <p className="text-primary-foreground/50 text-sm">
                     {swapSource === 'computer'
                       ? 'Choose a photo from your computer'
                       : 'Pick one photo from your uploaded photos'}
@@ -547,7 +561,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                           height={300}
                           onClick={() => fileInputRef.current?.click()}
                           // FIX: ring applied directly on the image wrapper — no broken absolute div
-                          className="ring-primary max-h-72 w-auto cursor-pointer rounded-xl object-contain ring-2 ring-offset-2 ring-offset-background transition hover:opacity-90"
+                          className="ring-primary ring-offset-background max-h-72 w-auto cursor-pointer rounded-xl object-contain ring-2 ring-offset-2 transition hover:opacity-90"
                         />
                       </div>
                     ) : (
@@ -608,8 +622,8 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
               <div className="space-y-5">
                 <div className="grid gap-4 md:grid-cols-2">
                   {/* Left: selected contest photo */}
-                  <div className="flex flex-col items-center gap-2 rounded-xl bg-surface-secondary p-4">
-                    <p className="text-xs font-medium tracking-wider text-primary-foreground/40 uppercase">
+                  <div className="bg-surface-secondary flex flex-col items-center gap-2 rounded-xl p-4">
+                    <p className="text-primary-foreground/40 text-xs font-medium tracking-wider uppercase">
                       Contest photo
                     </p>
                     <div className="flex w-full items-center justify-center overflow-hidden rounded-lg">
@@ -630,15 +644,15 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
 
                   {/* Right: action info or swap preview */}
                   {actionType === 'boost' ? (
-                    <div className="flex flex-col items-center justify-center gap-3 rounded-xl bg-surface-secondary p-4">
+                    <div className="bg-surface-secondary flex flex-col items-center justify-center gap-3 rounded-xl p-4">
                       <AiOutlineThunderbolt className="text-primary size-10" />
-                      <p className="text-center text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-center text-sm">
                         This photo will be boosted to the top of the contest rankings.
                       </p>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center gap-2 rounded-xl bg-surface-secondary p-4">
-                      <p className="text-xs font-medium tracking-wider text-primary-foreground/40 uppercase">
+                    <div className="bg-surface-secondary flex flex-col items-center gap-2 rounded-xl p-4">
+                      <p className="text-primary-foreground/40 text-xs font-medium tracking-wider uppercase">
                         Replacement photo
                       </p>
                       <div className="flex w-full items-center justify-center overflow-hidden rounded-lg">

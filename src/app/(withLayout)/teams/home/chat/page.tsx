@@ -563,7 +563,7 @@ export default function TeamChatPage() {
           className="flex min-w-0 flex-1 scrollbar-thin flex-col gap-4 overflow-x-hidden overflow-y-auto px-4 py-5"
         >
           {groupedMessages.length === 0 ? (
-            <div className=" flex min-h-[50vh] flex-1 flex-col items-center justify-center sm:min-h-70">
+            <div className="flex min-h-[50vh] flex-1 flex-col items-center justify-center sm:min-h-70">
               <MessageState isReady={isReady} />
             </div>
           ) : (
@@ -777,9 +777,7 @@ function MessageState({ isReady }: { isReady: boolean }) {
         {isReady ? 'No messages yet' : 'Connecting to chat'}
       </p>
       <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">
-        {isReady
-          ? 'Send the first message to start the conversation with your team.'
-          : ''}
+        {isReady ? 'Send the first message to start the conversation with your team.' : ''}
       </p>
       {!isReady && (
         <div className="mt-4 flex items-center justify-center gap-1.5">

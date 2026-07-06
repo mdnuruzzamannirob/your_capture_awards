@@ -115,9 +115,12 @@ function TeamCreatePage() {
   const { data: progressData, isLoading: isProgressLoading } = useGetUserProgressQuery(undefined, {
     skip: !token,
   });
-  const { data: storeStatsData, isLoading: isStoreStatsLoading } = useGetStoreStatsQuery(undefined, {
-    skip: !token,
-  });
+  const { data: storeStatsData, isLoading: isStoreStatsLoading } = useGetStoreStatsQuery(
+    undefined,
+    {
+      skip: !token,
+    },
+  );
 
   const userProgress = progressData?.data ?? null;
   const teamLevels = levelsData?.data ?? [];
@@ -144,23 +147,31 @@ function TeamCreatePage() {
     });
   }, [form, teamLevels]);
 
-  if (isCheckingMembership || hasTeam || isProgressLoading || isLevelsLoading || isStoreStatsLoading) {
+  if (
+    isCheckingMembership ||
+    hasTeam ||
+    isProgressLoading ||
+    isLevelsLoading ||
+    isStoreStatsLoading
+  ) {
     return <CreateTeamSkeleton />;
   }
 
   if (isLevelTooLow) {
     return (
       <main className="margin container py-8 lg:py-10">
-        <div className="space-y-5 max-w-xl mx-auto text-center py-12">
+        <div className="mx-auto max-w-xl space-y-5 py-12 text-center">
           <div className="bg-primary/10 border-primary/20 text-primary mx-auto flex size-16 items-center justify-center rounded-full border">
             <Trophy className="size-8" />
           </div>
-          <h1 className="font-kumbh text-foreground text-2xl font-bold">
-            Team Creation Locked
-          </h1>
+          <h1 className="font-kumbh text-foreground text-2xl font-bold">Team Creation Locked</h1>
           <p className="text-muted-foreground text-sm leading-6">
-            You must reach at least <strong className="text-foreground">Level 3 (TRAINED)</strong> to build your own team.
-            Your current level is <strong className="text-foreground">Level {currentLevelOrder} ({currentLevelName})</strong>.
+            You must reach at least <strong className="text-foreground">Level 3 (TRAINED)</strong>{' '}
+            to build your own team. Your current level is{' '}
+            <strong className="text-foreground">
+              Level {currentLevelOrder} ({currentLevelName})
+            </strong>
+            .
           </p>
           <div className="pt-4">
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
@@ -498,7 +509,9 @@ function TeamCreatePage() {
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={isCreating}
               >
-                {isCreating ? `Creating... (${TEAM_KEY_COST} keys)` : `Create team (${TEAM_KEY_COST} keys)`}
+                {isCreating
+                  ? `Creating... (${TEAM_KEY_COST} keys)`
+                  : `Create team (${TEAM_KEY_COST} keys)`}
               </Button>
             </div>
             <p className="text-muted-foreground text-right text-xs">

@@ -9,7 +9,7 @@ export default function JoinedContestCardSkeleton() {
         <Skeleton className="bg-surface-secondary h-80 w-full rounded-t-xl" />
         <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-black/80 to-transparent" />
 
-        <div className="absolute left-4 top-4 w-40">
+        <div className="absolute top-4 left-4 w-40">
           <Skeleton className="bg-surface-secondary h-5 w-full rounded-full" />
           <Skeleton className="bg-surface-secondary mt-2 h-3 w-28 rounded-full" />
         </div>
@@ -22,7 +22,7 @@ export default function JoinedContestCardSkeleton() {
         <div className="bg-surface-secondary absolute top-3 right-3 h-9 w-20 rounded-tr-xl rounded-bl-xl" />
       </div>
 
-      <div className="mx-4 grid grid-cols-4 gap-2 border-b border-border-subtle py-4 text-center">
+      <div className="border-border-subtle mx-4 grid grid-cols-4 gap-2 border-b py-4 text-center">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="flex flex-col items-center justify-center gap-2">
             <Skeleton className="bg-surface-secondary h-3 w-16 rounded" />

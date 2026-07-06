@@ -155,7 +155,7 @@ function ProfilePhotoJustifiedPicker({
                   className="object-cover"
                 />
                 {isSelected && (
-                  <span className="bg-primary absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold text-primary-foreground shadow">
+                  <span className="bg-primary text-primary-foreground absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold shadow">
                     ✓
                   </span>
                 )}
@@ -536,7 +536,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                     />
                     {selectedImages.length > 0 && (
                       <div className="border-border-subtle flex flex-wrap gap-0 border-t pt-5">
-                        <h4 className="mb-2 flex w-full items-center gap-2 text-sm text-foreground">
+                        <h4 className="text-foreground mb-2 flex w-full items-center gap-2 text-sm">
                           <IoImagesOutline className="size-4" /> Selected Images
                         </h4>
                         {selectedImages?.slice(0, 4)?.map((img, i) => (
@@ -561,7 +561,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                                     selectedImages.filter((image) => image.url !== img.url),
                                   )
                                 }
-                                className="flex items-center justify-center rounded-full bg-overlay p-1.5 text-destructive opacity-0 transition-all duration-300 group-hover:opacity-100"
+                                className="bg-overlay text-destructive flex items-center justify-center rounded-full p-1.5 opacity-0 transition-all duration-300 group-hover:opacity-100"
                               >
                                 <AiOutlineDelete className="size-4" />
                               </button>
@@ -631,7 +631,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                           : 'preview',
                     )
                   }
-                  className="hover:text-primary flex size-10 items-center justify-center rounded-full transition hover:bg-surface-secondary"
+                  className="hover:text-primary hover:bg-surface-secondary flex size-10 items-center justify-center rounded-full transition"
                 >
                   <ArrowLeft />
                 </button>
@@ -645,8 +645,8 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         <Dialog open={showCoinConfirm} onOpenChange={setShowCoinConfirm}>
           <DialogContent className="border-border max-w-sm space-y-6 border-2 p-6 text-center">
             <div className="flex flex-col items-center justify-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-warning/20 bg-warning/10 text-warning shadow-inner">
-                <div className="h-8 w-8 animate-pulse rounded-full border border-warning/40 bg-linear-to-tr from-warning-500 to-warning-500" />
+              <div className="border-warning/20 bg-warning/10 text-warning flex h-14 w-14 items-center justify-center rounded-full border shadow-inner">
+                <div className="border-warning/40 from-warning-500 to-warning-500 h-8 w-8 animate-pulse rounded-full border bg-linear-to-tr" />
               </div>
               <DialogTitle className="text-foreground text-xl font-bold uppercase">
                 Coin Required

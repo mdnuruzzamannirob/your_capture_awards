@@ -72,7 +72,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
 
       <div className="flex flex-1 flex-col gap-3 lg:gap-5">
         {/* Stats Section */}
-        <div className="grid grid-cols-2 gap-2 border-b border-border-subtle px-3 pb-3 text-center md:grid-cols-3 lg:px-5 lg:pb-5">
+        <div className="border-border-subtle grid grid-cols-2 gap-2 border-b px-3 pb-3 text-center md:grid-cols-3 lg:px-5 lg:pb-5">
           <div className="flex flex-col items-center justify-center gap-1">
             <div className="text-muted-foreground text-xs uppercase">Current Level</div>
             <div className="relative">
@@ -120,9 +120,9 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
             <div className="text-muted-foreground text-xs uppercase">Exposure</div>
 
             <div className="border-border relative flex size-25 flex-col items-center justify-center rounded-full border-4">
-              <div className="flex w-full justify-between px-3 text-[10px] text-caption-foreground">
+              <div className="text-caption-foreground flex w-full justify-between px-3 text-[10px]">
                 {labels.map((l, i) => (
-                  <span key={i} className={cn(i + 1 <= level && 'font-semibold text-primary')}>
+                  <span key={i} className={cn(i + 1 <= level && 'text-primary font-semibold')}>
                     {l}
                   </span>
                 ))}

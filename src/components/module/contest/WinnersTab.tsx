@@ -101,7 +101,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
 
   const renderDynamicGallery = () => {
     if (!photographerPhotos.length) {
-      return <div className="h-125 rounded-2xl bg-surface-secondary" />;
+      return <div className="bg-surface-secondary h-125 rounded-2xl" />;
     }
 
     if (photographerPhotos.length === 1) {
@@ -161,7 +161,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
                   className={`relative min-h-30 overflow-hidden rounded-2xl border-2 transition-all ${
                     isActive
                       ? 'border-primary scale-[0.98]'
-                      : 'border-transparent hover:border-border-subtle'
+                      : 'hover:border-border-subtle border-transparent'
                   }`}
                 >
                   <Image
@@ -251,7 +251,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
 
           {/* PHOTO */}
 
-          <div className="relative h-125 overflow-hidden rounded-2xl bg-surface-secondary">
+          <div className="bg-surface-secondary relative h-125 overflow-hidden rounded-2xl">
             {topPhotoWinner?.photo?.photo?.url ? (
               <Image
                 alt="Top Photo"
@@ -260,7 +260,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
                 className="object-cover"
               />
             ) : (
-              <div className="size-full bg-surface-secondary" />
+              <div className="bg-surface-secondary size-full" />
             )}
           </div>
 

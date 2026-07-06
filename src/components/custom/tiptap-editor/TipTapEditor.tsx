@@ -111,7 +111,7 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
     return (
       <div
         className={cn(
-          'flex w-full items-center justify-center rounded-md border bg-surface p-3',
+          'bg-surface flex w-full items-center justify-center rounded-md border p-3',
           minHeight,
           maxHeight,
         )}
@@ -127,7 +127,7 @@ export const TipTapEditor: React.FC<TipTapEditorProps> = ({
   return (
     <div
       className={cn(
-        'overflow-hidden rounded-md border transition-all focus-within:ring-2 focus-within:ring-ring/20',
+        'focus-within:ring-ring/20 overflow-hidden rounded-md border transition-all focus-within:ring-2',
         className,
       )}
     >

@@ -89,7 +89,7 @@ const Navbar = () => {
                     <Link
                       href={isActive ? '#' : href}
                       className={cn(
-                        'hover:text-primary p-1 font-medium text-sm transition-colors',
+                        'hover:text-primary p-1 text-sm font-medium transition-colors',
                         isActive
                           ? 'text-primary pointer-events-none cursor-default'
                           : 'text-muted-foreground hover:text-foreground',

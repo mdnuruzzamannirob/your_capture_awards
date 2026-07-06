@@ -59,7 +59,7 @@ export default function SupportPage() {
   return (
     <section className="margin container py-10">
       {/* Page header */}
-      <div className=" text-center sm:text-left">
+      <div className="text-center sm:text-left">
         <h1 className="text-primary-foreground text-3xl font-bold tracking-tight sm:text-4xl">
           Support
         </h1>
@@ -69,11 +69,11 @@ export default function SupportPage() {
         </p>
       </div>
 
-      <div className=" mt-8 grid gap-6 md:mt-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
+      <div className="mt-8 grid gap-6 md:mt-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="border-border-subtle bg-surface-secondary/60 h-fit shadow-overlay space-y-5 rounded-2xl border p-5 backdrop-blur sm:p-6 md:p-7"
+          className="border-border-subtle bg-surface-secondary/60 shadow-overlay h-fit space-y-5 rounded-2xl border p-5 backdrop-blur sm:p-6 md:p-7"
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -133,7 +133,7 @@ export default function SupportPage() {
             <p className="text-muted-foreground text-center text-xs sm:text-left">
               By submitting, you agree to be contacted at the email above.
             </p>
-            
+
             <Button
               type="submit"
               disabled={submitting}

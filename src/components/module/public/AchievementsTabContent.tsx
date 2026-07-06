@@ -23,7 +23,7 @@ const AchievementsTabContent = ({ username, isOwn = false }: Props) => {
   // Fetch all levels (public endpoint)
   const { data: levelsData, isLoading: isLevelsLoading } = useGetAllLevelsQuery(
     { page: 1, limit: 50 },
-    { skip: !isOwn }
+    { skip: !isOwn },
   );
 
   // Fetch progress if own profile and authenticated
@@ -37,28 +37,25 @@ const AchievementsTabContent = ({ username, isOwn = false }: Props) => {
   const isLoading = isLevelsLoading || (isAuthenticated && isProgressLoading);
 
   return (
-    <section className="container py-6 space-y-6">
+    <section className="container space-y-6 py-6">
       <TabSectionHeader title="Achievements" />
 
       {/* Level Progress Tracker */}
       {isOwn && (
         <div className="mb-6">
           {!mounted || isLoading ? (
-            <div className="h-11 w-full animate-pulse rounded-lg bg-surface-secondary/80" />
+            <div className="bg-surface-secondary/80 h-11 w-full animate-pulse rounded-lg" />
           ) : allLevels.length > 0 ? (
-            <LevelProgressBar
-              levels={allLevels}
-              currentLevelOrder={currentLevelOrder}
-            />
+            <LevelProgressBar levels={allLevels} currentLevelOrder={currentLevelOrder} />
           ) : null}
         </div>
       )}
 
       {/* Achievements placeholder */}
-      <div className="rounded-xl border border-dashed border-border/60 bg-surface/30 p-8 text-center">
-        <Trophy className="mx-auto mb-3 size-8 text-caption-foreground" />
-        <p className="font-semibold text-muted-foreground">Contest Achievements</p>
-        <p className="mt-1 text-sm text-caption-foreground">
+      <div className="border-border/60 bg-surface/30 rounded-xl border border-dashed p-8 text-center">
+        <Trophy className="text-caption-foreground mx-auto mb-3 size-8" />
+        <p className="text-muted-foreground font-semibold">Contest Achievements</p>
+        <p className="text-caption-foreground mt-1 text-sm">
           Achievements earned from contests will appear here.
         </p>
       </div>

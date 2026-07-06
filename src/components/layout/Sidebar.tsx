@@ -42,7 +42,7 @@ const Sidebar = () => {
     <div className="flex-1 lg:hidden">
       <Drawer direction="left" open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
-          <button className="border-border flex size-8.5 items-center justify-center rounded-full border bg-surface-secondary">
+          <button className="border-border bg-surface-secondary flex size-8.5 items-center justify-center rounded-full border">
             <RiMenuFill />
           </button>
         </DrawerTrigger>
@@ -92,7 +92,7 @@ const Sidebar = () => {
               {isAuthenticated ? (
                 <button
                   onClick={handleLogout}
-                  className="flex w-full items-center justify-center gap-2 rounded-md bg-destructive px-4 py-2 text-destructive-foreground transition-colors hover:bg-destructive/90"
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90 flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 transition-colors"
                 >
                   <LogOut className="size-4" />
                   Logout
