@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/utils/cn';
-import { Lock, Unlock } from 'lucide-react';
+import { Check, Lock, Unlock } from 'lucide-react';
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -35,6 +35,7 @@ export function LevelProgressBar({
 }: LevelProgressBarProps) {
   const [hoveredLock, setHoveredLock] = useState<string | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const [tooltipPlacement, setTooltipPlacement] = useState<'top' | 'bottom'>('top');
   const [tooltipContent, setTooltipContent] = useState<React.ReactNode>(null);
 
   if (!levels || levels.length === 0) return null;
@@ -50,9 +51,10 @@ export function LevelProgressBar({
   ) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setTooltipPos({
-      top: rect.top,
+      top: rect.top < 190 ? rect.bottom + 12 : rect.top - 12,
       left: rect.left + rect.width / 2,
     });
+    setTooltipPlacement(rect.top < 190 ? 'bottom' : 'top');
     setTooltipContent(content);
     setHoveredLock(lockId);
   };
@@ -76,22 +78,56 @@ export function LevelProgressBar({
             const nextLevel = hasLock ? sortedLevels[index + 1] : null;
             const isLockUnlocked = index < safeCurrentIdx;
             const isBoundaryLock = index === safeCurrentIdx;
+            const isNextLevelComplete = Boolean(
+              nextLevel && currentLevelOrder !== null && nextLevel.order <= currentLevelOrder,
+            );
             const lockId = nextLevel ? `lock-${level.id}-${nextLevel.id}` : '';
 
             const reqText = nextLevel ? (
-              <div className="space-y-1.5 text-left">
-                <div className="text-primary-foreground font-extrabold">Unlock {nextLevel.levelName}</div>
+              <div className="w-60 space-y-2.5 text-left sm:w-64">
+                <div className="border-border-subtle flex items-center justify-between border-b pb-2">
+                  <div className="text-primary-foreground text-xs font-extrabold tracking-wide">
+                    {nextLevel.levelName}
+                  </div>
+                  <span className="bg-surface-tertiary rounded-full px-2 py-1 text-[8px] font-bold tracking-wider uppercase">
+                    {isNextLevelComplete ? 'Complete' : 'In progress'}
+                  </span>
+                </div>
                 {nextLevel.requirements?.map((requirement, requirementIndex) => {
                   const label = requirement.badge
                     ? `${requirement.badge} badge`
                     : requirement.title ?? requirement.type?.replaceAll('_', ' ') ?? 'Requirement';
                   const current = requirement.current ?? 0;
-                  const percent = Math.min(100, Math.max(0, requirement.percentage ?? requirement.progressPercentage ?? 0));
+                  const calculatedPercent = requirement.required > 0 ? (current / requirement.required) * 100 : 0;
+                  const apiPercent = requirement.percentage ?? requirement.progressPercentage;
+                  const requirementPercent = Math.min(100, Math.max(0, apiPercent && apiPercent > 0 ? apiPercent : calculatedPercent));
+                  const complete = requirement.satisfied === true || current >= requirement.required || requirementPercent >= 100;
+                  const displayCurrent = current;
+                  const displayPercent = requirementPercent;
+                  const readablePercent = displayPercent > 0 && displayPercent < 0.1 ? 0.1 : displayPercent;
                   return (
-                    <div key={`${label}-${requirementIndex}`} className="text-muted-foreground">
-                      <div>{label}: {current}/{requirement.required}</div>
-                      <div className="bg-surface-tertiary mt-0.5 h-1 w-32 overflow-hidden rounded-full">
-                        <div className="bg-primary h-full" style={{ width: `${percent}%` }} />
+                    <div key={`${label}-${requirementIndex}`} className="flex items-start gap-2">
+                      <span className={cn(
+                        'mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border',
+                        complete
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-muted-foreground/70 bg-transparent text-transparent',
+                      )}>
+                        {complete && <Check className="size-2.5 stroke-[3]" />}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className={cn('text-[10px] leading-4', complete ? 'text-primary-foreground font-semibold' : 'text-muted-foreground')}>
+                          {label}
+                        </div>
+                        <div className="mt-0.5 flex items-center justify-between gap-2 text-[9px]">
+                          <span className={complete ? 'text-primary-foreground/70' : 'text-muted-foreground'}>
+                            {displayCurrent} / {requirement.required}
+                          </span>
+                          <span className="text-muted-foreground">{readablePercent.toFixed(readablePercent < 1 ? 1 : 0)}%</span>
+                        </div>
+                        <div className="bg-surface-tertiary mt-1 h-1 w-full overflow-hidden rounded-full">
+                          <div className="bg-primary h-full rounded-full transition-all" style={{ width: `${readablePercent}%` }} />
+                        </div>
                       </div>
                     </div>
                   );
@@ -153,16 +189,23 @@ export function LevelProgressBar({
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="border-border bg-background text-primary-foreground pointer-events-none fixed rounded-sm border px-3 py-1.5 text-[9px] font-bold whitespace-nowrap shadow-xl"
+            className="pointer-events-none fixed rounded-lg border border-white/20 bg-[#202020] px-3.5 py-3 text-[9px] font-bold text-white shadow-[0_10px_30px_rgba(0,0,0,0.55)]"
             style={{
-              top: tooltipPos.top - 12,
+              top: tooltipPos.top,
               left: tooltipPos.left,
-              transform: 'translate(-50%, -100%)',
+              transform: tooltipPlacement === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0)',
               zIndex: 9999,
             }}
           >
             {tooltipContent}
-            <div className="border-border bg-background absolute top-full left-1/2 -mt-1 size-1.5 -translate-x-1/2 rotate-45 border-r border-b" />
+            <div
+              className={cn(
+                'absolute left-1/2 size-2 -translate-x-1/2 rotate-45 border-white/20 bg-[#202020]',
+                tooltipPlacement === 'top'
+                  ? 'top-full -mt-1 border-r border-b'
+                  : 'bottom-full -mb-1 border-t border-l',
+              )}
+            />
           </div>,
           document.body,
         )}
