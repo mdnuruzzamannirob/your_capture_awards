@@ -125,8 +125,8 @@ function TeamCreatePage() {
   const userProgress = progressData?.data ?? null;
   const teamLevels = levelsData?.data ?? [];
   const storeStats = storeStatsData?.data ?? null;
-  const currentLevelOrder = userProgress?.currentLevel?.order ?? 1;
-  const currentLevelName = userProgress?.currentLevel?.name ?? 'APPRENTICE';
+  const currentLevelOrder = userProgress?.currentStatus?.order ?? 1;
+  const currentLevelName = userProgress?.currentStatus?.name ?? 'APPRENTICE';
   const isLevelTooLow = currentLevelOrder < 3;
 
   useEffect(() => {

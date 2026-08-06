@@ -185,12 +185,12 @@ const ContestDetails = ({ id }: { id: string }) => {
         onValueChange={(value: any) => setActiveTab(value)}
         className="container space-y-10"
       >
-        <TabsList className="text-foreground bg-surface-secondary mx-auto flex size-full max-w-xl items-center rounded-md p-1">
+        <TabsList className="bg-surface mx-auto flex h-10 w-full max-w-none items-stretch justify-start overflow-x-auto rounded-none p-0 lg:justify-center">
           {tabs?.map((tab) => (
             <TabsTrigger
               key={tab.key}
               value={tab.key}
-              className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary hover:text-primary flex w-full items-center justify-center rounded-sm py-3 transition"
+              className="text-muted-foreground data-[state=active]:bg-primary/12 data-[state=active]:text-primary hover:bg-surface-secondary hover:text-foreground relative min-w-max flex-1 rounded-none px-4 py-2 text-sm font-medium transition-colors sm:px-5 lg:min-w-fit lg:flex-none lg:px-6 lg:text-[15px]"
               onClick={() => {
                 if (tab.key === 'rank') rankPhotosTrigger({ id });
               }}

@@ -96,7 +96,7 @@ function JoinTeamButton({
     { skip: !isAuthenticated },
   );
   const { data: progressData } = useGetUserProgressQuery(undefined, { skip: !isAuthenticated });
-  const userLevelOrder = progressData?.data?.currentLevel?.order ?? 0;
+  const userLevelOrder = progressData?.data?.currentStatus?.order ?? 0;
   const teamLevels = levelsData?.data ?? [];
   const requiredLevelOrder =
     teamLevels.find((level) => level.levelName === minRequirement)?.order ?? 0;
