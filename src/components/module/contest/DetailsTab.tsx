@@ -4,7 +4,7 @@ import TipTapViewer from '@/components/custom/tiptap-editor/TipTapViewer';
 import { TabsContent } from '@/components/ui/tabs';
 import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
-import { Globe } from 'lucide-react';
+import { Globe, UserRound } from 'lucide-react';
 import Image from 'next/image';
 import { FaHourglassHalf } from 'react-icons/fa';
 import { MdOutlineHowToVote, MdOutlinePaid } from 'react-icons/md';
@@ -19,42 +19,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
   const hasEnded = now > contestEnd;
 
   return (
-    <TabsContent value={value} className="mx-auto w-full max-w-4xl space-y-10">
-      <div className="flex flex-col max-md:gap-3 md:flex-row">
-        <div className="flex flex-1 items-center gap-3 md:flex-col md:justify-center">
-          <Image
-            alt="Profile Photo"
-            src={contest?.creator?.avatar}
-            width={200}
-            height={200}
-            className="size-28 rounded-full object-cover"
-          />
-          <div className="flex flex-col space-y-1 md:items-center">
-            <h2 className="font-medium">{contest?.creator?.fullName}</h2>
-            <h2 className="flex items-center gap-1.5 text-sm">
-              <Globe size={16} /> {contest?.creator?.location}
-            </h2>
-            {/* <div className="flex items-center gap-2">
-            <button className="flex items-center justify-center gap-1.5 rounded bg-info px-4 py-1.5 text-sm text-primary-foreground">
-              Follow <FaPlus />
-            </button>
-            <button className="flex size-8 items-center justify-center rounded border border-info text-info">
-              <FaFacebookF />
-            </button>
-          </div> */}
-          </div>
-        </div>
-
-        <div className="mr-10 border-r"></div>
-
-        <div className="col-span-2 flex-3">
-          <h1 className="mb-3 text-xl font-light md:mb-6 md:text-3xl">
-            <span className="text-primary font-semibold">{contest?.title}</span> Challenge
-          </h1>
-          <TipTapViewer content={contest?.description} className="max-md:text-sm" />
-        </div>
-      </div>
-
+    <TabsContent value={value} className="mx-auto w-full max-w-5xl space-y-10">
       <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center lg:gap-3">
         <p className="flex flex-1 items-center gap-3 whitespace-nowrap uppercase">
           <MdOutlineHowToVote className="text-primary size-8 lg:size-10" />{' '}
@@ -112,6 +77,43 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
             </p>
           </div>
         )}
+      </div>
+
+      <div className="flex flex-col gap-6 sm:flex-row sm:gap-10">
+        <div className="flex w-full shrink-0 flex-col items-center justify-center gap-3 text-center sm:w-40">
+          {contest?.creator?.avatar ? (
+            <Image
+              alt={contest?.creator?.fullName ?? 'Contest creator'}
+              src={contest.creator.avatar}
+              width={96}
+              height={96}
+              className="border-border size-24 rounded-full border object-cover"
+            />
+          ) : (
+            <div className="border-border flex size-24 items-center justify-center rounded-full border">
+              <UserRound className="text-muted-foreground size-9" />
+            </div>
+          )}
+          <div>
+            <p className="font-medium">{contest?.creator?.fullName ?? 'Contest creator'}</p>
+            {contest?.creator?.location && (
+              <p className="text-muted-foreground mt-1 flex items-center justify-center gap-1 text-xs">
+                <Globe className="size-3.5" /> {contest.creator.location}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="min-w-0 flex-1 space-y-3">
+          <h1 className="text-xl">
+            <span className="text-primary font-bold">{contest?.title}</span> challenge
+          </h1>
+          {contest?.description ? (
+            <TipTapViewer content={contest.description} className="text-muted-foreground leading-relaxed" />
+          ) : (
+            <p className="text-muted-foreground">No contest description has been added yet.</p>
+          )}
+        </div>
       </div>
     </TabsContent>
   );

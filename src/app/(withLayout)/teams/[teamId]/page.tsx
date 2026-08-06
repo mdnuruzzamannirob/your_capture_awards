@@ -142,7 +142,7 @@ export default function TeamDetailPage() {
 
   const apiTeam = ((apiResp as any)?.data ?? apiResp) as TeamDetail | undefined;
   const resolvedTeam = apiTeam;
-  const userLevelOrder = progressData?.data?.currentLevel?.order ?? 0;
+  const userLevelOrder = progressData?.data?.currentStatus?.order ?? 0;
   const requiredLevelOrder =
     levelsData?.data?.find((level) => level.levelName === resolvedTeam?.min_requirement)?.order ??
     0;
