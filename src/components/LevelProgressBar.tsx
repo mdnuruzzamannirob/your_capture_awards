@@ -10,7 +10,16 @@ export interface LevelItem {
   levelName: string;
   order: number;
   level: number;
-  requirements: { title: string; required: number }[];
+  requirements: {
+    type?: string;
+    title?: string;
+    badge?: string;
+    required: number;
+    current?: number;
+    percentage?: number;
+    progressPercentage?: number;
+    satisfied?: boolean;
+  }[];
 }
 
 interface LevelProgressBarProps {
@@ -69,20 +78,26 @@ export function LevelProgressBar({
             const isBoundaryLock = index === safeCurrentIdx;
             const lockId = nextLevel ? `lock-${level.id}-${nextLevel.id}` : '';
 
-            const req = nextLevel?.requirements?.[0];
-            const reqText = req ? (
-              <span>
-                Requires{' '}
-                <span className="text-primary font-extrabold">
-                  {req.required} {req.title}
-                </span>{' '}
-                to unlock {nextLevel.levelName}
-              </span>
-            ) : nextLevel ? (
-              `Unlock ${nextLevel.levelName}`
-            ) : (
-              ''
-            );
+            const reqText = nextLevel ? (
+              <div className="space-y-1.5 text-left">
+                <div className="text-primary-foreground font-extrabold">Unlock {nextLevel.levelName}</div>
+                {nextLevel.requirements?.map((requirement, requirementIndex) => {
+                  const label = requirement.badge
+                    ? `${requirement.badge} badge`
+                    : requirement.title ?? requirement.type?.replaceAll('_', ' ') ?? 'Requirement';
+                  const current = requirement.current ?? 0;
+                  const percent = Math.min(100, Math.max(0, requirement.percentage ?? requirement.progressPercentage ?? 0));
+                  return (
+                    <div key={`${label}-${requirementIndex}`} className="text-muted-foreground">
+                      <div>{label}: {current}/{requirement.required}</div>
+                      <div className="bg-surface-tertiary mt-0.5 h-1 w-32 overflow-hidden rounded-full">
+                        <div className="bg-primary h-full" style={{ width: `${percent}%` }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : '';
 
             return (
               <div

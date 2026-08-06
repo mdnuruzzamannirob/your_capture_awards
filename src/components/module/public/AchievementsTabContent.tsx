@@ -68,9 +68,15 @@ const AchievementsTabContent = ({ username, isOwn = false }: Props) => {
     skip: !isAuthenticated || !isOwn,
   });
 
-  const allLevels = levelsData?.data ?? [];
   const userProgress = progressData?.data ?? null;
-  const currentLevelOrder = userProgress?.currentLevel?.order ?? null;
+  const allLevels = userProgress?.levels?.map((level) => ({
+    id: `progress-${level.order}`,
+    level: level.order,
+    levelName: level.name,
+    order: level.order,
+    requirements: level.requirements,
+  })) ?? levelsData?.data ?? [];
+  const currentLevelOrder = userProgress?.currentStatus?.order ?? null;
   const isLoading = isLevelsLoading || (isAuthenticated && isProgressLoading);
 
   // Sub-tab + selected badge state.
