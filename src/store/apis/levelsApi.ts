@@ -2,8 +2,14 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQuery } from '@/store/baseQuery';
 
 export interface LevelRequirement {
-  title: string;
+  type?: string;
+  title?: string;
+  badge?: string;
   required: number;
+  current?: number;
+  percentage?: number;
+  progressPercentage?: number;
+  satisfied?: boolean;
 }
 
 export interface Level {
@@ -32,24 +38,39 @@ export interface LevelsResponse {
 }
 
 export interface UserProgressRequirement {
-  title: string;
+  type?: string;
+  title?: string;
+  badge?: string;
   required: number;
   current: number;
-  progressPercentage: number;
+  percentage?: number;
+  progressPercentage?: number;
+  satisfied?: boolean;
 }
 
 export interface UserProgress {
-  totalVotes: number;
-  currentLevel: {
+  currentStatus: {
     name: string;
     order: number;
+    votingPower: number;
+    receivedVotes: number;
+    receivedVoteCount: number;
+    promotedVotes: number;
+    promotedVoteCount: number;
+    badges: Record<string, number>;
   };
   nextLevel: {
     name: string;
     order: number;
     requirements: UserProgressRequirement[];
   } | null;
-  progressPercentage: number;
+  levels: Array<{
+    order: number;
+    name: string;
+    votePower: number;
+    eligible: boolean;
+    requirements: UserProgressRequirement[];
+  }>;
 }
 
 export interface UserProgressResponse {
