@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 const ClosedContestCard = ({ contest }: { contest: any }) => {
+  const maxUploads = contest?.maxUploads ?? contest?.maxUpload ?? 0;
+
   return (
     <div>
       <div className="group border-border relative block h-72 overflow-hidden rounded-xl border-2">
@@ -23,7 +25,7 @@ const ClosedContestCard = ({ contest }: { contest: any }) => {
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-linear-to-b from-black/85 to-transparent" />
 
         {/* Upload limit badge */}
-        <CornerCount count={contest?.maxUploads} className="z-10" />
+        <CornerCount count={maxUploads} className="z-10" />
 
         {/* Creator Info on hover — top left */}
         <div className="pointer-events-none absolute top-3 left-3 z-20 flex -translate-y-3 items-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">

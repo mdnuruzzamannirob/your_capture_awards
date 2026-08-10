@@ -45,7 +45,7 @@ const ContestDetails = ({ id }: { id: string }) => {
   const joinedEntry = joinedContestData?.data?.find((c: any) => c.id === id);
   const isJoined = !!joinedEntry;
 
-  const maxUploads: number = contest?.maxUploads ?? 0;
+  const maxUploads: number = contest?.maxUploads ?? contest?.maxUpload ?? 0;
   const uploadedCount = joinedEntry?.uploadCount ?? joinedEntry?.photos?.length ?? 0;
   const remaining = Math.max(0, maxUploads - uploadedCount);
 
