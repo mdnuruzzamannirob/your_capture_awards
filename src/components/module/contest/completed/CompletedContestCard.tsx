@@ -1,23 +1,82 @@
 import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 import { MdOutlineHowToVote } from 'react-icons/md';
 
 const achievementIconMap: Record<string, string> = {
   TOP_PHOTOGRAPHER: '/icons/top-photographer.png',
   TOP_PHOTO: '/icons/top-photo.png',
+  WINNER: '/icons/award.png',
+  AMATEUR: '/icons/level-badge.png',
+  TALENTED: '/icons/level-badge.png',
+  SUPREME: '/icons/level-badge.png',
+  SUPERIOR: '/icons/level-badge.png',
+  TOP_NOTCH: '/icons/level-badge.png',
+};
+
+const formatAchievementLabel = (value: string) => {
+  if (!value) return '';
+  return value
+    .replaceAll('_', ' ')
+    .toLowerCase()
+    .replace(/(^|\s)\S/g, (match) => match.toUpperCase());
+};
+
+const getContestAchievements = (contest: any) => {
+  if (Array.isArray(contest?.achievements)) {
+    return contest.achievements;
+  }
+
+  if (contest?.achievements?.data) {
+    return contest.achievements.data;
+  }
+
+  return [];
+};
+
+const AchievementTile = ({ achievement, index }: { achievement: any; index: number }) => {
+  const [showTextOnly, setShowTextOnly] = useState(false);
+  const icon = achievementIconMap[achievement.category] ?? achievementIconMap[achievement.levelBadge];
+  const label = achievement.levelBadge || achievement.category || achievement.title || achievement.name || 'Achievement';
+
+  return (
+    <div key={achievement.id || index} className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3">
+      {icon && !showTextOnly ? (
+        <Image
+          alt={label}
+          src={icon}
+          width={42}
+          height={42}
+          onError={() => setShowTextOnly(true)}
+        />
+      ) : (
+        <div className="flex min-h-[42px] min-w-[42px] items-center justify-center rounded-full bg-muted px-3 text-center text-xs font-medium text-muted-foreground">
+          {formatAchievementLabel(label)}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const CompletedContestCard = ({ contest }: { contest: any }) => {
+  const achievements = getContestAchievements(contest);
+
   return (
     <div className="text-foreground bg-surface-secondary border-border flex flex-col gap-5 overflow-hidden rounded-xl border-2 p-3 lg:flex-row">
-      <Link href={`/contest/${contest?.id}`} className="relative h-60 rounded-lg md:h-72 lg:flex-1">
-        <Image
-          src={contest?.banner}
-          alt={contest?.title}
-          fill
-          className="bg-surface-secondary size-full rounded-lg object-cover opacity-60"
-        />
+      <Link href={`/contest/${contest?.id}`} className="relative h-60 rounded-lg md:h-72 lg:flex-1 overflow-hidden">
+        {contest?.banner ? (
+          <Image
+            src={contest.banner}
+            alt={contest?.title}
+            fill
+            className="bg-surface-secondary size-full rounded-lg object-cover opacity-60"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center rounded-lg bg-muted text-muted-foreground">
+            No banner available
+          </div>
+        )}
         <h2 className="absolute inset-0 flex items-center justify-center p-3 text-center text-2xl font-semibold">
           {contest?.title}
         </h2>
@@ -26,23 +85,11 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
       <div className="flex flex-1 flex-col items-center justify-center gap-5">
         <h3 className="text-lg font-medium">Achievements</h3>
 
-        <div className="flex items-center gap-6">
-          {contest?.achievements?.data?.length ? (
-            contest.achievements.data.map((achievement: any, index: number) => {
-              const icon = achievementIconMap[achievement.category];
-
-              if (!icon) return null;
-
-              return (
-                <Image
-                  key={achievement.id || index}
-                  alt={achievement.category}
-                  src={icon}
-                  width={60}
-                  height={50}
-                />
-              );
-            })
+        <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+          {achievements.length ? (
+            achievements.map((achievement: any, index: number) => (
+              <AchievementTile key={achievement.id || index} achievement={achievement} index={index} />
+            ))
           ) : (
             <p className="text-muted-foreground text-sm">No achievements yet</p>
           )}
@@ -52,14 +99,20 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
       <div className="flex flex-1 flex-col justify-between gap-5">
         <div className="grid grid-cols-2 gap-1">
           {contest?.photos?.data?.map((item: any, index: number) => (
-            <div key={index} className="group relative cursor-pointer overflow-hidden rounded-sm">
-              <Image
-                src={item?.url}
-                alt="Uploaded Photo"
-                width={400}
-                height={260}
-                className="bg-surface-secondary h-24 w-full rounded-sm object-cover opacity-80"
-              />
+            <div key={index} className="group relative cursor-pointer overflow-hidden rounded-sm bg-surface">
+              {item?.url ? (
+                <Image
+                  src={item.url}
+                  alt="Uploaded Photo"
+                  width={400}
+                  height={260}
+                  className="bg-surface-secondary h-24 w-full rounded-sm object-cover opacity-80"
+                />
+              ) : (
+                <div className="flex h-24 w-full items-center justify-center rounded-sm bg-muted text-muted-foreground">
+                  No photo
+                </div>
+              )}
               <p className="absolute bottom-2 left-2 flex items-center justify-center gap-1">
                 <MdOutlineHowToVote />
                 {item?.voteCount ?? 0}
@@ -69,10 +122,6 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-xs opacity-70">LEVEL</p>
-            <p className="text-lg font-semibold">{contest?.rank}</p>
-          </div>
           <div className="space-y-1">
             <p className="text-xs uppercase opacity-70">Total VOTES</p>
             <p className="flex items-center gap-1 text-lg font-semibold">
