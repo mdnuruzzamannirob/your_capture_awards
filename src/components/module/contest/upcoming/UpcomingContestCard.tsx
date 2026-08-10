@@ -14,6 +14,7 @@ const UpcomingContestCard = ({
   const now = new Date();
   const contestStart = new Date(contest?.startDate);
   const contestEnd = new Date(contest?.endDate);
+  const maxUploads = contest?.maxUploads ?? contest?.maxUpload ?? 0;
 
   const isFuture = contestStart > now;
   const startDate = isFuture ? now.toISOString() : contestStart.toISOString();
@@ -37,7 +38,7 @@ const UpcomingContestCard = ({
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-linear-to-b from-black/85 to-transparent" />
 
         {/* Upload limit badge */}
-        <CornerCount count={contest?.maxUploads} className="z-10" />
+        <CornerCount count={maxUploads} className="z-10" />
 
         {/* Creator Info on hover — top left */}
         <div className="pointer-events-none absolute top-3 left-3 z-20 flex -translate-y-3 items-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">

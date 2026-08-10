@@ -29,7 +29,8 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
   // Use server-authoritative uploadCount as primary; fall back to local images length.
   // This ensures the upload slots disappear as soon as max is reached.
   const uploadedCount = contest?.uploadCount ?? images.length;
-  const remaining = Math.max(0, (contest?.maxUploads ?? 0) - uploadedCount);
+  const maxUploads = contest?.maxUploads ?? contest?.maxUpload ?? 0;
+  const remaining = Math.max(0, maxUploads - uploadedCount);
 
   const level = valueToLevel(contest?.level_data?.exposure_bonus);
 
@@ -67,7 +68,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
           />
         </div>
 
-        <CornerCount count={contest?.maxUploads} />
+        <CornerCount count={maxUploads} />
       </div>
 
       <div className="flex flex-1 flex-col gap-3 lg:gap-5">
