@@ -5,7 +5,7 @@ export type AchievementCardItem = {
   id: string;
   title: string;
   /** Subtitle shown under the title in the centered overlay. */
-  subtitle?: string;
+  subtitle?: string | null;
   imageUrl: string;
   /** Date label shown as a small pill in the corner. */
   date: string;
