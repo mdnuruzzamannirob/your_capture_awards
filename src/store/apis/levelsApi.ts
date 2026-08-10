@@ -5,6 +5,7 @@ export interface LevelRequirement {
   type?: string;
   title?: string;
   badge?: string;
+  badges?: string[];
   required: number;
   current?: number;
   percentage?: number;
@@ -41,6 +42,7 @@ export interface UserProgressRequirement {
   type?: string;
   title?: string;
   badge?: string;
+  badges?: string[];
   required: number;
   current: number;
   percentage?: number;
