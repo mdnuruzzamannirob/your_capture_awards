@@ -66,7 +66,8 @@ export function LevelProgressBar({
   const formatBadgeLabel = (value: string) => {
     const formatted = value
       .replace(/\bTOP_/g, 'Top ')
-      .replace(/_PHOTO\b/g, ' Photographer')
+      .replace(/_PHOTO\b/g, ' Photo')
+      .replace(/_PHOTOS\b/g, ' Photos')
       .replace(/_PHOTOGRAPHER\b/g, ' Photographer')
       .replace(/_DAY\b/g, ' Day')
       .replace(/_YEAR\b/g, ' Year')
