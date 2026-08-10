@@ -2,15 +2,11 @@
 
 import { LevelProgressBar } from '@/components/LevelProgressBar';
 import { useAuth } from '@/hooks/useAuth';
-import {
-  RANKING_BADGES,
-  ULTIMATE_BADGES,
-  firstEnabledBadge,
-  type Badge,
-} from '@/lib/mock/achievements-tab-demo';
 import { useGetAllLevelsQuery, useGetUserProgressQuery } from '@/store/apis/levelsApi';
+import { useGetProfileAchievementsQuery } from '@/store/apis/profileApi';
+import type { ProfileAchievementBadge, ProfileAchievementGroup } from '@/store/types/profileTypes';
 import { cn } from '@/utils/cn';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BadgeImage } from './AchievementBadges';
 import { AchievementCard } from './AchievementCard';
 import { TabSectionHeader } from './public-tab-ui';
@@ -22,7 +18,11 @@ type Props = {
 
 type SubTabKey = 'ultimate' | 'ranking';
 
-type SelectedBadge = { tab: SubTabKey; badge: Badge };
+type SelectedBadge = { tab: SubTabKey; badge: ProfileAchievementBadge };
+
+function firstEnabledBadge(badges: ProfileAchievementBadge[]) {
+  return badges.find((badge) => badge.count > 0) ?? null;
+}
 
 function SubTabButton({
   active,
@@ -67,6 +67,16 @@ const AchievementsTabContent = ({ username, isOwn = false }: Props) => {
   const { data: progressData, isLoading: isProgressLoading } = useGetUserProgressQuery(undefined, {
     skip: !isAuthenticated || !isOwn,
   });
+  const {
+    data: achievementsData,
+    isLoading: isAchievementsLoading,
+    isError: isAchievementsError,
+  } = useGetProfileAchievementsQuery(
+    { isOwn, userId: username },
+    {
+      skip: !isOwn && !username,
+    },
+  );
 
   const userProgress = progressData?.data ?? null;
   const allLevels = userProgress?.levels?.map((level) => ({
@@ -78,28 +88,39 @@ const AchievementsTabContent = ({ username, isOwn = false }: Props) => {
   })) ?? levelsData?.data ?? [];
   const currentLevelOrder = userProgress?.currentStatus?.order ?? null;
   const isLoading = isLevelsLoading || (isAuthenticated && isProgressLoading);
+  const groups = achievementsData?.data?.groups ?? [];
+  const groupByKey = useMemo(() => {
+    return groups.reduce(
+      (acc, group) => {
+        acc[group.key] = group;
+        return acc;
+      },
+      {} as Partial<Record<SubTabKey, ProfileAchievementGroup>>,
+    );
+  }, [groups]);
 
   // Sub-tab + selected badge state.
   // Guarantee at least one badge is always selected — default to the
   // first enabled badge in the current sub-tab.
   const [activeSubTab, setActiveSubTab] = useState<SubTabKey>('ultimate');
-  const [selected, setSelected] = useState<SelectedBadge | null>(() => {
-    const initial = firstEnabledBadge(ULTIMATE_BADGES);
-    return initial ? { tab: 'ultimate', badge: initial } : null;
-  });
+  const [selected, setSelected] = useState<SelectedBadge | null>(null);
+  const activeGroup = groupByKey[activeSubTab];
+  const activeBadges = activeGroup?.badges ?? [];
 
   // When switching sub-tabs, ensure a valid selection exists in the new tab.
   useEffect(() => {
-    const list = activeSubTab === 'ultimate' ? ULTIMATE_BADGES : RANKING_BADGES;
-    if (!selected || selected.tab !== activeSubTab) {
-      const fallback = firstEnabledBadge(list);
+    const selectedStillValid =
+      selected?.tab === activeSubTab &&
+      activeBadges.some((badge) => badge.id === selected.badge.id && badge.count > 0);
+
+    if (!selectedStillValid) {
+      const fallback = firstEnabledBadge(activeBadges);
       setSelected(fallback ? { tab: activeSubTab, badge: fallback } : null);
     }
-  }, [activeSubTab, selected]);
+  }, [activeBadges, activeSubTab, selected]);
 
   const handleBadgeClick = (kind: SubTabKey, id: string) => {
-    const list = kind === 'ultimate' ? ULTIMATE_BADGES : RANKING_BADGES;
-    const badge = list.find((b) => b.id === id);
+    const badge = groupByKey[kind]?.badges.find((b) => b.id === id);
     if (badge && badge.count > 0) {
       setSelected({ tab: kind, badge });
     }
@@ -124,28 +145,33 @@ const AchievementsTabContent = ({ username, isOwn = false }: Props) => {
       <div className="border-border bg-surface/30 flex h-12 items-stretch gap-1.5 rounded-sm border p-1 shadow-sm">
         <SubTabButton
           active={activeSubTab === 'ultimate'}
-          label="Ultimate Achievement"
+          label={groupByKey.ultimate?.label ?? 'Ultimate Achievement'}
           onClick={() => setActiveSubTab('ultimate')}
         />
         <SubTabButton
           active={activeSubTab === 'ranking'}
-          label="Top Ranking"
+          label={groupByKey.ranking?.label ?? 'Top Ranking'}
           onClick={() => setActiveSubTab('ranking')}
         />
       </div>
 
       {/* Badge grid */}
-      {activeSubTab === 'ultimate' ? (
-        <BadgeGrid
-          badges={ULTIMATE_BADGES}
-          selectedId={selected?.tab === 'ultimate' ? selected.badge.id : null}
-          onSelect={(id) => handleBadgeClick('ultimate', id)}
-        />
+      {isAchievementsLoading ? (
+        <div className="grid grid-cols-4 gap-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div key={index} className="flex flex-col items-center gap-2.5">
+              <div className="bg-surface-secondary aspect-square w-full animate-pulse rounded-full" />
+              <div className="bg-surface-secondary h-6 w-10 animate-pulse rounded-full" />
+            </div>
+          ))}
+        </div>
+      ) : isAchievementsError ? (
+        <div className="text-muted-foreground py-8 text-sm">Achievements could not be loaded.</div>
       ) : (
         <BadgeGrid
-          badges={RANKING_BADGES}
-          selectedId={selected?.tab === 'ranking' ? selected.badge.id : null}
-          onSelect={(id) => handleBadgeClick('ranking', id)}
+          badges={activeBadges}
+          selectedId={selected?.tab === activeSubTab ? selected.badge.id : null}
+          onSelect={(id) => handleBadgeClick(activeSubTab, id)}
         />
       )}
 
@@ -168,7 +194,7 @@ function BadgeGrid({
   selectedId,
   onSelect,
 }: {
-  badges: Badge[];
+  badges: ProfileAchievementBadge[];
   selectedId: string | null;
   onSelect: (id: string) => void;
 }) {

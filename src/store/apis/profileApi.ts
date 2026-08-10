@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQuery } from '@/store/baseQuery';
 import { setPhoto, setPhotos, deletePhoto, setStats } from '../slices/profileSlice';
-import { Photo, Stats } from '../types/profileTypes';
+import { Photo, ProfileAchievementsResponse, Stats } from '../types/profileTypes';
 
 type PhotosResponse = {
   data: Photo[] | { photos?: Photo[] };
@@ -10,7 +10,7 @@ type PhotosResponse = {
 export const profileApi = createApi({
   reducerPath: 'profileApi',
   baseQuery: baseQuery(typeof window === 'undefined'),
-  tagTypes: ['Photos', 'Stats'],
+  tagTypes: ['Photos', 'Stats', 'Achievements'],
   endpoints: (builder) => ({
     createPhoto: builder.mutation<{ data: any }, FormData>({
       query: (formData) => ({
@@ -100,6 +100,15 @@ export const profileApi = createApi({
       providesTags: ['Stats'],
     }),
 
+    getProfileAchievements: builder.query<
+      ProfileAchievementsResponse,
+      { isOwn: boolean; userId?: string }
+    >({
+      query: ({ isOwn, userId }) =>
+        isOwn ? '/achievements/profile' : `/achievements/users/${userId}/profile`,
+      providesTags: ['Achievements'],
+    }),
+
     // Public photo details: GET /profiles/users/:id/photos/:photoId
     // Returns: { data: { photo: { ...Photo, isLiked }, photoOwner: { ...user, isFollowed }, votes, comments } }
     getPublicPhotoDetails: builder.query<
@@ -132,6 +141,7 @@ export const {
   useGetOtherUserPhotosQuery,
   useLazyGetOtherUserPhotosQuery,
   useGetOtherUserStatsQuery,
+  useGetProfileAchievementsQuery,
   useGetPublicPhotoDetailsQuery,
   useLazyGetPublicPhotoDetailsQuery,
 } = profileApi;
