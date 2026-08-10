@@ -199,17 +199,18 @@ function BadgeGrid({
   onSelect: (id: string) => void;
 }) {
   return (
-    <div className="grid grid-cols-4 gap-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
       {badges.map((badge) => (
         <BadgeCell
           key={badge.id}
+          title={badge.title || formatBadgeTitle(badge.category)}
           count={badge.count}
           active={selectedId === badge.id}
           onClick={() => onSelect(badge.id)}
         >
           <BadgeImage
             imageUrl={badge.imageUrl}
-            alt={badge.title}
+            alt={badge.title || badge.category}
             active={selectedId === badge.id}
             disabled={badge.count === 0}
           />
@@ -219,12 +220,35 @@ function BadgeGrid({
   );
 }
 
+function formatBadgeTitle(value: string) {
+  const formatted = value
+    .replace(/\bTOP_/g, 'Top ')
+    .replace(/_PHOTO\b/g, ' Photo')
+    .replace(/_PHOTOGRAPHER\b/g, ' Photographer')
+    .replace(/_DAY\b/g, ' Day')
+    .replace(/_YEAR\b/g, ' Year')
+    .replace(/_PERCENT\b/g, ' Percent')
+    .replace(/_ACHIEVEMENT\b/g, ' Achievement')
+    .replace(/_PICK\b/g, ' Pick')
+    .replace(/_BADGE\b/g, ' Badge')
+    .replace(/_/g, ' ')
+    .toLowerCase();
+
+  return formatted
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 function BadgeCell({
+  title,
   count,
   active = false,
   onClick,
   children,
 }: {
+  title: string;
   count: number;
   active?: boolean;
   onClick: () => void;
@@ -232,7 +256,7 @@ function BadgeCell({
 }) {
   const disabled = count === 0;
   return (
-    <div className="flex flex-col items-center gap-2.5">
+    <div className="flex flex-col items-center gap-1.5 text-center">
       <button
         type="button"
         onClick={onClick}
@@ -250,7 +274,10 @@ function BadgeCell({
         {children}
       </button>
 
-      {/* Count pill — modern chip with dot indicator when count > 0 */}
+      <div className="min-w-0 text-[10px] font-semibold uppercase tracking-[0.05em] text-foreground/90 line-clamp-2">
+        {title}
+      </div>
+
       <span
         className={cn(
           'bg-card inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-sm font-medium tracking-wider',

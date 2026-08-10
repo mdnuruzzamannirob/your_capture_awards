@@ -63,6 +63,52 @@ export function LevelProgressBar({
     setHoveredLock(null);
   };
 
+  const formatBadgeLabel = (value: string) => {
+    const formatted = value
+      .replace(/\bTOP_/g, 'Top ')
+      .replace(/_PHOTO\b/g, ' Photographer')
+      .replace(/_PHOTOGRAPHER\b/g, ' Photographer')
+      .replace(/_DAY\b/g, ' Day')
+      .replace(/_YEAR\b/g, ' Year')
+      .replace(/_PERCENT\b/g, ' Percent')
+      .replace(/_ACHIEVEMENT\b/g, ' Achievement')
+      .replace(/_BADGE\b/g, ' Badge')
+      .replace(/_/g, ' ')
+      .toLowerCase();
+
+    return formatted
+      .split(' ')
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const formatRequirementLabel = (requirement: {
+    type?: string;
+    title?: string;
+    badge?: string;
+    badges?: string[];
+  }) => {
+    const badgeLabels = requirement.badges?.length
+      ? requirement.badges.map(formatBadgeLabel)
+      : requirement.badge
+        ? [formatBadgeLabel(requirement.badge)]
+        : [];
+
+    if (badgeLabels.length > 0) {
+      return badgeLabels;
+    }
+
+    const fallback = requirement.title ?? requirement.type?.replaceAll('_', ' ') ?? 'Requirement';
+    return [
+      fallback
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' '),
+    ];
+  };
+
   return (
     <div className={cn('relative w-full', className)}>
       <div className="w-full scrollbar-auto overflow-x-auto">
@@ -84,53 +130,72 @@ export function LevelProgressBar({
             const lockId = nextLevel ? `lock-${level.id}-${nextLevel.id}` : '';
 
             const reqText = nextLevel ? (
-              <div className="w-60 space-y-2.5 text-left sm:w-64">
+              <div className="w-56 space-y-2 text-left sm:w-72">
                 <div className="border-border-subtle flex items-center justify-between border-b pb-2">
-                  <div className="text-primary-foreground text-xs font-extrabold tracking-wide">
+                  <div className="text-primary-foreground text-xs font-extrabold tracking-wide truncate">
                     {nextLevel.levelName}
                   </div>
                   <span className="bg-surface-tertiary rounded-full px-2 py-1 text-[8px] font-bold tracking-wider uppercase">
                     {isNextLevelComplete ? 'Complete' : 'In progress'}
                   </span>
                 </div>
-                {nextLevel.requirements?.map((requirement, requirementIndex) => {
-                  const label = requirement.badge
-                    ? `${requirement.badge} badge`
-                    : requirement.title ?? requirement.type?.replaceAll('_', ' ') ?? 'Requirement';
-                  const current = requirement.current ?? 0;
-                  const calculatedPercent = requirement.required > 0 ? (current / requirement.required) * 100 : 0;
-                  const apiPercent = requirement.percentage ?? requirement.progressPercentage;
-                  const requirementPercent = Math.min(100, Math.max(0, apiPercent && apiPercent > 0 ? apiPercent : calculatedPercent));
-                  const complete = requirement.satisfied === true || current >= requirement.required || requirementPercent >= 100;
-                  const displayCurrent = current;
-                  const displayPercent = requirementPercent;
-                  const readablePercent = displayPercent > 0 && displayPercent < 0.1 ? 0.1 : displayPercent;
-                  return (
-                    <div key={`${label}-${requirementIndex}`} className="flex items-start gap-2">
-                      <span className={cn(
-                        'mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border',
-                        complete
-                          ? 'border-primary bg-primary text-primary-foreground'
-                          : 'border-muted-foreground/70 bg-transparent text-transparent',
-                      )}>
-                        {complete && <Check className="size-2.5 stroke-[3]" />}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <div className={cn('text-[10px] leading-4', complete ? 'text-primary-foreground font-semibold' : 'text-muted-foreground')}>
-                          {label}
-                        </div>
-                        <div className="mt-0.5 flex items-center justify-between gap-2 text-[9px]">
-                          <span className={complete ? 'text-primary-foreground/70' : 'text-muted-foreground'}>
-                            {displayCurrent} / {requirement.required}
-                          </span>
-                          <span className="text-muted-foreground">{readablePercent.toFixed(readablePercent < 1 ? 1 : 0)}%</span>
-                        </div>
-                        <div className="bg-surface-tertiary mt-1 h-1 w-full overflow-hidden rounded-full">
-                          <div className="bg-primary h-full rounded-full transition-all" style={{ width: `${readablePercent}%` }} />
+                {nextLevel.requirements?.flatMap((requirement, requirementIndex) => {
+                  const labels = formatRequirementLabel(requirement);
+                  const requirementItems = labels.map((formattedLabel) => ({
+                    label: formattedLabel,
+                    requirement,
+                  }));
+
+                  return requirementItems.map((item, itemIndex) => {
+                    const { label, requirement: req } = item;
+                    const current = req.current ?? 0;
+                    const calculatedPercent = req.required > 0 ? (current / req.required) * 100 : 0;
+                    const apiPercent = req.percentage ?? req.progressPercentage;
+                    const requirementPercent = Math.min(
+                      100,
+                      Math.max(0, apiPercent && apiPercent > 0 ? apiPercent : calculatedPercent),
+                    );
+                    const complete = req.satisfied === true || current >= req.required || requirementPercent >= 100;
+                    const displayCurrent = current;
+                    const displayPercent = requirementPercent;
+                    const readablePercent = displayPercent > 0 && displayPercent < 0.1 ? 0.1 : displayPercent;
+
+                    return (
+                      <div key={`${label}-${requirementIndex}-${itemIndex}`} className="flex items-start gap-2 py-1">
+                        <span
+                          className={cn(
+                            'mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border',
+                            complete
+                              ? 'border-primary bg-primary text-primary-foreground'
+                              : 'border-muted-foreground/70 bg-transparent text-transparent',
+                          )}
+                        >
+                          {complete && <Check className="size-2.5 stroke-[3]" />}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div
+                            className={cn(
+                              'truncate text-[11px] leading-5',
+                              complete ? 'text-primary-foreground font-semibold' : 'text-muted-foreground',
+                            )}
+                          >
+                            {label}
+                          </div>
+                          <div className="mt-0.5 flex items-center justify-between gap-2 text-[9px]">
+                            <span className={complete ? 'text-primary-foreground/70' : 'text-muted-foreground'}>
+                              {displayCurrent} / {req.required}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {readablePercent.toFixed(readablePercent < 1 ? 1 : 0)}%
+                            </span>
+                          </div>
+                          <div className="bg-surface-tertiary mt-1 h-1 w-full overflow-hidden rounded-full">
+                            <div className="bg-primary h-full rounded-full transition-all" style={{ width: `${readablePercent}%` }} />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
+                    );
+                  });
                 })}
               </div>
             ) : '';
