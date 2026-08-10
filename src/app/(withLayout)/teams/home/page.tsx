@@ -17,6 +17,7 @@ import {
   useAssignRoleMutation,
   useDeleteTeamMutation,
   useGetMyTeamQuery,
+  useGetTeamMembersQuery,
   useGetPendingRequestsQuery,
   useLeaveTeamMutation,
   useRejectJoinRequestMutation,
@@ -51,6 +52,14 @@ export default function TeamPage() {
   const currentUserId = user?.id || '';
 
   const { data: teamData, isLoading: isTeamLoading, isError: isTeamError } = useGetMyTeamQuery();
+  const team = teamData?.data?.team;
+  const {
+    data: membersData,
+    isLoading: isMembersLoading,
+    isError: isMembersError,
+  } = useGetTeamMembersQuery(team?.id || '', {
+    skip: !team?.id,
+  });
   const { data: requestsData } = useGetPendingRequestsQuery(teamData?.data?.team?.id || '', {
     skip: !teamData?.data?.team?.id,
   });
@@ -75,8 +84,7 @@ export default function TeamPage() {
   }, [dispatch, router]);
   const [leaveOpen, setLeaveOpen] = useState(false);
 
-  const team = teamData?.data?.team;
-  const members: TeamMember[] = team?.members || [];
+  const members: TeamMember[] = membersData?.data || [];
   const requests = (requestsData?.data || []) as JoinRequestViewModel[];
 
   const me = useMemo(
@@ -224,7 +232,7 @@ export default function TeamPage() {
 
   const winRate = team?.total_matches ? Math.round((team.win / team.total_matches) * 100) : 0;
 
-  if (isTeamLoading) {
+  if (isTeamLoading || isMembersLoading) {
     return (
       <section className="margin-user container space-y-6 py-6" aria-busy="true" aria-live="polite">
         <div className="rounded-xl border p-5">
@@ -277,7 +285,7 @@ export default function TeamPage() {
     );
   }
 
-  if (isTeamError || !team) {
+  if (isTeamError || isMembersError || !team) {
     return null;
   }
 

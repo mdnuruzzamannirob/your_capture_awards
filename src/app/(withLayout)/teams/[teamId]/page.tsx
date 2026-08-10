@@ -13,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import type { TeamDetail } from '@/lib/mock/teamDetails';
 import { useGetAllLevelsQuery, useGetUserProgressQuery } from '@/store/apis/levelsApi';
-import { useGetTeamQuery, useJoinTeamMutation } from '@/store/apis/teamApi';
+import { useGetTeamMembersQuery, useGetTeamQuery, useJoinTeamMutation } from '@/store/apis/teamApi';
 import { showErrorToast } from '@/utils/team-feedback';
 import { getAvatarClass, getInitials, getMemberName } from '@/utils/team-utils';
 import { BadgeCheck, BarChartBig, Languages, MapPin, Medal, Trophy, Users } from 'lucide-react';
@@ -133,6 +133,13 @@ export default function TeamDetailPage() {
   } = useGetTeamQuery(teamId ?? '', {
     skip: !teamId,
   });
+  const {
+    data: membersResp,
+    isLoading: isMembersLoading,
+    isError: isMembersError,
+  } = useGetTeamMembersQuery(teamId ?? '', {
+    skip: !teamId,
+  });
 
   const [joinTeam, { isLoading: isJoining }] = useJoinTeamMutation();
   const { data: levelsData } = useGetAllLevelsQuery({ page: 1, limit: 50 });
@@ -151,7 +158,7 @@ export default function TeamDetailPage() {
     user?.joinedTeam?.teamId === resolvedTeam?.id ||
     user?.joinedTeam?.team?.id === resolvedTeam?.id;
 
-  const members = resolvedTeam?.members ?? [];
+  const members = membersResp?.data ?? [];
 
   const metrics = resolvedTeam
     ? [
@@ -170,7 +177,7 @@ export default function TeamDetailPage() {
       ]
     : [];
 
-  if (isLoading) {
+  if (isLoading || isMembersLoading) {
     return <TeamDetailSkeleton />;
   }
 
@@ -322,7 +329,11 @@ export default function TeamDetailPage() {
           <Separator className="bg-surface-secondary" />
 
           <div className="divide-black-2-600 divide-y">
-            {rankedMembers.length > 0 ? (
+            {isMembersError ? (
+              <div className="text-muted-foreground px-5 py-8 text-sm sm:px-6">
+                Team members could not be loaded.
+              </div>
+            ) : rankedMembers.length > 0 ? (
               rankedMembers.map((member, index) => {
                 const name = getMemberName(member.member);
 
