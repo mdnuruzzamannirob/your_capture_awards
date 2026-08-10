@@ -172,7 +172,7 @@ const TeamHistory = () => {
 };
 
 type Tone = 'default' | 'gold' | 'green' | 'red' | 'blue';
-export function StatusBadge({
+function StatusBadge({
   className,
   icon: Icon,
   label,
