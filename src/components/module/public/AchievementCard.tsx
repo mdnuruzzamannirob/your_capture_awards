@@ -1,5 +1,6 @@
 import { cn } from '@/utils/cn';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export type AchievementCardItem = {
   id: string;
@@ -9,6 +10,8 @@ export type AchievementCardItem = {
   imageUrl: string;
   /** Date label shown as a small pill in the corner. */
   date: string;
+  /** Optional contest ID for linking to the contest details page. */
+  contestId?: string | null;
 };
 
 /**
@@ -23,10 +26,10 @@ export function AchievementCard({
   item: AchievementCardItem;
   className?: string;
 }) {
-  return (
+  const content = (
     <div
       className={cn(
-        'group/card border-border bg-surface relative aspect-video w-full cursor-pointer overflow-hidden rounded-md border shadow-md transition-all duration-300',
+        'group/card border-border bg-surface relative aspect-video w-full overflow-hidden rounded-md border shadow-md transition-all duration-300',
         'hover:border-border-strong hover:shadow-xl',
         className,
       )}
@@ -39,27 +42,28 @@ export function AchievementCard({
         className="object-cover transition-transform duration-700 ease-out group-hover/card:scale-105"
       />
 
-      {/* Dark scrim so the title stays legible regardless of photo */}
       <div className="from-background/85 via-background/35 to-background/10 absolute inset-0 bg-linear-to-t" />
 
-      {/* Date pill in the top-left corner */}
-      {/* <div className="absolute top-2.5 left-2.5">
-        <span className="bg-overlay text-foreground rounded-sm px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase shadow-md backdrop-blur-xs">
-          {item.date}
-        </span>
-      </div> */}
-
-      {/* Centered title block — matches the reference */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
-        <h4 className="text-foreground text-base font-extrabold tracking-wide uppercase drop-shadow-lg sm:text-lg">
-          {item.title}
-        </h4>
-        {item.subtitle ? (
-          <p className="text-foreground/85 mt-1 text-[11px] font-semibold tracking-wider uppercase drop-shadow-md">
-            {item.subtitle}
-          </p>
-        ) : null}
+      <div className="absolute inset-0 flex flex-col items-start justify-end p-4 text-left">
+        <div className="bg-background/80 px-3 py-2 backdrop-blur-sm">
+          <h4 className="text-foreground text-base font-extrabold tracking-wide uppercase drop-shadow-lg sm:text-lg">
+            {item.title}
+          </h4>
+          {item.subtitle ? (
+            <p className="text-foreground/85 mt-1 text-[11px] font-semibold tracking-wider uppercase drop-shadow-md">
+              {item.subtitle}
+            </p>
+          ) : null}
+        </div>
       </div>
     </div>
+  );
+
+  return item.contestId ? (
+    <Link href={`/contest/${item.contestId}`} className="block">
+      {content}
+    </Link>
+  ) : (
+    content
   );
 }

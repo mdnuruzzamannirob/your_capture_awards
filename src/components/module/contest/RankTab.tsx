@@ -164,13 +164,17 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                   className="group relative cursor-pointer overflow-hidden rounded-xl"
                   onClick={handlePhotoClick}
                 >
+                  {topPhoto?.userPhoto?.url ? (
                   <Image
-                    src={topPhoto?.userPhoto?.url}
+                    src={topPhoto.userPhoto.url}
                     alt=""
                     width={400}
                     height={260}
                     className="h-72 w-full rounded-xl object-cover transition-all duration-500 group-hover:brightness-60"
                   />
+                ) : (
+                  <div className="h-72 w-full rounded-xl bg-surface-secondary" />
+                )}
 
                   <div className="bg-overlay absolute top-2 left-2 rounded px-2 py-1 font-bold">
                     #{index + 1}
@@ -188,13 +192,17 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                       router.push(`/profile/${topPhoto?.user?.username || topPhoto?.user?.id}`);
                     }}
                   >
-                    <Image
-                      src={topPhoto?.user?.avatar}
-                      alt="Profile avatar"
-                      width={70}
-                      height={70}
-                      className="bg-foreground mb-2 size-20 rounded-full object-cover"
-                    />
+                    {topPhoto?.user?.avatar ? (
+                      <Image
+                        src={topPhoto.user.avatar}
+                        alt="Profile avatar"
+                        width={70}
+                        height={70}
+                        className="bg-foreground mb-2 size-20 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="mb-2 h-16 w-16 rounded-full bg-surface-secondary" />
+                    )}
                     <p className="font-semibold">{topPhoto?.user?.fullName}</p>
                     <p className="text-background-2-50">{topPhoto?.user?.location}</p>
                   </div>
@@ -279,13 +287,17 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                       className="flex w-1/3 cursor-pointer items-center gap-3"
                       onClick={handleUserClick}
                     >
-                      <Image
-                        src={rankPhotographer?.user?.avatar}
-                        alt=""
-                        width={96}
-                        height={96}
-                        className="bg-surface-secondary size-20 min-w-20 rounded-full object-cover"
-                      />
+                      {rankPhotographer?.user?.avatar ? (
+                        <Image
+                          src={rankPhotographer.user.avatar}
+                          alt=""
+                          width={96}
+                          height={96}
+                          className="bg-surface-secondary size-20 min-w-20 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="bg-surface-secondary size-20 min-w-20 rounded-full" />
+                      )}
                       <div className="min-w-0">
                         <h3 className="hover:text-primary truncate text-lg font-semibold whitespace-nowrap">
                           {rankPhotographer?.user?.fullName}
@@ -335,13 +347,17 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                             key={index}
                             onClick={handlePhotoClick}
                           >
-                            <Image
-                              src={photo?.photo?.url}
-                              alt=""
-                              width={400}
-                              height={280}
-                              className="h-60 w-full rounded-xl object-cover"
-                            />
+                            {photo?.photo?.url ? (
+                              <Image
+                                src={photo.photo.url}
+                                alt=""
+                                width={400}
+                                height={280}
+                                className="h-60 w-full rounded-xl object-cover"
+                              />
+                            ) : (
+                              <div className="h-60 w-full rounded-xl bg-surface-secondary" />
+                            )}
 
                             <div className="bg-overlay absolute bottom-2 left-2 flex items-center gap-1 rounded px-2 py-1 text-sm">
                               <MdOutlineHowToVote />
