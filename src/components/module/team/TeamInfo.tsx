@@ -127,12 +127,12 @@ function TeamInfo({
         <div className="min-w-0 flex-1">
           <div className="mb-1.5 flex flex-wrap items-center gap-2">
             <h1 className="text-lg font-bold md:text-xl">{team.name}</h1>
-            <Badge
+            {/* <Badge
               variant="outline"
               className="border-warning/40 bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning-foreground"
             >
               {team.level}
-            </Badge>
+            </Badge> */}
             <Badge
               variant="outline"
               className={
@@ -158,7 +158,7 @@ function TeamInfo({
             </span>
             <span className="bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
               Min Requirement:{' '}
-              {team.min_requirement ? formatSkillLabel(team.min_requirement) : 'N/A'}
+              {team.min_requirement_str ? formatSkillLabel(team.min_requirement_str) : 'N/A'}
             </span>
           </div>
         </div>

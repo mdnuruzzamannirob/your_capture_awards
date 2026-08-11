@@ -73,6 +73,7 @@ export interface TeamData {
   createdAt: string;
   updatedAt?: string;
   min_requirement?: string | null;
+  min_requirement_str?: string | null;
   active_match_id?: string | null;
   leaderboard_rank?: number | null;
 }

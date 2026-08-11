@@ -38,7 +38,7 @@ import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { useStoreModal } from '@/providers/StoreModalProvider';
 import { showErrorToast } from '@/utils/team-feedback';
 
-const TEAM_KEY_COST = 5;
+const TEAM_COIN_COST = 500;
 
 const createTeamSchema = z.object({
   name: z.string().min(3, 'Team name should be at least 3 characters').max(50, 'Too long'),
@@ -125,9 +125,9 @@ function TeamCreatePage() {
   const userProgress = progressData?.data ?? null;
   const teamLevels = levelsData?.data ?? [];
   const storeStats = storeStatsData?.data ?? null;
-  const currentLevelOrder = userProgress?.currentStatus?.order ?? 1;
+  // const currentLevelOrder = userProgress?.currentStatus?.order ?? 1;
   const currentLevelName = userProgress?.currentStatus?.name ?? 'APPRENTICE';
-  const isLevelTooLow = currentLevelOrder < 3;
+  // const isLevelTooLow = currentLevelOrder < 3;
 
   useEffect(() => {
     if (isCheckingMembership) return;
@@ -157,31 +157,31 @@ function TeamCreatePage() {
     return <CreateTeamSkeleton />;
   }
 
-  if (isLevelTooLow) {
-    return (
-      <main className="margin container py-8 lg:py-10">
-        <div className="mx-auto max-w-xl space-y-5 py-12 text-center">
-          <div className="bg-primary/10 border-primary/20 text-primary mx-auto flex size-16 items-center justify-center rounded-full border">
-            <Trophy className="size-8" />
-          </div>
-          <h1 className="font-kumbh text-foreground text-2xl font-bold">Team Creation Locked</h1>
-          <p className="text-muted-foreground text-sm leading-6">
-            You must reach at least <strong className="text-foreground">Level 3 (TRAINED)</strong>{' '}
-            to build your own team. Your current level is{' '}
-            <strong className="text-foreground">
-              Level {currentLevelOrder} ({currentLevelName})
-            </strong>
-            .
-          </p>
-          <div className="pt-4">
-            <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-              <Link href="/teams">Back to Teams</Link>
-            </Button>
-          </div>
-        </div>
-      </main>
-    );
-  }
+  // if (isLevelTooLow) {
+  //   return (
+  //     <main className="margin container py-8 lg:py-10">
+  //       <div className="mx-auto max-w-xl space-y-5 py-12 text-center">
+  //         <div className="bg-primary/10 border-primary/20 text-primary mx-auto flex size-16 items-center justify-center rounded-full border">
+  //           <Trophy className="size-8" />
+  //         </div>
+  //         <h1 className="font-kumbh text-foreground text-2xl font-bold">Team Creation Locked</h1>
+  //         <p className="text-muted-foreground text-sm leading-6">
+  //           You must reach at least <strong className="text-foreground">Level 3 (TRAINED)</strong>{' '}
+  //           to build your own team. Your current level is{' '}
+  //           <strong className="text-foreground">
+  //             Level {currentLevelOrder} ({currentLevelName})
+  //           </strong>
+  //           .
+  //         </p>
+  //         <div className="pt-4">
+  //           <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+  //             <Link href="/teams">Back to Teams</Link>
+  //           </Button>
+  //         </div>
+  //       </div>
+  //     </main>
+  //   );
+  // }
 
   const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
     void form.handleSubmit(onSubmit, (errors) => {
@@ -227,9 +227,9 @@ function TeamCreatePage() {
 
   const onSubmit = async (values: CreateTeamValues) => {
     try {
-      const availableKeys = storeStats?.key ?? 0;
-      if (availableKeys < TEAM_KEY_COST) {
-        toast.error(`You need ${TEAM_KEY_COST} keys to create a team.`);
+      const availableCoins = storeStats?.coins ?? 0;
+      if (availableCoins < TEAM_COIN_COST) {
+        toast.error(`You need ${TEAM_COIN_COST} coins to create a team.`);
         openStore();
         return;
       }
@@ -510,12 +510,12 @@ function TeamCreatePage() {
                 disabled={isCreating}
               >
                 {isCreating
-                  ? `Creating... (${TEAM_KEY_COST} keys)`
-                  : `Create team (${TEAM_KEY_COST} keys)`}
+                  ? `Creating... (${TEAM_COIN_COST} coins)`
+                  : `Create team (${TEAM_COIN_COST} coins)`}
               </Button>
             </div>
             <p className="text-muted-foreground text-right text-xs">
-              You need {TEAM_KEY_COST} keys to create a team. If you do not have enough keys, the
+              You need {TEAM_COIN_COST} coins to create a team. If you do not have enough coins, the
               store can be opened to top up.
             </p>
           </form>
