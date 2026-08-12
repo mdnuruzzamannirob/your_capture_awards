@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
+import { useSocket } from '@/providers/SocketProvider';
 import { useGetMyTeamQuery, useUploadChatFileMutation } from '@/store/apis/teamApi';
 import { cn } from '@/utils/cn';
 import { ArrowDown, FileUp, ImagePlus, Loader2, Send, TriangleAlert } from 'lucide-react';
 import Image from 'next/image';
 import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
 import { toast } from 'sonner';
 
 type ChatUser = {
@@ -67,11 +68,6 @@ type NewMessagePayload = {
   data: ChatMessage;
 };
 
-const getSocketBaseUrl = () =>
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_API_URL_V1?.replace(/\/api\/v1\/?$/, '') ||
-  'http://localhost:5003';
-
 const getDisplayName = (sender: ChatUser) => {
   const name = sender.fullName ?? `${sender.firstName ?? ''} ${sender.lastName ?? ''}`.trim();
   return name || 'Team member';
@@ -98,7 +94,7 @@ const timeFormatter = new Intl.DateTimeFormat('en-US', {
 });
 
 export default function TeamChatPage() {
-  const { user, token, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const {
     data: teamData,
     isLoading: teamLoading,
@@ -111,15 +107,13 @@ export default function TeamChatPage() {
   const teamId = team?.id ?? '';
   const currentUserId = user?.id ?? '';
 
-  const socketRef = useRef<Socket | null>(null);
+  const { socket, isConnected, isAuthenticated: isAuthenticatedSocket } = useSocket();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
-  const [isConnected, setIsConnected] = useState(false);
-  const [isAuthenticatedSocket, setIsAuthenticatedSocket] = useState(false);
   const [, setIsJoiningTeam] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -133,8 +127,6 @@ export default function TeamChatPage() {
   const olderScrollStateRef = useRef<{ top: number; height: number } | null>(null);
   const skipNextAutoScrollRef = useRef(false);
   const isAtBottomRef = useRef(true);
-
-  const socketBaseUrl = useMemo(() => getSocketBaseUrl(), []);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
     const container = scrollContainerRef.current;
@@ -267,25 +259,18 @@ export default function TeamChatPage() {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    if (
-      container.scrollTop < 24 &&
-      socketRef.current &&
-      teamId &&
-      hasMoreOlder &&
-      !isLoadingOlder
-    ) {
-      void loadTeamMessages(socketRef.current, teamId, page + 1, true);
+    if (container.scrollTop < 24 && socket && teamId && hasMoreOlder && !isLoadingOlder) {
+      void loadTeamMessages(socket, teamId, page + 1, true);
     }
 
     const isAwayFromBottom =
       container.scrollHeight - container.scrollTop - container.clientHeight > 96;
     isAtBottomRef.current = !isAwayFromBottom;
     setShowScrollButton(isAwayFromBottom);
-  }, [hasMoreOlder, isLoadingOlder, loadTeamMessages, page, teamId]);
+  }, [hasMoreOlder, isLoadingOlder, loadTeamMessages, page, socket, teamId]);
 
   const sendMessage = useCallback(
     async ({ text, file }: { text?: string; file?: File | null }) => {
-      const socket = socketRef.current;
       if (!socket || !teamId || !isAuthenticatedSocket) return;
 
       const trimmedText = text?.trim() ?? '';
@@ -333,7 +318,7 @@ export default function TeamChatPage() {
         setIsSending(false);
       }
     },
-    [appendIncomingMessage, isAuthenticatedSocket, teamId, uploadFile],
+    [appendIncomingMessage, isAuthenticatedSocket, socket, teamId, uploadFile],
   );
 
   const handleSubmit = useCallback(async () => {
@@ -346,81 +331,51 @@ export default function TeamChatPage() {
   }, []);
 
   useEffect(() => {
-    if (!teamId || !token) return;
+    if (!socket || !teamId || !isAuthenticatedSocket) return;
 
-    const socket = io(socketBaseUrl, {
-      autoConnect: false,
-      transports: ['websocket'],
-    });
-
-    socketRef.current = socket;
-    setIsConnected(false);
-    setIsAuthenticatedSocket(false);
     setMessages([]);
+    setInitialLoaded(false);
+    setIsJoiningTeam(true);
 
-    socket.on('connect', () => {
-      setIsConnected(true);
-
-      socket.emit('authenticate', token, (response: SocketAck) => {
-        if (!response?.success) {
-          toast.error(response?.message || 'Socket authentication failed');
-          socket.disconnect();
-          return;
-        }
-
-        setIsAuthenticatedSocket(true);
-
-        socket.emit('join_team', teamId, (joinResponse: SocketAck) => {
-          if (!joinResponse?.success) {
-            toast.error(joinResponse?.message || 'Failed to join team chat');
-            return;
-          }
-
-          setIsJoiningTeam(false);
-
-          const joinedMessages = normalizeMessages({
-            success: joinResponse.success,
-            message: joinResponse.message,
-            data: joinResponse.data as ChatMessage[] | { data?: ChatMessage[] } | null,
-          });
-
-          if (joinedMessages.length > 0) {
-            setMessages(sortMessages(joinedMessages));
-            setInitialLoaded(true);
-            requestAnimationFrame(() => scrollToBottom('auto'));
-            return;
-          }
-
-          loadTeamMessages(socket, teamId, 1, false);
-        });
-      });
-    });
-
-    socket.on('disconnect', () => {
-      setIsConnected(false);
-      setIsAuthenticatedSocket(false);
+    socket.emit('join_team', teamId, (joinResponse: SocketAck) => {
       setIsJoiningTeam(false);
+
+      if (!joinResponse?.success) {
+        toast.error(joinResponse?.message || 'Failed to join team chat');
+        return;
+      }
+
+      const joinedMessages = normalizeMessages({
+        success: joinResponse.success,
+        message: joinResponse.message,
+        data: joinResponse.data as ChatMessage[] | { data?: ChatMessage[] } | null,
+      });
+
+      if (joinedMessages.length > 0) {
+        setMessages(sortMessages(joinedMessages));
+        setInitialLoaded(true);
+        requestAnimationFrame(() => scrollToBottom('auto'));
+        return;
+      }
+
+      loadTeamMessages(socket, teamId, 1, false);
     });
 
     socket.on('new_message', handleNewMessage);
 
-    socket.connect();
-    setIsJoiningTeam(true);
-
     return () => {
       socket.off('new_message', handleNewMessage);
-      socket.disconnect();
-      socketRef.current = null;
+      socket.emit('leave_team', teamId);
     };
   }, [
     handleNewMessage,
+    isAuthenticatedSocket,
     loadTeamMessages,
     normalizeMessages,
     scrollToBottom,
-    socketBaseUrl,
+    socket,
     sortMessages,
     teamId,
-    token,
   ]);
 
   useEffect(() => {

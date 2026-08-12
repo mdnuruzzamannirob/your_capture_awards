@@ -1,9 +1,21 @@
+'use client';
+
+import { useGetSiteStatsQuery } from '@/store/apis/statsApi';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaArrowDown } from 'react-icons/fa6';
 import { GoDotFill } from 'react-icons/go';
 
+const numberFormatter = new Intl.NumberFormat('en-US');
+
 const Banner = () => {
+  const { data } = useGetSiteStatsQuery(undefined, {
+    pollingInterval: 30000,
+  });
+
+  const online = data?.data?.online;
+  const playingNow = data?.data?.playingNow;
+
   return (
     <section className="relative flex min-h-dvh items-center overflow-hidden">
       {/* Background Image */}
@@ -51,7 +63,7 @@ const Banner = () => {
                   <GoDotFill />
                 </span>
               </p>
-              <p>16,985,304</p>
+              <p>{online !== undefined ? numberFormatter.format(online) : ' '}</p>
             </div>
             <div className="text-lg font-medium">
               <p className="text-primary relative w-28">
@@ -60,7 +72,7 @@ const Banner = () => {
                   <GoDotFill />
                 </span>
               </p>
-              <p>16,985,304</p>
+              <p>{playingNow !== undefined ? numberFormatter.format(playingNow) : ' '}</p>
             </div>
           </div>
 

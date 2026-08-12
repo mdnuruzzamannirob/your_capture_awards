@@ -5,6 +5,7 @@ import { Kumbh_Sans } from 'next/font/google';
 import AuthRedirectHandler from '../components/module/auth/AuthRedirectHandler';
 import StoreModal from '../components/module/store/StoreModal';
 import ReduxProvider from '../providers/ReduxProvider';
+import { SocketProvider } from '../providers/SocketProvider';
 import { StoreModalProvider } from '../providers/StoreModalProvider';
 import ThemeProvider from '../providers/ThemeProvider';
 import '../styles/globals.css';
@@ -54,17 +55,19 @@ export default async function RootLayout({
       >
         <ThemeProvider>
           <ReduxProvider>
-            <StoreModalProvider>
-              <AuthRedirectHandler />
-              {children} <StoreModal />
-              <Toaster
-                expand
-                richColors
-                position="top-center"
-                swipeDirections={['bottom', 'left', 'right', 'top']}
-                duration={3000}
-              />
-            </StoreModalProvider>
+            <SocketProvider>
+              <StoreModalProvider>
+                <AuthRedirectHandler />
+                {children} <StoreModal />
+                <Toaster
+                  expand
+                  richColors
+                  position="top-center"
+                  swipeDirections={['bottom', 'left', 'right', 'top']}
+                  duration={3000}
+                />
+              </StoreModalProvider>
+            </SocketProvider>
           </ReduxProvider>
         </ThemeProvider>
       </body>
