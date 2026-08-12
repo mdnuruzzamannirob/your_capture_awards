@@ -11,7 +11,7 @@ import {
   useLazyGetContestRankPhotosQuery,
 } from '@/store/apis/contestApi';
 import getContestTabs from '@/utils/getContestTabs';
-import Image from 'next/image';
+// Use native <img> for banner to avoid Next/Image SSR hydration attribute mismatch
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import CountdownTimer from '@/components/CountdownTimer';
@@ -93,11 +93,13 @@ const ContestDetails = ({ id }: { id: string }) => {
     <main className="margin-user space-y-10">
       <section className="bg-surface-secondary text-body relative h-64 w-full overflow-hidden sm:h-80 md:h-96 lg:h-125">
         {contest?.banner ? (
-          <Image
-            src={contest?.banner}
+          <img
+            src={contest.banner}
             alt="Banner"
             width={1920}
             height={500}
+            decoding="async"
+            loading="lazy"
             className="size-full object-cover opacity-60"
           />
         ) : (
@@ -106,7 +108,7 @@ const ContestDetails = ({ id }: { id: string }) => {
           </div>
         )}
 
-        <CornerCount count={contest?.maxUploads} />
+        <CornerCount count={contest?.maxUpload ?? contest?.maxUploads} />
 
         <div className="absolute top-1/2 left-1/2 w-full -translate-x-1/2 -translate-y-1/2 space-y-3 text-center">
           <h2 className="inline-block text-2xl font-semibold sm:text-3xl md:text-4xl lg:text-5xl">

@@ -158,8 +158,11 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
       if (viewingOwn) {
         const result = await fetchMyPhotoDetails(photoId, true).unwrap();
         photoData = result.data.photo;
+        // If API returns aggregate votes at top-level, merge into photo for display
+        photoData.totalVotes = result.data.votes ?? photoData.totalVotes ?? 0;
         photoOwner = photoData?.user ?? null;
-        isLikedFromApi = photoData?.isLiked ?? false;
+        // `isLiked` may be present at top-level `result.data` or under `photo`.
+        isLikedFromApi = result.data.isLiked ?? photoData?.isLiked ?? false;
         isFollowedFromApi = false;
       } else {
         const ownerId = ownerIdParam || photo?.userId || '';
@@ -167,11 +170,14 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
           setError('Could not determine photo owner. Please navigate back and try again.');
           return;
         }
-        const result = await fetchPublicPhotoDetails({ id: ownerId, photoId }, true).unwrap();
+        // Force fresh fetch from server for public details so `isLiked` is accurate
+        const result = await fetchPublicPhotoDetails({ id: ownerId, photoId }).unwrap();
         photoData = result.data.photo;
-        photoOwner = result.data.photoOwner ?? null;
+        // API sometimes returns owner nested under `photo.user` instead of `photoOwner`.
+        photoOwner = result.data.photoOwner ?? result.data.photo?.user ?? null;
         isLikedFromApi = photoData?.isLiked ?? false;
-        isFollowedFromApi = photoOwner?.isFollowed ?? false;
+        // `isFollowed` may be provided at top-level or on the resolved owner object
+        isFollowedFromApi = result.data.isFollowed ?? photoOwner?.isFollowed ?? false;
       }
 
       // Fetch comments via RTK Query (uses cache automatically on revisit)
