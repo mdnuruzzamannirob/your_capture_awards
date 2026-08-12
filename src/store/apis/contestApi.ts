@@ -124,7 +124,8 @@ export const contestApi = createApi({
         limit?: number;
       }
     >({
-      query: ({ id, page = 1, limit = 10 }) => `/contests/${id}/photos?page=${page}&limit=${limit}`,
+      query: ({ id, page = 1, limit = 10 }) =>
+        `/contests/${id}/photos/vote?page=${page}&limit=${limit}`,
       providesTags: (result, error, { id, page = 1 }) => [
         { type: 'ContestPhotos', id: `${id}-page-${page}` },
         { type: 'ContestPhotos', id },
