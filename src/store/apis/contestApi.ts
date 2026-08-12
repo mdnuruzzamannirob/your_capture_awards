@@ -148,6 +148,30 @@ export const contestApi = createApi({
     >({
       query: ({ id, page = 1, limit = 12 }) =>
         `/contests/${id}/rank-photos?page=${page}&limit=${limit}`,
+      transformResponse: (response: any) => {
+        if (Array.isArray(response?.data)) {
+          return response;
+        }
+
+        const photos = response?.data?.photos ?? [];
+        const meta = response?.data?.meta ?? response?.meta ?? {};
+        const page = meta.page ?? 1;
+        const limit = meta.limit ?? photos.length;
+        const total = meta.total ?? photos.length;
+        const totalPage = meta.totalPage ?? Math.ceil(total / Math.max(limit, 1));
+
+        return {
+          data: photos,
+          meta: {
+            page,
+            limit,
+            total,
+            totalPage,
+            hasNextPage: meta.hasNextPage ?? page < totalPage,
+            hasPreviousPage: meta.hasPreviousPage ?? page > 1,
+          },
+        };
+      },
       providesTags: (result, error, { id, page = 1 }) => [
         { type: 'ContestRankPhotos', id: `${id}-page-${page}` },
         { type: 'ContestRankPhotos', id },

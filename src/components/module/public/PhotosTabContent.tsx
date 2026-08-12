@@ -120,6 +120,7 @@ const PhotosTabContent = ({
                     key={item.id}
                     photo={item}
                     profileUsername={username}
+                    isLikedDefault={item.isLiked}
                     allPhotos={photosList}
                     ownerId={userId}
                     style={{ width: `${width}px`, height: `${height}px`, flexShrink: 0 }}

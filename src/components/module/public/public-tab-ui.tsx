@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useToggleLikeMutation } from '@/store/apis/socialApi';
 import { useAppDispatch } from '@/store/hooks';
 import { setSwiperPhotos } from '@/store/slices/profileSlice';
@@ -43,6 +44,10 @@ export function PhotoCard({
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [toggleLike, { isLoading: isLiking }] = useToggleLikeMutation();
+
+  useEffect(() => {
+    setLiked(isLikedDefault);
+  }, [isLikedDefault]);
 
   // Support both real API photos (photo.url) and mock photos (photo.src)
   const photoSrc = photo.url || photo.src || '';
