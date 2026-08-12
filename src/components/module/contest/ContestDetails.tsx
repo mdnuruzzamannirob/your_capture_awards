@@ -93,6 +93,7 @@ const ContestDetails = ({ id }: { id: string }) => {
     <main className="margin-user space-y-10">
       <section className="bg-surface-secondary text-body relative h-64 w-full overflow-hidden sm:h-80 md:h-96 lg:h-125">
         {contest?.banner ? (
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={contest.banner}
             alt="Banner"
