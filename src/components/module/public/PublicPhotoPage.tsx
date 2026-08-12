@@ -190,6 +190,8 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
       setPhoto(photoData);
       setProfileOwner(photoOwner);
       setLiked(isLikedFromApi);
+      // eslint-disable-next-line no-console
+      console.debug('PublicPhotoPage setLiked', isLikedFromApi, 'photoId', photoId);
       setOwnerIsFollowed(isFollowedFromApi);
       setComments(commentsList);
 
