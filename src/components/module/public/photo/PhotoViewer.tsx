@@ -70,6 +70,9 @@ export function PhotoViewer({
 
   // Listen to fullscreen changes to update state
   useEffect(() => {
+    // Debug: log liked state for troubleshooting
+    // eslint-disable-next-line no-console
+    console.debug('PhotoViewer isLiked', isLiked, 'photoId', photo?.id);
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
