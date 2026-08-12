@@ -142,7 +142,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
             />
           ) : (
             photoItems?.map((topPhoto: any, index: number) => {
-              const handlePhotoClick = () => {
+                const handlePhotoClick = () => {
                 const photosToSet = photoItems.map((p) => ({
                   id: p.id,
                   url: p.userPhoto?.url,
@@ -153,9 +153,13 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                   totalVotes: p.voteCount || 0,
                 }));
                 dispatch(setSwiperPhotos(photosToSet));
-                router.push(
-                  `/photo/${topPhoto.id}?source=contest&contest=${id}&ownerId=${topPhoto.userId || topPhoto.user?.id}`,
-                );
+                const ownerIdForPhoto = topPhoto.userId || topPhoto.user?.id || '';
+                const photoId = topPhoto.id;
+                // Only include ownerId param when we have a valid owner id
+                const ownerQuery = ownerIdForPhoto ? `&ownerId=${ownerIdForPhoto}` : '';
+                if (photoId) {
+                  router.push(`/photo/${photoId}?source=contest&contest=${id}${ownerQuery}`);
+                }
               };
 
               return (
@@ -189,7 +193,8 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                     className="absolute inset-0 flex flex-col items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100"
                     onClick={(e) => {
                       e.stopPropagation();
-                      router.push(`/profile/${topPhoto?.user?.username || topPhoto?.user?.id}`);
+                      const profileIdentifier = topPhoto?.user?.username || topPhoto?.userId || topPhoto?.user?.id || '';
+                      if (profileIdentifier) router.push(`/profile/${profileIdentifier}`);
                     }}
                   >
                     {topPhoto?.user?.avatar ? (
@@ -275,9 +280,11 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
               );
 
               const handleUserClick = () => {
-                router.push(
-                  `/profile/${rankPhotographer?.user?.username || rankPhotographer?.user?.id}`,
-                );
+                const rankProfileIdentifier =
+                  rankPhotographer?.user?.username || rankPhotographer?.user?.id || '';
+                if (rankProfileIdentifier) {
+                  router.push(`/profile/${rankProfileIdentifier}`);
+                }
               };
 
               return (
