@@ -9,7 +9,6 @@ import { Eye, Heart, Loader2, Vote } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { useState } from 'react';
 
 export const getPhotoAspect = (id: string) => {
   const aspects: Record<string, number> = {
