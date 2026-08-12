@@ -144,22 +144,21 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
             photoItems?.map((topPhoto: any, index: number) => {
                 const handlePhotoClick = () => {
                 const photosToSet = photoItems.map((p) => ({
-                  id: p.id,
-                  url: p.userPhoto?.url,
-                  userId: p.userId || p.user?.id,
-                  title: p.userPhoto?.title || '',
-                  views: p.userPhoto?.views || 0,
-                  likes: p.userPhoto?.likes || 0,
-                  totalVotes: p.voteCount || 0,
+                  id: p.userPhotoId ?? p.contestPhotoId ?? p.id,
+                  url: p.url,
+                  userId: p.photographer?.id ?? null,
+                  title: p.title ?? '',
+                  views: 0,
+                  likes: 0,
+                  totalVotes: p.voteCount ?? 0,
                 }));
+
                 dispatch(setSwiperPhotos(photosToSet));
-                const ownerIdForPhoto = topPhoto.userId || topPhoto.user?.id || '';
-                const photoId = topPhoto.id;
-                // Only include ownerId param when we have a valid owner id
+
+                const ownerIdForPhoto = topPhoto.photographer?.id ?? '';
+                const photoId = topPhoto.userPhotoId ?? topPhoto.contestPhotoId ?? topPhoto.id;
                 const ownerQuery = ownerIdForPhoto ? `&ownerId=${ownerIdForPhoto}` : '';
-                if (photoId) {
-                  router.push(`/photo/${photoId}?source=contest&contest=${id}${ownerQuery}`);
-                }
+                if (photoId) router.push(`/photo/${photoId}?source=contest&contest=${id}${ownerQuery}`);
               };
 
               return (
@@ -168,17 +167,17 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                   className="group relative cursor-pointer overflow-hidden rounded-xl"
                   onClick={handlePhotoClick}
                 >
-                  {topPhoto?.userPhoto?.url ? (
-                  <Image
-                    src={topPhoto.userPhoto.url}
-                    alt=""
-                    width={400}
-                    height={260}
-                    className="h-72 w-full rounded-xl object-cover transition-all duration-500 group-hover:brightness-60"
-                  />
-                ) : (
-                  <div className="h-72 w-full rounded-xl bg-surface-secondary" />
-                )}
+                  {topPhoto?.url ? (
+                    <Image
+                      src={topPhoto.url}
+                      alt=""
+                      width={400}
+                      height={260}
+                      className="h-72 w-full rounded-xl object-cover transition-all duration-500 group-hover:brightness-60"
+                    />
+                  ) : (
+                    <div className="h-72 w-full rounded-xl bg-surface-secondary" />
+                  )}
 
                   <div className="bg-overlay absolute top-2 left-2 rounded px-2 py-1 font-bold">
                     #{index + 1}
@@ -193,13 +192,13 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                     className="absolute inset-0 flex flex-col items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100"
                     onClick={(e) => {
                       e.stopPropagation();
-                      const profileIdentifier = topPhoto?.user?.username || topPhoto?.userId || topPhoto?.user?.id || '';
+                      const profileIdentifier = topPhoto?.photographer?.username || topPhoto?.photographer?.id || '';
                       if (profileIdentifier) router.push(`/profile/${profileIdentifier}`);
                     }}
                   >
-                    {topPhoto?.user?.avatar ? (
+                    {topPhoto?.photographer?.avatar ? (
                       <Image
-                        src={topPhoto.user.avatar}
+                        src={topPhoto.photographer.avatar}
                         alt="Profile avatar"
                         width={70}
                         height={70}
@@ -208,8 +207,8 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                     ) : (
                       <div className="mb-2 h-16 w-16 rounded-full bg-surface-secondary" />
                     )}
-                    <p className="font-semibold">{topPhoto?.user?.fullName}</p>
-                    <p className="text-background-2-50">{topPhoto?.user?.location}</p>
+                    <p className="font-semibold">{topPhoto?.photographer?.fullName}</p>
+                    <p className="text-background-2-50">{topPhoto?.photographer?.location}</p>
                   </div>
                 </div>
               );
@@ -333,20 +332,21 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                       .sort((a, b) => b?.voteCount - a?.voteCount)
                       .map((photo: any, index: any) => {
                         const handlePhotoClick = () => {
-                          const photosToSet = rankPhotographer.photos.map((p: any) => ({
-                            id: p?.photo?.id,
-                            url: p?.photo?.url,
-                            userId: rankPhotographer.user?.id,
-                            title: p?.photo?.title || '',
-                            views: p?.photo?.views || 0,
-                            likes: p?.photo?.likes || 0,
-                            totalVotes: p?.voteCount || 0,
-                          }));
-                          dispatch(setSwiperPhotos(photosToSet));
-                          router.push(
-                            `/photo/${photo?.photo?.id}?source=contest&contest=${id}&ownerId=${rankPhotographer.user?.id}`,
-                          );
-                        };
+                            const photosToSet = rankPhotographer.photos.map((p: any) => ({
+                              id: p?.userPhotoId ?? p?.photo?.id ?? p?.id,
+                              url: p?.url ?? p?.photo?.url ?? null,
+                              userId: rankPhotographer.user?.id,
+                              title: p?.title ?? p?.photo?.title ?? '',
+                              views: 0,
+                              likes: 0,
+                              totalVotes: p?.voteCount ?? 0,
+                            }));
+                            dispatch(setSwiperPhotos(photosToSet));
+                            const targetId = photo?.userPhotoId ?? photo?.photo?.id ?? photo?.id;
+                            router.push(
+                              `/photo/${targetId}?source=contest&contest=${id}&ownerId=${rankPhotographer.user?.id}`,
+                            );
+                          };
 
                         return (
                           <div
@@ -354,9 +354,9 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                             key={index}
                             onClick={handlePhotoClick}
                           >
-                            {photo?.photo?.url ? (
+                            {photo?.url ? (
                               <Image
-                                src={photo.photo.url}
+                                src={photo.url}
                                 alt=""
                                 width={400}
                                 height={280}

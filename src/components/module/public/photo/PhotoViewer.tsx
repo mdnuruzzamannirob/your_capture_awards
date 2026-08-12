@@ -181,6 +181,8 @@ export function PhotoViewer({
                   ? 'fill-destructive text-destructive scale-110'
                   : 'text-primary-foreground hover:text-destructive hover:scale-105',
               )}
+              // Ensure the SVG gets a fill when liked (lucide icons use stroke by default)
+              fill={isLiked ? 'currentColor' : 'none'}
             />
           )}
         </button>
