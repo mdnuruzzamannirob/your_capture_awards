@@ -157,12 +157,13 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
 
       if (viewingOwn) {
         const result = await fetchMyPhotoDetails(photoId, true).unwrap();
-        photoData = result.data.photo;
+        const apiData: any = result.data;
+        photoData = apiData.photo;
         // If API returns aggregate votes at top-level, merge into photo for display
-        photoData.totalVotes = result.data.votes ?? photoData.totalVotes ?? 0;
+        photoData.totalVotes = apiData.votes ?? photoData.totalVotes ?? 0;
         photoOwner = photoData?.user ?? null;
-        // `isLiked` may be present at top-level `result.data` or under `photo`.
-        isLikedFromApi = result.data.isLiked ?? photoData?.isLiked ?? false;
+        // `isLiked` may be present at top-level `apiData` or under `photo`.
+        isLikedFromApi = apiData.isLiked ?? photoData?.isLiked ?? false;
         isFollowedFromApi = false;
       } else {
         const ownerId = ownerIdParam || photo?.userId || '';
@@ -172,12 +173,15 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
         }
         // Force fresh fetch from server for public details so `isLiked` is accurate
         const result = await fetchPublicPhotoDetails({ id: ownerId, photoId }).unwrap();
-        photoData = result.data.photo;
+        const apiData: any = result.data;
+        photoData = apiData.photo;
         // API sometimes returns owner nested under `photo.user` instead of `photoOwner`.
-        photoOwner = result.data.photoOwner ?? result.data.photo?.user ?? null;
-        isLikedFromApi = photoData?.isLiked ?? false;
-        // `isFollowed` may be provided at top-level or on the resolved owner object
-        isFollowedFromApi = result.data.isFollowed ?? photoOwner?.isFollowed ?? false;
+        photoOwner = apiData.photoOwner ?? apiData.photo?.user ?? null;
+        // Read isLiked/isFollowed from top-level apiData when present
+        isLikedFromApi = apiData.isLiked ?? photoData?.isLiked ?? false;
+        isFollowedFromApi = apiData.isFollowed ?? photoOwner?.isFollowed ?? false;
+        // If API returns aggregate votes at top-level, merge into photo for display
+        photoData.totalVotes = apiData.votes ?? photoData.totalVotes ?? 0;
       }
 
       // Fetch comments via RTK Query (uses cache automatically on revisit)
