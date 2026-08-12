@@ -158,9 +158,8 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
       if (viewingOwn) {
         const result = await fetchMyPhotoDetails(photoId, true).unwrap();
         const apiData: any = result.data;
-        photoData = apiData.photo;
-        // If API returns aggregate votes at top-level, merge into photo for display
-        photoData.totalVotes = apiData.votes ?? photoData.totalVotes ?? 0;
+        // Create a shallow copy so we don't mutate potentially non-extensible API objects
+        photoData = { ...(apiData.photo || {}), totalVotes: apiData.votes ?? apiData.photo?.totalVotes ?? 0 };
         photoOwner = photoData?.user ?? null;
         // `isLiked` may be present at top-level `apiData` or under `photo`.
         isLikedFromApi = apiData.isLiked ?? photoData?.isLiked ?? false;
@@ -174,7 +173,8 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
         // Force fresh fetch from server for public details so `isLiked` is accurate
         const result = await fetchPublicPhotoDetails({ id: ownerId, photoId }).unwrap();
         const apiData: any = result.data;
-        photoData = apiData.photo;
+        // Create a shallow copy so we don't mutate potentially non-extensible API objects
+        photoData = { ...(apiData.photo || {}), totalVotes: apiData.votes ?? apiData.photo?.totalVotes ?? 0 };
         // API sometimes returns owner nested under `photo.user` instead of `photoOwner`.
         photoOwner = apiData.photoOwner ?? apiData.photo?.user ?? null;
         // Read isLiked/isFollowed from top-level apiData when present
