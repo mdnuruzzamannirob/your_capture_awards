@@ -14,7 +14,7 @@ const getContestTabs = (status: Status) => {
   ];
 
   if (status === 'CLOSED' || status === 'COMPLETED') {
-    tabs = [...tabs, { label: 'Winners', key: 'winners' }];
+    tabs = [...tabs, { label: 'Winners', key: 'winners' }, { label: 'Rules', key: 'rules' }];
   }
 
   if (status === 'ACTIVE') {

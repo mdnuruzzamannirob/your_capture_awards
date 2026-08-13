@@ -15,35 +15,33 @@ type ContestPrize = {
   key: number;
 };
 
-type WinnerPhoto = {
-  photo: {
-    id: string;
-    url: string;
-  };
+type ContestPhoto = {
+  id: string;
+  url: string;
+  participantId?: string;
 };
 
 type Winner = {
   id: string;
   category: string;
+  participantId?: string;
   photo: {
     photo: {
       id: string;
       url: string;
     } | null;
-  };
-  participant?: {
-    user?: {
-      fullName?: string;
-      location?: string | null;
-      avatar?: string | null;
-    };
-    photos?: WinnerPhoto[];
+  } | null;
+  user?: {
+    fullName?: string;
+    location?: string | null;
+    avatar?: string | null;
   };
 };
 
 const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
-  const winners: Winner[] = contest?.winners?.data || [];
+  const winners: Winner[] = contest?.winners || [];
   const prizes: ContestPrize[] = contest?.prizes || [];
+  const contestPhotos: ContestPhoto[] = contest?.photos || [];
 
   const topPhotographerWinner = winners.find((winner) => winner.category === 'TOP_PHOTOGRAPHER');
 
@@ -54,10 +52,10 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
   const topPhotoPrize = prizes.find((prize) => prize.category === 'TOP_PHOTO');
 
   const photographerPhotos = useMemo(() => {
-    return (
-      topPhotographerWinner?.participant?.photos?.map((item) => item?.photo)?.filter(Boolean) || []
-    );
-  }, [topPhotographerWinner]);
+    if (!topPhotographerWinner?.participantId) return [];
+
+    return contestPhotos.filter((photo) => photo.participantId === topPhotographerWinner.participantId);
+  }, [contestPhotos, topPhotographerWinner]);
 
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
 
@@ -188,7 +186,7 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
           <div className="border-foreground size-28 shrink-0 overflow-hidden rounded-full border-4 bg-zinc-950">
             <Image
               alt="Profile"
-              src={normalizeImageUrl(winner?.participant?.user?.avatar)}
+              src={normalizeImageUrl(winner?.user?.avatar)}
               width={150}
               height={150}
               className="size-full object-cover"
@@ -197,11 +195,11 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
 
           <div className="min-w-0 space-y-1">
             <h3 className="truncate text-3xl leading-none font-semibold">
-              {winner?.participant?.user?.fullName || 'Unknown User'}
+              {winner?.user?.fullName || 'Unknown User'}
             </h3>
 
             <p className="text-muted-foreground leading-none">
-              {winner?.participant?.user?.location}
+              {winner?.user?.location}
             </p>
           </div>
         </div>
