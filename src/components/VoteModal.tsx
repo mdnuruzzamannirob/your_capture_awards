@@ -45,7 +45,6 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
   const { data: userProgressData } = useGetUserProgressQuery(undefined, { skip: false });
 
   const userVotingPower =
-    userProgressData?.data?.currentStatus?.votePower ??
     userProgressData?.data?.currentStatus?.votingPower ??
     0;
 
