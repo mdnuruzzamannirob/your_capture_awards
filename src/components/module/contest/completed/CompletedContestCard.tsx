@@ -1,18 +1,19 @@
 import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
+import { CalendarDays } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { MdOutlineHowToVote } from 'react-icons/md';
 
 const achievementIconMap: Record<string, string> = {
-  TOP_PHOTOGRAPHER: '/icons/top-photographer.png',
-  TOP_PHOTO: '/icons/top-photo.png',
+  TOP_PHOTOGRAPHER: '/icons/top-photographer-v2.png',
+  TOP_PHOTO: '/icons/top-photo-v2.png',
   WINNER: '/icons/award.png',
-  AMATEUR: '/icons/level-badge.png',
-  TALENTED: '/icons/level-badge.png',
-  SUPREME: '/icons/level-badge.png',
-  SUPERIOR: '/icons/level-badge.png',
-  TOP_NOTCH: '/icons/level-badge.png',
+  AMATEUR: '/icons/badge.png',
+  TALENTED: '/icons/badge.png',
+  SUPREME: '/icons/badge.png',
+  SUPERIOR: '/icons/badge.png',
+  TOP_NOTCH: '/icons/badge.png',
 };
 
 const formatAchievementLabel = (value: string) => {
@@ -35,103 +36,157 @@ const getContestAchievements = (contest: any) => {
   return [];
 };
 
-const AchievementTile = ({ achievement, index }: { achievement: any; index: number }) => {
+const AchievementBadge = ({ achievement, index }: { achievement: any; index: number }) => {
   const [showTextOnly, setShowTextOnly] = useState(false);
-  const icon = achievementIconMap[achievement.category] ?? achievementIconMap[achievement.levelBadge];
+  const icon =
+    achievement.imageUrl || achievementIconMap[achievement.category] || achievementIconMap[achievement.levelBadge];
   const label = achievement.levelBadge || achievement.category || achievement.title || achievement.name || 'Achievement';
 
   return (
-    <div key={achievement.id || index} className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3">
-      {icon && !showTextOnly ? (
-        <Image
-          alt={label}
-          src={icon}
-          width={42}
-          height={42}
-          onError={() => setShowTextOnly(true)}
-        />
-      ) : (
-        <div className="flex min-h-[42px] min-w-[42px] items-center justify-center rounded-full bg-muted px-3 text-center text-xs font-medium text-muted-foreground">
-          {formatAchievementLabel(label)}
-        </div>
-      )}
+    <div key={achievement.id || index} className="flex w-20 flex-col items-center gap-2 text-center">
+      <div className="ring-border bg-surface relative flex size-20 items-center justify-center overflow-hidden rounded-full ring-1">
+        {icon && !showTextOnly ? (
+          <Image
+            alt={label}
+            src={icon}
+            fill
+            className="object-contain p-3"
+            onError={() => setShowTextOnly(true)}
+          />
+        ) : (
+          <span className="text-muted-foreground px-2 text-[10px] font-medium">
+            {formatAchievementLabel(label)}
+          </span>
+        )}
+      </div>
+      <span className="text-foreground/90 line-clamp-2 text-[10px] font-semibold tracking-wide uppercase">
+        {formatAchievementLabel(label)}
+      </span>
     </div>
+  );
+};
+
+const BannerImage = ({ src, alt }: { src?: string; alt?: string }) => {
+  const [errored, setErrored] = useState(false);
+
+  if (!src || errored) {
+    return (
+      <div className="bg-muted text-muted-foreground flex h-full w-full items-center justify-center">
+        No banner available
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt || 'Contest banner'}
+      fill
+      sizes="(max-width: 768px) 100vw, 900px"
+      className="object-cover transition-transform duration-500 group-hover:scale-105"
+      onError={() => setErrored(true)}
+    />
+  );
+};
+
+const EntryPhoto = ({ src }: { src?: string }) => {
+  const [errored, setErrored] = useState(false);
+
+  if (!src || errored) {
+    return (
+      <div className="text-muted-foreground flex h-full w-full items-center justify-center">No photo</div>
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt="Uploaded Photo"
+      fill
+      sizes="(max-width: 640px) 50vw, 220px"
+      className="object-cover transition-transform duration-300 group-hover/photo:scale-110"
+      onError={() => setErrored(true)}
+    />
   );
 };
 
 const CompletedContestCard = ({ contest }: { contest: any }) => {
   const achievements = getContestAchievements(contest);
+  const photos = contest?.photos?.data ?? [];
 
   return (
-    <div className="text-foreground bg-surface-secondary border-border flex flex-col gap-5 overflow-hidden rounded-xl border-2 p-3 lg:flex-row">
-      <Link href={`/contest/${contest?.id}`} className="relative h-60 rounded-lg md:h-72 lg:flex-1 overflow-hidden">
-        {contest?.banner ? (
-          <Image
-            src={contest.banner}
-            alt={contest?.title}
-            fill
-            className="bg-surface-secondary size-full rounded-lg object-cover opacity-60"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center rounded-lg bg-muted text-muted-foreground">
-            No banner available
-          </div>
-        )}
-        <h2 className="absolute inset-0 flex items-center justify-center p-3 text-center text-2xl font-semibold">
+    <div className="text-foreground bg-surface-secondary border-border group overflow-hidden rounded-xl border-2 transition-shadow duration-300 hover:shadow-lg hover:shadow-black/30">
+      {/* Banner */}
+      <Link href={`/contest/${contest?.id}`} className="relative block h-56 w-full overflow-hidden md:h-64">
+        <BannerImage src={contest?.banner} alt={contest?.title} />
+
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/85 via-black/10 to-transparent" />
+
+        <span className="bg-primary text-primary-foreground absolute top-3 left-3 rounded-full px-3 py-1 text-[10px] font-bold tracking-wider uppercase shadow-sm">
+          Completed
+        </span>
+
+        <h2 className="absolute inset-x-0 bottom-0 line-clamp-2 p-4 text-xl font-bold text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.8)] md:text-2xl">
           {contest?.title}
         </h2>
       </Link>
 
-      <div className="flex flex-1 flex-col items-center justify-center gap-5">
-        <h3 className="text-lg font-medium">Achievements</h3>
-
-        <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="flex flex-col gap-6 p-4 md:p-5">
+        {/* Achievements */}
+        <div>
+          <h3 className="text-muted-foreground mb-3 text-xs font-bold tracking-wider uppercase">Achievements</h3>
           {achievements.length ? (
-            achievements.map((achievement: any, index: number) => (
-              <AchievementTile key={achievement.id || index} achievement={achievement} index={index} />
-            ))
+            <div className="flex flex-wrap gap-4">
+              {achievements.map((achievement: any, index: number) => (
+                <AchievementBadge key={achievement.id || index} achievement={achievement} index={index} />
+              ))}
+            </div>
           ) : (
             <p className="text-muted-foreground text-sm">No achievements yet</p>
           )}
         </div>
-      </div>
 
-      <div className="flex flex-1 flex-col justify-between gap-5">
-        <div className="grid grid-cols-2 gap-1">
-          {contest?.photos?.data?.map((item: any, index: number) => (
-            <div key={index} className="group relative cursor-pointer overflow-hidden rounded-sm bg-surface">
-              {item?.url ? (
-                <Image
-                  src={item.url}
-                  alt="Uploaded Photo"
-                  width={400}
-                  height={260}
-                  className="bg-surface-secondary h-24 w-full rounded-sm object-cover opacity-80"
-                />
-              ) : (
-                <div className="flex h-24 w-full items-center justify-center rounded-sm bg-muted text-muted-foreground">
-                  No photo
+        {/* Submitted photos */}
+        {photos.length > 0 && (
+          <div>
+            <h3 className="text-muted-foreground mb-3 text-xs font-bold tracking-wider uppercase">Your Entries</h3>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+              {photos.map((item: any, index: number) => (
+                <div
+                  key={index}
+                  className="group/photo bg-surface relative aspect-4/3 overflow-hidden rounded-lg"
+                >
+                  <EntryPhoto src={item?.url} />
+                  <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/70 to-transparent" />
+                  <p className="absolute bottom-1.5 left-1.5 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
+                    <MdOutlineHowToVote /> {item?.voteCount ?? 0}
+                  </p>
                 </div>
-              )}
-              <p className="absolute bottom-2 left-2 flex items-center justify-center gap-1">
-                <MdOutlineHowToVote />
-                {item?.voteCount ?? 0}
-              </p>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-xs uppercase opacity-70">Total VOTES</p>
-            <p className="flex items-center gap-1 text-lg font-semibold">
-              <MdOutlineHowToVote /> {contest?.totalVotes ?? 0}
-            </p>
+        {/* Stats footer */}
+        <div className="border-border flex items-center justify-between border-t pt-4">
+          <div className="flex items-center gap-3">
+            <span className="bg-surface-tertiary text-primary flex size-9 items-center justify-center rounded-full">
+              <MdOutlineHowToVote className="text-base" />
+            </span>
+            <div>
+              <p className="text-muted-foreground text-[10px] tracking-wide uppercase">Total Votes</p>
+              <p className="text-sm font-bold">{contest?.totalVotes ?? 0}</p>
+            </div>
           </div>
 
-          <div className="space-y-1">
-            <p className="text-xs opacity-70">END DATE</p>
-            <p className="text-lg font-semibold">{formatDateToDayMonYear(contest?.endDate)}</p>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-muted-foreground text-[10px] tracking-wide uppercase">End Date</p>
+              <p className="text-sm font-bold">{formatDateToDayMonYear(contest?.endDate)}</p>
+            </div>
+            <span className="bg-surface-tertiary text-primary flex size-9 items-center justify-center rounded-full">
+              <CalendarDays className="size-4" />
+            </span>
           </div>
         </div>
       </div>

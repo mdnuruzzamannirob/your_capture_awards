@@ -9,16 +9,16 @@ function resolveBadgeAsset(imageUrl: string, alt: string) {
   const rank = rankMatch?.[1] ?? null;
 
   if (text.includes('photographer')) {
-    return rank ? `/icons/top-photographer-${rank}.png` : '/icons/top-photographer.png';
+    return rank ? `/icons/top-photographer-${rank}.png` : '/icons/top-photographer-v2.png';
   }
 
   if (text.includes('photo')) {
-    return rank ? `/icons/top-photo-${rank}.png` : '/icons/top-photo.png';
+    return rank ? `/icons/top-photo-${rank}.png` : '/icons/top-photo-v2.png';
   }
 
   // Ranking badges (Day, Year, Percent, Pick, Achievement) — no "photo" in title
   if (/\bday\b|\byear\b|\bpercent\b|\bpick\b|\bachievement\b/.test(text)) {
-    return rank ? `/icons/top-photo-${rank}.png` : '/icons/top-photo.png';
+    return rank ? `/icons/top-photo-${rank}.png` : '/icons/top-photo-v2.png';
   }
 
   return imageUrl;
