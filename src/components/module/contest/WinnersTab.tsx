@@ -1,5 +1,6 @@
 'use client';
 
+import { useGetContestRankPhotographersQuery } from '@/store/apis/contestApi';
 import { TabsContent } from '@/components/ui/tabs';
 import { Gift } from 'lucide-react';
 import Image from 'next/image';
@@ -15,16 +16,11 @@ type ContestPrize = {
   key: number;
 };
 
-type ContestPhoto = {
-  id: string;
-  url: string;
-  participantId?: string;
-};
-
 type Winner = {
   id: string;
   category: string;
   participantId?: string;
+  userId?: string;
   photo: {
     photo: {
       id: string;
@@ -41,10 +37,6 @@ type Winner = {
 const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
   const winners: Winner[] = contest?.winners || [];
   const prizes: ContestPrize[] = contest?.prizes || [];
-  // Some endpoints return photos as a flat array, others nest it under `.data` — accept both.
-  const contestPhotos: ContestPhoto[] = Array.isArray(contest?.photos)
-    ? contest.photos
-    : (contest?.photos?.data ?? []);
 
   const topPhotographerWinner = winners.find((winner) => winner.category === 'TOP_PHOTOGRAPHER');
 
@@ -54,11 +46,30 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
 
   const topPhotoPrize = prizes.find((prize) => prize.category === 'TOP_PHOTO');
 
-  const photographerPhotos = useMemo(() => {
-    if (!topPhotographerWinner?.participantId) return [];
+  // The contest-detail payload doesn't include each participant's submitted photos, so pull
+  // them from the same rank-photographers endpoint RankTab uses and pick out the winner.
+  const { data: rankPhotographersData } = useGetContestRankPhotographersQuery(
+    { id: contest?.id, page: 1, limit: 50 },
+    { skip: !contest?.id || !topPhotographerWinner },
+  );
 
-    return contestPhotos.filter((photo) => photo.participantId === topPhotographerWinner.participantId);
-  }, [contestPhotos, topPhotographerWinner]);
+  const photographerPhotos = useMemo<{ id: string; url: string }[]>(() => {
+    if (!topPhotographerWinner) return [];
+
+    const participants = rankPhotographersData?.data?.participants ?? [];
+    const participant = participants.find(
+      (item: any) =>
+        item?.user?.id === topPhotographerWinner.userId ||
+        item?.participantId === topPhotographerWinner.participantId,
+    );
+
+    return (participant?.photos ?? [])
+      .map((photo: any) => ({
+        id: photo?.id ?? photo?.userPhotoId ?? photo?.photo?.id,
+        url: photo?.url ?? photo?.photo?.url,
+      }))
+      .filter((photo: { id: string; url: string }) => photo.url);
+  }, [rankPhotographersData, topPhotographerWinner]);
 
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
 
@@ -67,19 +78,6 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
       setSelectedPhoto(photographerPhotos[0]);
     }
   }, [photographerPhotos]);
-
-  useEffect(() => {
-    if (topPhotographerWinner && !photographerPhotos.length && process.env.NODE_ENV !== 'production') {
-      console.warn(
-        '[WinnersTab] TOP_PHOTOGRAPHER winner found but no matching photos in contest.photos — check field shape.',
-        {
-          winnerParticipantId: topPhotographerWinner.participantId,
-          contestPhotosCount: contestPhotos.length,
-          sampleContestPhoto: contestPhotos[0],
-        },
-      );
-    }
-  }, [topPhotographerWinner, photographerPhotos, contestPhotos]);
 
   const normalizeImageUrl = (url?: string | null) => {
     if (!url) return '/images/person.png';
