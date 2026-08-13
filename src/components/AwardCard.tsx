@@ -7,7 +7,7 @@ const AwardCard = ({
   swap = 0,
   boost = 0,
 }: {
-  title: 'top-photographer' | 'top-photo' | 'yc-top-pick';
+  title: 'top-photographer' | 'top-photo';
   swap?: number;
   boost?: number;
   keys?: number;
@@ -18,14 +18,9 @@ const AwardCard = ({
         <h3 className="text-center text-2xl font-semibold uppercase">
           Top <span className="text-primary">PHOTOGRAPHER</span> Award
         </h3>
-      ) : title === 'top-photo' ? (
-        <h3 className="text-center text-2xl font-semibold uppercase">
-          Top <span className="text-primary">PHOTO</span> Award
-        </h3>
       ) : (
         <h3 className="text-center text-2xl font-semibold uppercase">
-          <span className="text-primary">YC</span> Top Pick{' '}
-          <span className="text-primary">Award</span>
+          Top <span className="text-primary">PHOTO</span> Award
         </h3>
       )}
 

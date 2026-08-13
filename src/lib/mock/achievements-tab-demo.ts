@@ -51,24 +51,6 @@ export const ULTIMATE_BADGES: Badge[] = [
       { id: 'tpe-2', title: 'Top Photo Editor', imageUrl: PHOTO('photo-1542038784456-1ea8e935640e'), date: 'Feb 2026' },
     ],
   },
-  {
-    id: 'gurus-top-pick-ultimate',
-    title: "Guru's Top Pick — Ultimate",
-    imageUrl: IMG('photo-1577896851231-70ef18881754'),
-    count: 0,
-    cards: [
-      { id: 'gtp-1', title: "Guru's Top Pick — Ultimate", imageUrl: PHOTO('photo-1502082553048-f009c37129b9'), date: '2026' },
-    ],
-  },
-  {
-    id: 'gurus-pick',
-    title: "Guru's Pick",
-    imageUrl: IMG('photo-1518611012118-696072aa579a'),
-    count: 1,
-    cards: [
-      { id: 'gp-1', title: "Guru's Pick", imageUrl: PHOTO('photo-1500964757637-c85e8a162699'), date: 'Apr 2026' },
-    ],
-  },
 ];
 
 // ── Top Ranking badges (medal / numeric style art) ──

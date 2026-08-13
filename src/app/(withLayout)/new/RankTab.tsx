@@ -10,7 +10,6 @@ import { useEffect, useRef, useState } from 'react';
 const RANK_SUB_TABS = [
   { id: 'photographer', label: 'Top photographer' },
   { id: 'photo', label: 'Top photo' },
-  { id: 'guru', label: "Guru's top pick" },
 ];
 
 const LEVELS = ['Popular', 'Skilled', 'Premier', 'Elite', 'All star'];

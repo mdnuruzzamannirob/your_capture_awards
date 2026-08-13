@@ -19,15 +19,6 @@ const WINNERS = [
     rewards: '30 coins - 25 boosts - 20 keys',
     thumbs: 0,
   },
-  {
-    badge: 'award',
-    title: "Guru's top pick winner",
-    name: 'Dean Darling',
-    location: 'Portugal',
-    level: 'Guru II',
-    rewards: '30 coins - 25 boosts - 20 keys',
-    thumbs: 0,
-  },
 ];
 
 export function WinnerTab() {

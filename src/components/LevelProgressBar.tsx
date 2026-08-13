@@ -64,7 +64,13 @@ export function LevelProgressBar({
   };
 
   const formatBadgeLabel = (value: string) => {
-    const formatted = value
+    const normalized = value ?? '';
+
+    if (/YC_TOP_PICK|TOP_PICK|GURUS?\b|YC\b/i.test(normalized)) {
+      return '';
+    }
+
+    const formatted = normalized
       .replace(/\bTOP_/g, 'Top ')
       .replace(/_PHOTO\b/g, ' Photo')
       .replace(/_PHOTOS\b/g, ' Photos')
@@ -91,9 +97,9 @@ export function LevelProgressBar({
     badges?: string[];
   }) => {
     const badgeLabels = requirement.badges?.length
-      ? requirement.badges.map(formatBadgeLabel)
+      ? requirement.badges.map(formatBadgeLabel).filter(Boolean)
       : requirement.badge
-        ? [formatBadgeLabel(requirement.badge)]
+        ? [formatBadgeLabel(requirement.badge)].filter(Boolean)
         : [];
 
     if (badgeLabels.length > 0) {

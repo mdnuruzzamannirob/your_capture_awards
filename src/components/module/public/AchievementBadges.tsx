@@ -3,6 +3,22 @@
 import { cn } from '@/utils/cn';
 import Image from 'next/image';
 
+function resolveBadgeAsset(imageUrl: string, alt: string) {
+  const text = `${alt} ${imageUrl}`.toLowerCase();
+  const rankMatch = text.match(/\b(10|20|50|100)\b/);
+  const rank = rankMatch?.[1] ?? null;
+
+  if (text.includes('photographer')) {
+    return rank ? `/icons/top-photographer-${rank}.png` : '/icons/top-photographer.png';
+  }
+
+  if (text.includes('photo')) {
+    return rank ? `/icons/top-photo-${rank}.png` : '/icons/top-photo.png';
+  }
+
+  return imageUrl;
+}
+
 export function BadgeImage({
   imageUrl,
   alt = 'Badge',
@@ -16,24 +32,24 @@ export function BadgeImage({
   disabled?: boolean;
   className?: string;
 }) {
+  const resolvedImageUrl = resolveBadgeAsset(imageUrl, alt);
+
   return (
     <div
       className={cn(
-        'relative aspect-square w-full overflow-hidden rounded-full',
-        // Dark-mode base — thin neutral ring so light images stay defined
+        'relative mx-auto aspect-square w-full max-w-[170px] overflow-hidden rounded-full',
         'ring-border bg-surface ring-1',
-        // Active state — primary ring, offset, soft shadow
         active && 'ring-primary ring-offset-background ring-2 ring-offset-2',
         disabled && 'opacity-30 grayscale',
         className,
       )}
     >
       <Image
-        src={imageUrl}
+        src={resolvedImageUrl}
         alt={alt}
         fill
-        sizes="(max-width: 768px) 33vw, (max-width: 1280px) 16vw, 12vw"
-        className="object-cover"
+        sizes="(max-width: 640px) 24vw, (max-width: 1024px) 16vw, 12vw"
+        className="object-contain p-2"
       />
     </div>
   );

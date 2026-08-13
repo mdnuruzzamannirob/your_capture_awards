@@ -25,17 +25,6 @@ const PRIZES = [
     ],
   },
   {
-    title: "Guru's top pick winner",
-    icon: 'star',
-    bg: 'bg-purple-100 dark:bg-purple-950',
-    fg: 'text-purple-700 dark:text-purple-300',
-    stats: [
-      { icon: 'gift', value: 'x20' },
-      { icon: 'bolt', value: 'x40' },
-      { icon: 'search', value: 'x15' },
-    ],
-  },
-  {
     title: 'Top 50 photographer',
     icon: 'medal',
     bg: 'bg-muted',
