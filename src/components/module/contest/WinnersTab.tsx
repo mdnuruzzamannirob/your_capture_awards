@@ -41,7 +41,10 @@ type Winner = {
 const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
   const winners: Winner[] = contest?.winners || [];
   const prizes: ContestPrize[] = contest?.prizes || [];
-  const contestPhotos: ContestPhoto[] = contest?.photos || [];
+  // Some endpoints return photos as a flat array, others nest it under `.data` — accept both.
+  const contestPhotos: ContestPhoto[] = Array.isArray(contest?.photos)
+    ? contest.photos
+    : (contest?.photos?.data ?? []);
 
   const topPhotographerWinner = winners.find((winner) => winner.category === 'TOP_PHOTOGRAPHER');
 
@@ -64,6 +67,19 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
       setSelectedPhoto(photographerPhotos[0]);
     }
   }, [photographerPhotos]);
+
+  useEffect(() => {
+    if (topPhotographerWinner && !photographerPhotos.length && process.env.NODE_ENV !== 'production') {
+      console.warn(
+        '[WinnersTab] TOP_PHOTOGRAPHER winner found but no matching photos in contest.photos — check field shape.',
+        {
+          winnerParticipantId: topPhotographerWinner.participantId,
+          contestPhotosCount: contestPhotos.length,
+          sampleContestPhoto: contestPhotos[0],
+        },
+      );
+    }
+  }, [topPhotographerWinner, photographerPhotos, contestPhotos]);
 
   const normalizeImageUrl = (url?: string | null) => {
     if (!url) return '/images/person.png';
