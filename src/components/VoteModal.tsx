@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { useCreateVoteMutation, useLazyGetContestPhotosQuery } from '@/store/apis/contestApi';
+import { useGetUserProgressQuery } from '@/store/apis/levelsApi';
 
 import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
 import { toast } from 'sonner';
@@ -41,6 +42,22 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
 
   const [trigger, { isLoading, isFetching }] = useLazyGetContestPhotosQuery();
   const [voteUpload, { isLoading: voteLoading }] = useCreateVoteMutation();
+  const { data: userProgressData } = useGetUserProgressQuery(undefined, { skip: false });
+
+  const userVotingPower =
+    userProgressData?.data?.currentStatus?.votePower ??
+    userProgressData?.data?.currentStatus?.votingPower ??
+    0;
+
+  const resolveVotingPowerIcon = (power: number) => {
+    const normalized = Math.max(2, Math.min(18, Number(power) || 0));
+    const steps = [2, 4, 6, 8, 10, 12, 14, 16, 18];
+    const closest = steps.reduce((best, current) =>
+      Math.abs(current - normalized) < Math.abs(best - normalized) ? current : best,
+    steps[0]);
+
+    return `/icons/voting-power-${closest}.png`;
+  };
 
   const fetchPhotos = useCallback(
     async (targetPage: number, reset = false) => {
@@ -208,8 +225,8 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
                             {selected && (
                               <div className="bg-overlay absolute inset-0 flex items-center justify-center backdrop-blur-[2px] transition">
                                 <Image
-                                  src="/icons/voting-power.png"
-                                  alt="voted"
+                                  src={resolveVotingPowerIcon(userVotingPower)}
+                                  alt="voting power badge"
                                   width={150}
                                   height={150}
                                   className="size-1/2 object-contain opacity-90 drop-shadow-lg"
