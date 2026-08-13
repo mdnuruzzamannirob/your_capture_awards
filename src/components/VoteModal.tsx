@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { useCreateVoteMutation, useLazyGetContestPhotosQuery } from '@/store/apis/contestApi';
-import { useGetUserProgressQuery } from '@/store/apis/levelsApi';
+import { useGetUserProgressQuery, type UserProgress } from '@/store/apis/levelsApi';
 
 import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
 import { toast } from 'sonner';
@@ -31,6 +31,45 @@ interface ContestPhoto {
 
 const LIMIT = 10;
 
+// Only these voting-power values have a matching icon asset in /public/icons.
+const VOTING_POWER_ICON_STEPS = [2, 4, 6, 8, 10, 12, 14, 16, 18];
+
+// Resolve the icon for the user's *actual* voting power, preferring an exact
+// match over the old clamp-and-round approximation:
+//   1. The power itself matches a known icon — use it directly.
+//   2. Otherwise, fall back to the current level's canonical votePower (from
+//      the levels list the progress endpoint already returns), if that
+//      matches a known icon.
+//   3. Only as a last resort, clamp + snap to the nearest known icon so the
+//      stamp still renders something reasonable — and warn in dev so a real
+//      mismatch (e.g. voting power above 18, or off the 2-step scale) is
+//      visible instead of silently showing the wrong badge.
+const resolveVotingPowerIcon = (power: number, levels?: UserProgress['levels'], currentOrder?: number) => {
+  const numericPower = Number(power);
+
+  if (VOTING_POWER_ICON_STEPS.includes(numericPower)) {
+    return `/icons/voting-power-${numericPower}.png`;
+  }
+
+  const currentLevel = levels?.find((level) => level.order === currentOrder);
+  if (currentLevel && VOTING_POWER_ICON_STEPS.includes(currentLevel.votePower)) {
+    return `/icons/voting-power-${currentLevel.votePower}.png`;
+  }
+
+  const normalized = Math.max(2, Math.min(18, numericPower || 0));
+  const closest = VOTING_POWER_ICON_STEPS.reduce((best, current) =>
+    Math.abs(current - normalized) < Math.abs(best - normalized) ? current : best,
+  VOTING_POWER_ICON_STEPS[0]);
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(
+      `[VoteModal] No exact voting-power icon for power=${power}; falling back to voting-power-${closest}.png`,
+    );
+  }
+
+  return `/icons/voting-power-${closest}.png`;
+};
+
 const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
   const [open, setOpen] = useState<boolean>(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -47,16 +86,11 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
   const userVotingPower =
     userProgressData?.data?.currentStatus?.votingPower ??
     0;
-
-  const resolveVotingPowerIcon = (power: number) => {
-    const normalized = Math.max(2, Math.min(18, Number(power) || 0));
-    const steps = [2, 4, 6, 8, 10, 12, 14, 16, 18];
-    const closest = steps.reduce((best, current) =>
-      Math.abs(current - normalized) < Math.abs(best - normalized) ? current : best,
-    steps[0]);
-
-    return `/icons/voting-power-${closest}.png`;
-  };
+  const votingPowerIcon = resolveVotingPowerIcon(
+    userVotingPower,
+    userProgressData?.data?.levels,
+    userProgressData?.data?.currentStatus?.order,
+  );
 
   const fetchPhotos = useCallback(
     async (targetPage: number, reset = false) => {
@@ -224,7 +258,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
                             {selected && (
                               <div className="bg-overlay absolute inset-0 flex items-center justify-center backdrop-blur-[2px] transition">
                                 <Image
-                                  src={resolveVotingPowerIcon(userVotingPower)}
+                                  src={votingPowerIcon}
                                   alt="voting power badge"
                                   width={150}
                                   height={150}
