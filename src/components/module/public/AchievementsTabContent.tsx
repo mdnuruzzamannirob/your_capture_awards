@@ -20,10 +20,6 @@ type SubTabKey = 'ultimate' | 'ranking';
 
 type SelectedBadge = { tab: SubTabKey; badge: ProfileAchievementBadge };
 
-function firstEnabledBadge(badges: ProfileAchievementBadge[]) {
-  return badges.find((badge) => badge.count > 0) ?? null;
-}
-
 function SubTabButton({
   active,
   label,
@@ -100,30 +96,24 @@ const AchievementsTabContent = ({ username, isOwn = false }: Props) => {
   }, [groups]);
 
   // Sub-tab + selected badge state.
-  // Guarantee at least one badge is always selected — default to the
-  // first enabled badge in the current sub-tab.
+  // The card list starts collapsed — nothing is selected until the user
+  // clicks an unlocked badge.
   const [activeSubTab, setActiveSubTab] = useState<SubTabKey>('ultimate');
   const [selected, setSelected] = useState<SelectedBadge | null>(null);
   const activeGroup = groupByKey[activeSubTab];
   const activeBadges = activeGroup?.badges ?? [];
 
-  // When switching sub-tabs, ensure a valid selection exists in the new tab.
+  // Collapse whenever the sub-tab changes.
   useEffect(() => {
-    const selectedStillValid =
-      selected?.tab === activeSubTab &&
-      activeBadges.some((badge) => badge.id === selected.badge.id && badge.count > 0);
-
-    if (!selectedStillValid) {
-      const fallback = firstEnabledBadge(activeBadges);
-      setSelected(fallback ? { tab: activeSubTab, badge: fallback } : null);
-    }
-  }, [activeBadges, activeSubTab, selected]);
+    setSelected(null);
+  }, [activeSubTab]);
 
   const handleBadgeClick = (kind: SubTabKey, id: string) => {
     const badge = groupByKey[kind]?.badges.find((b) => b.id === id);
-    if (badge && badge.count > 0) {
-      setSelected({ tab: kind, badge });
-    }
+    if (!badge || badge.count === 0) return;
+
+    // Clicking an already-open badge collapses it again.
+    setSelected((prev) => (prev?.badge.id === id ? null : { tab: kind, badge }));
   };
 
   return (
