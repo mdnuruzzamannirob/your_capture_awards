@@ -16,6 +16,11 @@ function resolveBadgeAsset(imageUrl: string, alt: string) {
     return rank ? `/icons/top-photo-${rank}.png` : '/icons/top-photo.png';
   }
 
+  // Ranking badges (Day, Year, Percent, Pick, Achievement) — no "photo" in title
+  if (/\bday\b|\byear\b|\bpercent\b|\bpick\b|\bachievement\b/.test(text)) {
+    return rank ? `/icons/top-photo-${rank}.png` : '/icons/top-photo.png';
+  }
+
   return imageUrl;
 }
 
