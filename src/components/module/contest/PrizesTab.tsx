@@ -36,7 +36,7 @@ const PrizesTab = ({ contest, value }: { contest: any; value: string }) => {
             prize?.swap != null && { icon: MdOutlineCameraswitch, label: `x${prize.swap}`, name: 'Trade' },
             prize?.boost != null && { icon: AiOutlineThunderbolt, label: `x${prize.boost}`, name: 'Charge' },
             prize?.key != null && { icon: IoKeyOutline, label: `x${prize.key}`, name: 'Keys' },
-            prize?.coin != null && { image: '/icons/dollar.png', label: prize.coin.toLocaleString(), name: 'Coins' },
+            prize?.coin != null && { image: '/icons/ycw-coin.png', label: prize.coin.toLocaleString(), name: 'YCW Coin' },
           ].filter(Boolean) as { icon?: LucideIcon; image?: string; label: string; name: string }[];
           return (
             <article key={prize?.id ?? prize?.slotKey} className="border-border bg-surface flex min-w-0 items-center gap-4 rounded-lg border p-5 sm:gap-5 sm:p-8">

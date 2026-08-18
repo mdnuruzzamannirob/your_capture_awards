@@ -147,8 +147,8 @@ const Navbar = () => {
                   >
                     <span className="flex items-center gap-2 px-2">
                       <Image
-                        src="/icons/dollar.png"
-                        alt="Dollar"
+                        src="/icons/ycw-coin.png"
+                        alt="YCW Coin"
                         width={16}
                         height={16}
                         className="object-contain"
