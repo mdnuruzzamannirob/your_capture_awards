@@ -107,7 +107,6 @@ export const contestApi = createApi({
     // get public contest data for unauthenticated users
     getPublicContest: builder.query<{ data: any }, { id: string }>({
       query: ({ id }) => `/contests/ucontests/${id}`,
-      transformResponse: (response: any) => response?.data ?? response,
       providesTags: (result, error, { id }) => [{ type: 'Contest', id }],
     }),
 

@@ -223,9 +223,7 @@ const JoinedContest = () => {
                   </div>
                 </div>
               </div>
-              <p className="text-center">
-                Your Exposure Meter is empty. <br /> Fill up to get your Exposure Bonus!
-              </p>
+          
             </div>
 
             <div className="border-border-subtle flex items-center justify-center gap-10 border-t-[0.5px] pt-5">
