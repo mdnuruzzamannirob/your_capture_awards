@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import {
   useGetContestQuery,
   useGetJoinedContestQuery,
+  useGetPublicContestQuery,
   useLazyGetContestRankPhotosQuery,
 } from '@/store/apis/contestApi';
 import getContestTabs from '@/utils/getContestTabs';
@@ -24,7 +25,11 @@ import WinnersTab from './WinnersTab';
 
 const ContestDetails = ({ id }: { id: string }) => {
   const { isAuthenticated } = useAuth();
-  const { data: contestData, isLoading: contestLoading } = useGetContestQuery({ id });
+  const publicContestQuery = useGetPublicContestQuery({ id }, { skip: isAuthenticated });
+  const privateContestQuery = useGetContestQuery({ id }, { skip: !isAuthenticated });
+  const { data: contestData, isLoading: contestLoading } = isAuthenticated
+    ? privateContestQuery
+    : publicContestQuery;
   // Same args as JoinedContest.tsx → shares RTK Query cache, no duplicate network call.
   const { data: joinedContestData, isLoading: joinedLoading } = useGetJoinedContestQuery(
     { page: 1, limit: 10 },
