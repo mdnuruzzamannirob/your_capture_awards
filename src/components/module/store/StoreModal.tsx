@@ -149,8 +149,8 @@ const CoinCard = ({
       <div className="bg-overlay relative mx-auto mb-2.5 flex h-18 w-full items-center justify-center overflow-hidden rounded-lg">
         <div className="from-primary/25 absolute inset-0 bg-linear-to-br to-amber-500/5" />
         <Image
-          src="/icons/dollar.png"
-          alt="Dollar Icon"
+          src="/icons/ycw-coin.png"
+          alt="YCW Coin"
           width={44}
           height={44}
           className="relative object-contain"
@@ -163,7 +163,7 @@ const CoinCard = ({
           {offer.title}
         </p>
         <div className="flex items-center gap-1">
-          <Image src="/icons/dollar.png" alt="" width={18} height={18} className="object-contain" />
+          <Image src="/icons/ycw-coin.png" alt="YCW Coin" width={18} height={18} className="object-contain" />
           <span className="text-primary-foreground text-lg font-semibold">
             {offer.quantity ?? 0}
           </span>
@@ -205,15 +205,15 @@ const BundleCard = ({
         <BundleItems items={bundle.items} />
       </div>
 
-      {/* Buy button with dollar icon */}
+      {/* Buy button with YCW Coin icon */}
       <button
         type="button"
         onClick={() => onPurchase(bundle)}
         disabled={isPurchasing}
         className="bg-primary/90 text-foreground hover:bg-primary mt-2 flex w-full items-center justify-center gap-1 rounded-sm py-1.5 text-xs font-bold transition-colors duration-150 disabled:opacity-50"
       >
-        <Image src="/icons/dollar.png" alt="" width={12} height={12} className="object-contain" />
-        {bundle.amount} coin
+        <Image src="/icons/ycw-coin.png" alt="YCW Coin" width={12} height={12} className="object-contain" />
+        {bundle.amount} YCW Coin
       </button>
     </div>
   </div>
@@ -307,15 +307,15 @@ const StoreModal = () => {
                 {
                   icon: (
                     <Image
-                      src="/icons/dollar.png"
-                      alt="Coins"
+                      src="/icons/ycw-coin.png"
+                      alt="YCW Coin"
                       width={12}
                       height={12}
                       className="object-contain"
                     />
                   ),
                   value: stats?.coins ?? 0,
-                  label: 'Coins',
+                  label: 'YCW Coin',
                 },
               ].map((item, i) => (
                 <div key={i} className="flex items-center" title={item.label}>
@@ -355,15 +355,15 @@ const StoreModal = () => {
                   {
                     icon: (
                       <Image
-                        src="/icons/dollar.png"
-                        alt="Coins"
+                        src="/icons/ycw-coin.png"
+                        alt="YCW Coin"
                         width={14}
                         height={14}
                         className="object-contain"
                       />
                     ),
                     value: stats?.coins ?? 0,
-                    label: 'Coins',
+                    label: 'YCW Coin',
                   },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center" title={item.label}>
@@ -389,7 +389,7 @@ const StoreModal = () => {
 
           {/* ── Coins Section ── */}
           <section className="mb-6">
-            <SectionHeader title="Coins" subtitle="Buy coins to participate in flash challenges" />
+            <SectionHeader title="YCW Coin" subtitle="Buy YCW Coin to participate in flash challenges" />
 
             {productsLoading ? (
               <div className="flex gap-3 overflow-x-auto pb-2">

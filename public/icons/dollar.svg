@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="YCW Coin">
+  <defs>
+    <clipPath id="ycwRimClip">
+      <circle cx="32" cy="32" r="29.5"/>
+    </clipPath>
+    <clipPath id="ycwFaceClip">
+      <circle cx="32" cy="32" r="22.5"/>
+    </clipPath>
+  </defs>
+
+  <!-- outer outline -->
+  <circle cx="32" cy="32" r="30.5" fill="none" stroke="#6b2d0a" stroke-width="2"/>
+
+  <!-- rim: flat two-tone (light source top-left) -->
+  <g clip-path="url(#ycwRimClip)">
+    <rect x="0" y="0" width="64" height="64" fill="#ffc592"/>
+    <rect x="32" y="-24" width="90" height="90" fill="#fc6600" transform="rotate(45 32 32)"/>
+    <!-- gloss stripes -->
+    <g opacity="0.55" fill="#fff4eb">
+      <rect x="3" y="-24" width="4.5" height="90" transform="rotate(45 32 32)"/>
+      <rect x="13" y="-24" width="4.5" height="90" transform="rotate(45 32 32)"/>
+      <rect x="23" y="-24" width="4.5" height="90" transform="rotate(45 32 32)"/>
+    </g>
+  </g>
+  <circle cx="32" cy="32" r="29.5" fill="none" stroke="#8f3906" stroke-opacity="0.5" stroke-width="1"/>
+
+  <!-- inner ring boundary -->
+  <circle cx="32" cy="32" r="23.2" fill="none" stroke="#b94700" stroke-width="1.6"/>
+
+  <!-- face: flat two-tone, same light direction -->
+  <g clip-path="url(#ycwFaceClip)">
+    <rect x="0" y="0" width="64" height="64" fill="#ffa55b"/>
+    <rect x="32" y="-24" width="90" height="90" fill="#e25c00" transform="rotate(45 32 32)"/>
+  </g>
+
+  <!-- center medallion -->
+  <circle cx="32" cy="32" r="14.5" fill="#fff4eb"/>
+  <circle cx="32" cy="32" r="14.5" fill="none" stroke="#b94700" stroke-width="1.2"/>
+
+  <!-- aperture mark, shadow layer -->
+  <g transform="translate(33 33) scale(0.62)">
+    <path d="M0,-5 Q-11,-11 0,-18 Q11,-11 0,-5 Z" fill="#b94700" opacity="0.45"/>
+    <path d="M0,-5 Q-11,-11 0,-18 Q11,-11 0,-5 Z" fill="#b94700" opacity="0.45" transform="rotate(60)"/>
+    <path d="M0,-5 Q-11,-11 0,-18 Q11,-11 0,-5 Z" fill="#b94700" opacity="0.45" transform="rotate(120)"/>
+    <path d="M0,-5 Q-11,-11 0,-18 Q11,-11 0,-5 Z" fill="#b94700" opacity="0.45" transform="rotate(180)"/>
+    <path d="M0,-5 Q-11,-11 0,-18 Q11,-11 0,-5 Z" fill="#b94700" opacity="0.45" transform="rotate(240)"/>
+    <path d="M0,-5 Q-11,-11 0,-18 Q11,-11 0,-5 Z" fill="#b94700" opacity="0.45" transform="rotate(300)"/>
+  </g>
+
+  <!-- aperture mark, main layer -->
+  <g transform="translate(32 32) scale(0.62)">
+    <path d="M0,-5 Q-11,-11 0,-18 Q11,-11 0,-5 Z" fill="#6b2d0a"/>
+    <path d="M0,-5 Q-11,-11 0,-18 Q11,-11 0,-5 Z" fill="#6b2d0a" transform="rotate(60)"/>
+    <path d="M0,-5 Q-11,-11 0,-18 Q11,-11 0,-5 Z" fill="#6b2d0a" transform="rotate(120)"/>
+    <path d="M0,-5 Q-11,-11 0,-18 Q11,-11 0,-5 Z" fill="#6b2d0a" transform="rotate(180)"/>
+    <path d="M0,-5 Q-11,-11 0,-18 Q11,-11 0,-5 Z" fill="#6b2d0a" transform="rotate(240)"/>
+    <path d="M0,-5 Q-11,-11 0,-18 Q11,-11 0,-5 Z" fill="#6b2d0a" transform="rotate(300)"/>
+    <circle r="3.2" fill="#fff4eb"/>
+  </g>
+</svg>

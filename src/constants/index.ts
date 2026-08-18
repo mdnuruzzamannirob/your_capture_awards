@@ -86,11 +86,11 @@ export const FeatureItems: FeatureItem[] = [
     img: '/images/teamPhoto.png',
     href: '/contest/create-team',
   },
-  {
-    title: 'Host a Exhibition',
-    description:
-      'Experience innovation and creativity at our immersive exhibition showcasing cutting-edge art, technology, and culture',
-    img: '/images/exhibition.png',
-    href: '/exhibitions',
-  },
+  // {
+  //   title: 'Host a Exhibition',
+  //   description:
+  //     'Experience innovation and creativity at our immersive exhibition showcasing cutting-edge art, technology, and culture',
+  //   img: '/images/exhibition.png',
+  //   href: '/exhibitions',
+  // },
 ];
