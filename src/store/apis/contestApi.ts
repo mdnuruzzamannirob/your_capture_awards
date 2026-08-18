@@ -14,6 +14,25 @@ export type TradeContestPhotoPayload = {
   file?: File;
 };
 
+const normalizeContestListResponse = (response: any) => {
+  const payload = response?.data ?? response ?? {};
+  const contests = Array.isArray(payload) ? payload : payload?.contests ?? [];
+  const meta = payload?.meta ?? response?.meta ?? {};
+
+  return {
+    data: contests,
+    meta: {
+      page: meta.page ?? 1,
+      limit: meta.limit ?? contests.length,
+      total: meta.total ?? contests.length,
+      totalPage: meta.totalPage ?? meta.totalPages ?? Math.ceil((meta.total ?? contests.length) / Math.max(meta.limit ?? contests.length, 1)),
+      totalPages: meta.totalPages ?? meta.totalPage ?? Math.ceil((meta.total ?? contests.length) / Math.max(meta.limit ?? contests.length, 1)),
+      hasNextPage: Boolean(meta.hasNextPage ?? false),
+      hasPreviousPage: Boolean(meta.hasPreviousPage ?? false),
+    },
+  };
+};
+
 export const contestApi = createApi({
   reducerPath: 'contestApi',
   baseQuery: baseQuery(typeof window === 'undefined'),
@@ -67,6 +86,7 @@ export const contestApi = createApi({
     getPublicContests: builder.query<{ data: any[]; meta: PaginationMeta }, ContestPayload>({
       query: ({ status, page = 1, limit = 10 }) =>
         `/contests/ucontests?status=${status}&page=${page}&limit=${limit}`,
+      transformResponse: (response: any) => normalizeContestListResponse(response),
       providesTags: (result, error, { status, page = 1 }) => [
         { type: 'PublicContests', id: `${status}-${page}` },
         { type: 'PublicContests', id: 'LIST' },
@@ -77,6 +97,7 @@ export const contestApi = createApi({
     getPrivateContests: builder.query<{ data: any[]; meta: PaginationMeta }, ContestPayload>({
       query: ({ status, page = 1, limit = 10 }) =>
         `/contests?status=${status}&page=${page}&limit=${limit}`,
+      transformResponse: (response: any) => normalizeContestListResponse(response),
       providesTags: (result, error, { status, page = 1 }) => [
         { type: 'PrivateContests', id: `${status}-${page}` },
         { type: 'PrivateContests', id: 'LIST' },
@@ -93,6 +114,7 @@ export const contestApi = createApi({
     getJoinedContest: builder.query<{ data: any[]; meta: PaginationMeta }, ContestPayload>({
       query: ({ page = 1, limit = 10 } = {}) =>
         `/contests/my-active-contests?page=${page}&limit=${limit}`,
+      transformResponse: (response: any) => normalizeContestListResponse(response),
       providesTags: (result, error, { page = 1 }) => [
         { type: 'JoinedContests', id: `page-${page}` },
         { type: 'JoinedContests', id: 'LIST' },
