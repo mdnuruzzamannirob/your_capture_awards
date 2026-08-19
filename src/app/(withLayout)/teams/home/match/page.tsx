@@ -121,7 +121,7 @@ function mapContestToMatch(contest: AvailableTeamContest, currentUserId?: string
     teamsJoined: participantsCount,
     maxTeams: Math.max(participantsCount + 1, 2),
     minRequirement: 'BEGINNER',
-    hasJoined: !hasJoined,
+    hasJoined: !!hasJoined,
     teamA: {
       id: contest.id,
       name: contest.title,
@@ -213,7 +213,7 @@ export default function TeamMatchPage() {
 
   const activeMatchView = activeMatch ? mapActiveMatchToMatch(activeMatch) : null;
   const availableContests = useMemo(() => contestsQuery.data?.data ?? [], [contestsQuery.data]);
-  console.log(availableContests)
+
   const matches = useMemo(
     () => availableContests.map((c) => mapContestToMatch(c, currentUserId)),
     [availableContests, currentUserId],
