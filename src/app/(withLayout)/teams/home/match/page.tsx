@@ -79,7 +79,7 @@ function mapActiveMatchToMatch(activeMatch: ActiveTeamMatch): Match {
   return {
     id: activeMatch.id,
     theme: contest?.title || 'Active Team Battle',
-    photosRequired: contest.maxUploads || Math.max(ownPhotos, oppositionPhotos, 1),
+    photosRequired: contest.maxUpload || Math.max(ownPhotos, oppositionPhotos, 1),
     status: activeMatch.status === 'ACTIVE' ? 'IN_PROGRESS' : 'COMPLETED',
     endsAt: new Date(activeMatch.endedAt),
     banner: contest.banner || activeMatch.own.details.badge || activeMatch.team1.details.badge,
@@ -110,16 +110,18 @@ function mapContestToMatch(contest: AvailableTeamContest, currentUserId?: string
       ? contest.participantDetails.some((p) => p.userId === currentUserId || p.id === currentUserId)
       : false;
 
+      console.log(contest)
+
   return {
     id: contest.id,
     theme: contest.title,
-    photosRequired: contest.maxUploads,
+    photosRequired: contest.maxUpload,
     status: 'OPEN',
     endsAt: new Date(contest.endDate),
     teamsJoined: participantsCount,
     maxTeams: Math.max(participantsCount + 1, 2),
     minRequirement: 'BEGINNER',
-    hasJoined: !!hasJoined,
+    hasJoined: !hasJoined,
     teamA: {
       id: contest.id,
       name: contest.title,
@@ -211,6 +213,7 @@ export default function TeamMatchPage() {
 
   const activeMatchView = activeMatch ? mapActiveMatchToMatch(activeMatch) : null;
   const availableContests = useMemo(() => contestsQuery.data?.data ?? [], [contestsQuery.data]);
+  console.log(availableContests)
   const matches = useMemo(
     () => availableContests.map((c) => mapContestToMatch(c, currentUserId)),
     [availableContests, currentUserId],
@@ -223,7 +226,7 @@ export default function TeamMatchPage() {
             title: activeMatch.contest.title,
             description: '',
             banner: activeMatch.contest.banner,
-            maxUploads: activeMatch.contest.maxUploads || activeMatchView?.photosRequired || 1,
+            maxUpload: activeMatch.contest.maxUpload || activeMatchView?.photosRequired || 1,
             totalParticipants:
               activeMatch.own.members.length + activeMatch.opposition.members.length,
           }
@@ -242,7 +245,7 @@ export default function TeamMatchPage() {
   );
   const hasJoinedActiveMatch = Boolean(activeMatchMember);
   const activeUploadCount = activeMatchMember?.totalPhotoUploads ?? 0;
-  const activeMaxUploads = activeContest?.maxUploads ?? 0;
+  const activeMaxUploads = activeContest?.maxUpload ?? 0;
   const activeRemainingUploads = Math.max(activeMaxUploads - activeUploadCount, 0);
   const activeActionLabel = hasJoinedActiveMatch ? 'Submit Photo' : 'Join Match';
   const activeActionDisabled = hasJoinedActiveMatch && activeRemainingUploads <= 0;
@@ -266,7 +269,7 @@ export default function TeamMatchPage() {
 
       setSelectedContestId(contest.id);
       setSelectedAction(canManageMatch ? 'start' : 'join');
-      setSelectedRemainingUploads(contest.maxUploads);
+      setSelectedRemainingUploads(contest.maxUpload);
       requestAnimationFrame(() => uploadModalRef.current?.open());
     },
     [availableContests, canManageMatch],
@@ -278,7 +281,7 @@ export default function TeamMatchPage() {
     setSelectedContestId(activeContest.id);
     setSelectedAction(hasJoinedActiveMatch ? 'submit' : 'join');
     setSelectedRemainingUploads(
-      hasJoinedActiveMatch ? activeRemainingUploads : activeContest.maxUploads,
+      hasJoinedActiveMatch ? activeRemainingUploads : activeContest.maxUpload,
     );
     requestAnimationFrame(() => uploadModalRef.current?.open());
   }, [activeActionDisabled, activeContest, activeRemainingUploads, hasJoinedActiveMatch]);
@@ -379,8 +382,8 @@ export default function TeamMatchPage() {
           type={selectedAction === 'submit' ? 'upload' : 'join'}
           title={selectedContest.title}
           description={selectedContest.description ?? ''}
-          remaining={selectedRemainingUploads ?? selectedContest.maxUploads}
-          maxUploads={selectedContest.maxUploads}
+          remaining={selectedRemainingUploads ?? selectedContest.maxUpload}
+          maxUploads={selectedContest.maxUpload}
           contestId={selectedContest.id}
           submitLabel={
             selectedAction === 'start'

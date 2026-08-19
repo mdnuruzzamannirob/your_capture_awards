@@ -91,7 +91,7 @@ export interface AvailableTeamContest {
   banner: string | null;
   startDate: string;
   endDate: string;
-  maxUploads: number;
+  maxUpload: number;
   hoursRemaining: number;
   totalParticipants: number;
   participantDetails: { userId?: string; id?: string }[];
@@ -104,7 +104,7 @@ export interface ActiveTeamMatch {
     id: string;
     title: string;
     banner: string | null;
-    maxUploads: number;
+    maxUpload: number;
   };
   status: string;
   createdAt: string;
