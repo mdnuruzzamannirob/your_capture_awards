@@ -1,6 +1,5 @@
 'use client';
 
-
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -147,9 +146,9 @@ export default function TeamDetailPage() {
     skip: !user,
   });
 
-  const apiTeam = ((apiResp as any)?.data ?? apiResp) as any;
+  const apiTeam = ((apiResp as any)?.data?.team ?? apiResp) as any;
   const resolvedTeam = apiTeam;
-  
+
   const userLevelOrder = progressData?.data?.currentStatus?.order ?? 0;
   const requiredLevelOrder =
     levelsData?.data?.find((level) => level.levelName === resolvedTeam?.min_requirement_str)?.order ??
@@ -192,6 +191,11 @@ export default function TeamDetailPage() {
 
   const handleJoinTeam = async () => {
     if (!teamId || isJoining) return;
+
+    if (!user) {
+      router.push('/signin');
+      return;
+    }
 
     if (requiredLevelOrder > 0 && userLevelOrder > 0 && userLevelOrder < requiredLevelOrder) {
       showErrorToast(null, 'Your level does not meet this team minimum requirement');

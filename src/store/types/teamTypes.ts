@@ -81,7 +81,7 @@ export interface TeamListMember {
 export interface TeamListItem extends TeamData {
   creator?: TeamUserSummary;
   members?: TeamListMember[];
-  min_requirement_str?: string | null;
+  min_requirement_str: string;
 }
 
 export interface AvailableTeamContest {
