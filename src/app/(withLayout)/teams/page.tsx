@@ -153,94 +153,95 @@ function TeamCardSkeleton() {
   );
 }
 
-function FeaturedTeamCard({ team }: { team: TeamListItem }) {
-  const avatars = getTeamAvatars(team);
+// function FeaturedTeamCard({ team }: { team: TeamListItem }) {
+//   const avatars = getTeamAvatars(team);
 
-  return (
-    <article className="border-border hover:border-primary/40 h-full overflow-hidden rounded-md border bg-transparent p-3 transition duration-200">
-      <div className="border-border flex items-start justify-between gap-3 border-b pb-3">
-        <div className="flex min-w-0 items-start gap-3">
-          <div className="border-border bg-surface-secondary relative size-11 shrink-0 overflow-hidden rounded-full border">
-            <Image
-              src={getTeamBanner(team)}
-              alt={team.name}
-              fill
-              className="object-cover"
-              sizes="44px"
-            />
-          </div>
+//   return (
+//     <article className="border-border hover:border-primary/40 h-full overflow-hidden rounded-md border bg-transparent p-3 transition duration-200">
+//       <div className="border-border flex items-start justify-between gap-3 border-b pb-3">
+//         <div className="flex min-w-0 items-start gap-3">
+//           <div className="border-border bg-surface-secondary relative size-11 shrink-0 overflow-hidden rounded-full border">
+//             <Image
+//               src={getTeamBanner(team)}
+//               alt={team.name}
+//               fill
+//               className="object-cover"
+//               sizes="44px"
+//             />
+//           </div>
 
-          <div className="min-w-0 pt-0.5">
-            <h3 className="truncate text-[15px] leading-5 font-semibold text-balance">
-              {team.name}
-            </h3>
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-              <span className="text-primary inline-flex items-center gap-1 font-semibold">
-                <Users className="size-3.5" />
-                {team.member_count}
-              </span>
-              <span className="text-primary inline-flex items-center gap-1 font-semibold">
-                <MapPin className="size-3.5" />
-                {team.country}
-              </span>
-              <span className="text-muted-foreground inline-flex items-center gap-1 font-medium">
-                <Trophy className="text-primary-soft-foreground size-3.5" />
-                {team.score.toLocaleString()}
-              </span>
-            </div>
-          </div>
-        </div>
+//           <div className="min-w-0 pt-0.5">
+//             <h3 className="truncate text-[15px] leading-5 font-semibold text-balance">
+//               {team.name}
+//             </h3>
+//             <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+//               <span className="text-primary inline-flex items-center gap-1 font-semibold">
+//                 <Users className="size-3.5" />
+//                 {team.member_count}
+//               </span>
+//               <span className="text-primary inline-flex items-center gap-1 font-semibold">
+//                 <MapPin className="size-3.5" />
+//                 {team.country}
+//               </span>
+//               <span className="text-muted-foreground inline-flex items-center gap-1 font-medium">
+//                 <Trophy className="text-primary-soft-foreground size-3.5" />
+//                 {team.score.toLocaleString()}
+//               </span>
+//             </div>
+//           </div>
+//         </div>
 
-        <button
-          type="button"
-          className="text-muted-foreground hover:text-foreground rounded-full p-1 transition"
-          aria-label={`Close ${team.name}`}
-        >
-          <X className="size-4" />
-        </button>
-      </div>
+//         <button
+//           type="button"
+//           className="text-muted-foreground hover:text-foreground rounded-full p-1 transition"
+//           aria-label={`Close ${team.name}`}
+//         >
+//           <X className="size-4" />
+//         </button>
+//       </div>
 
-      <div className="relative px-1 py-3">
-        <div className="flex items-center justify-center gap-2">
-          <AvatarGroup className="justify-center">
-            {avatars.map((user, avatarIndex) => (
-              <Avatar key={`${team.id}-${avatarIndex}`} size="sm" className="border-border border">
-                {user.avatar ? <AvatarImage src={user.avatar} alt={getUserName(user)} /> : null}
-                <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-semibold">
-                  {getInitials(getUserName(user))}
-                </AvatarFallback>
-              </Avatar>
-            ))}
-          </AvatarGroup>
-          <span className="text-muted-foreground text-xs font-medium">
-            {avatars.length ? `${avatars.length}` : team.member_count}
-          </span>
-        </div>
-      </div>
+//       <div className="relative px-1 py-3">
+//         <div className="flex items-center justify-center gap-2">
+//           <AvatarGroup className="justify-center">
+//             {avatars.map((user, avatarIndex) => (
+//               <Avatar key={`${team.id}-${avatarIndex}`} size="sm" className="border-border border">
+//                 {user.avatar ? <AvatarImage src={user.avatar} alt={getUserName(user)} /> : null}
+//                 <AvatarFallback className="bg-primary text-primary-foreground text-[10px] font-semibold">
+//                   {getInitials(getUserName(user))}
+//                 </AvatarFallback>
+//               </Avatar>
+//             ))}
+//           </AvatarGroup>
+//           <span className="text-muted-foreground text-xs font-medium">
+//             {avatars.length ? `${avatars.length}` : team.member_count}
+//           </span>
+//         </div>
+//       </div>
 
-      <p className="text-muted-foreground border-border min-h-22 border-t pt-3 text-sm leading-6">
-        {team.description}
-      </p>
+//       <p className="text-muted-foreground border-border min-h-22 border-t pt-3 text-sm leading-6">
+//         {team.description}
+//       </p>
 
-      <div className="mt-3 flex gap-2">
-        <Button
-          asChild
-          variant="outline"
-          className="border-border bg-surface-secondary/70 text-primary h-10 flex-1"
-        >
-          <Link href={`/teams/${team.id}`}>View Team</Link>
-        </Button>
-        <JoinTeamButton
-          teamId={team.id}
-          minRequirement={team.min_requirement}
-          className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 flex-1"
-        />
-      </div>
-    </article>
-  );
-}
+//       <div className="mt-3 flex gap-2">
+//         <Button
+//           asChild
+//           variant="outline"
+//           className="border-border bg-surface-secondary/70 text-primary h-10 flex-1"
+//         >
+//           <Link href={`/teams/${team.id}`}>View Team</Link>
+//         </Button>
+//         <JoinTeamButton
+//           teamId={team.id}
+//           minRequirement={team.min_requirement}
+//           className="bg-primary text-primary-foreground hover:bg-primary/90 h-10 flex-1"
+//         />
+//       </div>
+//     </article>
+//   );
+// }
 
 function MoreTeamCard({ team }: { team: TeamListItem }) {
+  
   return (
     <article className="border-border rounded-xl border p-4 transition duration-200">
       <div className="flex items-start gap-3">
@@ -271,7 +272,7 @@ function MoreTeamCard({ team }: { team: TeamListItem }) {
         </span>
         <span className="border-border bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
           <BarChartBig size={12} />{' '}
-          {team.min_requirement ? formatSkillLabel(team.min_requirement) : 'N/A'}
+          {team.min_requirement ? formatSkillLabel(team.min_requirement_str) : 'N/A'}
         </span>
         <span className="border-border bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
           <Users size={12} /> {team.member_count}/{team.member_slots}
@@ -332,6 +333,8 @@ export default function Team() {
     { skip: skipListing },
   );
 
+ 
+
   const suggestedQuery = useGetSuggestedTeamsQuery(
     {
       page: 1,
@@ -339,6 +342,8 @@ export default function Team() {
     },
     { skip: skipListing },
   );
+
+
 
   const teams = teamsQuery.data?.data ?? [];
   const suggestedTeams = suggestedQuery.data?.data ?? [];
@@ -382,7 +387,7 @@ export default function Team() {
   return (
     <main className="margin relative isolate container overflow-hidden py-6 sm:py-8 lg:py-10">
       <div className="relative space-y-8">
-        {featuredTeams.length > 0 ? (
+        {/* {featuredTeams.length > 0 ? (
           <section className="space-y-4">
             <div className="text-foreground font-light uppercase">Suggested Teams</div>
 
@@ -401,7 +406,7 @@ export default function Team() {
               ))}
             </Swiper>
           </section>
-        ) : null}
+        ) : null} */}
 
         <section className="space-y-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
