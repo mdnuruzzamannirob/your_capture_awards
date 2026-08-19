@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 
@@ -147,11 +147,12 @@ export default function TeamDetailPage() {
     skip: !user,
   });
 
-  const apiTeam = ((apiResp as any)?.data ?? apiResp) as TeamDetail | undefined;
+  const apiTeam = ((apiResp as any)?.data ?? apiResp) as any;
   const resolvedTeam = apiTeam;
+  
   const userLevelOrder = progressData?.data?.currentStatus?.order ?? 0;
   const requiredLevelOrder =
-    levelsData?.data?.find((level) => level.levelName === resolvedTeam?.min_requirement)?.order ??
+    levelsData?.data?.find((level) => level.levelName === resolvedTeam?.min_requirement_str)?.order ??
     0;
 
   const isJoined =
@@ -231,13 +232,7 @@ export default function TeamDetailPage() {
               <div className="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:items-start">
                 <div className="border-border bg-surface-secondary relative size-28 shrink-0 overflow-hidden rounded-full border-4 sm:size-32 lg:size-36">
                   {resolvedTeam.badge ? (
-                    <Image
-                      src={resolvedTeam.badge}
-                      alt={resolvedTeam.name}
-                      fill
-                      className="object-cover"
-                      sizes="144px"
-                    />
+                    <img src={resolvedTeam.badge} alt={resolvedTeam.name} className="size-full object-cover" />
                   ) : (
                     <div className="bg-primary text-primary-foreground flex size-full items-center justify-center text-2xl font-bold">
                       {resolvedTeam.name.slice(0, 2).toUpperCase()}
@@ -281,8 +276,8 @@ export default function TeamDetailPage() {
                     </span>
                     <span className="border-border bg-surface-secondary text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs">
                       <BarChartBig size={12} />{' '}
-                      {resolvedTeam.min_requirement
-                        ? formatSkillLabel(resolvedTeam.min_requirement)
+                      {resolvedTeam.min_requirement_str
+                        ? formatSkillLabel(resolvedTeam.min_requirement_str)
                         : 'N/A'}
                     </span>
                   </div>
