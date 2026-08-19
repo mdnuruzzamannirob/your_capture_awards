@@ -146,7 +146,7 @@ export default function TeamDetailPage() {
     skip: !user,
   });
 
-  const apiTeam = ((apiResp as any)?.data?.team ?? apiResp) as any;
+  const apiTeam = ((apiResp as any)?.data ?? apiResp) as any;
   const resolvedTeam = apiTeam;
 
   const userLevelOrder = progressData?.data?.currentStatus?.order ?? 0;
