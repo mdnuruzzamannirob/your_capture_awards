@@ -12,6 +12,7 @@ interface MatchCardProps {
 }
 
 function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardProps) {
+  console.log(match)
   let teamMembersLabel = '';
   if (match.hasJoined) {
     if (match.teamsJoined <= 0) {
@@ -30,6 +31,7 @@ function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardPro
       teamMembersLabel = `${match.teamsJoined} Participated`;
     }
   }
+  console.log(teamMembersLabel)
   const banner = match.teamA.badge || '/images/TeamPhoto.png';
   const startDate = new Date(match.endsAt.getTime() - 1000 * 60 * 60 * 24 * 30).toISOString();
   const endDate = match.endsAt.toISOString();
