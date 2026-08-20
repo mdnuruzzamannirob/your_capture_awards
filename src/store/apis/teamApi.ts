@@ -234,12 +234,18 @@ export const teamApi = createApi({
     }),
 
     // ── Join Team By Invitation ───────────────────────────────────────────
-    joinByInvitation: builder.mutation<JoinByInvitationResponse, string>({
-      query: (code) => ({
-        url: '/teams/join-by-invitation',
-        method: 'POST',
-        body: { code },
-      }),
+    joinByInvitation: builder.mutation<
+      JoinByInvitationResponse,
+      string | { code: string; notificationId?: string }
+    >({
+      query: (payload) => {
+        const body = typeof payload === 'string' ? { code: payload } : payload;
+        return {
+          url: '/teams/join-by-invitation',
+          method: 'POST',
+          body,
+        };
+      },
       invalidatesTags: ['Team', 'TeamMembers', 'Teams', 'SuggestedTeams', 'TeamInvitations'],
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
@@ -251,12 +257,18 @@ export const teamApi = createApi({
     }),
 
     // ── Reject Team Invitation ────────────────────────────────────────────
-    rejectInvitation: builder.mutation<RejectInvitationResponse, string>({
-      query: (code) => ({
-        url: '/teams/reject-invitation',
-        method: 'POST',
-        body: { code },
-      }),
+    rejectInvitation: builder.mutation<
+      RejectInvitationResponse,
+      string | { code: string; notificationId?: string }
+    >({
+      query: (payload) => {
+        const body = typeof payload === 'string' ? { code: payload } : payload;
+        return {
+          url: '/teams/reject-invitation',
+          method: 'POST',
+          body,
+        };
+      },
       invalidatesTags: ['TeamInvitations'],
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {

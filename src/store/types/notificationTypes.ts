@@ -20,6 +20,7 @@ export interface NotificationItem {
     code?: string;
     teamId?: string;
     joinRequestId?: string;
+    invitationStatus?: 'accepted' | 'rejected';
     [key: string]: unknown;
   } | null;
   createdAt: string;

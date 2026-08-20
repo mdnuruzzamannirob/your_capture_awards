@@ -7,6 +7,20 @@ function resolveBadgeAsset(imageUrl: string, alt: string) {
   const text = `${alt} ${imageUrl}`.toLowerCase();
   const rankMatch = text.match(/\b(10|20|50|100)\b/);
   const rank = rankMatch?.[1] ?? null;
+  const levelAssetMap: Record<string, string> = {
+    amateur: '/icons/contest-level-amateur.svg',
+    talented: '/icons/contest-level-talented.svg',
+    supreme: '/icons/contest-level-supreme.svg',
+    superior: '/icons/contest-level-superior.svg',
+    'top notch': '/icons/contest-level-top-notch.svg',
+    top_notch: '/icons/contest-level-top-notch.svg',
+  };
+
+  for (const [level, asset] of Object.entries(levelAssetMap)) {
+    if (text.includes(level)) {
+      return asset;
+    }
+  }
 
   if (text.includes('photographer')) {
     return rank ? `/icons/top-photographer-${rank}.png` : '/icons/top-photographer-v2.png';

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Talented contest level badge">
+  <defs>
+    <linearGradient id="bg" x1="38" y1="28" x2="218" y2="232" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#12395F"/>
+      <stop offset="1" stop-color="#071728"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="56" y1="34" x2="208" y2="220" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C4F0FF"/>
+      <stop offset=".5" stop-color="#3BAFE6"/>
+      <stop offset="1" stop-color="#175A93"/>
+    </linearGradient>
+  </defs>
+  <circle cx="128" cy="128" r="118" fill="url(#bg)"/>
+  <circle cx="128" cy="128" r="104" fill="none" stroke="url(#metal)" stroke-width="10"/>
+  <path d="M128 41 199 79l-11 87-60 48-60-48-11-87 71-38Z" fill="#0C2239" stroke="url(#metal)" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M79 100h98l-49 74-49-74Z" fill="#154F78"/>
+  <path d="M99 100 128 70l29 30-29 74-29-74Z" fill="#57C7F2"/>
+  <path d="M79 100h98l-20-30H99l-20 30Z" fill="#A9EAFF"/>
+  <text x="128" y="207" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="800" fill="#DFF8FF">TL</text>
+</svg>

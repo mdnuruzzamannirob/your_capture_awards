@@ -210,7 +210,13 @@ export default function AvatarDialog() {
                 >
                   {displaySrc ? (
                     <>
-                      <Image src={displaySrc} alt="Photo preview" fill className="object-cover" />
+                      <Image
+                        src={displaySrc}
+                        alt="Photo preview"
+                        fill
+                        unoptimized={displaySrc.startsWith('blob:') || displaySrc.startsWith('data:')}
+                        className="object-cover"
+                      />
                       <div className="bg-overlay absolute inset-0 flex flex-col items-center justify-center gap-1.5 opacity-0 backdrop-blur-[2px] transition-opacity duration-200 group-hover/inner:opacity-100">
                         <FiCamera className="text-primary-foreground size-5" />
                         <span className="text-primary-foreground text-[11px] font-semibold">
@@ -272,7 +278,13 @@ export default function AvatarDialog() {
             <div className="flex flex-col items-center gap-4">
               <div className="from-primary via-primary/80 to-warning-500 rounded-full bg-linear-to-br p-0.5 shadow-[0_0_28px_-4px_color-mix(in_oklab,var(--primary)_45%,transparent)]">
                 <div className="bg-surface relative h-44 w-44 overflow-hidden rounded-full">
-                  <Image src={croppedPreview} alt="Cropped preview" fill className="object-cover" />
+                  <Image
+                    src={croppedPreview}
+                    alt="Cropped preview"
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
                 </div>
               </div>
 

@@ -300,6 +300,7 @@ function TeamCreatePage() {
                       src={badgePreview}
                       alt="Team badge preview"
                       fill
+                      unoptimized={badgePreview.startsWith('blob:') || badgePreview.startsWith('data:')}
                       className="object-cover"
                       sizes="96px"
                     />

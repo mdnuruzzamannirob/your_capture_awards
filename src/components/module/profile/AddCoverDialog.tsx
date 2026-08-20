@@ -206,6 +206,7 @@ export default function AddCoverDialog() {
                     src={displaySrc}
                     alt="Cover photo"
                     fill
+                    unoptimized={displaySrc.startsWith('blob:') || displaySrc.startsWith('data:')}
                     className="object-cover transition-all duration-300 group-hover:brightness-60"
                   />
                   {/* Change overlay */}
@@ -269,7 +270,13 @@ export default function AddCoverDialog() {
             <div className="flex flex-col items-center gap-3">
               <div className="shadow-modal ring-border-subtle relative w-full overflow-hidden rounded ring-1">
                 <div className="relative aspect-21/9 w-full">
-                  <Image src={croppedPreview} alt="Cover preview" fill className="object-cover" />
+                  <Image
+                    src={croppedPreview}
+                    alt="Cover preview"
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
                 </div>
                 <div className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_color-mix(in_oklab,var(--foreground)_6%,transparent)]" />
               </div>

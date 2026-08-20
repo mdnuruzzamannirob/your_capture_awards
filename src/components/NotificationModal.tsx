@@ -44,6 +44,9 @@ export default function NotificationModal() {
   const [joinByInvitation, { isLoading: isAcceptingInvitation }] = useJoinByInvitationMutation();
   const [rejectInvitation, { isLoading: isRejectingInvitation }] = useRejectInvitationMutation();
   const [activeInvitationId, setActiveInvitationId] = useState<string | null>(null);
+  const [handledInvitations, setHandledInvitations] = useState<
+    Record<string, 'accepted' | 'rejected'>
+  >({});
   const isHandlingInvitation = isAcceptingInvitation || isRejectingInvitation;
 
   const notifications = data?.data.notifications ?? [];
@@ -72,7 +75,8 @@ export default function NotificationModal() {
 
     setActiveInvitationId(notification.id);
     try {
-      await joinByInvitation(code).unwrap();
+      await joinByInvitation({ code, notificationId: notification.id }).unwrap();
+      setHandledInvitations((current) => ({ ...current, [notification.id]: 'accepted' }));
       toast.success('Team invitation accepted.');
       setOpen(false);
     } catch {
@@ -92,7 +96,8 @@ export default function NotificationModal() {
 
     setActiveInvitationId(notification.id);
     try {
-      await rejectInvitation(code).unwrap();
+      await rejectInvitation({ code, notificationId: notification.id }).unwrap();
+      setHandledInvitations((current) => ({ ...current, [notification.id]: 'rejected' }));
       toast.success('Team invitation rejected.');
     } catch {
       toast.error('Failed to reject invitation.');
@@ -177,26 +182,34 @@ export default function NotificationModal() {
                   </div>
                   {notification.type === NotificationType.INVITATION && (
                     <div className="mt-3 flex gap-2">
-                      <button
-                        type="button"
-                        className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-8 items-center justify-center rounded-md px-3 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
-                        disabled={isHandlingInvitation}
-                        onClick={() => handleAcceptInvitation(notification)}
-                      >
-                        {activeInvitationId === notification.id && isAcceptingInvitation
-                          ? 'Accepting...'
-                          : 'Accept'}
-                      </button>
-                      <button
-                        type="button"
-                        className="border-border bg-background hover:bg-accent inline-flex h-8 items-center justify-center rounded-md border px-3 text-xs font-medium transition"
-                        disabled={isHandlingInvitation}
-                        onClick={() => handleRejectInvitation(notification)}
-                      >
-                        {activeInvitationId === notification.id && isRejectingInvitation
-                          ? 'Rejecting...'
-                          : 'Reject'}
-                      </button>
+                      {handledInvitations[notification.id] || notification.data?.invitationStatus ? (
+                        <span className="border-border bg-surface-secondary text-muted-foreground inline-flex h-8 items-center rounded-md border px-3 text-xs font-medium capitalize">
+                          {handledInvitations[notification.id] || notification.data?.invitationStatus}
+                        </span>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-8 items-center justify-center rounded-md px-3 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
+                            disabled={isHandlingInvitation}
+                            onClick={() => handleAcceptInvitation(notification)}
+                          >
+                            {activeInvitationId === notification.id && isAcceptingInvitation
+                              ? 'Accepting...'
+                              : 'Accept'}
+                          </button>
+                          <button
+                            type="button"
+                            className="border-border bg-background hover:bg-accent inline-flex h-8 items-center justify-center rounded-md border px-3 text-xs font-medium transition"
+                            disabled={isHandlingInvitation}
+                            onClick={() => handleRejectInvitation(notification)}
+                          >
+                            {activeInvitationId === notification.id && isRejectingInvitation
+                              ? 'Rejecting...'
+                              : 'Reject'}
+                          </button>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>

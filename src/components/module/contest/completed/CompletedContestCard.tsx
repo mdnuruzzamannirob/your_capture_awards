@@ -9,11 +9,11 @@ const achievementIconMap: Record<string, string> = {
   TOP_PHOTOGRAPHER: '/icons/top-photographer-v2.png',
   TOP_PHOTO: '/icons/top-photo-v2.png',
   WINNER: '/icons/award.png',
-  AMATEUR: '/icons/badge.png',
-  TALENTED: '/icons/badge.png',
-  SUPREME: '/icons/badge.png',
-  SUPERIOR: '/icons/badge.png',
-  TOP_NOTCH: '/icons/badge.png',
+  AMATEUR: '/icons/contest-level-amateur.svg',
+  TALENTED: '/icons/contest-level-talented.svg',
+  SUPREME: '/icons/contest-level-supreme.svg',
+  SUPERIOR: '/icons/contest-level-superior.svg',
+  TOP_NOTCH: '/icons/contest-level-top-notch.svg',
 };
 
 const formatAchievementLabel = (value: string) => {
