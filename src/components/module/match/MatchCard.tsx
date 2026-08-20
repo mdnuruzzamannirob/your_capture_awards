@@ -2,17 +2,21 @@ import CornerCount from '@/components/CornerCount';
 import { Button } from '@/components/ui/button';
 import CountdownTimer from '@/components/CountdownTimer';
 import { Match } from '@/types/match';
-import { Play } from 'lucide-react';
 import Image from 'next/image';
 
 interface MatchCardProps {
   match: Match;
   onStart: (match: Match) => void;
   actionLabel?: string;
+  actionDisabled?: boolean;
 }
 
-function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardProps) {
-  console.log(match)
+function MatchCard({
+  match,
+  onStart,
+  actionLabel = 'Start Match',
+  actionDisabled = false,
+}: MatchCardProps) {
   let teamMembersLabel = '';
   if (match.hasJoined) {
     if (match.teamsJoined <= 0) {
@@ -31,10 +35,10 @@ function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardPro
       teamMembersLabel = `${match.teamsJoined} Participated`;
     }
   }
-  console.log(teamMembersLabel)
   const banner = match.teamA.badge || '/images/TeamPhoto.png';
   const startDate = new Date(match.endsAt.getTime() - 1000 * 60 * 60 * 24 * 30).toISOString();
   const endDate = match.endsAt.toISOString();
+  const buttonLabel = match.hasJoined ? actionLabel : 'Join Contest';
 
   return (
     <article className="group border-border bg-surface-secondary/80 overflow-hidden rounded-xl border-2">
@@ -52,7 +56,11 @@ function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardPro
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-linear-to-b from-black/85 to-transparent" />
 
         {/* Upload limit badge */}
-        <CornerCount count={match.photosRequired} label="PHOTOS" className="z-10" />
+        <CornerCount
+          count={match.photosRequired}
+          label={match.countLabel ?? 'PHOTOS'}
+          className="z-10"
+        />
 
         {/* Title — top left, always visible, large */}
         <div className="absolute top-3 right-14 left-3 z-10">
@@ -66,9 +74,9 @@ function MatchCard({ match, onStart, actionLabel = 'Start Match' }: MatchCardPro
           <Button
             className="bg-primary text-primary-foreground hover:bg-primary/90 pointer-events-auto rounded px-6 py-2 text-sm font-medium uppercase transition disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => onStart(match)}
-            disabled={match.hasJoined}
+            disabled={actionDisabled}
           >
-            {match.hasJoined ? 'Joined' : actionLabel}
+            {buttonLabel}
           </Button>
         </div>
 

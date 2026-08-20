@@ -14,14 +14,15 @@ export default function UploadPhoto({
   remaining: number;
 }) {
   const modalRef = useRef<UploadModalRef>(null);
+  const maxUploads = contest?.maxUploads ?? contest?.maxUpload ?? 0;
 
   const handleUpload = async ({ profileImageUrl }: any) => {
     if (Array.isArray(profileImageUrl)) {
       setImages((prev) =>
-        [...prev, ...profileImageUrl.map((img: any) => img.url)].slice(0, contest.maxUploads),
+        [...prev, ...profileImageUrl.map((img: any) => img.url)].slice(0, maxUploads),
       );
     } else if (typeof profileImageUrl === 'string') {
-      setImages((prev) => [...prev, profileImageUrl].slice(0, contest.maxUploads));
+      setImages((prev) => [...prev, profileImageUrl].slice(0, maxUploads));
     }
   };
 

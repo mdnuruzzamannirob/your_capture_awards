@@ -27,4 +27,5 @@ export interface Match {
   maxTeams: number;
   minRequirement: string; // e.g. "APPRENTICE"
   hasJoined?: boolean;
+  countLabel?: string;
 }

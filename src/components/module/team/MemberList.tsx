@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Role, TeamMember } from '@/types/team';
 import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
+import { resolveImageUrl } from '@/utils/resolveImageUrl';
 import { getAvatarClass, getInitials, getMemberName, getRoleChipClass } from '@/utils/team-utils';
 import { UserPlus } from 'lucide-react';
 import MemberManagePopover from './MemberManagePopover';
@@ -11,6 +12,7 @@ interface MemberListProps {
   currentUserId: string;
   isLeader: boolean;
   isMod: boolean;
+  canInvite: boolean;
   onChangeRole: (memberRowId: string, role: Role) => void;
   onRemove: (member: TeamMember) => void;
   onInvite: () => void;
@@ -21,6 +23,7 @@ function MemberList({
   currentUserId,
   isLeader,
   isMod,
+  canInvite,
   onChangeRole,
   onRemove,
   onInvite,
@@ -31,7 +34,14 @@ function MemberList({
         <p className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
           Members ({members.length})
         </p>
-        <Button variant="outline" size="sm" className="h-7 text-xs" onClick={onInvite}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 text-xs"
+          disabled={!canInvite}
+          title={canInvite ? 'Invite members' : 'No member slots available'}
+          onClick={onInvite}
+        >
           <UserPlus size={13} className="mr-1.5" /> Invite
         </Button>
       </div>
@@ -40,13 +50,14 @@ function MemberList({
         {members.map((m, index) => {
           const isMe = m.memberId === currentUserId;
           const name = getMemberName(m.member);
+          const avatarUrl = resolveImageUrl(m.member.avatar);
           // last 2 rows → popover opens upward to avoid viewport clipping
           const openUp = index >= members.length - 2;
 
           return (
             <div key={m.id} className="flex items-center gap-3 px-4 py-3 sm:px-5">
               <Avatar className="size-9 shrink-0">
-                {m.member.avatar && <AvatarImage src={m.member.avatar} className="object-cover" />}
+                {avatarUrl && <AvatarImage src={avatarUrl} className="object-cover" />}
                 <AvatarFallback className={`text-[11px] font-semibold ${getAvatarClass(m.level)}`}>
                   {getInitials(
                     m.member.fullName,

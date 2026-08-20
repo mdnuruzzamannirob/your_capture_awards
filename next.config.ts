@@ -6,14 +6,17 @@ const nextConfig: NextConfig = {
     root: path.resolve(__dirname),
   },
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '*', // allows any HTTPS domain
+        hostname: 'capture-bucket.sfo3.digitaloceanspaces.com',
+        pathname: '/captureaward/**',
       },
       {
         protocol: 'http',
-        hostname: '*', // allows any HTTP domain
+        hostname: 'capture-bucket.sfo3.digitaloceanspaces.com',
+        pathname: '/captureaward/**',
       },
     ],
   },

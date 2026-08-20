@@ -24,6 +24,7 @@ import {
   Unlock,
 } from 'lucide-react';
 import Image from 'next/image';
+import { resolveImageUrl } from '@/utils/resolveImageUrl';
 
 interface TeamInfoProps {
   team: TeamData;
@@ -48,6 +49,7 @@ function TeamInfo({
   onLeave,
   onDisband,
 }: TeamInfoProps) {
+  const badgeUrl = resolveImageUrl(team.badge);
   const stats = [
     { icon: <Trophy size={11} />, label: 'Points', value: team.score.toLocaleString() },
     {
@@ -67,9 +69,9 @@ function TeamInfo({
         <div className="flex items-start justify-between gap-4 md:contents">
           {/* Badge */}
           <div className="bg-surface-secondary flex size-18 shrink-0 items-center justify-center overflow-hidden rounded-xl border">
-            {team.badge ? (
+            {badgeUrl ? (
               <Image
-                src={team.badge}
+                src={badgeUrl}
                 alt="team badge"
                 width={72}
                 height={72}

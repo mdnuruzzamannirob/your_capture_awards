@@ -39,6 +39,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
   const profileParam = searchParams.get('profile') || '';
   const ownerIdParam = searchParams.get('ownerId') || '';
   const contestParam = searchParams.get('contest') || '';
+  const returnToParam = searchParams.get('returnTo') || '';
 
   const dispatch = useAppDispatch();
   const { user: currentUser } = useAuth();
@@ -77,6 +78,9 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
   );
 
   const backUrl = (() => {
+    if (returnToParam.startsWith('/') && !returnToParam.startsWith('//')) {
+      return returnToParam;
+    }
     if (source === 'contest' && (contestParam || photo?.contestId)) {
       return `/contest/${contestParam || photo.contestId}`;
     }

@@ -13,12 +13,15 @@ import {
   GetTeamLeaderboardResponse,
   GetTeamMatchHistoryParams,
   GetTeamMatchHistoryResponse,
+  GetTeamInvitationsResponse,
   GetTeamMembersResponse,
   GetTeamsParams,
   GetTeamsResponse,
   InviteMemberResponse,
+  JoinByInvitationResponse,
   JoinTeamResponse,
   LeaveTeamResponse,
+  RejectInvitationResponse,
   RejectRequestResponse,
   RemoveMemberResponse,
   RevokeRoleResponse,
@@ -28,6 +31,7 @@ import {
   UpdateTeamResponse,
 } from '@/store/types/teamTypes';
 import { authApi } from '@/store/apis/authApi';
+import { notificationApi } from '@/store/apis/notificationApi';
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 export const teamApi = createApi({
@@ -181,27 +185,11 @@ export const teamApi = createApi({
 
     // ── Start Match Auto ────────────────────────────────────────────────
     startMatchAuto: builder.mutation<StartMatchAutoResponse, StartMatchAutoRequest>({
-      query: ({ teamId, contestId, files, photoIds }) => {
-        if (photoIds?.length) {
-          return {
-            url: `/teams/${teamId}/start-match-auto`,
-            method: 'POST',
-            body: { contestId, photoIds },
-          };
-        }
-
-        const formData = new FormData();
-        formData.append('contestId', contestId);
-        files?.forEach((file) => {
-          formData.append('files', file);
-        });
-
-        return {
-          url: `/teams/${teamId}/start-match-auto`,
-          method: 'POST',
-          body: formData,
-        };
-      },
+      query: ({ teamId, contestId }) => ({
+        url: `/teams/${teamId}/start-match-auto`,
+        method: 'POST',
+        body: { contestId },
+      }),
       invalidatesTags: ['TeamMatch', 'TeamContests', 'Team'],
     }),
 
@@ -225,9 +213,57 @@ export const teamApi = createApi({
       query: ({ teamId, userId }) => ({
         url: '/teams/invite',
         method: 'POST',
-        body: { userId, teamId },
+        body: { receiverId: userId, teamId },
       }),
       invalidatesTags: ['TeamInvitations'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(notificationApi.util.invalidateTags(['Notifications']));
+        } catch {}
+      },
+    }),
+
+    // ── Get Pending Team Invitations ──────────────────────────────────────
+    getTeamInvitations: builder.query<GetTeamInvitationsResponse, string>({
+      query: (teamId) => ({
+        url: `/teams/invitations/pending/${teamId}`,
+        method: 'GET',
+      }),
+      providesTags: ['TeamInvitations'],
+    }),
+
+    // ── Join Team By Invitation ───────────────────────────────────────────
+    joinByInvitation: builder.mutation<JoinByInvitationResponse, string>({
+      query: (code) => ({
+        url: '/teams/join-by-invitation',
+        method: 'POST',
+        body: { code },
+      }),
+      invalidatesTags: ['Team', 'TeamMembers', 'Teams', 'SuggestedTeams', 'TeamInvitations'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(authApi.util.invalidateTags(['Auth']));
+          dispatch(notificationApi.util.invalidateTags(['Notifications']));
+        } catch {}
+      },
+    }),
+
+    // ── Reject Team Invitation ────────────────────────────────────────────
+    rejectInvitation: builder.mutation<RejectInvitationResponse, string>({
+      query: (code) => ({
+        url: '/teams/reject-invitation',
+        method: 'POST',
+        body: { code },
+      }),
+      invalidatesTags: ['TeamInvitations'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(notificationApi.util.invalidateTags(['Notifications']));
+        } catch {}
+      },
     }),
 
     // ── Remove Member from Team ───────────────────────────────────────────
@@ -363,6 +399,9 @@ export const {
   useUploadChatFileMutation,
   useGetTeamMembersQuery,
   useInviteMemberMutation,
+  useGetTeamInvitationsQuery,
+  useJoinByInvitationMutation,
+  useRejectInvitationMutation,
   useRemoveMemberMutation,
   useAssignRoleMutation,
   useRevokeRoleMutation,
