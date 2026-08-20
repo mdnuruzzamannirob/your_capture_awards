@@ -167,6 +167,10 @@ function UploadedPhoto({
   const promotionTimeLeft = getTimeLeft(getPromotionExpiry(photo), now);
   const timerFill = getTimerFill(photo, now);
 
+  useEffect(() => {
+    setImageError(false);
+  }, [resolvedPhotoUrl]);
+
   return (
     <div className="flex-1">
       <Link
@@ -246,6 +250,10 @@ function BannerImage({ src, alt }: { src?: string | null; alt?: string }) {
   const [imageError, setImageError] = useState(false);
   const resolvedSrc = resolveImageUrl(src);
   const isLocalPreview = /^(blob:|data:)/i.test(resolvedSrc);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [resolvedSrc]);
 
   if (!resolvedSrc || imageError) {
     return (
