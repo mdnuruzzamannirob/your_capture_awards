@@ -173,6 +173,23 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
   const profile = isOwn ? currentUser : (otherProfileData?.data ?? null);
   const stats = isOwn ? ownStatsData?.data : otherStatsData?.data;
   const photos = isOwn ? ownPhotos : (otherPhotosData?.data ?? []);
+  const currentUserId = (currentUser as any)?.id || (currentUser as any)?._id;
+  const currentUsername = (currentUser as any)?.username;
+  const profileUserId = profile?.id || profile?._id || profile?.userId;
+  const profileUsername = profile?.username;
+  const isRouteCurrentUser =
+    !isOwn &&
+    Boolean(
+      (currentUserId && userId === currentUserId) ||
+        (currentUsername && userId === currentUsername),
+    );
+  const isCurrentUserProfile =
+    isOwn ||
+    isRouteCurrentUser ||
+    Boolean(
+      (currentUserId && profileUserId && currentUserId === profileUserId) ||
+        (currentUsername && profileUsername && currentUsername === profileUsername),
+    );
 
   // Resolved joined team: for own profile from currentUser, for public from API data
   const joinedTeam = (profile as any)?.joinedTeam ?? null;
@@ -192,16 +209,16 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
   // Sync follow state from API (isFollowed is in otherProfileData.data)
   useEffect(() => {
     const isFollowedFromApi = otherProfileData?.data?.isFollowed;
-    if (!isOwn && isFollowedFromApi !== undefined) {
+    if (!isCurrentUserProfile && isFollowedFromApi !== undefined) {
       setIsFollowing(isFollowedFromApi);
     }
-  }, [otherProfileData?.data?.isFollowed, isOwn]);
+  }, [otherProfileData?.data?.isFollowed, isCurrentUserProfile]);
 
   const [toggleFollow, { isLoading: isFollowToggling }] = useToggleFollowMutation();
   const targetMongoId = profile?.id;
 
   const handleToggleFollow = async () => {
-    if (!targetMongoId) return;
+    if (!targetMongoId || isCurrentUserProfile) return;
     try {
       const res = await toggleFollow({ userId: targetMongoId }).unwrap();
       if (res.success) {
@@ -396,13 +413,13 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
 
                 {/* Follow Button — public profile only, with conditional divider */}
                 {isLoading && !profile ? (
-                  !isOwn && (
+                  !isCurrentUserProfile && (
                     <>
                       <div className="bg-border hidden h-10 w-px shrink-0 self-center sm:block" />
                       <div className="bg-surface-secondary h-8 w-20 animate-pulse rounded" />
                     </>
                   )
-                ) : !isOwn ? (
+                ) : !isCurrentUserProfile ? (
                   <>
                     <div className="bg-surface-secondary/50 hidden h-10 w-px shrink-0 self-center sm:block" />
                     <button
