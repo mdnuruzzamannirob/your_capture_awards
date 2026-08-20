@@ -121,10 +121,12 @@ function ContestPhotoJustifiedPicker({
                   outlineOffset: '-3px',
                 }}
               >
-                <img
+                <Image
                   src={resolveImageUrl(photo.url)}
                   alt="Contest photo"
-                  className="size-full object-cover transition group-hover:scale-[1.02]"
+                  fill
+                  sizes={`${Math.ceil(width)}px`}
+                  className="object-cover transition group-hover:scale-[1.02]"
                 />
                 <span
                   className={cn(
@@ -211,10 +213,12 @@ function TradePhotoJustifiedPicker({
                   outlineOffset: '-3px',
                 }}
               >
-                <img
+                <Image
                   src={resolveImageUrl(photo.url)}
                   alt="profile photo"
-                  className="size-full object-cover"
+                  fill
+                  sizes={`${Math.ceil(width)}px`}
+                  className="object-cover"
                 />
                 {isSelected && (
                   <span className="bg-primary text-primary-foreground absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold shadow">
@@ -607,11 +611,11 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                   <>
                     {preview ? (
                       <div className="flex items-center justify-center py-2">
-                        <Image
+                        <img
                           src={preview}
                           alt="Preview"
-                          width={400}
-                          height={300}
+                          loading="lazy"
+                          decoding="async"
                           onClick={() => fileInputRef.current?.click()}
                           // FIX: ring applied directly on the image wrapper — no broken absolute div
                           className="ring-primary ring-offset-background max-h-72 w-auto cursor-pointer rounded-xl object-contain ring-2 ring-offset-2 transition hover:opacity-90"
@@ -721,12 +725,15 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                       {currentContestPhotos
                         .filter((p) => p.id === selectedContestPhotoId)
                         .map((photo) => (
-                          <img
-                            key={photo.id}
-                            src={resolveImageUrl(photo.url)}
-                            alt="Selected contest photo"
-                            className="max-h-60 w-auto max-w-full rounded-lg object-contain"
-                          />
+                          <div key={photo.id} className="relative h-60 w-full">
+                            <Image
+                              src={resolveImageUrl(photo.url)}
+                              alt="Selected contest photo"
+                              fill
+                              sizes="(max-width: 768px) 100vw, 480px"
+                              className="rounded-lg object-contain"
+                            />
+                          </div>
                         ))}
                     </div>
                   </div>
@@ -748,17 +755,23 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                         {/* FIX: use stored selectedUserPhotoUrl directly — no filter needed */}
                         {swapSource === 'profile' && selectedUserPhotoUrl && (
                           /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
-                            src={selectedUserPhotoUrl}
-                            alt="Replacement photo"
-                            className="max-h-60 w-auto max-w-full rounded-lg object-contain"
-                          />
+                          <div className="relative h-60 w-full">
+                            <Image
+                              src={selectedUserPhotoUrl}
+                              alt="Replacement photo"
+                              fill
+                              sizes="(max-width: 768px) 100vw, 480px"
+                              className="rounded-lg object-contain"
+                            />
+                          </div>
                         )}
                         {swapSource === 'computer' && preview && (
                           /* eslint-disable-next-line @next/next/no-img-element */
                           <img
                             src={preview}
                             alt="Replacement preview"
+                            loading="lazy"
+                            decoding="async"
                             className="max-h-60 w-auto max-w-full rounded-lg object-contain"
                           />
                         )}

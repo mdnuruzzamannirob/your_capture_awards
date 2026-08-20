@@ -157,7 +157,13 @@ export default function UploadPortfolioCard() {
         <div className="relative flex size-full flex-col items-center justify-between">
           <div className="bg-surface-tertiary relative w-full flex-1 overflow-hidden rounded-lg">
             {file.type.startsWith('image/') ? (
-              <Image src={previewUrl} alt={file.name} fill className="min-h-20 object-cover" />
+              <Image
+                src={previewUrl}
+                alt={file.name}
+                fill
+                unoptimized={previewUrl.startsWith('blob:') || previewUrl.startsWith('data:')}
+                className="min-h-20 object-cover"
+              />
             ) : (
               <div className="bg-surface-tertiary text-muted-foreground flex size-full min-h-20 items-center justify-center text-sm">
                 {file.name}

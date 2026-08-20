@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Top Notch contest level badge">
+  <defs>
+    <linearGradient id="bg" x1="35" y1="23" x2="220" y2="235" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#27272A"/>
+      <stop offset="1" stop-color="#030303"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="48" y1="28" x2="210" y2="226" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF7C2"/>
+      <stop offset=".48" stop-color="#FACC15"/>
+      <stop offset="1" stop-color="#A16207"/>
+    </linearGradient>
+  </defs>
+  <circle cx="128" cy="128" r="118" fill="url(#bg)"/>
+  <circle cx="128" cy="128" r="104" fill="none" stroke="url(#metal)" stroke-width="10"/>
+  <path d="M128 40 203 88l-29 91H82L53 88l75-48Z" fill="#111111" stroke="url(#metal)" stroke-width="8" stroke-linejoin="round"/>
+  <path d="m128 65 17 36 39 6-28 28 7 39-35-18-35 18 7-39-28-28 39-6 17-36Z" fill="#FACC15"/>
+  <path d="m128 88 9 20 22 3-16 15 4 22-19-10-19 10 4-22-16-15 22-3 9-20Z" fill="#FFF7C2"/>
+  <text x="128" y="218" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="800" fill="#FFF7C2">TN</text>
+</svg>

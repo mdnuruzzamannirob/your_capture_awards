@@ -158,6 +158,8 @@ function UploadedPhoto({
   index: number;
 }) {
   const [imageError, setImageError] = useState(false);
+  const resolvedPhotoUrl = resolveImageUrl(photo.url);
+  const isLocalPreview = /^(blob:|data:)/i.test(resolvedPhotoUrl);
   const ownVotes = getPhotoVotes(photo);
   const votes = ownVotes > 0 ? ownVotes : fallbackVotes;
   const promoted = isPhotoPromoted(photo, now);
@@ -176,13 +178,26 @@ function UploadedPhoto({
           promoted && 'border-primary/80 shadow-primary/15 shadow-md',
         )}
       >
-        {photo.url && !imageError ? (
-          <img
-            src={photo.url}
-            alt={`uploaded-${index}`}
-            className="size-full object-cover object-center select-none transition duration-300 group-hover/photo:scale-[1.03]"
-            onError={() => setImageError(true)}
-          />
+        {resolvedPhotoUrl && !imageError ? (
+          isLocalPreview ? (
+            <img
+              src={resolvedPhotoUrl}
+              alt={`uploaded-${index}`}
+              loading="lazy"
+              decoding="async"
+              className="size-full object-cover object-center select-none transition duration-300 group-hover/photo:scale-[1.03]"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <Image
+              src={resolvedPhotoUrl}
+              alt={`uploaded-${index}`}
+              fill
+              sizes="(max-width: 640px) 25vw, 160px"
+              className="object-cover object-center select-none transition duration-300 group-hover/photo:scale-[1.03]"
+              onError={() => setImageError(true)}
+            />
+          )
         ) : (
           <div className="text-muted-foreground flex size-full items-center justify-center text-[11px]">
             No photo
@@ -230,6 +245,7 @@ function UploadedPhoto({
 function BannerImage({ src, alt }: { src?: string | null; alt?: string }) {
   const [imageError, setImageError] = useState(false);
   const resolvedSrc = resolveImageUrl(src);
+  const isLocalPreview = /^(blob:|data:)/i.test(resolvedSrc);
 
   if (!resolvedSrc || imageError) {
     return (
@@ -240,12 +256,27 @@ function BannerImage({ src, alt }: { src?: string | null; alt?: string }) {
   }
 
   return (
-    <img
-      src={resolvedSrc}
-      alt={alt || 'Contest banner'}
-      className="bg-surface-secondary h-60 w-full object-cover opacity-60 md:h-72 lg:h-80"
-      onError={() => setImageError(true)}
-    />
+    <div className="bg-surface-secondary relative h-60 w-full overflow-hidden md:h-72 lg:h-80">
+      {isLocalPreview ? (
+          <img
+            src={resolvedSrc}
+            alt={alt || 'Contest banner'}
+            loading="lazy"
+            decoding="async"
+            className="size-full object-cover opacity-60"
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <Image
+            src={resolvedSrc}
+            alt={alt || 'Contest banner'}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
+            className="object-cover opacity-60"
+            onError={() => setImageError(true)}
+          />
+        )}
+    </div>
   );
 }
 

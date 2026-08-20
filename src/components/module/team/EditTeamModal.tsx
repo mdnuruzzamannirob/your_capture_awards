@@ -125,6 +125,7 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
                       alt="badge preview"
                       width={64}
                       height={64}
+                      unoptimized={badgePreview.startsWith('blob:') || badgePreview.startsWith('data:')}
                       className="h-full w-full object-cover"
                     />
                   ) : (

@@ -499,11 +499,11 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                 <>
                   {preview ? (
                     <div className="flex items-center justify-center py-2">
-                      <Image
+                      <img
                         src={preview}
                         alt="Preview"
-                        width={400}
-                        height={300}
+                        loading="lazy"
+                        decoding="async"
                         onClick={() => fileInputRef.current?.click()}
                         className="border-primary max-h-72 w-auto cursor-pointer rounded-xl border border-dashed object-contain transition hover:opacity-90"
                       />
