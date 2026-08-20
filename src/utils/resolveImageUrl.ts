@@ -1,5 +1,17 @@
 const LOCAL_ASSET_PREFIXES = ['/images/', '/icons/', '/favicon'];
 
+// encodeURI is not idempotent (it escapes "%" itself), and this resolver is
+// sometimes called more than once on the same already-resolved URL. Decoding
+// first makes repeated calls converge instead of double-encoding into a
+// broken path (e.g. "%20" -> "%2520").
+function safeEncodeURI(url: string) {
+  try {
+    return encodeURI(decodeURI(url));
+  } catch {
+    return encodeURI(url);
+  }
+}
+
 function getApiAssetBase() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   if (apiUrl) return apiUrl.replace(/\/$/, '');
@@ -22,17 +34,18 @@ export function resolveImageUrl(value?: string | null) {
   url = url.replace(/\\([()[\]_*&?#=.:/-])/g, '$1');
 
   if (!url) return '';
-  if (/^(https?:|data:|blob:)/i.test(url)) return encodeURI(url);
-  if (url.startsWith('//')) return `https:${encodeURI(url)}`;
+  if (/^(data:|blob:)/i.test(url)) return url;
+  if (/^https?:/i.test(url)) return safeEncodeURI(url);
+  if (url.startsWith('//')) return `https:${safeEncodeURI(url)}`;
 
   url = url.replace(/\\/g, '/');
 
   if (LOCAL_ASSET_PREFIXES.some((prefix) => url.startsWith(prefix))) {
-    return encodeURI(url);
+    return safeEncodeURI(url);
   }
 
   const apiAssetBase = getApiAssetBase();
-  if (!apiAssetBase) return encodeURI(url.startsWith('/') ? url : `/${url}`);
+  if (!apiAssetBase) return safeEncodeURI(url.startsWith('/') ? url : `/${url}`);
 
-  return encodeURI(`${apiAssetBase}${url.startsWith('/') ? url : `/${url}`}`);
+  return safeEncodeURI(`${apiAssetBase}${url.startsWith('/') ? url : `/${url}`}`);
 }
