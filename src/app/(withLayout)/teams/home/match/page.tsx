@@ -182,7 +182,6 @@ function MatchSetupDialog({
 }) {
   const members = contest?.eligibleMembers ?? [];
   const totalVotes = members.reduce((sum, member) => sum + (member.totalVote ?? 0), 0);
-  const canStart = members.length >= 3;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -251,19 +250,6 @@ function MatchSetupDialog({
               </div>
             )}
 
-            {members.length > 0 && !canStart ? (
-              <div className="border-warning/30 bg-warning/10 text-warning rounded-md border p-4">
-                <div className="flex gap-2">
-                  <AlertCircle className="mt-0.5 size-4 shrink-0" />
-                  <div className="space-y-1">
-                    <p className="text-sm font-semibold">More joined members required</p>
-                    <p className="text-xs">
-                      At least 3 team members must join this contest before a team match can start.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ) : null}
           </div>
         ) : null}
 
@@ -278,7 +264,7 @@ function MatchSetupDialog({
           ) : null}
           <Button
             type="button"
-            disabled={!contest || !canStart || isStarting}
+            disabled={!contest || isStarting}
             onClick={onStart}
           >
             {isStarting ? 'Starting...' : 'Start Match'}
@@ -399,10 +385,6 @@ export default function TeamMatchPage() {
 
   const handleStartMatch = useCallback(async () => {
     if (!selectedContest || !teamId) return;
-    if ((selectedContest.eligibleMembers?.length ?? 0) < 3) {
-      toast.error('At least 3 team members must join this contest before starting a match.');
-      return;
-    }
 
     try {
       await startMatchAuto({
