@@ -26,7 +26,12 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
 type ActionType = 'boost' | 'trade';
-type ActionStep = 'selectContestPhoto' | 'chooseSwapSource' | 'selectTradeSource' | 'review';
+type ActionStep =
+  | 'selectContestPhoto'
+  | 'chooseSwapSource'
+  | 'selectTradeSource'
+  | 'selectTradeTarget'
+  | 'review';
 
 export interface ContestActionModalRef {
   open: (type: ActionType) => void;
@@ -35,12 +40,38 @@ export interface ContestActionModalRef {
 type ContestActionModalProps = {
   contestId: string;
   contestTitle?: string;
-  contestPhotos?: { id: string; url: string }[];
+  contestPhotos?: any[];
   onSuccess?: () => Promise<void> | void;
 };
 
 const getErrorMessage = (error: any, fallback: string) =>
   error?.data?.message || error?.message || fallback;
+
+const getPhotoUrl = (photo: any) =>
+  photo?.url ??
+  photo?.imageUrl ??
+  photo?.photoUrl ??
+  photo?.photo?.url ??
+  photo?.userPhoto?.url ??
+  photo?.profilePhoto?.url ??
+  photo?.image?.url ??
+  '';
+
+const getContestPhotoId = (photo: any, index: number) =>
+  photo?.id ??
+  photo?.contestPhotoId ??
+  photo?.photoId ??
+  photo?.photo?.id ??
+  photo?.userPhoto?.id ??
+  `contest-photo-${index}`;
+
+const getSourcePhotoId = (photo: any, index: number) =>
+  photo?.photoId ??
+  photo?.userPhotoId ??
+  photo?.photo?.id ??
+  photo?.userPhoto?.id ??
+  photo?.id ??
+  `source-photo-${index}`;
 
 // ── Helper: Contest photo picker with Justified Layout ───────────────────────
 function ContestPhotoJustifiedPicker({
@@ -90,12 +121,10 @@ function ContestPhotoJustifiedPicker({
                   outlineOffset: '-3px',
                 }}
               >
-                <Image
+                <img
                   src={resolveImageUrl(photo.url)}
                   alt="Contest photo"
-                  fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  className="object-cover transition group-hover:scale-[1.02]"
+                  className="size-full object-cover transition group-hover:scale-[1.02]"
                 />
                 <span
                   className={cn(
@@ -182,12 +211,10 @@ function TradePhotoJustifiedPicker({
                   outlineOffset: '-3px',
                 }}
               >
-                <Image
+                <img
                   src={resolveImageUrl(photo.url)}
                   alt="profile photo"
-                  fill
-                  sizes="200px"
-                  className="object-cover"
+                  className="size-full object-cover"
                 />
                 {isSelected && (
                   <span className="bg-primary text-primary-foreground absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold shadow">
@@ -231,16 +258,42 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const stats = storeStats?.data;
-    const currentContestPhotos = useMemo(
-      () => contestPhotos.filter((photo) => photo?.id),
-      [contestPhotos],
+    const currentContestPhotos = useMemo(() => {
+      return contestPhotos
+        .map((photo, index) => ({
+          ...photo,
+          id: getContestPhotoId(photo, index),
+          sourcePhotoId: getSourcePhotoId(photo, index),
+          url: resolveImageUrl(getPhotoUrl(photo)),
+        }))
+        .filter((photo) => Boolean(photo.id && photo.url));
+    }, [contestPhotos]);
+    const contestPhotoUrls = useMemo(
+      () => new Set(currentContestPhotos.map((photo) => photo.url)),
+      [currentContestPhotos],
     );
-    const uploadedPhotos = (
-      Array.isArray(userPhotos?.data) ? userPhotos.data : (userPhotos?.data?.data ?? [])
-    ) as {
-      id: string;
-      url: string;
-    }[];
+    const contestSourcePhotoIds = useMemo(
+      () => new Set(currentContestPhotos.map((photo) => photo.sourcePhotoId).filter(Boolean)),
+      [currentContestPhotos],
+    );
+    const uploadedPhotos = useMemo(() => {
+      const rawPhotos = Array.isArray(userPhotos?.data)
+        ? userPhotos.data
+        : (userPhotos?.data?.data ?? []);
+
+      return rawPhotos
+        .map((photo: any, index: number) => ({
+          ...photo,
+          id: getSourcePhotoId(photo, index),
+          url: resolveImageUrl(getPhotoUrl(photo)),
+        }))
+        .filter(
+          (photo: { id: string; url: string }) =>
+            Boolean(photo.id && photo.url) &&
+            !contestSourcePhotoIds.has(photo.id) &&
+            !contestPhotoUrls.has(photo.url),
+        );
+    }, [contestPhotoUrls, contestSourcePhotoIds, userPhotos]);
 
     // ── Open ─────────────────────────────────────────────────────────────
     useImperativeHandle(ref, () => ({
@@ -262,7 +315,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
         }
 
         setActionType(type);
-        setStep('selectContestPhoto');
+        setStep(type === 'trade' ? 'chooseSwapSource' : 'selectContestPhoto');
         setSwapSource(null);
         setSelectedContestPhotoId('');
         setSelectedUserPhotoId('');
@@ -366,10 +419,17 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
         <MdOutlineCameraswitch className="text-primary size-5 rotate-90" />
       );
 
-    const canGoBack = step !== 'selectContestPhoto';
+    const isInitialStep =
+      actionType === 'boost' ? step === 'selectContestPhoto' : step === 'chooseSwapSource';
+    const canGoBack = !isInitialStep;
     const goBack = () => {
       if (step === 'review') {
-        setStep(actionType === 'boost' ? 'selectContestPhoto' : 'selectTradeSource');
+        setStep(actionType === 'boost' ? 'selectContestPhoto' : 'selectTradeTarget');
+        return;
+      }
+      if (step === 'selectTradeTarget') {
+        setSelectedContestPhotoId('');
+        setStep('selectTradeSource');
         return;
       }
       if (step === 'selectTradeSource') {
@@ -380,18 +440,6 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
         setStep('chooseSwapSource');
         return;
       }
-      if (step === 'chooseSwapSource') {
-        setSwapSource(null);
-        setStep('selectContestPhoto');
-      }
-    };
-
-    const selectContestPhoto = () => {
-      if (!selectedContestPhotoId) {
-        toast.error('Please select an existing contest photo.');
-        return;
-      }
-      setStep(actionType === 'boost' ? 'review' : 'chooseSwapSource');
     };
 
     const selectTradeSource = () => {
@@ -406,6 +454,14 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
           return;
         }
       }
+      setStep('selectTradeTarget');
+    };
+
+    const selectTradeTarget = () => {
+      if (!selectedContestPhotoId) {
+        toast.error('Please select the contest photo you want to replace.');
+        return;
+      }
       setStep('review');
     };
 
@@ -414,10 +470,10 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
         ? step === 'selectContestPhoto'
           ? 'Promote Contest Photo'
           : 'Confirm Promotion'
-        : step === 'selectContestPhoto'
+        : step === 'chooseSwapSource'
           ? 'Trade Contest Photo'
-          : step === 'chooseSwapSource'
-            ? 'Choose Trade Source'
+          : step === 'selectTradeTarget'
+            ? 'Select Photo To Replace'
             : step === 'selectTradeSource'
               ? swapSource === 'computer'
                 ? 'Upload Replacement Photo'
@@ -452,8 +508,8 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
 
           {/* ── Body ───────────────────────────────────── */}
           <div className="flex flex-col gap-6">
-            {/* ── STEP 1: Select contest photo ───────────────────────────── */}
-            {step === 'selectContestPhoto' && (
+            {/* ── CHARGE: Select contest photo ───────────────────────────── */}
+            {step === 'selectContestPhoto' && actionType === 'boost' && (
               <div className="space-y-5">
                 <ContestPhotoJustifiedPicker
                   photos={currentContestPhotos}
@@ -473,14 +529,10 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                   <button
                     type="button"
                     disabled={!selectedContestPhotoId || isSubmitting || actionLoading}
-                    onClick={actionType === 'boost' ? handleSubmit : selectContestPhoto}
+                    onClick={handleSubmit}
                     className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm disabled:opacity-60"
                   >
-                    {actionType === 'boost'
-                      ? isSubmitting || actionLoading
-                        ? 'Processing...'
-                        : 'Promote'
-                      : 'Continue'}
+                    {isSubmitting || actionLoading ? 'Processing...' : 'Promote'}
                   </button>
                 </div>
               </div>
@@ -492,7 +544,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                 {/* header */}
                 <div className="space-y-2 text-center uppercase">
                   <h1 className="text-lg font-semibold sm:text-xl">
-                    SWAP PHOTO IN{' '}
+                    TRADE PHOTO IN{' '}
                     {contestTitle && <span className="text-primary">{contestTitle}</span>}
                     {!contestTitle && 'THIS CONTEST'}
                   </h1>
@@ -618,6 +670,44 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
               </div>
             )}
 
+            {/* ── TRADE: Select contest photo to replace ─────────────────── */}
+            {step === 'selectTradeTarget' && actionType === 'trade' && (
+              <div className="space-y-5">
+                <div className="space-y-2 text-center uppercase">
+                  <h1 className="text-lg font-semibold sm:text-xl">
+                    Select photo to replace
+                  </h1>
+                  <p className="text-primary-foreground/50 text-sm">
+                    Choose one photo already uploaded to this contest
+                  </p>
+                </div>
+
+                <ContestPhotoJustifiedPicker
+                  photos={currentContestPhotos}
+                  selectedId={selectedContestPhotoId}
+                  onSelect={setSelectedContestPhotoId}
+                />
+
+                <div className="border-border-subtle flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
+                  <button
+                    type="button"
+                    onClick={reset}
+                    className="text-primary border-primary rounded-sm border px-5 py-2 text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!selectedContestPhotoId}
+                    onClick={selectTradeTarget}
+                    className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm disabled:opacity-60"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* ── STEP 4: Review ─────────────────────────────────────────── */}
             {step === 'review' && (
               <div className="space-y-5">
@@ -631,12 +721,10 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                       {currentContestPhotos
                         .filter((p) => p.id === selectedContestPhotoId)
                         .map((photo) => (
-                          <Image
+                          <img
                             key={photo.id}
                             src={resolveImageUrl(photo.url)}
                             alt="Selected contest photo"
-                            width={320}
-                            height={220}
                             className="max-h-60 w-auto max-w-full rounded-lg object-contain"
                           />
                         ))}
