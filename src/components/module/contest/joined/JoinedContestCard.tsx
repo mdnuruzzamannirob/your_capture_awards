@@ -48,13 +48,16 @@ type ContestPhoto = {
 };
 
 const getContestPhotoUrl = (photo: any) =>
+  photo?.url ??
+  photo?.imageUrl ??
+  photo?.photoUrl ??
+  photo?.src ??
+  photo?.thumbnail ??
+  photo?.secure_url ??
   photo?.photo?.url ??
   photo?.userPhoto?.url ??
   photo?.profilePhoto?.url ??
   photo?.image?.url ??
-  photo?.url ??
-  photo?.imageUrl ??
-  photo?.photoUrl ??
   '';
 
 const getContestPhotoId = (photo: any, index: number) =>
@@ -159,7 +162,6 @@ function UploadedPhoto({
 }) {
   const [imageError, setImageError] = useState(false);
   const resolvedPhotoUrl = resolveImageUrl(photo.url);
-  const isLocalPreview = /^(blob:|data:)/i.test(resolvedPhotoUrl);
   const ownVotes = getPhotoVotes(photo);
   const votes = ownVotes > 0 ? ownVotes : fallbackVotes;
   const promoted = isPhotoPromoted(photo, now);
@@ -183,25 +185,15 @@ function UploadedPhoto({
         )}
       >
         {resolvedPhotoUrl && !imageError ? (
-          isLocalPreview ? (
-            <img
-              src={resolvedPhotoUrl}
-              alt={`uploaded-${index}`}
-              loading="lazy"
-              decoding="async"
-              className="size-full object-cover object-center select-none transition duration-300 group-hover/photo:scale-[1.03]"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <Image
-              src={resolvedPhotoUrl}
-              alt={`uploaded-${index}`}
-              fill
-              sizes="(max-width: 640px) 25vw, 160px"
-              className="object-cover object-center select-none transition duration-300 group-hover/photo:scale-[1.03]"
-              onError={() => setImageError(true)}
-            />
-          )
+          <img
+            src={resolvedPhotoUrl}
+            alt={`uploaded-${index}`}
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            className="size-full object-cover object-center select-none transition duration-300 group-hover/photo:scale-[1.03]"
+            onError={() => setImageError(true)}
+          />
         ) : (
           <div className="text-muted-foreground flex size-full items-center justify-center text-[11px]">
             No photo
@@ -249,7 +241,6 @@ function UploadedPhoto({
 function BannerImage({ src, alt }: { src?: string | null; alt?: string }) {
   const [imageError, setImageError] = useState(false);
   const resolvedSrc = resolveImageUrl(src);
-  const isLocalPreview = /^(blob:|data:)/i.test(resolvedSrc);
 
   useEffect(() => {
     setImageError(false);
@@ -265,25 +256,15 @@ function BannerImage({ src, alt }: { src?: string | null; alt?: string }) {
 
   return (
     <div className="bg-surface-secondary relative h-60 w-full overflow-hidden md:h-72 lg:h-80">
-      {isLocalPreview ? (
-          <img
-            src={resolvedSrc}
-            alt={alt || 'Contest banner'}
-            loading="lazy"
-            decoding="async"
-            className="size-full object-cover opacity-60"
-            onError={() => setImageError(true)}
-          />
-        ) : (
-          <Image
-            src={resolvedSrc}
-            alt={alt || 'Contest banner'}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
-            className="object-cover opacity-60"
-            onError={() => setImageError(true)}
-          />
-        )}
+      <img
+        src={resolvedSrc}
+        alt={alt || 'Contest banner'}
+        loading="lazy"
+        decoding="async"
+        referrerPolicy="no-referrer"
+        className="size-full object-cover opacity-60"
+        onError={() => setImageError(true)}
+      />
     </div>
   );
 }
