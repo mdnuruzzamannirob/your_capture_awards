@@ -86,6 +86,7 @@ export default function TeamPage() {
 
   const members: TeamMember[] = membersData?.data || [];
   const requests = (requestsData?.data || []) as JoinRequestViewModel[];
+  const hasInviteSlots = team ? members.length < team.member_slots : false;
 
   const me = useMemo(
     () => members.find((m: TeamMember) => m.memberId === currentUserId),
@@ -230,6 +231,15 @@ export default function TeamPage() {
     }
   }, [team, deleteTeam, navigateToTeamsListing]);
 
+  const handleOpenInvite = useCallback(() => {
+    if (!hasInviteSlots) {
+      toast.error('This team has no open member slots.');
+      return;
+    }
+
+    setInviteOpen(true);
+  }, [hasInviteSlots]);
+
   const winRate = team?.total_matches ? Math.round((team.win / team.total_matches) * 100) : 0;
 
   if (isTeamLoading || isMembersLoading) {
@@ -326,7 +336,8 @@ export default function TeamPage() {
         isMod={isMod}
         onChangeRole={handleChangeRole}
         onRemove={setRemoveTarget}
-        onInvite={() => setInviteOpen(true)}
+        canInvite={hasInviteSlots}
+        onInvite={handleOpenInvite}
       />
 
       <EditTeamModal
@@ -336,7 +347,13 @@ export default function TeamPage() {
         onSave={handleEditTeam}
       />
 
-      <InviteModal open={inviteOpen} onClose={() => setInviteOpen(false)} teamId={team.id} />
+      <InviteModal
+        open={inviteOpen}
+        onClose={() => setInviteOpen(false)}
+        teamId={team.id}
+        members={members}
+        hasSlots={hasInviteSlots}
+      />
 
       <DisbandModal
         open={disbandOpen}

@@ -6,6 +6,7 @@ import {
   useGetUserNotificationsQuery,
   useMarkAllNotificationsReadMutation,
 } from '@/store/apis/notificationApi';
+import { useJoinByInvitationMutation, useRejectInvitationMutation } from '@/store/apis/teamApi';
 import { NotificationItem, NotificationType } from '@/store/types/notificationTypes';
 import { cn } from '@/utils/cn';
 import { formatDistanceToNow } from 'date-fns';
@@ -40,6 +41,10 @@ export default function NotificationModal() {
     { skip: !token },
   );
   const [markAllRead, { isLoading: isMarking }] = useMarkAllNotificationsReadMutation();
+  const [joinByInvitation, { isLoading: isAcceptingInvitation }] = useJoinByInvitationMutation();
+  const [rejectInvitation, { isLoading: isRejectingInvitation }] = useRejectInvitationMutation();
+  const [activeInvitationId, setActiveInvitationId] = useState<string | null>(null);
+  const isHandlingInvitation = isAcceptingInvitation || isRejectingInvitation;
 
   const notifications = data?.data.notifications ?? [];
   const unreadCount = useMemo(
@@ -54,6 +59,45 @@ export default function NotificationModal() {
       toast.success('All notifications marked as read');
     } catch {
       toast.error('Failed to mark notifications as read');
+    }
+  };
+
+  const handleAcceptInvitation = async (notification: NotificationItem) => {
+    const code = notification.data?.code;
+
+    if (!code) {
+      toast.error('Invitation code is missing.');
+      return;
+    }
+
+    setActiveInvitationId(notification.id);
+    try {
+      await joinByInvitation(code).unwrap();
+      toast.success('Team invitation accepted.');
+      setOpen(false);
+    } catch {
+      toast.error('Failed to accept invitation.');
+    } finally {
+      setActiveInvitationId(null);
+    }
+  };
+
+  const handleRejectInvitation = async (notification: NotificationItem) => {
+    const code = notification.data?.code;
+
+    if (!code) {
+      toast.error('Invitation code is missing.');
+      return;
+    }
+
+    setActiveInvitationId(notification.id);
+    try {
+      await rejectInvitation(code).unwrap();
+      toast.success('Team invitation rejected.');
+    } catch {
+      toast.error('Failed to reject invitation.');
+    } finally {
+      setActiveInvitationId(null);
     }
   };
 
@@ -131,6 +175,30 @@ export default function NotificationModal() {
                     <span>{typeLabel[notification.type]}</span>
                     <span>{formatRelative(notification.createdAt)}</span>
                   </div>
+                  {notification.type === NotificationType.INVITATION && (
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        type="button"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-8 items-center justify-center rounded-md px-3 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
+                        disabled={isHandlingInvitation}
+                        onClick={() => handleAcceptInvitation(notification)}
+                      >
+                        {activeInvitationId === notification.id && isAcceptingInvitation
+                          ? 'Accepting...'
+                          : 'Accept'}
+                      </button>
+                      <button
+                        type="button"
+                        className="border-border bg-background hover:bg-accent inline-flex h-8 items-center justify-center rounded-md border px-3 text-xs font-medium transition"
+                        disabled={isHandlingInvitation}
+                        onClick={() => handleRejectInvitation(notification)}
+                      >
+                        {activeInvitationId === notification.id && isRejectingInvitation
+                          ? 'Rejecting...'
+                          : 'Reject'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))

@@ -16,6 +16,12 @@ export interface NotificationItem {
   receiverId: string;
   type: NotificationType;
   isRead: boolean;
+  data?: {
+    code?: string;
+    teamId?: string;
+    joinRequestId?: string;
+    [key: string]: unknown;
+  } | null;
   createdAt: string;
 }
 

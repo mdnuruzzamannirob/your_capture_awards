@@ -84,6 +84,12 @@ export interface TeamListItem extends TeamData {
   min_requirement_str: string;
 }
 
+export interface TeamMatchEligibleMember extends TeamMember {
+  participantId: string;
+  totalVote: number;
+  totalPhotoUploads: number;
+}
+
 export interface AvailableTeamContest {
   id: string;
   title: string;
@@ -95,6 +101,8 @@ export interface AvailableTeamContest {
   hoursRemaining: number;
   totalParticipants: number;
   participantDetails: { userId?: string; id?: string }[];
+  eligibleMemberCount?: number;
+  eligibleMembers?: TeamMatchEligibleMember[];
 }
 
 export interface ActiveTeamMatch {
@@ -203,6 +211,12 @@ export interface InviteMemberResponse {
   data: TeamInvitation;
 }
 
+export interface GetTeamInvitationsResponse {
+  success: boolean;
+  message: string;
+  data: TeamInvitation[];
+}
+
 export interface RemoveMemberRequest {
   memberId?: string;
 }
@@ -277,8 +291,6 @@ export interface GetActiveTeamMatchResponse {
 export interface StartMatchAutoRequest {
   teamId: string;
   contestId: string;
-  files?: File[];
-  photoIds?: string[];
 }
 
 export interface StartMatchAutoResponse {
@@ -388,6 +400,18 @@ export interface LeaveTeamResponse {
 }
 
 export interface JoinTeamResponse {
+  success: boolean;
+  message: string;
+  data?: unknown;
+}
+
+export interface JoinByInvitationResponse {
+  success: boolean;
+  message: string;
+  data?: unknown;
+}
+
+export interface RejectInvitationResponse {
   success: boolean;
   message: string;
   data?: unknown;

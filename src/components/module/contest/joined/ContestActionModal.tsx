@@ -14,6 +14,7 @@ import {
 import { storeApi, useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { cn } from '@/utils/cn';
 import { compressImage } from '@/utils/compressImage';
+import { resolveImageUrl } from '@/utils/resolveImageUrl';
 import { ArrowLeft, UploadCloud } from 'lucide-react';
 import Image from 'next/image';
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
@@ -90,7 +91,7 @@ function ContestPhotoJustifiedPicker({
                 }}
               >
                 <Image
-                  src={photo.url}
+                  src={resolveImageUrl(photo.url)}
                   alt="Contest photo"
                   fill
                   sizes="(max-width: 768px) 50vw, 25vw"
@@ -182,7 +183,7 @@ function TradePhotoJustifiedPicker({
                 }}
               >
                 <Image
-                  src={photo.url}
+                  src={resolveImageUrl(photo.url)}
                   alt="profile photo"
                   fill
                   sizes="200px"
@@ -590,7 +591,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                       selectedId={selectedUserPhotoId}
                       onSelect={(photo) => {
                         setSelectedUserPhotoId(photo.id);
-                        setSelectedUserPhotoUrl(photo.url);
+                        setSelectedUserPhotoUrl(resolveImageUrl(photo.url));
                       }}
                     />
                   )
@@ -632,7 +633,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                         .map((photo) => (
                           <Image
                             key={photo.id}
-                            src={photo.url}
+                            src={resolveImageUrl(photo.url)}
                             alt="Selected contest photo"
                             width={320}
                             height={220}
