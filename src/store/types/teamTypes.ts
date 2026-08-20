@@ -332,19 +332,15 @@ export interface TeamMatchHistoryRow {
 }
 
 export interface TeamLeaderboardRow {
-  id: string;
-  name: string;
-  badge: string | null;
-  skill_level: string;
-  country: string;
-  accessibility: string;
-  wins: number;
-  losses: number;
-  draws: number;
-  matches: number;
-  score: number;
   rank: number;
-  member_count: number;
+  team: {
+    id: string;
+    name: string;
+    badge: string | null;
+    skill_level: string;
+  };
+  wins: number;
+  score: number;
 }
 
 export interface GetTeamLeaderboardResponse {

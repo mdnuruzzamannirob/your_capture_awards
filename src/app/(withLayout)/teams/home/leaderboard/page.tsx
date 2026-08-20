@@ -15,7 +15,7 @@ function getImageUrl(value?: string | null) {
 }
 
 function getTeamName(row: TeamLeaderboardRow) {
-  return row.name || 'Team';
+  return row.team?.name || 'Team';
 }
 
 function LeaderboardSkeleton() {
@@ -71,7 +71,7 @@ const TeamLeaderboard = () => {
 
   const highlightId = useMemo(() => {
     if (myTeamId) return myTeamId;
-    return rows.find((row) => row.name === myTeamName)?.id ?? null;
+    return rows.find((row) => row.team?.name === myTeamName)?.team?.id ?? null;
   }, [myTeamId, myTeamName, rows]);
 
   return (
@@ -117,14 +117,15 @@ const TeamLeaderboard = () => {
       ) : (
         <div className="border-border mt-5 overflow-hidden rounded-md border">
           {rows.map((row) => {
-            const badgeUrl = getImageUrl(row.badge);
+            const teamName = getTeamName(row);
+            const badgeUrl = getImageUrl(row.team?.badge);
 
             return (
               <div
-                key={row.id}
+                key={row.team?.id ?? row.rank}
                 className={cn(
                   'border-border flex items-center gap-3 border-b p-4 last:border-b-0 sm:grid sm:grid-cols-[56px_minmax(0,1fr)_96px]',
-                  row.id === highlightId && 'bg-primary/10',
+                  row.team?.id === highlightId && 'bg-primary/10',
                 )}
               >
                 <div className="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-bold">
@@ -136,14 +137,14 @@ const TeamLeaderboard = () => {
                     {badgeUrl ? (
                       <Image
                         src={badgeUrl}
-                        alt={row.name}
+                        alt={teamName}
                         fill
                         sizes="44px"
                         className="object-cover"
                       />
                     ) : (
                       <div className="bg-primary text-primary-foreground flex size-full items-center justify-center text-xs font-bold">
-                        {row.name.slice(0, 2).toUpperCase()}
+                        {teamName.slice(0, 2).toUpperCase()}
                       </div>
                     )}
                   </div>
