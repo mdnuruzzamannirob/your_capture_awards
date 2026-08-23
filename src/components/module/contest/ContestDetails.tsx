@@ -145,14 +145,12 @@ const ContestDetails = ({ id }: { id: string }) => {
                         </button>
 
                         {/* Coin badge — only when not joined and coin required */}
-                        {!isJoined &&
-                          (contest?.coin_requirement ?? contest?.coinRequirement) &&
-                          (contest?.coin_required ?? contest?.coinRequired ?? 0) > 0 && (
-                            <div className="bg-primary-foreground absolute -right-3 -bottom-2.5 flex items-center gap-1.5 rounded-full border border-sky-400 py-1 pr-3 pl-1 text-sm font-bold text-sky-500 shadow-md select-none">
-                              <div className="border-warning/40 from-warning-500 to-warning-500 h-5 w-5 animate-pulse rounded-full border bg-linear-to-tr" />
-                              <span>{contest?.coin_required ?? contest?.coinRequired}</span>
-                            </div>
-                          )}
+                        {!isJoined && (contest?.entryFeeCoins ?? 0) > 0 && (
+                          <div className="bg-primary-foreground absolute -right-3 -bottom-2.5 flex items-center gap-1.5 rounded-full border border-sky-400 py-1 pr-3 pl-1 text-sm font-bold text-sky-500 shadow-md select-none">
+                            <div className="border-warning/40 from-warning-500 to-warning-500 h-5 w-5 animate-pulse rounded-full border bg-linear-to-tr" />
+                            <span>{contest?.entryFeeCoins}</span>
+                          </div>
+                        )}
                       </div>
                     )}
                   </>

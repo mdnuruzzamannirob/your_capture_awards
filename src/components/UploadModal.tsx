@@ -259,7 +259,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         }
 
         // Check coin requirement if type is join
-        const hasCoinRequirement = contest?.coin_requirement ?? contest?.coinRequirement;
+        const hasCoinRequirement = (contest?.entryFeeCoins ?? 0) > 0;
         if (type === 'join' && hasCoinRequirement) {
           setShowCoinConfirm(true);
           return;
@@ -604,7 +604,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
           break;
       }
     };
-    const requiredCoins = contest?.coin_required ?? contest?.coinRequired ?? 0;
+    const requiredCoins = contest?.entryFeeCoins ?? 0;
 
     return (
       <>
