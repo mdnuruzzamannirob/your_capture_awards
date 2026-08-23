@@ -13,6 +13,7 @@ import { useCreateVoteMutation, useLazyGetContestPhotosQuery } from '@/store/api
 import { useGetUserProgressQuery, type UserProgress } from '@/store/apis/levelsApi';
 
 import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
+import { resolveImageUrl } from '@/utils/resolveImageUrl';
 import { toast } from 'sonner';
 
 export interface VoteModalRef {
@@ -101,7 +102,12 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
           true,
         ).unwrap();
 
-        const incomingPhotos = res?.data || [];
+        const incomingPhotos = (res?.data || [])
+          .map((photo) => ({
+            ...photo,
+            url: resolveImageUrl(photo.url),
+          }))
+          .filter((photo) => Boolean(photo.id && photo.url));
 
         setHasNextPage(res?.meta?.hasNextPage ?? false);
 
