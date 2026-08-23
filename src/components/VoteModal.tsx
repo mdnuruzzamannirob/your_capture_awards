@@ -98,8 +98,10 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
       try {
         const res = await trigger(
           { id, page: targetPage, limit: LIMIT },
-          // On re-open serve cached data instantly; a background refetch follows.
-          true,
+          // Backend randomizes the response on every call, so always force a
+          // fresh network request — serving the RTK Query cache here would
+          // keep replaying whatever order was first fetched.
+          false,
         ).unwrap();
 
         const incomingPhotos = (res?.data || [])
