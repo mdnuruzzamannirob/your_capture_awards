@@ -77,10 +77,15 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
   const [photos, setPhotos] = useState<ContestPhoto[]>([]);
   const [page, setPage] = useState<number>(1);
   const [hasNextPage, setHasNextPage] = useState<boolean>(true);
+  // isLoading from the lazy query only reflects the *first-ever* fetch for
+  // this hook instance — on re-open we clear `photos` and force a refetch,
+  // but isLoading stays false, so the empty-state briefly flashes before the
+  // new data lands. Track the open-triggered fetch ourselves instead.
+  const [initialLoading, setInitialLoading] = useState<boolean>(false);
 
   const observerRef = useRef<HTMLDivElement | null>(null);
 
-  const [trigger, { isLoading, isFetching }] = useLazyGetContestPhotosQuery();
+  const [trigger, { isFetching }] = useLazyGetContestPhotosQuery();
   const [voteUpload, { isLoading: voteLoading }] = useCreateVoteMutation();
   const { data: userProgressData } = useGetUserProgressQuery(undefined, { skip: false });
 
@@ -142,8 +147,13 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
       // (photos state keeps the previous session; reset them first so the
       // cached response repopulates cleanly).
       setPhotos([]);
+      setInitialLoading(true);
 
-      await fetchPhotos(1, true);
+      try {
+        await fetchPhotos(1, true);
+      } finally {
+        setInitialLoading(false);
+      }
     },
   }));
 
@@ -220,7 +230,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
         </VisuallyHidden>
 
         <div className="relative size-full flex-1 scrollbar-thin overflow-x-hidden overflow-y-auto">
-          {isLoading ? (
+          {initialLoading ? (
             <div className="flex flex-wrap gap-0.5 p-0.5">
               {[...Array(16)].map((_, i) => {
                 const aspects = [1.3, 0.8, 1.5, 1.0, 1.8, 1.2, 0.9, 1.6];
