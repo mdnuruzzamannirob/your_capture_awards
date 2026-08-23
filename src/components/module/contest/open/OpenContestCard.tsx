@@ -75,13 +75,12 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
             >
               JOIN
             </button>
-            {(contest?.coin_requirement ?? contest?.coinRequirement) &&
-              (contest?.coin_required ?? contest?.coinRequired) > 0 && (
-                <div className="bg-primary-foreground absolute -right-4 -bottom-2 flex items-center gap-1 rounded-full border border-sky-400 py-0.5 pr-2 pl-0.5 text-[10px] font-bold text-sky-500 shadow-sm select-none">
-                  <div className="border-warning/40 from-warning-500 to-warning-500 h-4 w-4 animate-pulse rounded-full border bg-linear-to-tr" />
-                  <span>{contest?.coin_required ?? contest?.coinRequired}</span>
-                </div>
-              )}
+            {(contest?.entryFeeCoins ?? 0) > 0 && (
+              <div className="bg-primary-foreground absolute -right-4 -bottom-2 flex items-center gap-1 rounded-full border border-sky-400 py-0.5 pr-2 pl-0.5 text-[10px] font-bold text-sky-500 shadow-sm select-none">
+                <div className="border-warning/40 from-warning-500 to-warning-500 h-4 w-4 animate-pulse rounded-full border bg-linear-to-tr" />
+                <span>{contest?.entryFeeCoins}</span>
+              </div>
+            )}
           </div>
         </div>
 
