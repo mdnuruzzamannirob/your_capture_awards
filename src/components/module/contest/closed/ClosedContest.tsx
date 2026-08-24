@@ -27,11 +27,11 @@ const ClosedContest = ({ isAuthenticated: propIsAuthenticated = false }: ClosedC
     clientIsAuthenticated !== null ? clientIsAuthenticated : propIsAuthenticated;
   // Use private API if authenticated, public API otherwise
   const publicQuery = useGetPublicContestsQuery(
-    { status: 'CLOSED', page, limit: 10 },
+    { status: 'COMPLETED', page, limit: 10 },
     { skip: isAuthenticated, refetchOnMountOrArgChange: 60 },
   );
   const privateQuery = useGetPrivateContestsQuery(
-    { status: 'CLOSED', page, limit: 10 },
+    { status: 'COMPLETED', page, limit: 10 },
     { skip: !isAuthenticated, refetchOnMountOrArgChange: 60 },
   );
 
