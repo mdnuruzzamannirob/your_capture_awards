@@ -1,9 +1,18 @@
+'use client';
+
 import { FeatureItems } from '@/constants';
+import { useAuth } from '@/hooks/useAuth';
 import Image from 'next/image';
 import Link from 'next/link';
 import { IoMdArrowForward } from 'react-icons/io';
 
 const Features = () => {
+  const { isAuthenticated } = useAuth();
+  const contestHref = '/contest/open';
+  const featureHref = isAuthenticated
+    ? contestHref
+    : `/signin?returnTo=${encodeURIComponent(contestHref)}`;
+
   return (
     <section className="container my-20 py-20">
       {/* titles */}
@@ -14,19 +23,19 @@ const Features = () => {
         We are constantly working to bring new updates and features to Upload, such as:
       </p>
 
-      <div className="my-10 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto my-10 grid w-full max-w-4xl grid-cols-1 justify-items-center gap-5 md:grid-cols-2">
         {FeatureItems.map((item, index) => (
           <Link
-            href={item.href}
+            href={featureHref}
             key={index}
-            className="border-primary flex flex-col items-center justify-center gap-5 rounded-xl border p-5 text-center"
+            className="border-primary bg-background hover:bg-surface-secondary focus-visible:ring-primary flex min-h-86 w-full max-w-101 flex-col items-center justify-center gap-5 rounded-xl border p-5 text-center transition focus-visible:ring-2 focus-visible:outline-none"
           >
             <Image
               alt={item.title}
               src={item.img}
               width={200}
               height={150}
-              className="h-auto rounded-xl"
+              className="h-34 w-full max-w-50 rounded-xl object-cover"
             />
             <h3 className="text-2xl font-medium">{item.title}</h3>
             <p>{item.description}</p>

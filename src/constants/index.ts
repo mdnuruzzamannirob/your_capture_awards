@@ -83,7 +83,7 @@ export const FeatureItems: FeatureItem[] = [
     title: 'Create a Team',
     description:
       'A dynamic ensemble of diverse talents united by a common goal, synergy ing creativity, innovation, and excellence to achieve success.',
-    img: '/images/teamPhoto.png',
+    img: '/images/TeamPhoto.png',
     href: '/contest/create-team',
   },
   // {
