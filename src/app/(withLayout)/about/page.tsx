@@ -3,42 +3,54 @@
 import TipTapViewer from '@/components/custom/tiptap-editor/TipTapViewer';
 import { Spinner } from '@/components/ui/spinner';
 import { useGetSitePolicyQuery } from '@/store/apis/sitePolicyApi';
-import { Award, Camera, ShieldCheck, Sparkles, Trophy, UsersRound } from 'lucide-react';
+import { Aperture, Award, CheckCircle2, Trophy, UsersRound } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const highlights = [
+const proofPoints = [
+  { value: 'Global', label: 'community access' },
+  { value: 'Curated', label: 'creative contests' },
+  { value: 'Fair', label: 'recognition systems' },
+];
+
+const pillars = [
   {
-    label: 'Curated Contests',
-    description: 'Creative challenges designed for photographers to test ideas, craft, and timing.',
+    title: 'Compete With Purpose',
+    description:
+      'Join photography challenges designed around craft, originality, storytelling, and steady creative growth.',
     icon: Trophy,
   },
   {
-    label: 'Fair Recognition',
-    description: 'A transparent contest experience built around voting, milestones, and awards.',
-    icon: ShieldCheck,
+    title: 'Earn Visible Recognition',
+    description:
+      'Progress through levels, awards, and milestones that make achievement easy to understand and celebrate.',
+    icon: Award,
   },
   {
-    label: 'Creative Growth',
-    description: 'A place to upload, learn, connect, and build momentum with every submission.',
-    icon: Sparkles,
+    title: 'Grow With Community',
+    description:
+      'Upload, vote, discover photographers, and learn from the work that rises through each contest.',
+    icon: UsersRound,
   },
 ];
 
 const values = [
-  { label: 'Integrity', description: 'Contests should feel transparent, consistent, and fair.' },
-  { label: 'Respect', description: 'Every participant and creator deserves dignity.' },
-  { label: 'Excellence', description: 'Great technical and artistic work should stand out.' },
   {
-    label: 'Community',
-    description: 'Photography grows through feedback, collaboration, and care.',
+    title: 'Integrity',
+    description: 'Clear rules, transparent contest flow, and consistent standards.',
   },
-];
-
-const stats = [
-  { value: 'Open', label: 'for every skill level' },
-  { value: 'Global', label: 'photographer community' },
-  { value: 'Fair', label: 'voting and award systems' },
+  {
+    title: 'Respect',
+    description: 'A creative space where every photographer can participate with dignity.',
+  },
+  {
+    title: 'Excellence',
+    description: 'Recognition for technical strength, artistic instinct, and thoughtful stories.',
+  },
+  {
+    title: 'Community',
+    description: 'A platform shaped by feedback, participation, and shared creative momentum.',
+  },
 ];
 
 export default function AboutPage() {
@@ -54,29 +66,32 @@ export default function AboutPage() {
 
   return (
     <main className="margin overflow-hidden">
-      <section className="border-border relative min-h-[520px] border-b">
+      <section className="border-border relative min-h-[calc(100dvh-59px)] border-b">
         <Image
-          src="/images/studio.png"
-          alt="Photography studio setup"
+          src="/images/POTY.png"
+          alt="Award-winning photography moment"
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-35"
+          className="object-cover opacity-45"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,var(--background)_0%,color-mix(in_oklab,var(--background)_78%,transparent)_48%,color-mix(in_oklab,var(--background)_52%,transparent)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,var(--background)_0%,color-mix(in_oklab,var(--background)_90%,transparent)_42%,color-mix(in_oklab,var(--background)_42%,transparent)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(0deg,var(--background)_0%,transparent_100%)]" />
 
-        <div className="relative container flex min-h-[520px] items-center py-16">
-          <div className="max-w-3xl">
-            <div className="border-primary/35 bg-primary/10 text-primary mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium">
-              <Camera className="size-4" />
-              Built for photographers
+        <div className="relative container grid min-h-[calc(100dvh-59px)] gap-10 py-14 lg:grid-cols-[0.92fr_0.68fr] lg:items-center">
+          <div className="max-w-4xl">
+            <div className="text-primary mb-6 inline-flex items-center gap-3 text-sm font-semibold">
+              <span className="bg-primary text-primary-foreground flex size-10 items-center justify-center rounded-md">
+                <Aperture className="size-5" />
+              </span>
+              Your Capture Awards
             </div>
-            <h1 className="text-heading max-w-4xl text-4xl leading-tight font-semibold sm:text-5xl lg:text-7xl">
-              A modern stage for photography contests and creative recognition.
+            <h1 className="text-heading max-w-4xl text-5xl leading-[1.02] font-semibold tracking-normal sm:text-6xl lg:text-7xl">
+              A serious home for photography contests, ranking, and recognition.
             </h1>
             <p className="text-body mt-6 max-w-2xl text-base leading-7 sm:text-lg">
-              Your Capture Awards brings photographers together through curated contests, fair
-              voting, achievement levels, and a community built around craft.
+              We bring photographers into curated competitions where strong images, fair voting, and
+              visible achievement help creative work travel further.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
@@ -86,98 +101,118 @@ export default function AboutPage() {
                 Explore Contests
               </Link>
               <Link
-                href="/support"
-                className="border-border-strong text-foreground hover:bg-surface inline-flex items-center justify-center rounded-md border px-5 py-3 text-sm font-semibold transition"
+                href="/discover"
+                className="border-border-strong bg-background/55 text-foreground hover:bg-surface inline-flex items-center justify-center rounded-md border px-5 py-3 text-sm font-semibold transition"
               >
-                Contact Support
+                Discover Creators
               </Link>
+            </div>
+          </div>
+
+          <div className="self-end lg:self-center">
+            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+              {proofPoints.map((point) => (
+                <div key={point.label} className="border-primary bg-background/55 border-l-2 p-4">
+                  <p className="text-heading text-2xl font-semibold">{point.value}</p>
+                  <p className="text-muted-foreground mt-1 text-sm">{point.label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      <section className="container py-12 sm:py-16">
-        <div className="grid gap-4 md:grid-cols-3">
-          {stats.map((item) => (
-            <div key={item.label} className="border-border bg-surface rounded-lg border p-5">
-              <p className="text-primary text-2xl font-semibold">{item.value}</p>
-              <p className="text-muted-foreground mt-1 text-sm">{item.label}</p>
-            </div>
+      <section className="container py-16 lg:py-24">
+        <div className="grid gap-10 lg:grid-cols-[0.82fr_1fr] lg:items-end">
+          <div>
+            <p className="text-primary text-sm font-semibold tracking-wide uppercase">What We Do</p>
+            <h2 className="text-heading mt-3 max-w-2xl text-3xl leading-tight font-semibold sm:text-4xl">
+              We make photo contests feel organized, credible, and worth entering.
+            </h2>
+          </div>
+          <p className="text-body max-w-2xl text-base leading-7">
+            Your Capture Awards gives photographers a place to submit polished work, compete in
+            themed contests, earn awards, and build momentum through a system that is easy to follow
+            from upload to final recognition.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          {pillars.map(({ title, description, icon: Icon }) => (
+            <article key={title} className="border-border bg-surface rounded-lg border p-6">
+              <div className="flex items-center gap-4">
+                <span className="bg-primary/12 text-primary flex size-12 shrink-0 items-center justify-center rounded-md">
+                  <Icon className="size-6" />
+                </span>
+                <h3 className="text-heading text-xl font-semibold">{title}</h3>
+              </div>
+              <p className="text-muted-foreground mt-5 text-sm leading-6">{description}</p>
+            </article>
           ))}
         </div>
       </section>
 
-      <section className="border-border bg-surface-secondary/45 border-y">
-        <div className="container grid gap-10 py-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:py-20">
+      <section className="border-border bg-surface-secondary/35 border-y">
+        <div className="container grid gap-10 py-16 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:py-24">
+          <div className="border-border relative min-h-[360px] overflow-hidden rounded-lg border sm:min-h-[520px]">
+            <Image
+              src="/images/studio.png"
+              alt="Photography workspace"
+              fill
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(0deg,var(--background)_0%,transparent_62%)]" />
+            <div className="absolute inset-x-0 bottom-0 p-6">
+              <p className="text-heading max-w-md text-2xl leading-tight font-semibold">
+                Built for the people behind the lens.
+              </p>
+            </div>
+          </div>
+
           <div>
             <p className="text-primary text-sm font-semibold tracking-wide uppercase">
               Our Mission
             </p>
             <h2 className="text-heading mt-3 text-3xl leading-tight font-semibold sm:text-4xl">
-              We help photographers turn remarkable captures into recognized work.
+              Create a better standard for online photography competition.
             </h2>
-            <p className="text-body mt-5 leading-7">
-              The platform exists to make contests easier to join, easier to judge, and more
-              rewarding for the photographers who keep showing up with fresh perspective.
+            <p className="text-body mt-5 text-base leading-7">
+              We care about a contest experience that feels calm, transparent, and rewarding:
+              photographers know what to submit, voters know what matters, and winners feel
+              genuinely earned.
             </p>
-          </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            {highlights.map(({ label, description, icon: Icon }) => (
-              <article key={label} className="border-border bg-background/70 rounded-lg border p-5">
-                <div className="bg-primary/12 text-primary flex size-11 items-center justify-center rounded-md">
-                  <Icon className="size-5" />
+            <div className="mt-8 space-y-4">
+              {[
+                'Clear rules and expectations before photographers submit.',
+                'Recognition systems that reward quality, consistency, and progress.',
+                'A welcoming platform where creators can compete without losing community.',
+              ].map((item) => (
+                <div key={item} className="flex gap-3">
+                  <CheckCircle2 className="text-primary mt-0.5 size-5 shrink-0" />
+                  <p className="text-muted-foreground text-sm leading-6">{item}</p>
                 </div>
-                <h3 className="text-heading mt-5 text-lg font-semibold">{label}</h3>
-                <p className="text-muted-foreground mt-2 text-sm leading-6">{description}</p>
-              </article>
-            ))}
-            <article className="border-border bg-background/70 rounded-lg border p-5 sm:col-span-2">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <div className="bg-primary/12 text-primary flex size-11 shrink-0 items-center justify-center rounded-md">
-                  <Award className="size-5" />
-                </div>
-                <div>
-                  <h3 className="text-heading text-lg font-semibold">Awards that feel earned</h3>
-                  <p className="text-muted-foreground mt-1 text-sm leading-6">
-                    Badges, levels, and prize systems are designed to celebrate consistency,
-                    standout images, and meaningful progress.
-                  </p>
-                </div>
-              </div>
-            </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="container grid gap-10 py-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-20">
-        <div className="border-border relative min-h-[360px] overflow-hidden rounded-lg border sm:min-h-[460px]">
-          <Image
-            src="/images/photographer.png"
-            alt="Photographer preparing a camera"
-            fill
-            sizes="(min-width: 1024px) 50vw, 100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(0deg,var(--background)_0%,transparent_100%)] p-6 pt-20">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary text-primary-foreground flex size-10 items-center justify-center rounded-md">
-                <UsersRound className="size-5" />
-              </div>
-              <p className="text-lg font-semibold">Community first, competition second.</p>
-            </div>
+      <section className="container py-16 lg:py-24">
+        <div className="grid gap-10 lg:grid-cols-[0.75fr_1fr]">
+          <div>
+            <p className="text-primary text-sm font-semibold tracking-wide uppercase">
+              Core Values
+            </p>
+            <h2 className="text-heading mt-3 text-3xl leading-tight font-semibold sm:text-4xl">
+              The principles behind every contest.
+            </h2>
           </div>
-        </div>
-
-        <div>
-          <p className="text-primary text-sm font-semibold tracking-wide uppercase">Core Values</p>
-          <h2 className="text-heading mt-3 text-3xl leading-tight font-semibold sm:text-4xl">
-            A healthier contest culture starts with clear standards.
-          </h2>
-          <div className="mt-7 grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             {values.map((value) => (
-              <article key={value.label} className="border-border bg-surface rounded-lg border p-5">
-                <h3 className="text-heading font-semibold">{value.label}</h3>
+              <article key={value.title} className="border-border border-t pt-5">
+                <h3 className="text-heading text-lg font-semibold">{value.title}</h3>
                 <p className="text-muted-foreground mt-2 text-sm leading-6">{value.description}</p>
               </article>
             ))}
@@ -185,42 +220,36 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="container pb-16 sm:pb-24">
-        <div className="border-border bg-surface rounded-lg border">
-          <div className="border-border border-b p-5 sm:p-8">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-primary text-sm font-semibold tracking-wide uppercase">
-                  About Your Capture Awards
-                </p>
-                <h2 className="text-heading mt-2 text-2xl font-semibold sm:text-3xl">
-                  Platform Overview
-                </h2>
-              </div>
-              {updatedDate && (
-                <p className="text-muted-foreground text-sm">Updated {updatedDate}</p>
-              )}
-            </div>
+      <section className="container pb-16 lg:pb-24">
+        <div className="border-border grid gap-8 border-t pt-10 lg:grid-cols-[0.36fr_0.64fr]">
+          <div>
+            <p className="text-primary text-sm font-semibold tracking-wide uppercase">
+              Official Overview
+            </p>
+            <h2 className="text-heading mt-3 text-3xl font-semibold">About the platform</h2>
+            {updatedDate && (
+              <p className="text-muted-foreground mt-3 text-sm">Updated {updatedDate}</p>
+            )}
           </div>
 
-          <div className="p-5 sm:p-8 lg:p-10">
+          <div className="min-w-0">
             {isLoading ? (
-              <div className="flex min-h-64 flex-col items-center justify-center gap-3">
+              <div className="border-border bg-surface flex min-h-64 flex-col items-center justify-center gap-3 rounded-lg border">
                 <Spinner className="text-primary size-8" />
                 <p className="text-muted-foreground text-sm">Loading about information...</p>
               </div>
             ) : error ? (
-              <div className="text-destructive flex min-h-48 items-center justify-center text-center">
+              <div className="border-border bg-surface text-destructive flex min-h-48 items-center justify-center rounded-lg border text-center">
                 Failed to load content. Please try again later.
               </div>
             ) : !policy?.content ? (
-              <div className="text-muted-foreground flex min-h-48 items-center justify-center text-center">
+              <div className="border-border bg-surface text-muted-foreground flex min-h-48 items-center justify-center rounded-lg border text-center">
                 No content available.
               </div>
             ) : (
               <TipTapViewer
                 content={policy.content}
-                className="text-body [&_a]:text-primary [&_h1]:text-heading [&_h2]:text-heading [&_h3]:text-heading overflow-hidden text-sm leading-7 sm:text-base [&_a]:underline [&_li]:my-1 [&_p]:leading-7 [&_p]:break-words [&_ul]:space-y-1"
+                className="text-body [&_a]:text-primary [&_h1]:text-heading [&_h2]:text-heading [&_h3]:text-heading border-border bg-surface overflow-hidden rounded-lg border p-5 text-sm leading-7 sm:p-8 sm:text-base [&_a]:underline [&_li]:my-1 [&_p]:leading-7 [&_p]:break-words [&_ul]:space-y-1"
               />
             )}
           </div>
