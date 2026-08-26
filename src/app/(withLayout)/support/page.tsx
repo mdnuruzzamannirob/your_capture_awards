@@ -321,7 +321,7 @@ export default function SupportPage() {
               href={`mailto:${SUPPORT_EMAIL}`}
               className="border-border-strong text-foreground hover:bg-surface inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-semibold transition"
             >
-              Email us directly
+              Email us directly: {SUPPORT_EMAIL}
             </a>
           </div>
         </div>
