@@ -249,7 +249,7 @@ export default function AboutPage() {
             ) : (
               <TipTapViewer
                 content={policy.content}
-                className="text-body [&_a]:text-primary [&_h1]:text-heading [&_h2]:text-heading [&_h3]:text-heading border-border bg-surface overflow-hidden rounded-lg border p-5 text-sm leading-7 sm:p-8 sm:text-base [&_a]:underline [&_li]:my-1 [&_p]:leading-7 [&_p]:break-words [&_ul]:space-y-1"
+                className="text-body [&_a]:text-primary [&_h1]:text-heading [&_h2]:text-heading [&_h3]:text-heading border-border bg-surface max-w-full overflow-hidden rounded-lg border p-5 text-sm leading-7 break-words whitespace-normal sm:p-8 sm:text-base [&_*]:max-w-full [&_a]:underline [&_code]:break-words [&_code]:whitespace-pre-wrap [&_li]:my-1 [&_li]:break-words [&_p]:leading-7 [&_p]:break-words [&_pre]:overflow-hidden [&_pre]:break-words [&_pre]:whitespace-pre-wrap [&_ul]:space-y-1"
               />
             )}
           </div>
