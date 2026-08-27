@@ -227,12 +227,12 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
         <TabsContent value="top-photographer" className="space-y-16">
           {isRankPhotographerLoadingPage ? (
             [50, 30, 15, 5].map((value, index) => (
-              <div key={index} className="space-y-5">
+              <div key={index} className="space-y-4">
                 {/* Header: Avatar, Name, Country, Follow, Votes */}
-                <div className="flex items-center justify-between gap-5">
-                  <div className="flex w-1/3 items-center gap-3">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
+                  <div className="flex items-center gap-3 sm:w-2/5 lg:w-1/3">
                     {/* Avatar Skeleton */}
-                    <Skeleton className="bg-surface-secondary h-20 w-20 rounded-full" />
+                    <Skeleton className="bg-surface-secondary size-14 rounded-full sm:size-20" />
                     <div className="min-w-0 space-y-1">
                       {/* Name Skeleton */}
                       <Skeleton className="bg-surface-secondary h-5 w-32 rounded" />
@@ -242,22 +242,22 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                   </div>
 
                   {/* Votes Bar + Rank */}
-                  <div className="flex w-full items-center">
-                    <div className="bg-border -mr-5 flex h-12 w-full items-center justify-end rounded-l-full px-2">
+                  <div className="flex w-full min-w-0 items-center">
+                    <div className="bg-border -mr-4 flex h-10 min-w-0 flex-1 items-center justify-end rounded-l-full px-2 sm:-mr-5 sm:h-12">
                       <Skeleton
-                        className="bg-surface-secondary h-9 w-32 rounded-l-full"
+                        className="bg-surface-secondary h-8 max-w-full rounded-l-full sm:h-9"
                         style={{ width: `${value}%` }}
                       />
                     </div>
-                    <div className="bg-surface-secondary size-20 rounded-full text-center" />
+                    <div className="bg-surface-secondary size-14 min-w-14 rounded-full text-center sm:size-20 sm:min-w-20" />
                   </div>
                 </div>
 
                 {/* Photos Grid */}
-                <div className="grid h-60 grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-5">
                   {[...Array(4)].map((_, idx) => (
                     <div className="relative" key={idx}>
-                      <Skeleton className="bg-surface-secondary h-60 w-full rounded-xl" />
+                      <Skeleton className="bg-surface-secondary h-32 w-full rounded-xl sm:h-44 lg:h-60" />
                       <Skeleton className="bg-surface-secondary absolute bottom-2 left-2 h-5 w-10 rounded" />
                     </div>
                   ))}
@@ -287,10 +287,10 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
               };
 
               return (
-                <div className="space-y-5" key={index}>
-                  <div className="flex items-center justify-between gap-5">
+                <div className="space-y-4" key={index}>
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
                     <div
-                      className="flex w-1/3 cursor-pointer items-center gap-3"
+                      className="flex min-w-0 cursor-pointer items-center gap-3 sm:w-2/5 lg:w-1/3"
                       onClick={handleUserClick}
                     >
                       {rankPhotographer?.user?.avatar ? (
@@ -299,36 +299,39 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                           alt=""
                           width={96}
                           height={96}
-                          className="bg-surface-secondary size-20 min-w-20 rounded-full object-cover"
+                          className="bg-surface-secondary size-14 min-w-14 rounded-full object-cover sm:size-20 sm:min-w-20"
                         />
                       ) : (
-                        <div className="bg-surface-secondary size-20 min-w-20 rounded-full" />
+                        <div className="bg-surface-secondary size-14 min-w-14 rounded-full sm:size-20 sm:min-w-20" />
                       )}
                       <div className="min-w-0">
-                        <h3 className="hover:text-primary truncate text-lg font-semibold whitespace-nowrap">
+                        <h3 className="hover:text-primary truncate text-base font-semibold sm:text-lg">
                           {rankPhotographer?.user?.fullName}
                         </h3>
-                        <p className="text-sm">{rankPhotographer?.user?.location ?? ''}</p>
+                        <p className="text-muted-foreground truncate text-xs sm:text-sm">
+                          {rankPhotographer?.user?.location ?? ''}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex w-full items-center">
-                      <div className="bg-border -mr-5 flex h-12 w-full items-center justify-end rounded-l-full px-2">
+                    <div className="flex w-full min-w-0 items-center">
+                      <div className="bg-border -mr-4 flex h-10 min-w-0 flex-1 items-center justify-end rounded-l-full px-2 sm:-mr-5 sm:h-12">
                         <div
                           className={cn(
-                            'bg-primary flex h-9 items-center rounded-l-full px-3 whitespace-nowrap',
+                            'bg-primary flex h-8 max-w-full items-center rounded-l-full px-3 text-sm whitespace-nowrap sm:h-9 sm:text-base',
                           )}
                           style={{ width: `${progress}%` }}
                         >
                           {rankPhotographer?.totalVotes} Votes
                         </div>
                       </div>
-                      <div className="bg-primary flex size-20 min-w-20 items-center justify-center rounded-full text-2xl font-bold shadow">
+                      <div className="bg-primary flex size-14 min-w-14 items-center justify-center rounded-full text-lg font-bold shadow sm:size-20 sm:min-w-20 sm:text-2xl">
                         #{index + 1}
                       </div>
                     </div>
                   </div>
-                  <div className="grid h-60 grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-5">
                     {[...(rankPhotographer.photos ?? [])]
+                      .filter((photo: any) => photo?.url)
                       .sort((a, b) => b?.voteCount - a?.voteCount)
                       .map((photo: any, index: any) => {
                         const handlePhotoClick = () => {
@@ -354,17 +357,13 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
                             key={index}
                             onClick={handlePhotoClick}
                           >
-                            {photo?.url ? (
-                              <Image
-                                src={photo.url}
-                                alt=""
-                                width={400}
-                                height={280}
-                                className="h-60 w-full rounded-xl object-cover"
-                              />
-                            ) : (
-                              <div className="h-60 w-full rounded-xl bg-surface-secondary" />
-                            )}
+                            <Image
+                              src={photo.url}
+                              alt=""
+                              width={400}
+                              height={280}
+                              className="h-32 w-full rounded-xl object-cover sm:h-44 lg:h-60"
+                            />
 
                             <div className="bg-overlay absolute bottom-2 left-2 flex items-center gap-1 rounded px-2 py-1 text-sm">
                               <MdOutlineHowToVote />
@@ -384,23 +383,23 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
               isRankPhotographerFetching && (
                 <div className="space-y-16 pt-4">
                   {[50, 30].map((value, index) => (
-                    <div key={index} className="space-y-5">
-                      <div className="flex items-center justify-between gap-5">
-                        <div className="flex w-1/3 items-center gap-3">
-                          <Skeleton className="bg-surface-secondary h-20 w-20 rounded-full" />
+                    <div key={index} className="space-y-4">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
+                        <div className="flex items-center gap-3 sm:w-2/5 lg:w-1/3">
+                          <Skeleton className="bg-surface-secondary size-14 rounded-full sm:size-20" />
                           <div className="min-w-0 space-y-1">
                             <Skeleton className="bg-surface-secondary h-5 w-32 rounded" />
                             <Skeleton className="bg-surface-secondary h-4 w-20 rounded" />
                           </div>
                         </div>
-                        <div className="flex w-full items-center">
-                          <div className="bg-border -mr-5 flex h-12 w-full items-center justify-end rounded-l-full px-2">
+                        <div className="flex w-full min-w-0 items-center">
+                          <div className="bg-border -mr-4 flex h-10 min-w-0 flex-1 items-center justify-end rounded-l-full px-2 sm:-mr-5 sm:h-12">
                             <Skeleton
-                              className="bg-surface-secondary h-9 w-32 rounded-l-full"
+                              className="bg-surface-secondary h-8 max-w-full rounded-l-full sm:h-9"
                               style={{ width: `${value}%` }}
                             />
                           </div>
-                          <div className="bg-surface-secondary size-20 rounded-full text-center" />
+                          <div className="bg-surface-secondary size-14 min-w-14 rounded-full text-center sm:size-20 sm:min-w-20" />
                         </div>
                       </div>
                     </div>
