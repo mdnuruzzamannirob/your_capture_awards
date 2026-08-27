@@ -19,16 +19,16 @@ const About = () => {
         Kimono captures All of Your beautiful memories{' '}
       </h3>
 
-      <div className="flex flex-col gap-20 lg:flex-row">
-        <div className="flex h-fit flex-col items-center gap-20 lg:flex-row">
+      <div className="flex flex-col items-center gap-20 lg:flex-row lg:items-start">
+        <div className="flex h-fit w-full flex-col items-center gap-20 lg:flex-row">
           <Image
             src="/images/photographer.png"
             alt="photographer"
             width={312}
             height={312}
-            className="size-80 object-cover"
+            className="aspect-square w-full max-w-80 shrink-0 object-cover"
           />
-          <div className="space-y-5">
+          <div className="w-full space-y-5">
             <h3 className="text-2xl font-medium">
               A Photographic Journey Through Life&apos;s Beautiful Tapestry.
             </h3>
@@ -41,7 +41,13 @@ const About = () => {
           </div>{' '}
         </div>
 
-        <Image src="/images/studio.png" alt="studio" className="h-auto" width={400} height={500} />
+        <Image
+          src="/images/studio.png"
+          alt="studio"
+          width={400}
+          height={500}
+          className="mx-auto h-auto w-full max-w-md shrink-0 object-contain lg:mx-0"
+        />
       </div>
     </section>
   );
