@@ -15,7 +15,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
-import { FaFacebookF, FaGoogle } from 'react-icons/fa';
+import { FaGoogle } from 'react-icons/fa';
 import { IoCheckbox, IoCheckboxOutline } from 'react-icons/io5';
 import { toast } from 'sonner';
 
@@ -369,12 +369,12 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
           >
             <FaGoogle size={20} /> Continue With Google
           </button>
-          <button
+          {/* <button
             onClick={() => handleOAuthLogin('facebook')}
             className="text-foreground border-primary/40 flex w-full items-center gap-4 rounded-md border px-5 py-3"
           >
             <FaFacebookF size={20} /> Continue With Facebook
-          </button>
+          </button> */}
         </div>
         <div className="my-10 flex w-full items-center">
           <hr className="border-0.5 border-border flex-1" />
