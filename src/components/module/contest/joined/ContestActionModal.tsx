@@ -371,7 +371,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
             contestId,
             photoId: targetPhotoId,
           }).unwrap();
-          toast.success(response.message || 'Photo promoted successfully.');
+          toast.success(response.message || 'Photo charged successfully.');
         } else {
           const payload: TradeContestPhotoPayload = {
             contestId,
@@ -414,7 +414,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
     };
 
     // ── Navigation helpers ────────────────────────────────────────────────
-    const actionLabel = actionType === 'boost' ? 'Promote' : 'Trade';
+    const actionLabel = actionType === 'boost' ? 'Charge' : 'Trade';
     const actionLoading = actionType === 'boost' ? isPromoting : isTrading;
     const actionIcon =
       actionType === 'boost' ? (
@@ -472,8 +472,8 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
     const dialogTitle =
       actionType === 'boost'
         ? step === 'selectContestPhoto'
-          ? 'Promote Contest Photo'
-          : 'Confirm Promotion'
+          ? 'Charge Contest Photo'
+          : 'Confirm Charge'
         : step === 'chooseSwapSource'
           ? 'Trade Contest Photo'
           : step === 'selectTradeTarget'
@@ -536,7 +536,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                     onClick={handleSubmit}
                     className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm disabled:opacity-60"
                   >
-                    {isSubmitting || actionLoading ? 'Processing...' : 'Promote'}
+                    {isSubmitting || actionLoading ? 'Processing...' : 'Charge'}
                   </button>
                 </div>
               </div>

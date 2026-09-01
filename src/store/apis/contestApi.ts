@@ -14,6 +14,10 @@ export type TradeContestPhotoPayload = {
   file?: File;
 };
 
+export type ChargeContestExposurePayload = {
+  contestId: string;
+};
+
 const normalizeContestListResponse = (response: any) => {
   const payload = response?.data ?? response ?? {};
   const contests = Array.isArray(payload) ? payload : payload?.contests ?? [];
@@ -256,6 +260,24 @@ export const contestApi = createApi({
       ],
     }),
 
+    // promote a contest entry's exposure (refills the EXPOSURE meter to 100%)
+    chargeContestExposure: builder.mutation<
+      { success: boolean; message: string; data?: any },
+      ChargeContestExposurePayload
+    >({
+      query: ({ contestId }) => ({
+        url: '/contests/charge',
+        method: 'POST',
+        body: { contestId },
+      }),
+      invalidatesTags: (result, error, { contestId }) => [
+        { type: 'Contest', id: contestId },
+        { type: 'JoinedContests', id: 'LIST' },
+        { type: 'ContestPhotos', id: contestId },
+        { type: 'UserPhotos', id: contestId },
+      ],
+    }),
+
     // trade a contest photo
     tradeContestPhoto: builder.mutation<
       { success: boolean; message: string; data?: any },
@@ -302,4 +324,5 @@ export const {
   useCreateVoteMutation,
   usePromoteContestPhotoMutation,
   useTradeContestPhotoMutation,
+  useChargeContestExposureMutation,
 } = contestApi;
