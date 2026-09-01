@@ -1,7 +1,6 @@
 import { MdLocationCity, MdOutlineMail } from 'react-icons/md';
 import LogoName from '../LogoName';
 import Link from 'next/link';
-import { FaFacebookF, FaLinkedin, FaXTwitter } from 'react-icons/fa6';
 
 const Footer = () => {
   return (
@@ -14,7 +13,7 @@ const Footer = () => {
             </p>
             <div className="space-y-1">
               <h4 className="text-lg font-medium">Email Drop</h4>
-              <p className="">captureaward@gmail.com</p>
+              <p className="">info@yourcaptureawards.org</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -64,22 +63,10 @@ const Footer = () => {
           </p>
           <div className="flex items-center justify-center gap-3">
             <Link
-              href="/"
+              href="mailto:info@yourcaptureawards.org"
               className="bg-primary text-primary-foreground flex items-center justify-center rounded-full p-3"
             >
-              <FaXTwitter className="size-5" />
-            </Link>{' '}
-            <Link
-              href="/"
-              className="bg-primary text-primary-foreground flex items-center justify-center rounded-full p-3"
-            >
-              <FaFacebookF className="size-5" />
-            </Link>
-            <Link
-              href="/"
-              className="bg-primary text-primary-foreground flex items-center justify-center rounded-full p-3"
-            >
-              <FaLinkedin className="size-5" />
+              <MdOutlineMail className="size-5" />
             </Link>
           </div>
         </div>
