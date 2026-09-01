@@ -299,6 +299,23 @@ export interface StartMatchAutoResponse {
   data?: unknown;
 }
 
+export interface TeamMatchSearchStatus {
+  id: string;
+  teamId: string;
+  contestId: string;
+  contestTitle: string;
+  contestBanner?: string | null;
+  status: 'SEARCHING' | 'MATCHED' | 'CANCELLED' | 'TIMEOUT' | string;
+  startedAt: string;
+  expiresAt: string;
+}
+
+export interface GetTeamMatchSearchStatusResponse {
+  success: boolean;
+  message: string;
+  data: TeamMatchSearchStatus[];
+}
+
 export type LeaderboardPeriod = 'weekly' | 'monthly' | 'yearly';
 
 export interface TeamMatchHistoryRow {

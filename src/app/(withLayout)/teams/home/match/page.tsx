@@ -2,6 +2,7 @@
 
 import ActiveMatch from '@/components/module/match/ActiveMatch';
 import BrowseMatches from '@/components/module/match/BrowseMatches';
+import SearchingOpponentCard from '@/components/module/match/SearchingOpponentCard';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -17,6 +18,7 @@ import {
   useGetActiveTeamMatchQuery,
   useGetAvailableTeamContestsQuery,
   useGetMyTeamQuery,
+  useGetTeamMatchSearchStatusQuery,
   useStartMatchAutoMutation,
 } from '@/store/apis/teamApi';
 import type {
@@ -342,11 +344,31 @@ export default function TeamMatchPage() {
     { skip: !shouldFetchAvailableContests },
   );
 
+  const searchStatusQuery = useGetTeamMatchSearchStatusQuery(teamId ?? '', {
+    skip: !teamId,
+    pollingInterval: 30000,
+  });
+  const activeSearches = useMemo(() => {
+    // Tolerate the pre-deploy API shape (a single object or null) alongside
+    // the array the backend now returns, so this doesn't break again the
+    // moment either side deploys ahead of the other.
+    const data = searchStatusQuery.data?.data;
+    if (!data) return [];
+    return Array.isArray(data) ? data : [data];
+  }, [searchStatusQuery.data]);
+  const searchingContestIds = useMemo(
+    () => new Set(activeSearches.map((search) => search.contestId)),
+    [activeSearches],
+  );
+
   const activeMatchView = activeMatch ? mapActiveMatchToMatch(activeMatch) : null;
   const availableContests = useMemo(() => contestsQuery.data?.data ?? [], [contestsQuery.data]);
   const matches = useMemo(
-    () => availableContests.map((contest) => mapContestToMatch(contest, currentUserId)),
-    [availableContests, currentUserId],
+    () =>
+      availableContests
+        .filter((contest) => !searchingContestIds.has(contest.id))
+        .map((contest) => mapContestToMatch(contest, currentUserId)),
+    [availableContests, currentUserId, searchingContestIds],
   );
   const selectedContest = useMemo(
     () => availableContests.find((contest) => contest.id === selectedContestId) ?? null,
@@ -356,11 +378,12 @@ export default function TeamMatchPage() {
   const refetchMatchFlow = useCallback(() => {
     refetchTeam();
     activeMatchQuery.refetch();
+    searchStatusQuery.refetch();
 
     if (shouldFetchAvailableContests) {
       contestsQuery.refetch();
     }
-  }, [activeMatchQuery, contestsQuery, refetchTeam, shouldFetchAvailableContests]);
+  }, [activeMatchQuery, contestsQuery, refetchTeam, searchStatusQuery, shouldFetchAvailableContests]);
 
   const handleAvailableMatchAction = useCallback(
     (match: Match) => {
@@ -442,6 +465,24 @@ export default function TeamMatchPage() {
           </Link>
         </Button>
       </div>
+
+      {!activeMatchView && activeSearches.length > 0 ? (
+        <div className="space-y-3">
+          <h3 className="font-kumbh text-sm font-semibold">
+            {activeSearches.length > 1 ? 'Searching for opponents' : 'Searching for opponent'}
+          </h3>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {activeSearches.map((search) => (
+              <SearchingOpponentCard
+                key={search.id}
+                contestTitle={search.contestTitle}
+                contestBanner={search.contestBanner}
+                expiresAt={search.expiresAt}
+              />
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {activeMatchView ? (
         <ActiveMatch

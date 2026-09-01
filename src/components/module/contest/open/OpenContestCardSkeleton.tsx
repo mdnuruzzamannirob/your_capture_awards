@@ -18,17 +18,21 @@ const OpenContestCardSkeleton = () => {
           <Skeleton className="bg-surface-secondary h-10 w-28 rounded-full" />
         </div>
 
-        <div className="text-primary-foreground absolute inset-x-0 bottom-0 flex items-center justify-between bg-zinc-950/90 px-2 py-2">
-          <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-2">
-            <Skeleton className="bg-surface-secondary h-4 w-24 rounded-full" />
-            <Skeleton className="bg-surface-secondary mt-2 h-3 w-14 rounded-full" />
+        <div className="absolute inset-x-2 bottom-2 grid h-16 grid-cols-[1fr_1.3fr_0.85fr] divide-x divide-white/10 overflow-hidden rounded-lg border border-white/10 bg-zinc-950/88 shadow-lg backdrop-blur-md">
+          <div className="flex items-center justify-center gap-2 px-2">
+            <Skeleton className="bg-surface-secondary size-7 shrink-0 rounded-md" />
+            <div>
+              <Skeleton className="bg-surface-secondary h-2 w-8 rounded-full" />
+              <Skeleton className="bg-surface-secondary mt-2 h-3 w-14 rounded-full" />
+            </div>
           </div>
-          <div className="border-primary flex h-12 flex-[1.3] flex-col items-center justify-center border-r px-2">
-            <Skeleton className="bg-surface-secondary h-4 w-28 rounded-full" />
+          <div className="flex flex-col items-center justify-center px-2">
+            <Skeleton className="bg-surface-secondary h-2 w-14 rounded-full" />
+            <Skeleton className="bg-surface-secondary mt-2 h-3 w-24 rounded-full" />
           </div>
-          <div className="flex h-12 flex-1 flex-col items-center justify-center px-2">
-            <Skeleton className="bg-surface-secondary h-4 w-16 rounded-full" />
-            <Skeleton className="bg-surface-secondary mt-2 h-3 w-12 rounded-full" />
+          <div className="flex flex-col items-center justify-center px-2">
+            <Skeleton className="bg-surface-secondary h-2 w-9 rounded-full" />
+            <Skeleton className="bg-surface-secondary mt-2 h-4 w-4 rounded-full" />
           </div>
         </div>
       </div>

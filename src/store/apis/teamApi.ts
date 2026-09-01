@@ -15,6 +15,7 @@ import {
   GetTeamMatchHistoryResponse,
   GetTeamInvitationsResponse,
   GetTeamMembersResponse,
+  GetTeamMatchSearchStatusResponse,
   GetTeamsParams,
   GetTeamsResponse,
   InviteMemberResponse,
@@ -191,6 +192,15 @@ export const teamApi = createApi({
         body: { contestId },
       }),
       invalidatesTags: ['TeamMatch', 'TeamContests', 'Team'],
+    }),
+
+    // ── Get Team Match Search Status ─────────────────────────────────────
+    getTeamMatchSearchStatus: builder.query<GetTeamMatchSearchStatusResponse, string>({
+      query: (teamId) => ({
+        url: `/teams/${teamId}/match-search-status`,
+        method: 'GET',
+      }),
+      providesTags: (result, error, teamId) => [{ type: 'TeamMatch', id: `${teamId}-search` }],
     }),
 
     // ── Join Team ────────────────────────────────────────────────────────
@@ -405,6 +415,7 @@ export const {
   useGetTeamLeaderboardQuery,
   useGetTeamMatchHistoryQuery,
   useStartMatchAutoMutation,
+  useGetTeamMatchSearchStatusQuery,
   useJoinTeamMutation,
   useCreateTeamMutation,
   useGetMyTeamQuery,

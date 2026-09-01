@@ -5,6 +5,7 @@ import { useRef } from 'react';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
 import CornerCount from '@/components/CornerCount';
+import { Clock3, Trophy, Vote } from 'lucide-react';
 
 const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Promise<any> }) => {
   const now = new Date();
@@ -84,33 +85,61 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
           </div>
         </div>
 
-        {/* Footer stats — absolute bottom, zero gap */}
-        <div className="text-primary-foreground absolute inset-x-0 bottom-0 z-10 flex items-center justify-between bg-zinc-950/90 py-2">
+        {/* Footer stats */}
+        <div className="absolute inset-x-2 bottom-2 z-20 grid h-16 grid-cols-[1fr_1.3fr_0.85fr] divide-x divide-white/10 overflow-hidden rounded-lg border border-white/10 bg-zinc-950/88 text-white shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md">
           {contest?.isMoneyContest ? (
-            <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
-              <p className="font-semibold">
-                {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
-              </p>
-              <p className="text-xs">Prizes</p>
+            <div className="flex min-w-0 items-center justify-center gap-2 px-2">
+              <div className="bg-primary/15 text-primary flex size-7 shrink-0 items-center justify-center rounded-md">
+                <Trophy className="size-3.5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[9px] leading-none tracking-[0.16em] text-white/50 uppercase">
+                  Prize
+                </p>
+                <p className="mt-1 truncate text-xs font-semibold">
+                  {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
+                </p>
+              </div>
             </div>
           ) : (
-            <div className="border-primary flex h-12 w-fit flex-1 flex-col items-center justify-center border-r px-1 text-center text-sm whitespace-nowrap">
-              No Cash Prize
+            <div className="flex min-w-0 items-center justify-center gap-2 px-2">
+              <div className="bg-primary/15 text-primary flex size-7 shrink-0 items-center justify-center rounded-md">
+                <Trophy className="size-3.5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[9px] leading-none tracking-[0.16em] text-white/50 uppercase">
+                  Prize
+                </p>
+                <p className="mt-1 truncate text-xs font-semibold">No cash</p>
+              </div>
             </div>
           )}
 
-          <div className="border-primary flex h-12 flex-[1.3] flex-col items-center justify-center border-r px-1">
-            <CountdownTimer startDate={startDate} endDate={endDate} refetch={refetch} />
+          <div className="flex min-w-0 flex-col items-center justify-center px-2">
+            <div className="flex items-center gap-1.5 text-[9px] leading-none tracking-[0.16em] text-white/50 uppercase">
+              <Clock3 className="text-primary size-3" />
+              <span>{isFuture ? 'Starts in' : 'Time left'}</span>
+            </div>
+            <CountdownTimer
+              startDate={startDate}
+              endDate={endDate}
+              refetch={refetch}
+              className="mt-1.5 gap-1.5 text-xs font-semibold text-white"
+            />
           </div>
 
           {isFuture ? (
-            <div className="flex h-12 w-fit flex-1 flex-col items-center justify-center px-1 text-center text-sm whitespace-nowrap">
-              Voting <br /> starts soon
+            <div className="flex flex-col items-center justify-center px-1 text-center">
+              <Vote className="text-primary mb-1 size-3.5" />
+              <p className="text-[10px] leading-tight font-medium text-white/70">Voting soon</p>
             </div>
           ) : (
-            <div className="flex h-12 flex-1 flex-col items-center justify-center px-1">
-              <p className="font-semibold">{0}</p>
-              <p className="text-xs">Votes</p>
+            <div className="flex flex-col items-center justify-center px-1">
+              <div className="flex items-center gap-1 text-[9px] leading-none tracking-[0.16em] text-white/50 uppercase">
+                <Vote className="text-primary size-3" />
+                <span>Votes</span>
+              </div>
+              <p className="mt-1 text-sm font-bold tabular-nums">0</p>
             </div>
           )}
         </div>
