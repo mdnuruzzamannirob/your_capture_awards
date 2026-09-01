@@ -11,7 +11,7 @@ import { storeApi, useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { cn } from '@/utils/cn';
 import { resolveImageUrl } from '@/utils/resolveImageUrl';
 import { labels, totalLevels, valueToLevel } from '@/utils/valueToExposureLabel';
-import { Flame, Repeat2, Timer, Vote } from 'lucide-react';
+import { Flame, Repeat2, Timer, Trophy, Vote } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AiOutlineThunderbolt } from 'react-icons/ai';
@@ -356,6 +356,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
   const totalVotes = asNumber(contest?.level_data?.totalVotes);
   const nextLevelPoint = asNumber(contest?.level_data?.nextLevel?.point);
   const votesToNextLevel = Math.max(0, nextLevelPoint - totalVotes);
+  const rank = contest?.level_data?.rank ?? null;
   const promotedCount = photos.filter((photo) => isPhotoPromoted(photo, now)).length;
   const tradedCount = photos.filter(isPhotoTraded).length;
   const canUsePhotoActions = serverPhotos.length > 0;
@@ -383,6 +384,13 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
             ) : null}
           </div>
         )}
+
+        {rank ? (
+          <span className="bg-primary text-primary-foreground absolute right-3 bottom-3 z-10 inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[10px] font-semibold">
+            <Trophy className="size-3" />
+            Rank #{rank}
+          </span>
+        ) : null}
 
         <div className="absolute bottom-3 left-1/2 w-full -translate-x-1/2 px-3 text-center">
           <h2 className="inline-block text-2xl font-semibold">{contest?.title}</h2>
