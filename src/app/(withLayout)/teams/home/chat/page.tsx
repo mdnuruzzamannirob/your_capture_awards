@@ -1,5 +1,6 @@
 'use client';
 
+import SearchingOpponentCard from '@/components/module/match/SearchingOpponentCard';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSocket } from '@/providers/SocketProvider';
 import { useGetMyTeamQuery, useUploadChatFileMutation } from '@/store/apis/teamApi';
 import { cn } from '@/utils/cn';
-import { ArrowDown, FileUp, ImagePlus, Loader2, Send, TriangleAlert } from 'lucide-react';
+import { ArrowDown, FileUp, ImagePlus, Loader2, Send, Swords, TriangleAlert } from 'lucide-react';
 import Image from 'next/image';
 import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Socket } from 'socket.io-client';
@@ -22,16 +23,28 @@ type ChatUser = {
   avatar: string | null;
 };
 
+type SystemMessageMetadata = {
+  event?: string;
+  contestId?: string;
+  contestTitle?: string;
+  contestBanner?: string | null;
+  expiresAt?: string;
+  matchId?: string;
+  team1Name?: string;
+  team2Name?: string;
+};
+
 type ChatMessage = {
   id: string;
   message: string;
-  messageType: 'text' | 'file' | string;
+  messageType: 'text' | 'file' | 'system' | string;
   fileUrl: string | null;
-  senderId: string;
+  senderId: string | null;
   teamId: string;
   createdAt: string;
   updatedAt: string;
-  sender: ChatUser;
+  sender: ChatUser | null;
+  metadata?: SystemMessageMetadata | null;
 };
 
 type SocketAck = {
@@ -57,8 +70,8 @@ type TeamMessagesResponse = {
 
 type ChatMessageGroup = {
   id: string;
-  senderId: string;
-  sender: ChatUser;
+  senderId: string | null;
+  sender: ChatUser | null;
   createdAt: string;
   messages: ChatMessage[];
 };
@@ -68,12 +81,16 @@ type NewMessagePayload = {
   data: ChatMessage;
 };
 
-const getDisplayName = (sender: ChatUser) => {
+const isSystemMessage = (message: Pick<ChatMessage, 'messageType' | 'senderId'>) =>
+  message.messageType === 'system' || !message.senderId;
+
+const getDisplayName = (sender: ChatUser | null) => {
+  if (!sender) return 'Team member';
   const name = sender.fullName ?? `${sender.firstName ?? ''} ${sender.lastName ?? ''}`.trim();
   return name || 'Team member';
 };
 
-const getInitial = (sender: ChatUser) => {
+const getInitial = (sender: ChatUser | null) => {
   return getDisplayName(sender).charAt(0).toUpperCase() || 'U';
 };
 
@@ -407,6 +424,8 @@ export default function TeamChatPage() {
       const lastTime = lastMessage ? new Date(lastMessage.createdAt).getTime() : 0;
       const canMerge =
         !!lastGroup &&
+        !isSystemMessage(message) &&
+        !isSystemMessage({ messageType: lastMessage?.messageType ?? '', senderId: lastGroup.senderId }) &&
         lastGroup.senderId === message.senderId &&
         currentTime - lastTime <= 1 * 60 * 1000;
 
@@ -523,6 +542,33 @@ export default function TeamChatPage() {
             </div>
           ) : (
             groupedMessages.map((group) => {
+              if (isSystemMessage({ messageType: group.messages[0]?.messageType ?? '', senderId: group.senderId })) {
+                return (
+                  <div key={group.id} className="flex flex-col items-center gap-2">
+                    {group.messages.map((message) => {
+                      const event = message.metadata?.event;
+
+                      if (event === 'TEAM_MATCH_SEARCH_STARTED') {
+                        return <SearchingMatchCard key={message.id} message={message} />;
+                      }
+
+                      if (event === 'TEAM_MATCH_FOUND') {
+                        return <MatchFoundCard key={message.id} message={message} />;
+                      }
+
+                      return (
+                        <p
+                          key={message.id}
+                          className="text-muted-foreground bg-surface-secondary border-border-subtle max-w-[85%] rounded-full border px-3 py-1.5 text-center text-xs wrap-break-word"
+                        >
+                          {message.message}
+                        </p>
+                      );
+                    })}
+                  </div>
+                );
+              }
+
               const isMine = group.senderId === currentUserId;
               const senderName = getDisplayName(group.sender);
 
@@ -535,7 +581,7 @@ export default function TeamChatPage() {
                   )}
                 >
                   <Avatar className="border-border-subtle size-9 shrink-0 border">
-                    <AvatarImage src={group.sender.avatar ?? undefined} alt={senderName} />
+                    <AvatarImage src={group.sender?.avatar ?? undefined} alt={senderName} />
                     <AvatarFallback
                       className={cn(
                         'text-primary-foreground text-xs font-semibold',
@@ -742,5 +788,64 @@ function MessageState({ isReady }: { isReady: boolean }) {
         </div>
       )}
     </div>
+  );
+}
+
+function SearchingMatchCard({ message }: { message: ChatMessage }) {
+  const { contestTitle, contestBanner, expiresAt } = message.metadata ?? {};
+
+  if (!expiresAt) return null;
+
+  return (
+    <SearchingOpponentCard
+      contestTitle={contestTitle || 'Contest'}
+      contestBanner={contestBanner}
+      expiresAt={expiresAt}
+      className="w-full max-w-sm"
+    />
+  );
+}
+
+function MatchFoundCard({ message }: { message: ChatMessage }) {
+  const { contestTitle, contestBanner, team1Name, team2Name } = message.metadata ?? {};
+
+  return (
+    <article className="border-border bg-surface-secondary/80 w-full max-w-sm overflow-hidden rounded-xl border-2">
+      <div className="relative h-32 overflow-hidden sm:h-40">
+        {contestBanner ? (
+          <Image
+            src={contestBanner}
+            alt={contestTitle || 'Contest'}
+            fill
+            unoptimized
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 400px"
+          />
+        ) : (
+          <div className="bg-surface-tertiary size-full" />
+        )}
+
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-20 bg-linear-to-b from-black/85 to-transparent" />
+
+        <div className="bg-success-500/95 absolute top-3 right-3 z-10 inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white">
+          <Swords className="size-3" />
+          Match found
+        </div>
+
+        <div className="absolute top-3 right-24 left-3 z-10">
+          <h3 className="line-clamp-2 text-sm leading-snug font-bold text-white [text-shadow:0_1px_6px_rgba(0,0,0,1)] sm:text-base">
+            {contestTitle || 'Contest'}
+          </h3>
+        </div>
+
+        {(team1Name || team2Name) && (
+          <div className="text-primary-foreground absolute inset-x-0 bottom-0 z-10 flex items-center justify-center gap-2 bg-zinc-950/90 py-2.5 text-sm font-semibold">
+            <span className="max-w-[40%] truncate">{team1Name}</span>
+            <span className="text-muted-foreground text-xs font-normal">vs</span>
+            <span className="max-w-[40%] truncate">{team2Name}</span>
+          </div>
+        )}
+      </div>
+    </article>
   );
 }
