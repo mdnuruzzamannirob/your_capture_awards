@@ -3,7 +3,7 @@
 import { useGetMeQuery } from '@/store/apis/authApi';
 import { useAppSelector } from '@/store/hooks';
 import Cookies from 'js-cookie';
-import { useState, useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
 
 const tokenListeners: Set<() => void> = new Set();
 let currentToken: string | null = null;
@@ -16,6 +16,8 @@ const getToken = (): string | null => {
   if (typeof window === 'undefined') return null;
   return Cookies.get('token') ?? null;
 };
+
+const getServerToken = (): null => null;
 
 const subscribe = (listener: () => void) => {
   tokenListeners.add(listener);
@@ -43,14 +45,9 @@ const subscribe = (listener: () => void) => {
 };
 
 export const useAuth = () => {
-  const [initialToken] = useState(() => getToken());
   const authUser = useAppSelector((state) => state.auth.user);
 
-  const token = useSyncExternalStore(
-    subscribe,
-    () => getToken(),
-    () => initialToken,
-  );
+  const token = useSyncExternalStore(subscribe, getToken, getServerToken);
 
   const {
     data: meData,
