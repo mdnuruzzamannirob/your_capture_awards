@@ -2,8 +2,12 @@
 
 import CountdownTimer from '@/components/CountdownTimer';
 import CornerCount from '@/components/CornerCount';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
 import { useAuth } from '@/hooks/useAuth';
+import { useStoreModal } from '@/providers/StoreModalProvider';
+import { useChargeContestExposureMutation } from '@/store/apis/contestApi';
+import { storeApi, useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { cn } from '@/utils/cn';
 import { resolveImageUrl } from '@/utils/resolveImageUrl';
 import { labels, totalLevels, valueToLevel } from '@/utils/valueToExposureLabel';
@@ -11,8 +15,10 @@ import { Flame, Repeat2, Timer, Vote } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AiOutlineThunderbolt } from 'react-icons/ai';
-import { MdOutlineCameraswitch, MdOutlineHowToVote } from 'react-icons/md';
+import { MdOutlineCameraswitch, MdOutlineCampaign, MdOutlineHowToVote } from 'react-icons/md';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { toast } from 'sonner';
 
 import ContestActionModal, { ContestActionModalRef } from './ContestActionModal';
 import UploadPhoto from './UploadPhoto';
@@ -270,11 +276,46 @@ function BannerImage({ src, alt }: { src?: string | null; alt?: string }) {
 }
 
 const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => Promise<any> }) => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const dispatch = useDispatch();
+  const { openStore } = useStoreModal();
+  const { data: storeStats } = useGetStoreStatsQuery(undefined, { skip: !isAuthenticated });
+  const [chargeContestExposure, { isLoading: isPromotingExposure }] =
+    useChargeContestExposureMutation();
   const [localImageUrls, setLocalImageUrls] = useState<string[]>([]);
   const [now, setNow] = useState(() => Date.now());
+  const [confirmPromoteOpen, setConfirmPromoteOpen] = useState(false);
   const modalRef = useRef<VoteModalRef>(null);
   const actionModalRef = useRef<ContestActionModalRef>(null);
+
+  const openPromoteConfirm = () => {
+    if (!isAuthenticated) {
+      toast.error('Please sign in to use contest actions.');
+      return;
+    }
+    if ((storeStats?.data?.key ?? 0) <= 0) {
+      openStore();
+      return;
+    }
+    setConfirmPromoteOpen(true);
+  };
+
+  const handlePromoteExposure = async () => {
+    if ((storeStats?.data?.key ?? 0) <= 0) {
+      setConfirmPromoteOpen(false);
+      openStore();
+      return;
+    }
+    try {
+      const response = await chargeContestExposure({ contestId: contest?.id }).unwrap();
+      toast.success(response.message || 'Exposure refilled to 100%.');
+      dispatch(storeApi.util.invalidateTags(['StoreStats']));
+      setConfirmPromoteOpen(false);
+      await refetch();
+    } catch (error: any) {
+      toast.error(error?.data?.message || error?.message || 'Something went wrong. Please try again.');
+    }
+  };
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
@@ -309,7 +350,9 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
   const uploadedCount = Math.max(contest?.uploadCount ?? 0, photos.length);
   const maxUploads = contest?.maxUploads ?? contest?.maxUpload ?? 0;
   const remaining = Math.max(0, maxUploads - uploadedCount);
-  const level = valueToLevel(contest?.level_data?.exposure_bonus);
+  const exposureBonus = asNumber(contest?.level_data?.exposure_bonus);
+  const level = valueToLevel(exposureBonus);
+  const isExposureMaxed = exposureBonus >= 100;
   const totalVotes = asNumber(contest?.level_data?.totalVotes);
   const nextLevelPoint = asNumber(contest?.level_data?.nextLevel?.point);
   const votesToNextLevel = Math.max(0, nextLevelPoint - totalVotes);
@@ -388,8 +431,8 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
           <div className="flex flex-col items-center justify-center gap-2">
             <div className="text-muted-foreground text-xs uppercase">Exposure</div>
 
-            <div className="border-border relative flex size-25 flex-col items-center justify-center rounded-full border-4">
-              <div className="text-caption-foreground flex w-full justify-between px-3 text-[10px]">
+            <div className="border-border relative flex size-20 flex-col items-center justify-center rounded-full border-4">
+              <div className="text-caption-foreground flex w-full justify-between px-2 text-[10px]">
                 {labels.map((label, index) => (
                   <span
                     key={`${label}-${index}`}
@@ -407,7 +450,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
                     <div
                       key={index}
                       className={cn(
-                        'h-1.5 w-3.5 rounded transition',
+                        'h-1.5 w-3 rounded transition',
                         active ? 'bg-primary' : 'bg-surface-tertiary',
                       )}
                     />
@@ -415,6 +458,47 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
                 })}
               </div>
             </div>
+
+            <button
+              onClick={openPromoteConfirm}
+              disabled={isExposureMaxed || isPromotingExposure}
+              title={isExposureMaxed ? 'Exposure is already at 100%' : undefined}
+              className="text-primary border-primary/25 flex items-center justify-center gap-1 rounded-sm border px-2 py-1 text-[10px] font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <MdOutlineCampaign className="size-3" />
+              {isPromotingExposure ? 'Promoting...' : 'Promote'}
+            </button>
+
+            <Dialog open={confirmPromoteOpen} onOpenChange={setConfirmPromoteOpen}>
+              <DialogContent className="border-border border-2 sm:max-w-sm">
+                <DialogTitle className="flex items-center gap-2">
+                  <MdOutlineCampaign className="text-primary size-5" />
+                  Promote Exposure
+                </DialogTitle>
+                <DialogDescription>
+                  This will refill this contest entry&apos;s exposure to 100% (Level H) and use 1
+                  charge. Continue?
+                </DialogDescription>
+                <div className="flex items-center justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setConfirmPromoteOpen(false)}
+                    disabled={isPromotingExposure}
+                    className="text-primary border-primary rounded-sm border px-5 py-2 text-sm disabled:opacity-60"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isPromotingExposure}
+                    onClick={handlePromoteExposure}
+                    className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm disabled:opacity-60"
+                  >
+                    {isPromotingExposure ? 'Promoting...' : 'Promote'}
+                  </button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
