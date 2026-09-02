@@ -1,19 +1,31 @@
 'use client';
 
 import ActiveMatch from '@/components/module/match/ActiveMatch';
+import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useGetContestQuery } from '@/store/apis/contestApi';
 import { useGetMyTeamQuery, useGetTeamContestMatchViewQuery } from '@/store/apis/teamApi';
 import type { TeamMatchEligibleMember } from '@/store/types/teamTypes';
 import { getImageUrl, mapActiveMatchToMatch } from '@/utils/activeTeamMatch';
 import { cn } from '@/utils/cn';
-import { ArrowLeft, Clock3, ExternalLink, Search, ThumbsUp, TriangleAlert, Users } from 'lucide-react';
+import {
+  ArrowLeft,
+  Clock3,
+  ExternalLink,
+  Loader2,
+  Search,
+  ThumbsUp,
+  TriangleAlert,
+  UserPlus,
+  Users,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const MIN_TEAM_MATCH_MEMBERS = 3;
 
@@ -94,9 +106,16 @@ export default function TeamMatchViewPage() {
     data: matchViewData,
     isLoading: isMatchViewLoading,
     isError: isMatchViewError,
+    refetch: refetchMatchView,
   } = useGetTeamContestMatchViewQuery(
     { teamId, contestId },
     { skip: !teamId || !contestId, pollingInterval: 15000 },
+  );
+  const uploadModalRef = useRef<UploadModalRef>(null);
+  const canJoinContest = matchViewData?.data?.queue?.currentUserJoined === false;
+  const { data: joinContestData, isFetching: isJoinContestLoading } = useGetContestQuery(
+    { id: contestId },
+    { skip: !contestId || !canJoinContest || Boolean(matchViewData?.data?.activeMatch) },
   );
 
   if (isTeamLoading || isMatchViewLoading) {
@@ -124,6 +143,7 @@ export default function TeamMatchViewPage() {
   }
 
   const { contest, eligibleMembers, queue, activeMatch } = matchViewData.data;
+  const joinContest = joinContestData?.data;
 
   // Once the opponent search resolves into a real match, the status/roster
   // view below is replaced by the live scoreboard.
@@ -220,7 +240,7 @@ export default function TeamMatchViewPage() {
             </div>
             <div className="bg-surface-tertiary h-2 w-full overflow-hidden rounded-full">
               <div
-                className="from-primary to-primary/70 h-full rounded-full bg-linear-to-r shadow-[0_0_10px_-1px] shadow-primary/60 transition-all duration-500"
+                className="from-primary to-primary/70 shadow-primary/60 h-full rounded-full bg-linear-to-r shadow-[0_0_10px_-1px] transition-all duration-500"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -307,12 +327,48 @@ export default function TeamMatchViewPage() {
         </div>
       )}
 
-      <Button type="button" variant="outline" asChild>
-        <Link href={`/contest/${contest.id}`}>
-          <ExternalLink className="size-4" />
-          Open Contest
-        </Link>
-      </Button>
+      <div className="flex flex-wrap gap-3">
+        {canJoinContest ? (
+          <Button
+            type="button"
+            disabled={isJoinContestLoading || !joinContest}
+            onClick={() => uploadModalRef.current?.open()}
+          >
+            {isJoinContestLoading ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <UserPlus className="size-4" />
+            )}
+            {isJoinContestLoading ? 'Loading...' : 'Join Contest'}
+          </Button>
+        ) : null}
+
+        <Button type="button" variant="outline" asChild>
+          <Link href={`/contest/${contest.id}`}>
+            <ExternalLink className="size-4" />
+            Open Contest
+          </Link>
+        </Button>
+      </div>
+
+      {canJoinContest && joinContest ? (
+        <UploadModal
+          ref={uploadModalRef}
+          type="join"
+          contest={joinContest}
+          contestType={joinContest.type}
+          title={joinContest.title}
+          description={joinContest.description}
+          remaining={joinContest.maxUploads ?? joinContest.maxUpload ?? contest.maxUpload}
+          maxUploads={joinContest.maxUploads ?? joinContest.maxUpload ?? contest.maxUpload}
+          contestId={contest.id}
+          successMessage="You joined the contest."
+          redirectOnJoinSuccess={false}
+          onSuccess={() => {
+            void refetchMatchView();
+          }}
+        />
+      ) : null}
     </section>
   );
 }
