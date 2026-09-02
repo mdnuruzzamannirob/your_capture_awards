@@ -5,7 +5,7 @@ import { useGetMyTeamQuery } from '@/store/apis/teamApi';
 import type { TeamData } from '@/store/types/teamTypes';
 
 export function useTeamMembership() {
-  const { token, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { token, isHydrated, isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
   const {
     data,
@@ -20,7 +20,8 @@ export function useTeamMembership() {
   const team: TeamData | null = data?.success && data?.data?.team?.id ? data.data.team : null;
   const hasTeam = Boolean(team?.id);
 
-  const isCheckingMembership = isAuthenticated && (isAuthLoading || (isTeamLoading && !data));
+  const isCheckingMembership =
+    !isHydrated || (isAuthenticated && (isAuthLoading || (isTeamLoading && !data)));
 
   return {
     token,
