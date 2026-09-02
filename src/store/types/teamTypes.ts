@@ -285,7 +285,8 @@ export interface GetAvailableTeamContestsResponse {
 export interface GetActiveTeamMatchResponse {
   success: boolean;
   message: string;
-  data: ActiveTeamMatch | null;
+  // A team can have several active matches at once (one per contest).
+  data: ActiveTeamMatch[];
 }
 
 export interface StartMatchAutoRequest {
@@ -305,15 +306,41 @@ export interface TeamMatchSearchStatus {
   contestId: string;
   contestTitle: string;
   contestBanner?: string | null;
-  status: 'SEARCHING' | 'MATCHED' | 'CANCELLED' | 'TIMEOUT' | string;
+  maxUpload?: number | null;
+  contestEndDate: string;
+  status: 'WAITING_FOR_MEMBERS' | 'SEARCHING' | 'MATCHED' | 'CANCELLED' | 'TIMEOUT' | string;
   startedAt: string;
   expiresAt: string;
+  joinedCount?: number;
+  minMembers?: number;
+  currentUserJoined?: boolean;
 }
 
 export interface GetTeamMatchSearchStatusResponse {
   success: boolean;
   message: string;
   data: TeamMatchSearchStatus[];
+}
+
+export interface TeamContestMatchView {
+  contest: {
+    id: string;
+    title: string;
+    description: string;
+    banner: string | null;
+    maxUpload: number;
+    startDate: string;
+    endDate: string;
+  };
+  eligibleMembers: TeamMatchEligibleMember[];
+  queue: TeamMatchSearchStatus | null;
+  activeMatch: ActiveTeamMatch | null;
+}
+
+export interface GetTeamContestMatchViewResponse {
+  success: boolean;
+  message: string;
+  data: TeamContestMatchView;
 }
 
 export type LeaderboardPeriod = 'weekly' | 'monthly' | 'yearly';

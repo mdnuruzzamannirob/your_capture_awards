@@ -28,4 +28,5 @@ export interface Match {
   minRequirement: string; // e.g. "APPRENTICE"
   hasJoined?: boolean;
   countLabel?: string;
+  queueStatus?: 'WAITING_FOR_MEMBERS' | 'SEARCHING';
 }
