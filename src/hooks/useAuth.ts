@@ -19,6 +19,10 @@ const getToken = (): string | null => {
 
 const getServerToken = (): null => null;
 
+const subscribeToHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerHydratedSnapshot = () => false;
+
 const subscribe = (listener: () => void) => {
   tokenListeners.add(listener);
 
@@ -48,6 +52,11 @@ export const useAuth = () => {
   const authUser = useAppSelector((state) => state.auth.user);
 
   const token = useSyncExternalStore(subscribe, getToken, getServerToken);
+  const isHydrated = useSyncExternalStore(
+    subscribeToHydration,
+    getHydratedSnapshot,
+    getServerHydratedSnapshot,
+  );
 
   const {
     data: meData,
@@ -64,6 +73,7 @@ export const useAuth = () => {
   return {
     user,
     token,
+    isHydrated,
     isAuthenticated,
     isLoading,
     error,
