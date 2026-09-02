@@ -50,6 +50,7 @@ interface UploadModalProps {
   loadingLabel?: string;
   successMessage?: string;
   redirectOnJoinSuccess?: boolean;
+  onSuccess?: () => void;
   onSubmit?: (payload: UploadModalPayload) => Promise<void>;
   onUpload?: (data: {
     source: UploadSource;
@@ -183,6 +184,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       loadingLabel,
       successMessage,
       redirectOnJoinSuccess = true,
+      onSuccess,
       onSubmit,
       onUpload,
     },
@@ -393,6 +395,8 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         if (successMessage) {
           toast.success(successMessage);
         }
+
+        onSuccess?.();
 
         if (type === 'join' && redirectOnJoinSuccess) {
           router.push(
