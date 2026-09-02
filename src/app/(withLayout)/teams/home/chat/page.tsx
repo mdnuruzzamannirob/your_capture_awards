@@ -1,13 +1,20 @@
 'use client';
 
-import SearchingOpponentCard from '@/components/module/match/SearchingOpponentCard';
+import TeamMatchStatusCard from '@/components/module/match/TeamMatchStatusCard';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
+import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useSocket } from '@/providers/SocketProvider';
-import { useGetMyTeamQuery, useUploadChatFileMutation } from '@/store/apis/teamApi';
+import { useGetContestQuery, useGetJoinedContestQuery } from '@/store/apis/contestApi';
+import {
+  useGetMyTeamQuery,
+  useGetTeamMatchSearchStatusQuery,
+  useUploadChatFileMutation,
+} from '@/store/apis/teamApi';
+import type { TeamMatchSearchStatus } from '@/store/types/teamTypes';
 import { cn } from '@/utils/cn';
 import { ArrowDown, FileUp, ImagePlus, Loader2, Send, Swords, TriangleAlert } from 'lucide-react';
 import Image from 'next/image';
@@ -28,10 +35,15 @@ type SystemMessageMetadata = {
   contestId?: string;
   contestTitle?: string;
   contestBanner?: string | null;
+  maxUpload?: number | null;
+  contestEndDate?: string;
   expiresAt?: string;
   matchId?: string;
   team1Name?: string;
   team2Name?: string;
+  joinedCount?: number;
+  minMembers?: number;
+  reason?: string;
 };
 
 type ChatMessage = {
@@ -123,6 +135,42 @@ export default function TeamChatPage() {
   const team = teamData?.data?.team;
   const teamId = team?.id ?? '';
   const currentUserId = user?.id ?? '';
+
+  const { data: matchSearchStatusData } = useGetTeamMatchSearchStatusQuery(teamId, {
+    skip: !teamId,
+    pollingInterval: 15000,
+  });
+  const activeQueueEntries = matchSearchStatusData?.data ?? [];
+
+  const [joiningContestId, setJoiningContestId] = useState<string | null>(null);
+  const uploadModalRef = useRef<UploadModalRef>(null);
+  const { data: joiningContestData } = useGetContestQuery(
+    { id: joiningContestId ?? '' },
+    { skip: !joiningContestId },
+  );
+  const { data: joinedContestData } = useGetJoinedContestQuery(
+    { page: 1, limit: 10 },
+    { skip: !joiningContestId },
+  );
+
+  useEffect(() => {
+    if (joiningContestId && joiningContestData) {
+      uploadModalRef.current?.open();
+    }
+  }, [joiningContestId, joiningContestData]);
+
+  const joiningContest = joiningContestData?.data;
+  const joiningContestJoinedEntry = joinedContestData?.data?.find(
+    (contestItem: any) => contestItem.id === joiningContestId,
+  );
+  const joiningContestMaxUploads: number =
+    joiningContest?.maxUploads ?? joiningContest?.maxUpload ?? 0;
+  const joiningContestUploadedCount =
+    joiningContestJoinedEntry?.uploadCount ?? joiningContestJoinedEntry?.photos?.length ?? 0;
+  const joiningContestRemaining = Math.max(
+    0,
+    joiningContestMaxUploads - joiningContestUploadedCount,
+  );
 
   const { socket, isConnected, isAuthenticated: isAuthenticatedSocket } = useSocket();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -548,8 +596,23 @@ export default function TeamChatPage() {
                     {group.messages.map((message) => {
                       const event = message.metadata?.event;
 
-                      if (event === 'TEAM_MATCH_SEARCH_STARTED') {
-                        return <SearchingMatchCard key={message.id} message={message} />;
+                      if (
+                        event === 'TEAM_MATCH_WAITING_FOR_MEMBERS' ||
+                        event === 'TEAM_MATCH_SEARCH_STARTED'
+                      ) {
+                        return (
+                          <TeamMatchQueueCard
+                            key={message.id}
+                            message={message}
+                            status={
+                              event === 'TEAM_MATCH_WAITING_FOR_MEMBERS'
+                                ? 'WAITING_FOR_MEMBERS'
+                                : 'SEARCHING'
+                            }
+                            liveEntries={activeQueueEntries}
+                            onJoinClick={setJoiningContestId}
+                          />
+                        );
                       }
 
                       if (event === 'TEAM_MATCH_FOUND') {
@@ -764,6 +827,20 @@ export default function TeamChatPage() {
           </button>
         </div>
       </div>
+
+      {joiningContestId && joiningContest && (
+        <UploadModal
+          ref={uploadModalRef}
+          type="join"
+          contest={joiningContest}
+          contestType={joiningContest?.type}
+          title={joiningContest?.title}
+          description={joiningContest?.description}
+          remaining={joiningContestRemaining}
+          maxUploads={joiningContestMaxUploads}
+          contestId={joiningContestId}
+        />
+      )}
     </section>
   );
 }
@@ -791,16 +868,39 @@ function MessageState({ isReady }: { isReady: boolean }) {
   );
 }
 
-function SearchingMatchCard({ message }: { message: ChatMessage }) {
-  const { contestTitle, contestBanner, expiresAt } = message.metadata ?? {};
+function TeamMatchQueueCard({
+  message,
+  status,
+  liveEntries,
+  onJoinClick,
+}: {
+  message: ChatMessage;
+  status: 'WAITING_FOR_MEMBERS' | 'SEARCHING';
+  liveEntries: TeamMatchSearchStatus[];
+  onJoinClick: (contestId: string) => void;
+}) {
+  const { contestId, contestTitle, contestBanner, maxUpload, contestEndDate, expiresAt, minMembers } =
+    message.metadata ?? {};
 
-  if (!expiresAt) return null;
+  const live = liveEntries.find((entry) => entry.contestId === contestId && entry.status === status);
+
+  // Older messages sent before contestEndDate was added to the metadata only
+  // have expiresAt — fall back to that instead of dropping the card.
+  const resolvedEndDate = live?.contestEndDate ?? contestEndDate ?? expiresAt;
+
+  if (!resolvedEndDate) return null;
 
   return (
-    <SearchingOpponentCard
-      contestTitle={contestTitle || 'Contest'}
-      contestBanner={contestBanner}
-      expiresAt={expiresAt}
+    <TeamMatchStatusCard
+      heading="New Match selected!"
+      contestTitle={live?.contestTitle || contestTitle || 'Contest'}
+      contestBanner={live?.contestBanner ?? contestBanner}
+      maxUpload={live?.maxUpload ?? maxUpload}
+      contestEndDate={resolvedEndDate}
+      status={status}
+      minMembers={live?.minMembers ?? minMembers}
+      currentUserJoined={live?.currentUserJoined}
+      onJoinClick={contestId ? () => onJoinClick(contestId) : undefined}
       className="w-full max-w-sm"
     />
   );

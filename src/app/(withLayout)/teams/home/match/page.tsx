@@ -2,7 +2,8 @@
 
 import ActiveMatch from '@/components/module/match/ActiveMatch';
 import BrowseMatches from '@/components/module/match/BrowseMatches';
-import SearchingOpponentCard from '@/components/module/match/SearchingOpponentCard';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,90 +22,31 @@ import {
   useGetTeamMatchSearchStatusQuery,
   useStartMatchAutoMutation,
 } from '@/store/apis/teamApi';
-import type {
-  ActiveTeamMatch,
-  AvailableTeamContest,
-  TeamMatchEligibleMember,
-  TeamMember,
-} from '@/store/types/teamTypes';
-import { Match, MatchPhoto, MatchTeam } from '@/types/match';
-import { resolveImageUrl } from '@/utils/resolveImageUrl';
-import { AlertCircle, ExternalLink, Swords, Users } from 'lucide-react';
+import type { AvailableTeamContest, TeamMatchEligibleMember } from '@/store/types/teamTypes';
+import { Match } from '@/types/match';
+import { getImageUrl, mapActiveMatchToMatch } from '@/utils/activeTeamMatch';
+import { cn } from '@/utils/cn';
+import { AlertCircle, ExternalLink, Loader2, Swords, ThumbsUp, Users } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
+const MIN_TEAM_MATCH_MEMBERS = 3;
+
+function levelBadgeClass(level: string) {
+  switch (level) {
+    case 'LEADER':
+      return 'bg-primary/15 text-primary border-primary/30';
+    case 'MODERATOR':
+      return 'border-sky-500/30 bg-sky-500/15 text-sky-400';
+    default:
+      return 'bg-surface-tertiary text-muted-foreground border-border-subtle';
+  }
+}
+
 const PAGE_SIZE = 10;
-
-function getImageUrl(value?: string | null) {
-  const resolved = resolveImageUrl(value);
-  return resolved || null;
-}
-
-function getMemberName(member: TeamMember['member']) {
-  return (
-    member.fullName ||
-    [member.firstName, member.lastName].filter(Boolean).join(' ') ||
-    'Team member'
-  );
-}
-
-function hasLiveMatch(
-  value: ActiveTeamMatch | { has_active_team_match: false } | null,
-): value is ActiveTeamMatch {
-  return Boolean(
-    value && !('has_active_team_match' in value && value.has_active_team_match === false),
-  );
-}
-
-function mapMembersToPhotos(members: TeamMember[]): MatchPhoto[] {
-  return members.map((member, index) => ({
-    id: member.id,
-    memberId: member.memberId,
-    member: {
-      fullName: getMemberName(member.member),
-      avatar: getImageUrl(member.member.avatar),
-    },
-    votes: member.totalVote ?? 0,
-    imageUrl:
-      getImageUrl(member.member.avatar) || `https://picsum.photos/seed/${member.id || index}/64/64`,
-  }));
-}
-
-function mapMatchSideToTeam(side: ActiveTeamMatch['own']): MatchTeam {
-  return {
-    id: side.details.id,
-    name: side.details.name,
-    badge: getImageUrl(side.details.badge),
-    totalVotes: side.totalVote,
-    photos: mapMembersToPhotos(side.members),
-  };
-}
-
-function mapActiveMatchToMatch(activeMatch: ActiveTeamMatch): Match {
-  const ownPhotos = activeMatch.own.members.length;
-  const oppositionPhotos = activeMatch.opposition.members.length;
-  const contest = activeMatch.contest;
-
-  return {
-    id: activeMatch.id,
-    theme: contest?.title || 'Active Team Battle',
-    photosRequired: Math.max(ownPhotos, oppositionPhotos, 1),
-    status: activeMatch.status === 'ACTIVE' ? 'IN_PROGRESS' : 'COMPLETED',
-    endsAt: new Date(activeMatch.endedAt),
-    banner: contest.banner || activeMatch.own.details.badge || null,
-    teamsJoined: 2,
-    maxTeams: 2,
-    countLabel: 'ROSTER',
-    minRequirement:
-      activeMatch.own.details.min_requirement_str ||
-      activeMatch.own.details.min_requirement ||
-      activeMatch.own.details.skill_level,
-    teamA: mapMatchSideToTeam(activeMatch.own),
-    teamB: mapMatchSideToTeam(activeMatch.opposition),
-  };
-}
 
 function isContestParticipant(contest: AvailableTeamContest, currentUserId?: string) {
   if (!currentUserId) return false;
@@ -123,7 +65,11 @@ function isContestParticipant(contest: AvailableTeamContest, currentUserId?: str
   );
 }
 
-function mapContestToMatch(contest: AvailableTeamContest, currentUserId?: string): Match {
+function mapContestToMatch(
+  contest: AvailableTeamContest,
+  currentUserId?: string,
+  queueStatus?: 'WAITING_FOR_MEMBERS' | 'SEARCHING',
+): Match {
   const eligibleCount =
     contest.eligibleMemberCount ??
     contest.eligibleMembers?.length ??
@@ -144,6 +90,7 @@ function mapContestToMatch(contest: AvailableTeamContest, currentUserId?: string
     countLabel: 'PHOTOS',
     minRequirement: 'APPRENTICE',
     hasJoined,
+    queueStatus,
     teamA: {
       id: contest.id,
       name: contest.title,
@@ -184,74 +131,140 @@ function MatchSetupDialog({
 }) {
   const members = contest?.eligibleMembers ?? [];
   const totalVotes = members.reduce((sum, member) => sum + (member.totalVote ?? 0), 0);
+  const memberProgress = Math.min(members.length, MIN_TEAM_MATCH_MEMBERS);
+  const progressPercent = (memberProgress / MIN_TEAM_MATCH_MEMBERS) * 100;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[86vh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Swords className="text-primary size-4" />
-            Start Team Match
-          </DialogTitle>
-          <DialogDescription>
-            All team members who already joined this contest will represent your team. The system
-            will match an equal-size rival roster from another team.
+        <DialogHeader className="space-y-3">
+          <div className="flex items-center gap-3">
+            <span className="bg-primary/10 border-primary/20 flex size-11 shrink-0 items-center justify-center rounded-full border">
+              <Swords className="text-primary size-5" />
+            </span>
+            <div className="min-w-0">
+              <DialogTitle className="text-lg">Start Team Match</DialogTitle>
+              <p className="text-muted-foreground mt-0.5 text-sm">
+                Auto-match against an equal-size rival team
+              </p>
+            </div>
+          </div>
+          <DialogDescription className="text-sm leading-relaxed">
+            All team members who already joined this contest will represent your team. If fewer
+            than {MIN_TEAM_MATCH_MEMBERS} have joined yet, the system waits until at least{' '}
+            {MIN_TEAM_MATCH_MEMBERS} join, then automatically matches an equal-size rival roster
+            from another team.
           </DialogDescription>
         </DialogHeader>
 
         {contest ? (
-          <div className="space-y-4">
-            <div className="rounded-md border p-3">
-              <p className="font-semibold">{contest.title}</p>
-              <div className="text-muted-foreground mt-2 flex flex-wrap gap-3 text-xs">
-                <span>{members.length} joined members</span>
-                <span>{totalVotes} current votes</span>
-                <span>Rival roster size: {members.length}</span>
+          <div className="space-y-5">
+            <div className="border-border-subtle bg-surface-secondary/60 flex items-center gap-4 rounded-xl border p-4">
+              <div className="border-border-subtle bg-surface-tertiary relative size-16 shrink-0 overflow-hidden rounded-lg border">
+                {contest.banner ? (
+                  <Image
+                    src={contest.banner}
+                    alt={contest.title}
+                    fill
+                    unoptimized
+                    className="object-cover"
+                    sizes="64px"
+                  />
+                ) : null}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-semibold">{contest.title}</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  <Badge variant="secondary" className="gap-1 font-medium">
+                    <Users className="size-3" />
+                    {members.length} joined
+                  </Badge>
+                  <Badge variant="secondary" className="gap-1 font-medium">
+                    <ThumbsUp className="size-3" />
+                    {totalVotes} votes
+                  </Badge>
+                  <Badge variant="secondary" className="font-medium">
+                    Rival roster: {members.length}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground font-medium">
+                  Minimum members to start searching
+                </span>
+                <span className="font-semibold">
+                  {memberProgress}/{MIN_TEAM_MATCH_MEMBERS}
+                </span>
+              </div>
+              <div className="bg-surface-tertiary h-1.5 w-full overflow-hidden rounded-full">
+                <div
+                  className="bg-primary h-full rounded-full transition-all duration-500"
+                  style={{ width: `${progressPercent}%` }}
+                />
               </div>
             </div>
 
             {members.length ? (
-              <div className="overflow-hidden rounded-md border">
-                <div className="border-b px-3 py-2">
-                  <p className="text-muted-foreground text-xs font-semibold uppercase">
+              <div className="border-border-subtle overflow-hidden rounded-xl border">
+                <div className="border-border-subtle bg-surface-secondary/60 border-b px-4 py-2.5">
+                  <p className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
                     Automatic Roster
                   </p>
                 </div>
 
-                <div className="divide-y">
+                <div className="divide-border-subtle divide-y">
                   {members.map((member) => (
-                    <div key={member.id} className="flex items-center gap-3 px-3 py-3">
-                      <div className="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold">
-                        {memberLabel(member).slice(0, 1).toUpperCase()}
-                      </div>
+                    <div
+                      key={member.id}
+                      className="hover:bg-surface-secondary/40 flex items-center gap-3 px-4 py-3 transition-colors"
+                    >
+                      <Avatar className="border-border-subtle size-9 shrink-0 border">
+                        <AvatarImage
+                          src={getImageUrl(member.member.avatar) ?? undefined}
+                          alt={memberLabel(member)}
+                        />
+                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                          {memberLabel(member).slice(0, 1).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium">{memberLabel(member)}</p>
                         <p className="text-muted-foreground text-xs">
-                          {member.totalPhotoUploads} uploads - {member.totalVote} votes
+                          {member.totalPhotoUploads} uploads
                         </p>
                       </div>
-                      <span className="rounded-sm border px-2 py-0.5 text-[10px] font-semibold">
+                      <Badge variant="secondary" className="shrink-0 gap-1 font-semibold">
+                        <ThumbsUp className="size-3" />
+                        {member.totalVote}
+                      </Badge>
+                      <Badge
+                        variant="outline"
+                        className={cn('shrink-0 text-[10px]', levelBadgeClass(member.level))}
+                      >
                         {member.level}
-                      </span>
+                      </Badge>
                     </div>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="border-warning/30 bg-warning/10 text-warning rounded-md border p-4">
-                <div className="flex gap-2">
-                  <AlertCircle className="mt-0.5 size-4 shrink-0" />
-                  <div className="space-y-1">
-                    <p className="text-sm font-semibold">No eligible members yet</p>
-                    <p className="text-xs">
-                      Members must join this contest from the contest page before they can
-                      represent the team.
-                    </p>
-                  </div>
+              <div className="border-warning/30 bg-warning/10 flex gap-3 rounded-xl border p-4">
+                <span className="bg-warning/15 flex size-8 shrink-0 items-center justify-center rounded-full">
+                  <AlertCircle className="text-warning size-4" />
+                </span>
+                <div className="space-y-1">
+                  <p className="text-warning text-sm font-semibold">No eligible members yet</p>
+                  <p className="text-muted-foreground text-xs leading-relaxed">
+                    You can still start the match now — the system will wait until at least{' '}
+                    {MIN_TEAM_MATCH_MEMBERS} team members join this contest before searching for
+                    an opponent.
+                  </p>
                 </div>
               </div>
             )}
-
           </div>
         ) : null}
 
@@ -264,12 +277,18 @@ function MatchSetupDialog({
               </Link>
             </Button>
           ) : null}
-          <Button
-            type="button"
-            disabled={!contest || isStarting}
-            onClick={onStart}
-          >
-            {isStarting ? 'Starting...' : 'Start Match'}
+          <Button type="button" disabled={!contest || isStarting} onClick={onStart} className="gap-2">
+            {isStarting ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Starting...
+              </>
+            ) : (
+              <>
+                <Swords className="size-4" />
+                Start Match
+              </>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -334,10 +353,11 @@ export default function TeamMatchPage() {
     skip: !teamId,
   });
 
-  const activeMatchResponse = activeMatchQuery.data?.data ?? null;
-  const activeMatch = hasLiveMatch(activeMatchResponse) ? activeMatchResponse : null;
-  const shouldFetchAvailableContests =
-    Boolean(teamId) && !activeMatchQuery.isLoading && !activeMatch;
+  // A team can have several active matches running at once (one per
+  // contest), so browsing/starting new matches stays available regardless of
+  // whether any are already in progress elsewhere.
+  const activeMatches = useMemo(() => activeMatchQuery.data?.data ?? [], [activeMatchQuery.data]);
+  const shouldFetchAvailableContests = Boolean(teamId) && !activeMatchQuery.isLoading;
 
   const contestsQuery = useGetAvailableTeamContestsQuery(
     { teamId: teamId ?? '', page: 1, limit: PAGE_SIZE },
@@ -356,19 +376,29 @@ export default function TeamMatchPage() {
     if (!data) return [];
     return Array.isArray(data) ? data : [data];
   }, [searchStatusQuery.data]);
-  const searchingContestIds = useMemo(
-    () => new Set(activeSearches.map((search) => search.contestId)),
+  const searchStatusByContestId = useMemo(
+    () => new Map(activeSearches.map((search) => [search.contestId, search])),
     [activeSearches],
   );
 
-  const activeMatchView = activeMatch ? mapActiveMatchToMatch(activeMatch) : null;
+  const activeMatchViews = useMemo(
+    () => activeMatches.map((match) => ({ match, view: mapActiveMatchToMatch(match) })),
+    [activeMatches],
+  );
   const availableContests = useMemo(() => contestsQuery.data?.data ?? [], [contestsQuery.data]);
   const matches = useMemo(
     () =>
-      availableContests
-        .filter((contest) => !searchingContestIds.has(contest.id))
-        .map((contest) => mapContestToMatch(contest, currentUserId)),
-    [availableContests, currentUserId, searchingContestIds],
+      availableContests.map((contest) =>
+        mapContestToMatch(
+          contest,
+          currentUserId,
+          searchStatusByContestId.get(contest.id)?.status as
+            | 'WAITING_FOR_MEMBERS'
+            | 'SEARCHING'
+            | undefined,
+        ),
+      ),
+    [availableContests, currentUserId, searchStatusByContestId],
   );
   const selectedContest = useMemo(
     () => availableContests.find((contest) => contest.id === selectedContestId) ?? null,
@@ -390,18 +420,29 @@ export default function TeamMatchPage() {
       const contest = availableContests.find((item) => item.id === match.id);
       if (!contest) return;
 
+      // A match already selected (waiting for members / searching) navigates
+      // to its status page — anyone on the team can check who's joined so far.
+      if (match.queueStatus) {
+        router.push(`/teams/home/match/${contest.id}`);
+        return;
+      }
+
+      // Leaders/moderators can start the match flow whether or not they've
+      // personally joined this contest — any 3 team members joining (in any
+      // combination) is enough to move from "waiting for members" to an
+      // active opponent search.
+      if (canManageMatch) {
+        setSelectedContestId(contest.id);
+        setSetupOpen(true);
+        return;
+      }
+
       if (!match.hasJoined) {
         router.push(`/contest/${contest.id}?modal=join`);
         return;
       }
 
-      if (!canManageMatch) {
-        toast.error('Only team leaders and moderators can start a team match.');
-        return;
-      }
-
-      setSelectedContestId(contest.id);
-      setSetupOpen(true);
+      toast.error('Only team leaders and moderators can start a team match.');
     },
     [availableContests, canManageMatch, router],
   );
@@ -410,12 +451,12 @@ export default function TeamMatchPage() {
     if (!selectedContest || !teamId) return;
 
     try {
-      await startMatchAuto({
+      const response = await startMatchAuto({
         teamId,
         contestId: selectedContest.id,
       }).unwrap();
 
-      toast.success('Team match started successfully.');
+      toast.success(response?.message || 'Team match started successfully.');
       setSetupOpen(false);
       setSelectedContestId(null);
       refetchMatchFlow();
@@ -453,8 +494,8 @@ export default function TeamMatchPage() {
         <div>
           <h2 className="font-kumbh text-xl font-bold">Team Match</h2>
           <p className="text-muted-foreground mt-1 text-sm">
-            {activeMatchView
-              ? `Live match - ${activeMatchView.theme}`
+            {activeMatchViews.length > 0
+              ? `${activeMatchViews.length} live match${activeMatchViews.length > 1 ? 'es' : ''} in progress`
               : 'Start with all joined members and auto-match against an equal rival team'}
           </p>
         </div>
@@ -466,32 +507,21 @@ export default function TeamMatchPage() {
         </Button>
       </div>
 
-      {!activeMatchView && activeSearches.length > 0 ? (
-        <div className="space-y-3">
-          <h3 className="font-kumbh text-sm font-semibold">
-            {activeSearches.length > 1 ? 'Searching for opponents' : 'Searching for opponent'}
-          </h3>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {activeSearches.map((search) => (
-              <SearchingOpponentCard
-                key={search.id}
-                contestTitle={search.contestTitle}
-                contestBanner={search.contestBanner}
-                expiresAt={search.expiresAt}
-              />
-            ))}
-          </div>
+      {activeMatchViews.length > 0 && (
+        <div className="space-y-4">
+          {activeMatchViews.map(({ match, view }) => (
+            <ActiveMatch
+              key={match.id}
+              match={view}
+              onLeave={() => undefined}
+              actionLabel="Open Contest"
+              onAction={() => router.push(`/contest/${match.contestId}`)}
+            />
+          ))}
         </div>
-      ) : null}
+      )}
 
-      {activeMatchView ? (
-        <ActiveMatch
-          match={activeMatchView}
-          onLeave={() => undefined}
-          actionLabel="Open Contest"
-          onAction={() => router.push(`/contest/${activeMatch?.contestId}`)}
-        />
-      ) : contestsQuery.isError ? (
+      {contestsQuery.isError ? (
         <div className="rounded-xl border p-6 text-center">
           <p className="font-semibold">Unable to load available contests</p>
           <p className="text-muted-foreground mt-1 text-sm">Refresh the page or try again later.</p>
@@ -501,16 +531,19 @@ export default function TeamMatchPage() {
           matches={matches}
           onStart={handleAvailableMatchAction}
           actionLabel={canManageMatch ? 'Start Match' : 'Joined'}
-          actionDisabled={(match) => Boolean(match.hasJoined && !canManageMatch)}
+          actionDisabled={(match) =>
+            !match.queueStatus && Boolean(match.hasJoined && !canManageMatch)
+          }
+          canManageMatch={canManageMatch}
         />
-      ) : (
+      ) : activeMatchViews.length === 0 ? (
         <div className="rounded-xl border p-6 text-center">
           <p className="font-semibold">No available matches</p>
           <p className="text-muted-foreground mt-1 text-sm">
             There is no active contest available for this team right now.
           </p>
         </div>
-      )}
+      ) : null}
 
       <MatchSetupDialog
         contest={selectedContest}

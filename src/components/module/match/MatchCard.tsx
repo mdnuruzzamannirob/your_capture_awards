@@ -1,7 +1,9 @@
 import CornerCount from '@/components/CornerCount';
 import { Button } from '@/components/ui/button';
 import CountdownTimer from '@/components/CountdownTimer';
+import { cn } from '@/utils/cn';
 import { Match } from '@/types/match';
+import { Search, Users } from 'lucide-react';
 import Image from 'next/image';
 
 interface MatchCardProps {
@@ -9,6 +11,7 @@ interface MatchCardProps {
   onStart: (match: Match) => void;
   actionLabel?: string;
   actionDisabled?: boolean;
+  canManageMatch?: boolean;
 }
 
 function MatchCard({
@@ -16,6 +19,7 @@ function MatchCard({
   onStart,
   actionLabel = 'Start Match',
   actionDisabled = false,
+  canManageMatch = false,
 }: MatchCardProps) {
   let teamMembersLabel = '';
   if (match.hasJoined) {
@@ -38,7 +42,12 @@ function MatchCard({
   const banner = match.teamA.badge || '/images/TeamPhoto.png';
   const startDate = new Date(match.endsAt.getTime() - 1000 * 60 * 60 * 24 * 30).toISOString();
   const endDate = match.endsAt.toISOString();
-  const buttonLabel = match.hasJoined ? actionLabel : 'Join Contest';
+  const buttonLabel = match.queueStatus
+    ? 'View Match'
+    : match.hasJoined || canManageMatch
+      ? actionLabel
+      : 'Join Contest';
+  const StatusIcon = match.queueStatus === 'WAITING_FOR_MEMBERS' ? Users : Search;
 
   return (
     <article className="group border-border bg-surface-secondary/80 overflow-hidden rounded-xl border-2">
@@ -69,10 +78,24 @@ function MatchCard({
           </h3>
         </div>
 
-        {/* Action Button — center, hover only */}
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
+        {match.queueStatus && (
+          <div className="absolute top-14 left-3 z-10">
+            <div className="bg-black/45 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur-sm">
+              <StatusIcon className={cn('size-3', match.queueStatus === 'SEARCHING' && 'animate-pulse')} />
+              {match.queueStatus === 'WAITING_FOR_MEMBERS' ? 'Waiting for members' : 'Searching'}
+            </div>
+          </div>
+        )}
+
+        {/* Action Button — center; always visible once a match is in progress, otherwise hover only */}
+        <div
+          className={cn(
+            'pointer-events-none absolute inset-0 z-10 flex items-center justify-center transition-all duration-300',
+            match.queueStatus ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+          )}
+        >
           <Button
-            className="bg-primary text-primary-foreground hover:bg-primary/90 pointer-events-auto rounded px-6 py-2 text-sm font-medium uppercase transition disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 pointer-events-auto rounded px-6 py-2 text-sm font-medium uppercase shadow-lg transition disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => onStart(match)}
             disabled={actionDisabled}
           >
