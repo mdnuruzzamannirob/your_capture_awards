@@ -40,8 +40,9 @@ const UpcomingContestCard = ({
         {/* Upload limit badge */}
         <CornerCount count={maxUploads} className="z-10" />
 
-        {/* Creator Info on hover — top left */}
-        <div className="pointer-events-none absolute top-3 left-3 z-20 flex -translate-y-3 items-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+        {/* Creator Info on hover — top left. Desktop-only reveal (md+); touch devices
+            have no hover state to trigger it. */}
+        <div className="pointer-events-none absolute top-3 left-3 z-20 flex -translate-y-3 items-center gap-2 opacity-0 transition-all duration-300 md:group-hover:translate-y-0 md:group-hover:opacity-100">
           <Image
             src={contest?.creator?.avatar}
             alt="Author"
@@ -54,18 +55,19 @@ const UpcomingContestCard = ({
           </p>
         </div>
 
-        {/* Title — top left (visible normally, hidden when hovered to show Creator Info) */}
+        {/* Title — top left. Hides on hover to reveal Creator Info, but only at md+
+            since mobile has no hover to bring it back. */}
         <Link
           href={`/contest/${contest.id}`}
-          className="absolute top-3 right-14 left-3 z-10 block transition-all duration-300 group-hover:opacity-0"
+          className="absolute top-3 right-14 left-3 z-10 block transition-all duration-300 md:group-hover:opacity-0"
         >
           <h3 className="line-clamp-2 text-base leading-snug font-bold text-white [text-shadow:0_1px_6px_rgba(0,0,0,1)] hover:underline">
             {contest.title}
           </h3>
         </Link>
 
-        {/* View Details button — center, hover only */}
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
+        {/* View Details button — always visible on mobile, hover-reveal on desktop */}
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center opacity-100 transition-all duration-300 md:opacity-0 md:group-hover:opacity-100">
           <Link
             href={`/contest/${contest.id}`}
             className="bg-primary text-primary-foreground pointer-events-auto rounded px-3 py-2 text-sm font-medium uppercase transition"
@@ -76,16 +78,12 @@ const UpcomingContestCard = ({
 
         {/* Footer stats — absolute bottom, zero gap */}
         <div className="text-primary-foreground absolute inset-x-0 bottom-0 z-10 flex items-center justify-between bg-zinc-950/90 py-2">
-          {contest?.isMoneyContest ? (
+          {contest?.isMoneyContest && (
             <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
               <p className="font-semibold">
                 {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
               </p>
               <p className="text-xs">Prizes</p>
-            </div>
-          ) : (
-            <div className="border-primary flex h-12 w-fit flex-1 flex-col items-center justify-center border-r px-1 text-center text-sm whitespace-nowrap">
-              No Cash Prize
             </div>
           )}
 

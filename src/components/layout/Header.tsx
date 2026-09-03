@@ -114,7 +114,7 @@ const Navbar = () => {
                     aria-label="Open store resources"
                   >
                     <span className="text-foreground flex items-center px-2 text-sm">
-                      <span className="flex items-center gap-2" title="Keys">
+                      <span className="flex items-center gap-2" title="Promotes">
                         <IoKeyOutline className="text-primary size-4" />
                         <ResourceValue isLoading={isStatsLoading} value={stats?.key ?? 0} />
                       </span>
