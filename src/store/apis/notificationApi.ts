@@ -1,6 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQuery } from '@/store/baseQuery';
-import { ApiSuccessResponse, NotificationListResponse } from '@/store/types/notificationTypes';
+import {
+  ApiSuccessResponse,
+  NotificationItem,
+  NotificationListResponse,
+} from '@/store/types/notificationTypes';
 
 const notificationTag = { type: 'Notifications' as const, id: 'LIST' };
 
@@ -39,8 +43,40 @@ export const notificationApi = createApi({
       }),
       invalidatesTags: [notificationTag],
     }),
+
+    markNotificationRead: builder.mutation<ApiSuccessResponse<NotificationItem>, string>({
+      query: (notificationId) => ({
+        url: `/notifications/${notificationId}/read`,
+        method: 'PATCH',
+      }),
+      async onQueryStarted(notificationId, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          notificationApi.util.updateQueryData(
+            'getUserNotifications',
+            { page: 1, limit: 10 },
+            (draft) => {
+              const notification = draft.data.notifications.find(
+                (item) => item.id === notificationId,
+              );
+
+              if (notification) notification.isRead = true;
+            },
+          ),
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
+      invalidatesTags: [notificationTag],
+    }),
   }),
 });
 
-export const { useGetUserNotificationsQuery, useMarkAllNotificationsReadMutation } =
-  notificationApi;
+export const {
+  useGetUserNotificationsQuery,
+  useMarkAllNotificationsReadMutation,
+  useMarkNotificationReadMutation,
+} = notificationApi;

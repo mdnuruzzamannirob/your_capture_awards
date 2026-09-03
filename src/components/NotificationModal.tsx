@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import {
   useGetUserNotificationsQuery,
   useMarkAllNotificationsReadMutation,
+  useMarkNotificationReadMutation,
 } from '@/store/apis/notificationApi';
 import { useJoinByInvitationMutation, useRejectInvitationMutation } from '@/store/apis/teamApi';
 import { NotificationItem, NotificationType } from '@/store/types/notificationTypes';
@@ -36,11 +37,12 @@ const formatRelative = (dateString: string) => {
 export default function NotificationModal() {
   const { token } = useAuth();
   const [open, setOpen] = useState(false);
-  const { data, isLoading, isFetching } = useGetUserNotificationsQuery(
+  const { data, isLoading } = useGetUserNotificationsQuery(
     { page: 1, limit: 10 },
     { skip: !token },
   );
   const [markAllRead, { isLoading: isMarking }] = useMarkAllNotificationsReadMutation();
+  const [markNotificationRead] = useMarkNotificationReadMutation();
   const [joinByInvitation, { isLoading: isAcceptingInvitation }] = useJoinByInvitationMutation();
   const [rejectInvitation, { isLoading: isRejectingInvitation }] = useRejectInvitationMutation();
   const [activeInvitationId, setActiveInvitationId] = useState<string | null>(null);
@@ -62,6 +64,16 @@ export default function NotificationModal() {
       toast.success('All notifications marked as read');
     } catch {
       toast.error('Failed to mark notifications as read');
+    }
+  };
+
+  const handleNotificationClick = async (notification: NotificationItem) => {
+    if (notification.isRead) return;
+
+    try {
+      await markNotificationRead(notification.id).unwrap();
+    } catch {
+      toast.error('Failed to mark notification as read');
     }
   };
 
@@ -142,17 +154,25 @@ export default function NotificationModal() {
         </div>
 
         <div className="max-h-100 space-y-2 overflow-y-auto p-3">
-          {isLoading || isFetching ? (
+          {isLoading ? (
             <div className="text-muted-foreground p-4 text-center text-sm">Loading...</div>
           ) : notifications.length > 0 ? (
             notifications.map((notification: NotificationItem) => (
               <div
                 key={notification.id}
+                role={notification.isRead ? undefined : 'button'}
+                tabIndex={notification.isRead ? undefined : 0}
+                onClick={() => void handleNotificationClick(notification)}
+                onKeyDown={(event) => {
+                  if (notification.isRead || (event.key !== 'Enter' && event.key !== ' ')) return;
+                  event.preventDefault();
+                  void handleNotificationClick(notification);
+                }}
                 className={cn(
                   'relative flex items-start gap-3 rounded-xl border p-3 transition',
                   notification.isRead
                     ? 'border-border bg-background'
-                    : 'border-primary/20 bg-primary/5',
+                    : 'border-primary/20 bg-primary/5 cursor-pointer',
                 )}
               >
                 <div
@@ -182,9 +202,11 @@ export default function NotificationModal() {
                   </div>
                   {notification.type === NotificationType.INVITATION && (
                     <div className="mt-3 flex gap-2">
-                      {handledInvitations[notification.id] || notification.data?.invitationStatus ? (
+                      {handledInvitations[notification.id] ||
+                      notification.data?.invitationStatus ? (
                         <span className="border-border bg-surface-secondary text-muted-foreground inline-flex h-8 items-center rounded-md border px-3 text-xs font-medium capitalize">
-                          {handledInvitations[notification.id] || notification.data?.invitationStatus}
+                          {handledInvitations[notification.id] ||
+                            notification.data?.invitationStatus}
                         </span>
                       ) : (
                         <>
