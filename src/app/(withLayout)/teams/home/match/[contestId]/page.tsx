@@ -1,6 +1,7 @@
 'use client';
 
 import ActiveMatch from '@/components/module/match/ActiveMatch';
+import SafeBannerImage from '@/components/SafeBannerImage';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +23,6 @@ import {
   UserPlus,
   Users,
 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -183,18 +183,13 @@ export default function TeamMatchViewPage() {
       </Link>
 
       <div className="border-border-subtle bg-surface-secondary relative h-52 overflow-hidden rounded-2xl border shadow-lg shadow-black/10 sm:h-64">
-        {contest.banner ? (
-          <Image
-            src={contest.banner}
-            alt={contest.title}
-            fill
-            unoptimized
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 900px"
-          />
-        ) : (
-          <div className="bg-surface-tertiary size-full" />
-        )}
+        <SafeBannerImage
+          src={contest.banner}
+          alt={`${contest.title} banner`}
+          unoptimized
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 900px"
+        />
         <div className="pointer-events-none absolute inset-0 bg-black/10" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-black/85 via-black/20 to-transparent" />
         <div className="absolute inset-x-5 bottom-5">

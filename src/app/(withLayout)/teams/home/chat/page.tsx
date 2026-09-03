@@ -1,6 +1,7 @@
 'use client';
 
 import TeamMatchStatusCard from '@/components/module/match/TeamMatchStatusCard';
+import SafeBannerImage from '@/components/SafeBannerImage';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -473,7 +474,10 @@ export default function TeamChatPage() {
       const canMerge =
         !!lastGroup &&
         !isSystemMessage(message) &&
-        !isSystemMessage({ messageType: lastMessage?.messageType ?? '', senderId: lastGroup.senderId }) &&
+        !isSystemMessage({
+          messageType: lastMessage?.messageType ?? '',
+          senderId: lastGroup.senderId,
+        }) &&
         lastGroup.senderId === message.senderId &&
         currentTime - lastTime <= 1 * 60 * 1000;
 
@@ -590,7 +594,12 @@ export default function TeamChatPage() {
             </div>
           ) : (
             groupedMessages.map((group) => {
-              if (isSystemMessage({ messageType: group.messages[0]?.messageType ?? '', senderId: group.senderId })) {
+              if (
+                isSystemMessage({
+                  messageType: group.messages[0]?.messageType ?? '',
+                  senderId: group.senderId,
+                })
+              ) {
                 return (
                   <div key={group.id} className="flex flex-col items-center gap-2">
                     {group.messages.map((message) => {
@@ -879,10 +888,19 @@ function TeamMatchQueueCard({
   liveEntries: TeamMatchSearchStatus[];
   onJoinClick: (contestId: string) => void;
 }) {
-  const { contestId, contestTitle, contestBanner, maxUpload, contestEndDate, expiresAt, minMembers } =
-    message.metadata ?? {};
+  const {
+    contestId,
+    contestTitle,
+    contestBanner,
+    maxUpload,
+    contestEndDate,
+    expiresAt,
+    minMembers,
+  } = message.metadata ?? {};
 
-  const live = liveEntries.find((entry) => entry.contestId === contestId && entry.status === status);
+  const live = liveEntries.find(
+    (entry) => entry.contestId === contestId && entry.status === status,
+  );
 
   // Older messages sent before contestEndDate was added to the metadata only
   // have expiresAt — fall back to that instead of dropping the card.
@@ -912,18 +930,13 @@ function MatchFoundCard({ message }: { message: ChatMessage }) {
   return (
     <article className="border-border bg-surface-secondary/80 w-full max-w-sm overflow-hidden rounded-xl border-2">
       <div className="relative h-32 overflow-hidden sm:h-40">
-        {contestBanner ? (
-          <Image
-            src={contestBanner}
-            alt={contestTitle || 'Contest'}
-            fill
-            unoptimized
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 400px"
-          />
-        ) : (
-          <div className="bg-surface-tertiary size-full" />
-        )}
+        <SafeBannerImage
+          src={contestBanner}
+          alt={`${contestTitle || 'Contest'} banner`}
+          unoptimized
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 400px"
+        />
 
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-20 bg-linear-to-b from-black/85 to-transparent" />
 

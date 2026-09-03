@@ -2,6 +2,7 @@
 
 import ActiveMatch from '@/components/module/match/ActiveMatch';
 import BrowseMatches from '@/components/module/match/BrowseMatches';
+import SafeBannerImage from '@/components/SafeBannerImage';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,6 @@ import { Match } from '@/types/match';
 import { getImageUrl, mapActiveMatchToMatch } from '@/utils/activeTeamMatch';
 import { cn } from '@/utils/cn';
 import { AlertCircle, ExternalLink, Loader2, Swords, ThumbsUp, Users } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
@@ -59,8 +59,7 @@ function isContestParticipant(contest: AvailableTeamContest, currentUserId?: str
 
   return Boolean(
     contest.participantDetails?.some(
-      (participant) =>
-        participant.userId === currentUserId || participant.id === currentUserId,
+      (participant) => participant.userId === currentUserId || participant.id === currentUserId,
     ),
   );
 }
@@ -150,8 +149,8 @@ function MatchSetupDialog({
             </div>
           </div>
           <DialogDescription className="text-sm leading-relaxed">
-            All team members who already joined this contest will represent your team. If fewer
-            than {MIN_TEAM_MATCH_MEMBERS} have joined yet, the system waits until at least{' '}
+            All team members who already joined this contest will represent your team. If fewer than{' '}
+            {MIN_TEAM_MATCH_MEMBERS} have joined yet, the system waits until at least{' '}
             {MIN_TEAM_MATCH_MEMBERS} join, then automatically matches an equal-size rival roster
             from another team.
           </DialogDescription>
@@ -161,16 +160,14 @@ function MatchSetupDialog({
           <div className="space-y-5">
             <div className="border-border-subtle bg-surface-secondary/60 flex items-center gap-4 rounded-xl border p-4">
               <div className="border-border-subtle bg-surface-tertiary relative size-16 shrink-0 overflow-hidden rounded-lg border">
-                {contest.banner ? (
-                  <Image
-                    src={contest.banner}
-                    alt={contest.title}
-                    fill
-                    unoptimized
-                    className="object-cover"
-                    sizes="64px"
-                  />
-                ) : null}
+                <SafeBannerImage
+                  src={contest.banner}
+                  alt={`${contest.title} banner`}
+                  unoptimized
+                  className="object-cover"
+                  sizes="64px"
+                  fallbackClassName="px-1 text-center text-[9px] leading-tight"
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold">{contest.title}</p>
@@ -259,8 +256,8 @@ function MatchSetupDialog({
                   <p className="text-warning text-sm font-semibold">No eligible members yet</p>
                   <p className="text-muted-foreground text-xs leading-relaxed">
                     You can still start the match now — the system will wait until at least{' '}
-                    {MIN_TEAM_MATCH_MEMBERS} team members join this contest before searching for
-                    an opponent.
+                    {MIN_TEAM_MATCH_MEMBERS} team members join this contest before searching for an
+                    opponent.
                   </p>
                 </div>
               </div>
@@ -277,7 +274,12 @@ function MatchSetupDialog({
               </Link>
             </Button>
           ) : null}
-          <Button type="button" disabled={!contest || isStarting} onClick={onStart} className="gap-2">
+          <Button
+            type="button"
+            disabled={!contest || isStarting}
+            onClick={onStart}
+            className="gap-2"
+          >
             {isStarting ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
@@ -413,7 +415,13 @@ export default function TeamMatchPage() {
     if (shouldFetchAvailableContests) {
       contestsQuery.refetch();
     }
-  }, [activeMatchQuery, contestsQuery, refetchTeam, searchStatusQuery, shouldFetchAvailableContests]);
+  }, [
+    activeMatchQuery,
+    contestsQuery,
+    refetchTeam,
+    searchStatusQuery,
+    shouldFetchAvailableContests,
+  ]);
 
   const handleAvailableMatchAction = useCallback(
     (match: Match) => {

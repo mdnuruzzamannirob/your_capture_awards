@@ -3,6 +3,7 @@ import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
 import Image from 'next/image';
 import Link from 'next/link';
+import SafeBannerImage from '@/components/SafeBannerImage';
 
 const ClosedContestCard = ({ contest }: { contest: any }) => {
   const maxUploads = contest?.maxUploads ?? contest?.maxUpload ?? 0;
@@ -12,12 +13,12 @@ const ClosedContestCard = ({ contest }: { contest: any }) => {
       <div className="group border-border relative block h-72 overflow-hidden rounded-xl border-2">
         <Link href={`/contest/${contest?.id}`} className="absolute inset-0 z-0">
           {/* Banner image */}
-          <Image
-            alt="Banner"
+          <SafeBannerImage
+            alt={`${contest?.title || 'Contest'} banner`}
             src={contest?.banner}
-            fill
             className="bg-surface-secondary object-cover transition-all duration-300 group-hover:brightness-50"
             sizes="(max-width: 768px) 100vw, 500px"
+            fallbackClassName="pb-16"
           />
         </Link>
 
