@@ -73,9 +73,9 @@ const Navbar = () => {
     <>
       <header className="bg-background border-border fixed top-0 right-0 left-0 z-50 border-b">
         <nav className="container flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 min-[400px]:gap-3">
             <Sidebar />
-            <LogoName className="w-38" />
+            <LogoName className="w-24 min-[360px]:w-32 min-[400px]:w-38" />
 
             <ul className="font-kumbh ml-3 hidden flex-1 items-center justify-center gap-4 uppercase select-none lg:flex">
               {menuLinks.map((link, index) => {
@@ -186,9 +186,15 @@ const Navbar = () => {
                 </Link>
                 <Link
                   href="/signin"
-                  className="border-primary hover:border-primary/90 rounded-sm border px-4 py-2 text-sm transition-colors lg:hidden"
+                  className="border-primary hover:border-primary/90 rounded-sm border px-2.5 py-2 text-xs transition-colors min-[400px]:px-4 min-[400px]:text-sm lg:hidden"
                 >
                   Login
+                </Link>
+                <Link
+                  href="/signup"
+                  className="bg-primary border-primary hover:bg-primary/90 hover:border-primary/90 rounded-sm border px-2.5 py-2 text-xs transition-colors min-[400px]:px-4 min-[400px]:text-sm lg:hidden"
+                >
+                  Register
                 </Link>
               </>
             )}
