@@ -98,13 +98,22 @@ const Sidebar = () => {
                   Logout
                 </button>
               ) : (
-                <Link
-                  href="/signin"
-                  onClick={() => setOpen(false)}
-                  className="border-primary hover:border-primary/90 block w-full rounded-sm border px-4 py-2 text-center text-sm transition-colors"
-                >
-                  Login
-                </Link>
+                <div className="grid grid-cols-2 gap-3">
+                  <Link
+                    href="/signin"
+                    onClick={() => setOpen(false)}
+                    className="border-primary hover:border-primary/90 block rounded-sm border px-4 py-2 text-center text-sm transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/signup"
+                    onClick={() => setOpen(false)}
+                    className="bg-primary border-primary hover:bg-primary/90 hover:border-primary/90 block rounded-sm border px-4 py-2 text-center text-sm transition-colors"
+                  >
+                    Register
+                  </Link>
+                </div>
               )}
             </div>
           </div>
