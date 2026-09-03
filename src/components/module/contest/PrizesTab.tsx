@@ -35,7 +35,7 @@ const PrizesTab = ({ contest, value }: { contest: any; value: string }) => {
           const stats = [
             prize?.swap != null && { icon: MdOutlineCameraswitch, label: `x${prize.swap}`, name: 'Trade' },
             prize?.boost != null && { icon: AiOutlineThunderbolt, label: `x${prize.boost}`, name: 'Charge' },
-            prize?.key != null && { icon: IoKeyOutline, label: `x${prize.key}`, name: 'Keys' },
+            prize?.key != null && { icon: IoKeyOutline, label: `x${prize.key}`, name: 'Promote' },
             prize?.coin != null && { image: '/icons/ycw-coin.png', label: prize.coin.toLocaleString(), name: 'YCW Coin' },
           ].filter(Boolean) as { icon?: LucideIcon; image?: string; label: string; name: string }[];
           return (

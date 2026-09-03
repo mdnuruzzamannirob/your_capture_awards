@@ -59,7 +59,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
           )}
         </div>
 
-        {contest?.isMoneyContest ? (
+        {contest?.isMoneyContest && (
           <div className="flex flex-1 items-center gap-3 whitespace-nowrap">
             <MdOutlinePaid className="text-primary size-8 lg:size-10" />{' '}
             <p className="flex items-center gap-2 uppercase">
@@ -67,13 +67,6 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
                 {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
               </span>{' '}
               IN AWARDS
-            </p>
-          </div>
-        ) : (
-          <div className="flex flex-1 items-center gap-3 whitespace-nowrap">
-            <MdOutlinePaid className="text-primary size-8 lg:size-10" />{' '}
-            <p className="flex items-center gap-2 uppercase">
-              <span className="text-lg font-semibold">Non-monetary </span> contest
             </p>
           </div>
         )}

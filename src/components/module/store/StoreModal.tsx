@@ -46,7 +46,7 @@ const itemIcon = {
 };
 
 const itemLabel = {
-  KEY: 'Key',
+  KEY: 'Promote',
   SWAP: 'Trade',
   BOOST: 'Charge',
 };
@@ -292,7 +292,7 @@ const StoreModal = () => {
                 {
                   icon: <IoKeyOutline className="text-primary size-3" />,
                   value: stats?.key ?? 0,
-                  label: 'Keys',
+                  label: 'Promotes',
                 },
                 {
                   icon: <MdOutlineCameraswitch className="text-primary size-3 rotate-90" />,
@@ -340,7 +340,7 @@ const StoreModal = () => {
                   {
                     icon: <IoKeyOutline className="text-primary size-3.5" />,
                     value: stats?.key ?? 0,
-                    label: 'Keys',
+                    label: 'Promotes',
                   },
                   {
                     icon: <MdOutlineCameraswitch className="text-primary size-3.5 rotate-90" />,

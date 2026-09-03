@@ -39,8 +39,9 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
         {/* Upload limit badge */}
         <CornerCount count={maxUploads} className="z-10" />
 
-        {/* Creator Info on hover — top left */}
-        <div className="pointer-events-none absolute top-3 left-3 z-20 flex -translate-y-3 items-center gap-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+        {/* Creator Info on hover — top left. Hover reveal is desktop-only (md+) since
+            touch devices have no real hover state and can get stuck mid-transition. */}
+        <div className="pointer-events-none absolute top-3 left-3 z-20 flex -translate-y-3 items-center gap-2 opacity-0 transition-all duration-300 md:group-hover:translate-y-0 md:group-hover:opacity-100">
           <Image
             src={contest?.creator?.avatar}
             alt="Author"
@@ -53,18 +54,21 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
           </p>
         </div>
 
-        {/* Title — top left (visible normally, hidden when hovered to show Creator Info) */}
+        {/* Title — top left (visible normally, hidden when hovered to show Creator Info).
+            The hide-on-hover behavior only applies at md+; on mobile there's no hover
+            affordance so the title always stays visible. */}
         <Link
           href={`/contest/${contest.id}`}
-          className="absolute top-3 right-14 left-3 z-10 block transition-all duration-300 group-hover:opacity-0"
+          className="absolute top-3 right-14 left-3 z-10 block transition-all duration-300 md:group-hover:opacity-0"
         >
           <h3 className="line-clamp-2 text-base leading-snug font-bold text-white [text-shadow:0_1px_6px_rgba(0,0,0,1)] hover:underline">
             {contest.title}
           </h3>
         </Link>
 
-        {/* JOIN Button — center, hover only */}
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center opacity-0 transition-all duration-300 group-hover:opacity-100">
+        {/* JOIN Button — always visible on mobile (no hover to reveal it there),
+            hover-reveal only on desktop (md+) */}
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center opacity-100 transition-all duration-300 md:opacity-0 md:group-hover:opacity-100">
           <div className="pointer-events-auto relative">
             <button
               onClick={(e) => {
@@ -85,9 +89,14 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
           </div>
         </div>
 
-        {/* Footer stats */}
-        <div className="absolute inset-x-2 bottom-2 z-20 grid h-16 grid-cols-[1fr_1.3fr_0.85fr] divide-x divide-white/10 overflow-hidden rounded-lg border border-white/10 bg-zinc-950/88 text-white shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md">
-          {contest?.isMoneyContest ? (
+        {/* Footer stats — the Prize cell only renders for money contests, so a contest
+            with no cash prize doesn't waste a slot announcing "No cash". */}
+        <div
+          className={`absolute inset-x-2 bottom-2 z-20 grid h-16 ${
+            contest?.isMoneyContest ? 'grid-cols-[1fr_1.3fr_0.85fr]' : 'grid-cols-2'
+          } divide-x divide-white/10 overflow-hidden rounded-lg border border-white/10 bg-zinc-950/88 text-white shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md`}
+        >
+          {contest?.isMoneyContest && (
             <div className="flex min-w-0 items-center justify-center gap-2 px-2">
               <div className="bg-primary/15 text-primary flex size-7 shrink-0 items-center justify-center rounded-md">
                 <Trophy className="size-3.5" />
@@ -99,18 +108,6 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
                 <p className="mt-1 truncate text-xs font-semibold">
                   {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
                 </p>
-              </div>
-            </div>
-          ) : (
-            <div className="flex min-w-0 items-center justify-center gap-2 px-2">
-              <div className="bg-primary/15 text-primary flex size-7 shrink-0 items-center justify-center rounded-md">
-                <Trophy className="size-3.5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[9px] leading-none tracking-[0.16em] text-white/50 uppercase">
-                  Prize
-                </p>
-                <p className="mt-1 truncate text-xs font-semibold">No cash</p>
               </div>
             </div>
           )}
