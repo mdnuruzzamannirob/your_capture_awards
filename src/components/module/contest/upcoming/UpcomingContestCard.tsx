@@ -3,6 +3,7 @@ import CountdownTimer from '@/components/CountdownTimer';
 import Link from 'next/link';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
 import CornerCount from '@/components/CornerCount';
+import SafeBannerImage from '@/components/SafeBannerImage';
 
 const UpcomingContestCard = ({
   contest,
@@ -25,12 +26,12 @@ const UpcomingContestCard = ({
       <div className="group border-border relative block h-72 overflow-hidden rounded-xl border-2">
         <Link href={`/contest/${contest.id}`} className="absolute inset-0 z-0">
           {/* Banner image */}
-          <Image
-            alt="Banner"
-            src={contest.banner}
-            fill
+          <SafeBannerImage
+            alt={`${contest?.title || 'Contest'} banner`}
+            src={contest?.banner}
             className="bg-surface-secondary object-cover transition-all duration-300 group-hover:brightness-50"
             sizes="(max-width: 768px) 100vw, 500px"
+            fallbackClassName="pb-16"
           />
         </Link>
 

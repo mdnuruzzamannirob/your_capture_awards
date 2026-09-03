@@ -1,4 +1,4 @@
-"use client";
+'use client';
 /* eslint-disable @next/next/no-img-element */
 
 import CornerCount from '@/components/CornerCount';
@@ -46,6 +46,9 @@ const ContestDetails = ({ id }: { id: string }) => {
   }, []);
 
   const contest = contestData?.data ?? {};
+  const bannerSrc =
+    typeof contest?.banner === 'string' && contest.banner.trim() ? contest.banner.trim() : null;
+  const [failedBannerSrc, setFailedBannerSrc] = useState<string | null>(null);
 
   // Find the joined entry for this specific contest to get accurate upload data.
   const joinedEntry = joinedContestData?.data?.find((c: any) => c.id === id);
@@ -98,19 +101,20 @@ const ContestDetails = ({ id }: { id: string }) => {
   return (
     <main className="margin-user space-y-10">
       <section className="bg-surface-secondary text-body relative h-64 w-full overflow-hidden sm:h-80 md:h-96 lg:h-125">
-        {contest?.banner ? (
+        {bannerSrc && failedBannerSrc !== bannerSrc ? (
           <img
-            src={contest.banner}
+            src={bannerSrc}
             alt="Banner"
             width={1920}
             height={500}
             decoding="async"
             loading="lazy"
             className="size-full object-cover opacity-60"
+            onError={() => setFailedBannerSrc(bannerSrc)}
           />
         ) : (
           <div className="bg-surface-secondary text-body flex h-full w-full items-center justify-center">
-            <p>No banner photo</p>
+            <p>No banner</p>
           </div>
         )}
 

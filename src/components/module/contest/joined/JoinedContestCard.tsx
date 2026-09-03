@@ -197,7 +197,7 @@ function UploadedPhoto({
             loading="lazy"
             decoding="async"
             referrerPolicy="no-referrer"
-            className="size-full object-cover object-center select-none transition duration-300 group-hover/photo:scale-[1.03]"
+            className="size-full object-cover object-center transition duration-300 select-none group-hover/photo:scale-[1.03]"
             onError={() => setImageError(true)}
           />
         ) : (
@@ -214,7 +214,7 @@ function UploadedPhoto({
             </span>
           ) : null}
           {traded ? (
-            <span className="border-primary/40 bg-black/70 text-primary inline-flex size-5 items-center justify-center rounded-md border shadow">
+            <span className="border-primary/40 text-primary inline-flex size-5 items-center justify-center rounded-md border bg-black/70 shadow">
               <Repeat2 className="size-3" />
             </span>
           ) : null}
@@ -255,7 +255,7 @@ function BannerImage({ src, alt }: { src?: string | null; alt?: string }) {
   if (!resolvedSrc || imageError) {
     return (
       <div className="bg-surface-tertiary text-muted-foreground flex h-60 w-full items-center justify-center md:h-72 lg:h-80">
-        No banner photo
+        No banner
       </div>
     );
   }
@@ -313,7 +313,9 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
       setConfirmPromoteOpen(false);
       await refetch();
     } catch (error: any) {
-      toast.error(error?.data?.message || error?.message || 'Something went wrong. Please try again.');
+      toast.error(
+        error?.data?.message || error?.message || 'Something went wrong. Please try again.',
+      );
     }
   };
 
@@ -377,7 +379,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
               </span>
             ) : null}
             {tradedCount > 0 ? (
-              <span className="border-primary/40 bg-black/55 text-primary inline-flex items-center gap-1 rounded-sm border px-2 py-1 text-[10px] font-semibold">
+              <span className="border-primary/40 text-primary inline-flex items-center gap-1 rounded-sm border bg-black/55 px-2 py-1 text-[10px] font-semibold">
                 <Repeat2 className="size-3" />
                 {tradedCount} traded
               </span>

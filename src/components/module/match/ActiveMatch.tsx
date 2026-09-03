@@ -1,5 +1,4 @@
-import Image from 'next/image';
-
+import SafeBannerImage from '@/components/SafeBannerImage';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import useCountdown from '@/hooks/useCountdown';
@@ -62,15 +61,12 @@ function ActiveMatch({
         </div>
 
         <div className="bg-surface relative min-h-28 overflow-hidden rounded-md border">
-          {match.banner ? (
-            <Image
-              src={match.banner}
-              alt={match.theme}
-              fill
-              className="object-cover opacity-55"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          ) : null}
+          <SafeBannerImage
+            src={match.banner}
+            alt={`${match.theme} banner`}
+            className="object-cover opacity-55"
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
           <div className="absolute inset-0 bg-linear-to-t from-zinc-950/80 via-zinc-950/40 to-zinc-950/10" />
           <div className="relative z-10 flex h-full flex-col items-center justify-center gap-3 p-4 text-center">
             <h1 className="text-primary-foreground text-center text-xl leading-tight font-semibold">

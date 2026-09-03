@@ -1,10 +1,10 @@
 'use client';
 
 import CornerCount from '@/components/CornerCount';
+import SafeBannerImage from '@/components/SafeBannerImage';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils/cn';
 import { Clock3, Search, UserPlus, Users } from 'lucide-react';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 export type TeamMatchQueueStatus = 'WAITING_FOR_MEMBERS' | 'SEARCHING';
@@ -71,9 +71,7 @@ function TeamMatchStatusCard({
 
   return (
     <div className={cn('space-y-2.5', className)}>
-      {heading && (
-        <p className="text-foreground text-sm font-semibold tracking-tight">{heading}</p>
-      )}
+      {heading && <p className="text-foreground text-sm font-semibold tracking-tight">{heading}</p>}
 
       <div className="border-border-subtle bg-surface-secondary/70 text-foreground inline-flex items-center gap-2 rounded-full border py-1.5 pr-3.5 pl-2 text-xs font-medium">
         <span
@@ -89,18 +87,13 @@ function TeamMatchStatusCard({
 
       <article className="border-border-subtle bg-surface-secondary relative overflow-hidden rounded-2xl border shadow-lg shadow-black/10">
         <div className="relative h-48 overflow-hidden sm:h-56">
-          {contestBanner ? (
-            <Image
-              src={contestBanner}
-              alt={contestTitle}
-              fill
-              unoptimized
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 500px"
-            />
-          ) : (
-            <div className="bg-surface-tertiary size-full" />
-          )}
+          <SafeBannerImage
+            src={contestBanner}
+            alt={`${contestTitle} banner`}
+            unoptimized
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 500px"
+          />
 
           <div className="pointer-events-none absolute inset-0 bg-black/10" />
           <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-linear-to-b from-black/80 to-transparent" />
@@ -130,7 +123,7 @@ function TeamMatchStatusCard({
           )}
 
           <div className="absolute inset-x-0 bottom-3 z-10 flex justify-center">
-            <div className="bg-black/45 flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold tabular-nums text-white backdrop-blur-sm">
+            <div className="flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-1 text-xs font-semibold text-white tabular-nums backdrop-blur-sm">
               <Clock3 className="size-3.5" />
               {remaining}
             </div>

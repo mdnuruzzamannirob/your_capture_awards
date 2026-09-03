@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { MdOutlineHowToVote } from 'react-icons/md';
+import SafeBannerImage from '@/components/SafeBannerImage';
 
 const achievementIconMap: Record<string, string> = {
   TOP_PHOTOGRAPHER: '/icons/top-photographer-v2.png',
@@ -39,11 +40,21 @@ const getContestAchievements = (contest: any) => {
 const AchievementBadge = ({ achievement, index }: { achievement: any; index: number }) => {
   const [showTextOnly, setShowTextOnly] = useState(false);
   const icon =
-    achievement.imageUrl || achievementIconMap[achievement.category] || achievementIconMap[achievement.levelBadge];
-  const label = achievement.levelBadge || achievement.category || achievement.title || achievement.name || 'Achievement';
+    achievement.imageUrl ||
+    achievementIconMap[achievement.category] ||
+    achievementIconMap[achievement.levelBadge];
+  const label =
+    achievement.levelBadge ||
+    achievement.category ||
+    achievement.title ||
+    achievement.name ||
+    'Achievement';
 
   return (
-    <div key={achievement.id || index} className="flex w-20 flex-col items-center gap-2 text-center">
+    <div
+      key={achievement.id || index}
+      className="flex w-20 flex-col items-center gap-2 text-center"
+    >
       <div className="ring-border bg-surface relative flex size-20 items-center justify-center overflow-hidden rounded-full ring-1">
         {icon && !showTextOnly ? (
           <Image
@@ -66,35 +77,14 @@ const AchievementBadge = ({ achievement, index }: { achievement: any; index: num
   );
 };
 
-const BannerImage = ({ src, alt }: { src?: string; alt?: string }) => {
-  const [errored, setErrored] = useState(false);
-
-  if (!src || errored) {
-    return (
-      <div className="bg-muted text-muted-foreground flex h-full w-full items-center justify-center">
-        No banner available
-      </div>
-    );
-  }
-
-  return (
-    <Image
-      src={src}
-      alt={alt || 'Contest banner'}
-      fill
-      sizes="(max-width: 768px) 100vw, 900px"
-      className="object-cover transition-transform duration-500 group-hover:scale-105"
-      onError={() => setErrored(true)}
-    />
-  );
-};
-
 const EntryPhoto = ({ src }: { src?: string }) => {
   const [errored, setErrored] = useState(false);
 
   if (!src || errored) {
     return (
-      <div className="text-muted-foreground flex h-full w-full items-center justify-center">No photo</div>
+      <div className="text-muted-foreground flex h-full w-full items-center justify-center">
+        No photo
+      </div>
     );
   }
 
@@ -117,8 +107,16 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
   return (
     <div className="text-foreground bg-surface-secondary border-border group overflow-hidden rounded-xl border-2 transition-shadow duration-300 hover:shadow-lg hover:shadow-black/30">
       {/* Banner */}
-      <Link href={`/contest/${contest?.id}`} className="relative block h-56 w-full overflow-hidden md:h-64">
-        <BannerImage src={contest?.banner} alt={contest?.title} />
+      <Link
+        href={`/contest/${contest?.id}`}
+        className="relative block h-56 w-full overflow-hidden md:h-64"
+      >
+        <SafeBannerImage
+          src={contest?.banner}
+          alt={`${contest?.title || 'Contest'} banner`}
+          sizes="(max-width: 768px) 100vw, 900px"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+        />
 
         <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/85 via-black/10 to-transparent" />
 
@@ -134,11 +132,17 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
       <div className="flex flex-col gap-6 p-4 md:p-5">
         {/* Achievements */}
         <div>
-          <h3 className="text-muted-foreground mb-3 text-xs font-bold tracking-wider uppercase">Achievements</h3>
+          <h3 className="text-muted-foreground mb-3 text-xs font-bold tracking-wider uppercase">
+            Achievements
+          </h3>
           {achievements.length ? (
             <div className="flex flex-wrap gap-4">
               {achievements.map((achievement: any, index: number) => (
-                <AchievementBadge key={achievement.id || index} achievement={achievement} index={index} />
+                <AchievementBadge
+                  key={achievement.id || index}
+                  achievement={achievement}
+                  index={index}
+                />
               ))}
             </div>
           ) : (
@@ -149,7 +153,9 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
         {/* Submitted photos */}
         {photos.length > 0 && (
           <div>
-            <h3 className="text-muted-foreground mb-3 text-xs font-bold tracking-wider uppercase">Your Entries</h3>
+            <h3 className="text-muted-foreground mb-3 text-xs font-bold tracking-wider uppercase">
+              Your Entries
+            </h3>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
               {photos.map((item: any, index: number) => (
                 <div
@@ -174,7 +180,9 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
               <MdOutlineHowToVote className="text-base" />
             </span>
             <div>
-              <p className="text-muted-foreground text-[10px] tracking-wide uppercase">Total Votes</p>
+              <p className="text-muted-foreground text-[10px] tracking-wide uppercase">
+                Total Votes
+              </p>
               <p className="text-sm font-bold">{contest?.totalVotes ?? 0}</p>
             </div>
           </div>

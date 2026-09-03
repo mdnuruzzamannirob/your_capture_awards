@@ -6,6 +6,7 @@ import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
 import CornerCount from '@/components/CornerCount';
 import { Clock3, Trophy, Vote } from 'lucide-react';
+import SafeBannerImage from '@/components/SafeBannerImage';
 
 const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Promise<any> }) => {
   const now = new Date();
@@ -24,12 +25,12 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
       <div className="group border-border relative block h-72 overflow-hidden rounded-xl border-2">
         <Link href={`/contest/${contest.id}`} className="absolute inset-0 z-0">
           {/* Banner image */}
-          <Image
-            alt="Banner"
-            src={contest.banner}
-            fill
+          <SafeBannerImage
+            alt={`${contest?.title || 'Contest'} banner`}
+            src={contest?.banner}
             className="object-cover transition-all duration-300 group-hover:brightness-50"
             sizes="(max-width: 768px) 100vw, 500px"
+            fallbackClassName="pb-16"
           />
         </Link>
 
