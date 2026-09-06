@@ -433,7 +433,7 @@ export default function Team() {
                 <TeamCardSkeleton key={index} />
               ))}
             </div>
-          ) : teamsQuery.isError ? (
+          ) : teamsQuery.isError && !hasResults ? (
             <div className="px-1 py-8 text-center md:px-8">
               <div className="bg-primary/10 border-primary/20 text-primary mx-auto flex size-12 items-center justify-center rounded-full border">
                 <Search className="size-5" />
@@ -467,6 +467,14 @@ export default function Team() {
           {hasResults ? (
             <div className="mt-4">
               <div ref={loadMoreRef} className="h-1 w-full" aria-hidden="true" />
+              {teamsQuery.isError && (
+                <div className="mt-3 text-center">
+                  <p className="text-destructive text-sm">Could not load more teams.</p>
+                  <Button variant="outline" size="sm" className="mt-2" onClick={() => teamsQuery.refetch()}>
+                    Try again
+                  </Button>
+                </div>
+              )}
             </div>
           ) : null}
         </section>

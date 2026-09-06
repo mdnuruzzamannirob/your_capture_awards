@@ -22,17 +22,24 @@ const normalizeContestListResponse = (response: any) => {
   const payload = response?.data ?? response ?? {};
   const contests = Array.isArray(payload) ? payload : payload?.contests ?? [];
   const meta = payload?.meta ?? response?.meta ?? {};
+  const page = meta.page ?? 1;
+  const limit = meta.limit ?? contests.length;
+  const total = meta.total ?? contests.length;
+  const totalPage =
+    meta.totalPage ??
+    meta.totalPages ??
+    Math.ceil(total / Math.max(limit, 1));
 
   return {
     data: contests,
     meta: {
-      page: meta.page ?? 1,
-      limit: meta.limit ?? contests.length,
-      total: meta.total ?? contests.length,
-      totalPage: meta.totalPage ?? meta.totalPages ?? Math.ceil((meta.total ?? contests.length) / Math.max(meta.limit ?? contests.length, 1)),
-      totalPages: meta.totalPages ?? meta.totalPage ?? Math.ceil((meta.total ?? contests.length) / Math.max(meta.limit ?? contests.length, 1)),
-      hasNextPage: Boolean(meta.hasNextPage ?? false),
-      hasPreviousPage: Boolean(meta.hasPreviousPage ?? false),
+      page,
+      limit,
+      total,
+      totalPage,
+      totalPages: totalPage,
+      hasNextPage: Boolean(meta.hasNextPage ?? page < totalPage),
+      hasPreviousPage: Boolean(meta.hasPreviousPage ?? page > 1),
     },
   };
 };
@@ -143,6 +150,7 @@ export const contestApi = createApi({
           totalPage: number;
           hasNextPage: boolean;
           hasPreviousPage: boolean;
+          seed?: string;
         };
         data: {
           id: string;
@@ -154,10 +162,11 @@ export const contestApi = createApi({
         id: string;
         page?: number;
         limit?: number;
+        seed?: string;
       }
     >({
-      query: ({ id, page = 1, limit = 10 }) =>
-        `/contests/${id}/photos/vote?page=${page}&limit=${limit}`,
+      query: ({ id, page = 1, limit = 10, seed }) =>
+        `/contests/${id}/photos/vote?page=${page}&limit=${limit}${seed ? `&seed=${encodeURIComponent(seed)}` : ''}`,
       providesTags: (result, error, { id, page = 1 }) => [
         { type: 'ContestPhotos', id: `${id}-page-${page}` },
         { type: 'ContestPhotos', id },
@@ -217,6 +226,31 @@ export const contestApi = createApi({
     >({
       query: ({ id, page = 1, limit = 12 }) =>
         `/contests/${id}/rank-photographer?page=${page}&limit=${limit}`,
+      transformResponse: (response: any) => {
+        const payload = response?.data ?? response ?? {};
+        const participants = payload?.participants ?? [];
+        const meta = payload?.meta ?? response?.meta ?? {};
+        const page = meta.page ?? 1;
+        const limit = meta.limit ?? participants.length;
+        const total = meta.total ?? participants.length;
+        const totalPage = meta.totalPage ?? meta.totalPages ?? Math.ceil(total / Math.max(limit, 1));
+
+        return {
+          data: {
+            participants,
+            contestTotalVotes: payload?.contestTotalVotes,
+          },
+          meta: {
+            page,
+            limit,
+            total,
+            totalPage,
+            totalPages: totalPage,
+            hasNextPage: meta.hasNextPage ?? page < totalPage,
+            hasPreviousPage: meta.hasPreviousPage ?? page > 1,
+          },
+        };
+      },
       providesTags: (result, error, { id, page = 1 }) => [
         { type: 'ContestRankPhotographers', id: `${id}-page-${page}` },
         { type: 'ContestRankPhotographers', id },

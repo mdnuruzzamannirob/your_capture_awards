@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetMyTeamQuery, useGetTeamMatchHistoryQuery } from '@/store/apis/teamApi';
 import { cn } from '@/utils/cn';
-import { ElementType, useState } from 'react';
+import { ElementType, useEffect, useState } from 'react';
 
 const PAGE_SIZE = 10;
 
@@ -69,6 +69,7 @@ const TeamHistory = () => {
   const {
     data: historyData,
     isLoading: isHistoryLoading,
+    isFetching: isHistoryFetching,
     isError: isHistoryError,
     refetch: refetchHistory,
   } = useGetTeamMatchHistoryQuery(
@@ -79,7 +80,11 @@ const TeamHistory = () => {
   const rows = historyData?.data ?? [];
   const meta = historyData?.meta;
   const totalPage = meta?.totalPage ?? 1;
-  const isLoading = isTeamLoading || isHistoryLoading;
+  const isLoading = isTeamLoading || isHistoryLoading || isHistoryFetching;
+
+  useEffect(() => {
+    if (page > totalPage) setPage(totalPage);
+  }, [page, totalPage]);
 
   return (
     <section className="margin-user container space-y-6 py-6">

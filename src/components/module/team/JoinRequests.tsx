@@ -22,9 +22,13 @@ interface JoinRequestsProps {
   requests: JoinRequestViewModel[];
   onAccept: (req: JoinRequestViewModel) => void;
   onDecline: (req: JoinRequestViewModel) => void;
+  page: number;
+  total: number;
+  totalPage: number;
+  onPageChange: (page: number) => void;
 }
 
-function JoinRequests({ requests, onAccept, onDecline }: JoinRequestsProps) {
+function JoinRequests({ requests, onAccept, onDecline, page, total, totalPage, onPageChange }: JoinRequestsProps) {
   return (
     <div className="overflow-hidden rounded-xl border">
       <div className="flex items-center justify-between border-b px-5 py-3.5">
@@ -32,7 +36,7 @@ function JoinRequests({ requests, onAccept, onDecline }: JoinRequestsProps) {
           Join Requests
         </p>
         <Badge variant="destructive" className="text-[11px]">
-          {requests.length} pending
+          {total} pending
         </Badge>
       </div>
 
@@ -69,6 +73,17 @@ function JoinRequests({ requests, onAccept, onDecline }: JoinRequestsProps) {
           </div>
         ))}
       </div>
+      {totalPage > 1 && (
+        <div className="flex items-center justify-between border-t px-5 py-3">
+          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
+            Previous
+          </Button>
+          <span className="text-muted-foreground text-xs">Page {page} of {totalPage}</span>
+          <Button variant="outline" size="sm" disabled={page >= totalPage} onClick={() => onPageChange(page + 1)}>
+            Next
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

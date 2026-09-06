@@ -28,6 +28,14 @@ export interface CommentsResponse {
   success: boolean;
   message?: string;
   data: Comment[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPage: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
 }
 
 export interface SingleCommentResponse {
@@ -42,9 +50,13 @@ export const commentsApi = createApi({
   tagTypes: ['Comments'],
   endpoints: (builder) => ({
     // GET /comments/photos/:photoId
-    getPhotoComments: builder.query<CommentsResponse, string>({
-      query: (photoId) => `/comments/photos/${photoId}`,
-      providesTags: (result, error, photoId) => [{ type: 'Comments', id: photoId }],
+    getPhotoComments: builder.query<
+      CommentsResponse,
+      { photoId: string; page?: number; limit?: number }
+    >({
+      query: ({ photoId, page = 1, limit = 10 }) =>
+        `/comments/photos/${photoId}?page=${page}&limit=${limit}`,
+      providesTags: (result, error, { photoId }) => [{ type: 'Comments', id: photoId }],
     }),
 
     // POST /comments/photos/:photoId

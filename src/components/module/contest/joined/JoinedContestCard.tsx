@@ -469,21 +469,11 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
               </div>
             </div>
 
-            <button
-              onClick={openPromoteConfirm}
-              disabled={isExposureMaxed || isPromotingExposure}
-              title={isExposureMaxed ? 'Exposure is already at 100%' : undefined}
-              className="text-primary border-primary/25 flex items-center justify-center gap-1 rounded-sm border px-2 py-1 text-[10px] font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <MdOutlineCampaign className="size-3" />
-              {isPromotingExposure ? 'Promoting...' : 'Promote'}
-            </button>
-
             <Dialog open={confirmPromoteOpen} onOpenChange={setConfirmPromoteOpen}>
               <DialogContent className="border-border border-2 sm:max-w-sm">
                 <DialogTitle className="flex items-center gap-2">
                   <MdOutlineCampaign className="text-primary size-5" />
-                  Promote Exposure
+                  Charge Exposure
                 </DialogTitle>
                 <DialogDescription>
                   This will refill this contest entry&apos;s exposure to 100% (Level H) and use 1
@@ -504,7 +494,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
                     onClick={handlePromoteExposure}
                     className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm disabled:opacity-60"
                   >
-                    {isPromotingExposure ? 'Promoting...' : 'Promote'}
+                    {isPromotingExposure ? 'Charging...' : 'Charge'}
                   </button>
                 </div>
               </DialogContent>
@@ -564,7 +554,22 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
           disabled={!canUsePhotoActions}
           className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition disabled:cursor-not-allowed disabled:opacity-50 max-md:text-sm md:px-5"
         >
-          <AiOutlineThunderbolt /> Charge
+          <AiOutlineThunderbolt /> Promote
+        </button>
+        <Link
+          href={`/contest/${contest?.id}?tab=rank`}
+          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
+        >
+          <Trophy className="size-4" /> Ranking
+        </Link>
+        <button
+          onClick={openPromoteConfirm}
+          disabled={isExposureMaxed || isPromotingExposure}
+          title={isExposureMaxed ? 'Exposure is already at 100%' : undefined}
+          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition disabled:cursor-not-allowed disabled:opacity-50 max-md:text-sm md:px-5"
+        >
+          <MdOutlineCampaign className="size-4" />
+          {isPromotingExposure ? 'Charging...' : 'Charge'}
         </button>
         <ContestActionModal
           ref={actionModalRef}

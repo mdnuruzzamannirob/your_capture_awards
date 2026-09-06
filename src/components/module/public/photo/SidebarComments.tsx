@@ -41,6 +41,10 @@ interface SidebarCommentsProps {
   onDeleteComment: (commentId: string) => Promise<void>;
   onEditComment?: (commentId: string, text: string) => Promise<void>;
   isLoading?: boolean;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
+  total?: number;
 }
 
 // ── Helper: Format date/time ───────────────────────────────────────────────
@@ -106,6 +110,10 @@ export function SidebarComments({
   onDeleteComment,
   onEditComment,
   isLoading = false,
+  hasMore = false,
+  isLoadingMore = false,
+  onLoadMore,
+  total,
 }: SidebarCommentsProps) {
   const [commentText, setCommentText] = useState('');
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
@@ -127,7 +135,7 @@ export function SidebarComments({
   return (
     <section className="bg-background text-foreground p-6">
       <h4 className="text-muted-foreground mb-4 text-xs font-bold tracking-wider uppercase">
-        Comments ({countAllComments(comments)})
+        Comments ({total ?? countAllComments(comments)})
       </h4>
 
       {/* Main Comment Box */}
@@ -186,6 +194,17 @@ export function SidebarComments({
           ))
         )}
       </div>
+      {hasMore && onLoadMore && (
+        <Button
+          type="button"
+          variant="outline"
+          className="mt-5 w-full"
+          disabled={isLoadingMore}
+          onClick={onLoadMore}
+        >
+          {isLoadingMore ? 'Loading...' : 'Load more comments'}
+        </Button>
+      )}
     </section>
   );
 }

@@ -199,6 +199,7 @@ export interface GetTeamMembersResponse {
   success: boolean;
   message: string;
   data: TeamMember[];
+  meta: PaginationMeta;
 }
 
 export interface InviteMemberRequest {

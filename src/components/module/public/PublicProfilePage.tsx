@@ -19,9 +19,9 @@ import {
   useGetPhotosQuery,
   useGetStatsQuery,
 } from '@/store/apis/profileApi';
-import { useAppSelector } from '@/store/hooks';
 
 import { useToggleFollowMutation } from '@/store/apis/socialApi';
+import { useGetMyTeamQuery } from '@/store/apis/teamApi';
 import AddCoverDialog from '../profile/AddCoverDialog';
 import AvatarDialog from '../profile/AvatarDialog';
 
@@ -75,6 +75,9 @@ function ProfileContent({
   userId,
   photos,
   isLoading,
+  hasMore,
+  isLoadingMore,
+  onLoadMore,
 }: {
   activeTab: TabKey;
   profile: any;
@@ -82,6 +85,9 @@ function ProfileContent({
   userId?: string;
   photos: any[];
   isLoading: boolean;
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  onLoadMore: () => void;
 }) {
   const username = profile?.username || profile?.id || '';
   // Track which tabs have been visited so we only mount them once.
@@ -121,6 +127,9 @@ function ProfileContent({
                 photos={photos}
                 isLoading={isLoading}
                 userId={userId}
+                hasMore={hasMore}
+                isLoadingMore={isLoadingMore}
+                onLoadMore={onLoadMore}
               />
             )}
           </div>
@@ -135,18 +144,28 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
   const [isFollowing, setIsFollowing] = useState(false);
   const [coverError, setCoverError] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
+  const [photoPage, setPhotoPage] = useState(1);
+  const [photoItems, setPhotoItems] = useState<any[]>([]);
 
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, isAuthenticated } = useAuth();
   const targetUserId = isOwn ? currentUser?.id : userId;
+
+  // Used to decide whether the joined-team link below should go to the viewer's own
+  // team home (they're a member) or the public team page (they're not).
+  const { data: myTeamData } = useGetMyTeamQuery(undefined, { skip: !isAuthenticated });
+  const myTeamId = myTeamData?.data?.team?.id;
 
   // 1. Fetch Stats and Photos for Own Profile
   const { data: ownStatsData, isLoading: isOwnStatsLoading } = useGetStatsQuery(undefined, {
     skip: !isOwn,
   });
-  const { isLoading: isOwnPhotosLoading } = useGetPhotosQuery(undefined, {
+  const {
+    data: ownPhotosData,
+    isLoading: isOwnPhotosLoading,
+    isFetching: isOwnPhotosFetching,
+  } = useGetPhotosQuery({ page: photoPage, limit: 20 }, {
     skip: !isOwn,
   });
-  const ownPhotos = useAppSelector((state) => state.profile.photos);
 
   // 2. Fetch Profile, Stats and Photos for Other User Profile
   const {
@@ -164,15 +183,46 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
       skip: isOwn || !targetUserId,
     },
   );
-  const { data: otherPhotosData, isLoading: isOtherPhotosLoading } = useGetOtherUserPhotosQuery(
-    { id: targetUserId || '', page: 1, limit: 50 },
+  const {
+    data: otherPhotosData,
+    isLoading: isOtherPhotosLoading,
+    isFetching: isOtherPhotosFetching,
+  } = useGetOtherUserPhotosQuery(
+    { id: targetUserId || '', page: photoPage, limit: 20 },
     { skip: isOwn || !targetUserId },
   );
 
   // 3. Resolve active data
   const profile = isOwn ? currentUser : (otherProfileData?.data ?? null);
   const stats = isOwn ? ownStatsData?.data : otherStatsData?.data;
-  const photos = isOwn ? ownPhotos : (otherPhotosData?.data ?? []);
+  const photoResponse = isOwn ? ownPhotosData : otherPhotosData;
+  const responsePhotos = useMemo(
+    () =>
+      photoResponse
+        ? Array.isArray(photoResponse.data)
+          ? photoResponse.data
+          : (photoResponse.data.photos ?? [])
+        : [],
+    [photoResponse],
+  );
+  const photoMeta = photoResponse?.meta;
+  const photos = photoItems;
+  const isPhotosFetching = isOwn ? isOwnPhotosFetching : isOtherPhotosFetching;
+
+  useEffect(() => {
+    setPhotoPage(1);
+    setPhotoItems([]);
+  }, [isOwn, targetUserId]);
+
+  useEffect(() => {
+    if (!photoResponse) return;
+    setPhotoItems((current) => {
+      if (photoPage === 1) return responsePhotos;
+      const ids = new Set(current.map((photo) => photo.id));
+      return [...current, ...responsePhotos.filter((photo) => !ids.has(photo.id))];
+    });
+  }, [photoPage, photoResponse, responsePhotos]);
+
   const currentUserId = (currentUser as any)?.id || (currentUser as any)?._id;
   const currentUsername = (currentUser as any)?.username;
   const profileUserId = profile?.id || profile?._id || profile?.userId;
@@ -388,7 +438,11 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                   <>
                     <div className="bg-border hidden h-10 w-px shrink-0 self-center sm:block" />
                     <a
-                      href={`/teams/${joinedTeam.team.id || joinedTeam.team.slug || ''}`}
+                      href={
+                        myTeamId && myTeamId === joinedTeam.team.id
+                          ? '/teams/home'
+                          : `/teams/${joinedTeam.team.id || joinedTeam.team.slug || ''}`
+                      }
                       className="group/team flex shrink-0 cursor-pointer items-center gap-2.5 self-center transition hover:opacity-80"
                     >
                       {joinedTeam.team.badge ? (
@@ -482,6 +536,11 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
         userId={userId}
         photos={photos}
         isLoading={isLoading}
+        hasMore={photoMeta?.hasNextPage ?? false}
+        isLoadingMore={isPhotosFetching && photoItems.length > 0}
+        onLoadMore={() => {
+          if (photoMeta?.hasNextPage && !isPhotosFetching) setPhotoPage((page) => page + 1);
+        }}
       />
     </main>
   );

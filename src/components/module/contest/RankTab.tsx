@@ -9,7 +9,7 @@ import {
 } from '@/store/apis/contestApi';
 import { cn } from '@/utils/cn';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch } from '@/store/hooks';
 import { setSwiperPhotos } from '@/store/slices/profileSlice';
@@ -30,8 +30,6 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
   const [photoItems, setPhotoItems] = useState<any[]>([]);
   const [photographerPage, setPhotographerPage] = useState(1);
   const [photographerItems, setPhotographerItems] = useState<any[]>([]);
-  const photoInitializedRef = useRef(false);
-  const photographerInitializedRef = useRef(false);
   const {
     data: rankPhotosData,
     isLoading: isRankPhotosLoading,
@@ -56,35 +54,32 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
   const rankPhotographersHasMore = Boolean(rankPhotographersDataPage?.meta?.hasNextPage);
 
   useEffect(() => {
-    if (!rankPhotos.length) return;
+    setPhotoPage(1);
+    setPhotographerPage(1);
+    setPhotoItems([]);
+    setPhotographerItems([]);
+  }, [id]);
 
-    if (!photoInitializedRef.current) {
+  useEffect(() => {
+    if (photoPage === 1) {
       setPhotoItems(rankPhotos);
-      photoInitializedRef.current = true;
       return;
     }
-    if (photoPage > 1) {
-      setPhotoItems((prev) => {
-        const seen = new Set(prev.map((item) => item.id));
-        return [...prev, ...rankPhotos.filter((item: any) => !seen.has(item.id))];
-      });
-    }
+    setPhotoItems((prev) => {
+      const seen = new Set(prev.map((item) => item.id));
+      return [...prev, ...rankPhotos.filter((item: any) => !seen.has(item.id))];
+    });
   }, [rankPhotos, photoPage]);
 
   useEffect(() => {
-    if (!rankPhotographers.length) return;
-
-    if (!photographerInitializedRef.current) {
+    if (photographerPage === 1) {
       setPhotographerItems(rankPhotographers);
-      photographerInitializedRef.current = true;
       return;
     }
-    if (photographerPage > 1) {
-      setPhotographerItems((prev) => {
-        const seen = new Set(prev.map((item) => item.id));
-        return [...prev, ...rankPhotographers.filter((item: any) => !seen.has(item.id))];
-      });
-    }
+    setPhotographerItems((prev) => {
+      const seen = new Set(prev.map((item) => item.id));
+      return [...prev, ...rankPhotographers.filter((item: any) => !seen.has(item.id))];
+    });
   }, [rankPhotographers, photographerPage]);
 
   useEffect(() => {

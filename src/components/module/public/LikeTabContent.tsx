@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GridLoadingState, PhotoCard, TabErrorState, TabSectionHeader } from './public-tab-ui';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { useLazyGetLikedPhotosQuery } from '@/store/apis/socialApi';
@@ -18,10 +18,12 @@ const LikeTabContent = ({ username, title = 'Liked Photos' }: Props) => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const requestVersionRef = useRef(0);
 
   const [triggerGetLikedPhotos, { isFetching }] = useLazyGetLikedPhotosQuery();
 
   useEffect(() => {
+    const requestVersion = ++requestVersionRef.current;
     let active = true;
     setPhotos([]);
     setPage(1);
@@ -35,7 +37,7 @@ const LikeTabContent = ({ username, title = 'Liked Photos' }: Props) => {
           limit: 12,
         }).unwrap();
 
-        if (active) {
+        if (active && requestVersion === requestVersionRef.current) {
           if (res.success) {
             // Extract the nested photo object
             const fetched = (res.data || []).map((item: any) => ({
@@ -50,7 +52,7 @@ const LikeTabContent = ({ username, title = 'Liked Photos' }: Props) => {
           }
         }
       } catch (err: any) {
-        if (active) {
+        if (active && requestVersion === requestVersionRef.current) {
           setError(err?.data?.message || err?.message || 'Failed to load liked photos.');
         }
       }
@@ -65,22 +67,28 @@ const LikeTabContent = ({ username, title = 'Liked Photos' }: Props) => {
 
   const loadMore = async () => {
     if (isFetching || !hasMore) return;
+    const requestVersion = requestVersionRef.current;
     try {
       const res = await triggerGetLikedPhotos({
         page,
         limit: 12,
       }).unwrap();
 
-      if (res.success) {
+      if (res.success && requestVersion === requestVersionRef.current) {
         const fetched = (res.data || []).map((item: any) => ({
           ...item.photo,
           isLiked: true,
         }));
-        setPhotos((prev) => [...prev, ...fetched]);
+        setPhotos((current) => {
+          const ids = new Set(current.map((photo) => photo.id));
+          return [...current, ...fetched.filter((photo: any) => !ids.has(photo.id))];
+        });
         setHasMore(res.meta?.hasNextPage ?? false);
         setPage((prev) => prev + 1);
       }
-    } catch (err: any) {}
+    } catch (err: any) {
+      setError(err?.data?.message || err?.message || 'Unable to load more liked photos.');
+    }
   };
 
   const { loadMoreRef } = useInfiniteScroll({

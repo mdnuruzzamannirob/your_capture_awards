@@ -30,7 +30,7 @@ import { cn } from '@/utils/cn';
 import { AlertCircle, ExternalLink, Loader2, Swords, ThumbsUp, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 const MIN_TEAM_MATCH_MEMBERS = 3;
@@ -329,6 +329,8 @@ export default function TeamMatchPage() {
   const router = useRouter();
   const [setupOpen, setSetupOpen] = useState(false);
   const [selectedContestId, setSelectedContestId] = useState<string | null>(null);
+  const [contestPage, setContestPage] = useState(1);
+  const [contestItems, setContestItems] = useState<AvailableTeamContest[]>([]);
   const { user } = useAuth();
   const [startMatchAuto, { isLoading: isStarting }] = useStartMatchAutoMutation();
 
@@ -362,7 +364,7 @@ export default function TeamMatchPage() {
   const shouldFetchAvailableContests = Boolean(teamId) && !activeMatchQuery.isLoading;
 
   const contestsQuery = useGetAvailableTeamContestsQuery(
-    { teamId: teamId ?? '', page: 1, limit: PAGE_SIZE },
+    { teamId: teamId ?? '', page: contestPage, limit: PAGE_SIZE },
     { skip: !shouldFetchAvailableContests },
   );
 
@@ -387,7 +389,22 @@ export default function TeamMatchPage() {
     () => activeMatches.map((match) => ({ match, view: mapActiveMatchToMatch(match) })),
     [activeMatches],
   );
-  const availableContests = useMemo(() => contestsQuery.data?.data ?? [], [contestsQuery.data]);
+  useEffect(() => {
+    const incoming = contestsQuery.data?.data;
+    if (!incoming) return;
+    setContestItems((current) => {
+      if (contestPage === 1) return incoming;
+      const ids = new Set(current.map((contest) => contest.id));
+      return [...current, ...incoming.filter((contest) => !ids.has(contest.id))];
+    });
+  }, [contestPage, contestsQuery.data?.data]);
+
+  useEffect(() => {
+    setContestPage(1);
+    setContestItems([]);
+  }, [teamId]);
+
+  const availableContests = contestItems;
   const matches = useMemo(
     () =>
       availableContests.map((contest) =>
@@ -552,6 +569,18 @@ export default function TeamMatchPage() {
           </p>
         </div>
       ) : null}
+
+      {contestsQuery.data?.meta?.hasNextPage && (
+        <div className="flex justify-center">
+          <Button
+            variant="outline"
+            disabled={contestsQuery.isFetching}
+            onClick={() => setContestPage((page) => page + 1)}
+          >
+            {contestsQuery.isFetching ? 'Loading...' : 'Load more contests'}
+          </Button>
+        </div>
+      )}
 
       <MatchSetupDialog
         contest={selectedContest}
