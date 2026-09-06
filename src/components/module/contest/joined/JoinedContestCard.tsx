@@ -533,7 +533,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-1 px-3 md:gap-3 lg:px-5">
+      <div className="grid grid-cols-3 gap-1 px-3 md:gap-3 lg:px-5">
         <button
           onClick={() => modalRef.current?.open()}
           className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
