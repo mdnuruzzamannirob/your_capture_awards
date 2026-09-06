@@ -429,7 +429,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
 
           <div className="flex flex-col items-center justify-center gap-1">
             <div className="text-muted-foreground text-xs uppercase">Votes</div>
-            <div className="border-border flex size-25 flex-col items-center justify-center gap-1 rounded-full border-4 p-1">
+            <div className="border-border flex size-20 flex-col items-center justify-center gap-1 rounded-full border-4 p-1">
               <div className="text-lg font-semibold">{totalVotes.toLocaleString()}</div>
               <small className="text-muted-foreground text-[10px]">
                 <span className="text-foreground">{votesToNextLevel.toLocaleString()}</span> votes
