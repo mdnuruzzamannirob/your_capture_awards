@@ -37,15 +37,10 @@ const formatRelative = (dateString: string) => {
 export default function NotificationModal() {
   const { token } = useAuth();
   const [open, setOpen] = useState(false);
-<<<<<<< HEAD
   const [page, setPage] = useState(1);
   const [notificationItems, setNotificationItems] = useState<NotificationItem[]>([]);
   const { data, isLoading, isFetching } = useGetUserNotificationsQuery(
     { page, limit: 10 },
-=======
-  const { data, isLoading } = useGetUserNotificationsQuery(
-    { page: 1, limit: 10 },
->>>>>>> 244005b3fdea643bb9ca4ad7ef562f4c22755a6c
     { skip: !token },
   );
   const [markAllRead, { isLoading: isMarking }] = useMarkAllNotificationsReadMutation();
@@ -101,12 +96,9 @@ export default function NotificationModal() {
 
     try {
       await markNotificationRead(notification.id).unwrap();
-<<<<<<< HEAD
       setNotificationItems((current) =>
         current.map((item) => (item.id === notification.id ? { ...item, isRead: true } : item)),
       );
-=======
->>>>>>> 244005b3fdea643bb9ca4ad7ef562f4c22755a6c
     } catch {
       toast.error('Failed to mark notification as read');
     }
