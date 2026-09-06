@@ -17,7 +17,7 @@ import {
 } from '@/store/apis/storeApi';
 import { StoreProduct, StoreProductItem } from '@/store/types/storeTypes';
 import Image from 'next/image';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { IoKeyOutline } from 'react-icons/io5';
 import { MdOutlineCameraswitch } from 'react-icons/md';
@@ -46,9 +46,9 @@ const itemIcon = {
 };
 
 const itemLabel = {
-  KEY: 'Promote',
+  KEY: 'Charge',
   SWAP: 'Trade',
-  BOOST: 'Charge',
+  BOOST: 'Promote',
 };
 
 const itemGradient = {
@@ -232,6 +232,8 @@ const SectionHeader = ({ title, subtitle }: { title: string; subtitle: string })
 /* ─── Main Modal ──────────────────────────────────────────────────── */
 const StoreModal = () => {
   const { open, setOpen } = useStoreModal();
+  const [page, setPage] = useState(1);
+  const [products, setProducts] = useState<StoreProduct[]>([]);
 
   const {
     data: storeStats,
@@ -246,20 +248,36 @@ const StoreModal = () => {
     isFetching: isProductsFetching,
     isError: isProductsError,
     refetch: refetchProducts,
-  } = useGetStoreProductsQuery({ page: 1, limit: 10 }, { skip: !open });
+  } = useGetStoreProductsQuery({ page, limit: 10 }, { skip: !open });
 
   const [purchaseProduct, { isLoading: isPurchasing }] = usePurchaseStoreProductMutation();
 
   const stats = storeStats?.data;
-  const productsLoading = isProductsLoading || isProductsFetching;
+  const productsLoading = isProductsLoading && products.length === 0;
+  const hasMore = page < (productsResponse?.meta?.totalPages ?? 1);
+
+  useEffect(() => {
+    if (!open) {
+      setPage(1);
+      setProducts([]);
+      return;
+    }
+
+    const incoming = productsResponse?.data;
+    if (!incoming) return;
+    setProducts((current) => {
+      if (page === 1) return incoming;
+      const ids = new Set(current.map((product) => product.id));
+      return [...current, ...incoming.filter((product) => !ids.has(product.id))];
+    });
+  }, [open, page, productsResponse?.data]);
 
   const { coinOffers, bundleOffers } = useMemo(() => {
-    const products = productsResponse?.data ?? [];
     return {
       coinOffers: products.filter((p) => p.category === 'COINS'),
       bundleOffers: products.filter((p) => p.category === 'BUNDLES'),
     };
-  }, [productsResponse?.data]);
+  }, [products]);
 
   const handlePurchase = async (product: StoreProduct) => {
     try {
@@ -292,7 +310,7 @@ const StoreModal = () => {
                 {
                   icon: <IoKeyOutline className="text-primary size-3" />,
                   value: stats?.key ?? 0,
-                  label: 'Promotes',
+                  label: 'Charges',
                 },
                 {
                   icon: <MdOutlineCameraswitch className="text-primary size-3 rotate-90" />,
@@ -302,7 +320,7 @@ const StoreModal = () => {
                 {
                   icon: <AiOutlineThunderbolt className="text-primary size-3" />,
                   value: stats?.boost ?? 0,
-                  label: 'Charges',
+                  label: 'Promotes',
                 },
                 {
                   icon: (
@@ -340,7 +358,7 @@ const StoreModal = () => {
                   {
                     icon: <IoKeyOutline className="text-primary size-3.5" />,
                     value: stats?.key ?? 0,
-                    label: 'Promotes',
+                    label: 'Charges',
                   },
                   {
                     icon: <MdOutlineCameraswitch className="text-primary size-3.5 rotate-90" />,
@@ -350,7 +368,7 @@ const StoreModal = () => {
                   {
                     icon: <AiOutlineThunderbolt className="text-primary size-3.5" />,
                     value: stats?.boost ?? 0,
-                    label: 'Charges',
+                    label: 'Promotes',
                   },
                   {
                     icon: (
@@ -475,6 +493,18 @@ const StoreModal = () => {
               </div>
             )}
           </section>
+          {hasMore && !isProductsError && (
+            <div className="mt-5 flex justify-center">
+              <button
+                type="button"
+                disabled={isProductsFetching}
+                onClick={() => setPage((current) => current + 1)}
+                className="border-primary text-primary hover:bg-primary/10 rounded-xl border px-5 py-2 text-sm transition disabled:opacity-60"
+              >
+                {isProductsFetching ? 'Loading...' : 'Load more products'}
+              </button>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

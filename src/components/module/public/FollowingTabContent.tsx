@@ -7,7 +7,7 @@ import { cn } from '@/utils/cn';
 import { Loader2, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PeopleLoadingState, TabErrorState, TabSectionHeader } from './public-tab-ui';
 
 type Props = {
@@ -145,10 +145,12 @@ const FollowingTabContent = ({ username, userId, isOwn = false }: Props) => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const requestVersionRef = useRef(0);
 
   const [triggerGetFollowings, { isFetching }] = useLazyGetFollowingsQuery();
 
   useEffect(() => {
+    const requestVersion = ++requestVersionRef.current;
     let active = true;
     setPeople([]);
     setPage(1);
@@ -163,7 +165,7 @@ const FollowingTabContent = ({ username, userId, isOwn = false }: Props) => {
           limit: 12,
         }).unwrap();
 
-        if (active) {
+        if (active && requestVersion === requestVersionRef.current) {
           if (res.success) {
             setPeople(res.data || []);
             setHasMore(res.meta?.hasNextPage ?? false);
@@ -173,7 +175,7 @@ const FollowingTabContent = ({ username, userId, isOwn = false }: Props) => {
           }
         }
       } catch (err: any) {
-        if (active) {
+        if (active && requestVersion === requestVersionRef.current) {
           setError(err?.data?.message || err?.message || 'Failed to load following list.');
         }
       }
@@ -188,6 +190,7 @@ const FollowingTabContent = ({ username, userId, isOwn = false }: Props) => {
 
   const loadMore = async () => {
     if (isFetching || !hasMore) return;
+    const requestVersion = requestVersionRef.current;
     try {
       const res = await triggerGetFollowings({
         userId: isOwn ? undefined : userId,
@@ -195,12 +198,17 @@ const FollowingTabContent = ({ username, userId, isOwn = false }: Props) => {
         limit: 12,
       }).unwrap();
 
-      if (res.success) {
-        setPeople((prev) => [...prev, ...(res.data || [])]);
+      if (res.success && requestVersion === requestVersionRef.current) {
+        setPeople((current) => {
+          const ids = new Set(current.map((person) => person.id));
+          return [...current, ...(res.data || []).filter((person: any) => !ids.has(person.id))];
+        });
         setHasMore(res.meta?.hasNextPage ?? false);
         setPage((prev) => prev + 1);
       }
-    } catch (err: any) {}
+    } catch (err: any) {
+      setError(err?.data?.message || err?.message || 'Unable to load more following.');
+    }
   };
 
   const { loadMoreRef } = useInfiniteScroll({

@@ -94,14 +94,19 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [triggerSearch, { isFetching }] = useLazySearchUsersQuery();
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestVersionRef = useRef(0);
   const isInitialLoading = isFetching && results.length === 0;
   const isLoadingMore = isFetching && results.length > 0;
 
   // Auto-focus input when modal opens
   useEffect(() => {
     if (isOpen) {
+      requestVersionRef.current += 1;
       setQuery('');
       setResults([]);
+      setTotal(0);
+      setPage(1);
+      setHasMore(false);
       setError(null);
       setTimeout(() => inputRef.current?.focus(), 80);
     }
@@ -121,6 +126,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   // Debounced search
   const doSearch = useCallback(
     async (q: string) => {
+      const requestVersion = ++requestVersionRef.current;
       const trimmed = q.trim();
       if (!trimmed) {
         setResults([]);
@@ -133,12 +139,14 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       setError(null);
       try {
         const response = await triggerSearch({ query: trimmed, page: 1, limit: 20 }).unwrap();
+        if (requestVersion !== requestVersionRef.current) return;
         const users = response.data?.users ?? [];
         setResults(users);
         setTotal(response.data?.meta?.total ?? 0);
         setPage(2);
         setHasMore(response.data?.meta?.hasNextPage ?? false);
       } catch {
+        if (requestVersion !== requestVersionRef.current) return;
         setError('Search failed. Please try again.');
       }
     },
@@ -147,6 +155,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
+    requestVersionRef.current += 1;
     setQuery(val);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => doSearch(val), 350);
@@ -155,10 +164,16 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const loadMore = useCallback(async () => {
     if (isFetching || !hasMore || !query.trim()) return;
 
+    const requestVersion = requestVersionRef.current;
+    const searchedQuery = query.trim();
     try {
-      const response = await triggerSearch({ query: query.trim(), page, limit: 20 }).unwrap();
+      const response = await triggerSearch({ query: searchedQuery, page, limit: 20 }).unwrap();
+      if (requestVersion !== requestVersionRef.current || searchedQuery !== query.trim()) return;
       const users = response.data?.users ?? [];
-      setResults((prev) => [...prev, ...users]);
+      setResults((current) => {
+        const ids = new Set(current.map((user) => user.id));
+        return [...current, ...users.filter((user) => !ids.has(user.id))];
+      });
       setPage((prev) => prev + 1);
       setHasMore(response.data?.meta?.hasNextPage ?? false);
     } catch {
@@ -210,8 +225,14 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <button
               type="button"
               onClick={() => {
+                requestVersionRef.current += 1;
+                if (debounceRef.current) clearTimeout(debounceRef.current);
                 setQuery('');
                 setResults([]);
+                setTotal(0);
+                setPage(1);
+                setHasMore(false);
+                setError(null);
               }}
               className="text-muted-foreground hover:text-foreground shrink-0 transition"
               aria-label="Clear search"

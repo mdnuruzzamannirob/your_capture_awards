@@ -3,7 +3,6 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import {
-  useGetFollowingsQuery,
   useLazyGetFollowersQuery,
   useToggleFollowMutation,
 } from '@/store/apis/socialApi';
@@ -11,7 +10,7 @@ import { cn } from '@/utils/cn';
 import { Loader2, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PeopleLoadingState, TabErrorState, TabSectionHeader } from './public-tab-ui';
 
 type Props = {
@@ -153,19 +152,11 @@ const FollowersTabContent = ({ username, userId, isOwn = false }: Props) => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const requestVersionRef = useRef(0);
 
-  const { user: currentUser } = useAuth();
   const [triggerGetFollowers, { isFetching }] = useLazyGetFollowersQuery();
-  const { data: myFollowings } = useGetFollowingsQuery(
-    { page: 1, limit: 100 },
-    { skip: !currentUser },
-  );
-
-  const myFollowingIds = useMemo(() => {
-    return new Set((myFollowings?.data || []).map((f: any) => f.following?.id || f.followingId));
-  }, [myFollowings]);
-
   useEffect(() => {
+    const requestVersion = ++requestVersionRef.current;
     let active = true;
     setPeople([]);
     setPage(1);
@@ -180,7 +171,7 @@ const FollowersTabContent = ({ username, userId, isOwn = false }: Props) => {
           limit: 12,
         }).unwrap();
 
-        if (active) {
+        if (active && requestVersion === requestVersionRef.current) {
           if (res.success) {
             setPeople(res.data || []);
             setHasMore(res.meta?.hasNextPage ?? false);
@@ -190,7 +181,7 @@ const FollowersTabContent = ({ username, userId, isOwn = false }: Props) => {
           }
         }
       } catch (err: any) {
-        if (active) {
+        if (active && requestVersion === requestVersionRef.current) {
           setError(err?.data?.message || err?.message || 'Failed to load followers.');
         }
       }
@@ -205,6 +196,7 @@ const FollowersTabContent = ({ username, userId, isOwn = false }: Props) => {
 
   const loadMore = async () => {
     if (isFetching || !hasMore) return;
+    const requestVersion = requestVersionRef.current;
     try {
       const res = await triggerGetFollowers({
         userId: isOwn ? undefined : userId,
@@ -212,12 +204,17 @@ const FollowersTabContent = ({ username, userId, isOwn = false }: Props) => {
         limit: 12,
       }).unwrap();
 
-      if (res.success) {
-        setPeople((prev) => [...prev, ...(res.data || [])]);
+      if (res.success && requestVersion === requestVersionRef.current) {
+        setPeople((current) => {
+          const ids = new Set(current.map((person) => person.id));
+          return [...current, ...(res.data || []).filter((person: any) => !ids.has(person.id))];
+        });
         setHasMore(res.meta?.hasNextPage ?? false);
         setPage((prev) => prev + 1);
       }
-    } catch (err: any) {}
+    } catch (err: any) {
+      setError(err?.data?.message || err?.message || 'Unable to load more followers.');
+    }
   };
 
   const { loadMoreRef } = useInfiniteScroll({
@@ -239,9 +236,12 @@ const FollowersTabContent = ({ username, userId, isOwn = false }: Props) => {
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {people.map((item) => {
-                const fid = item.follower?.id || item.followerId;
                 return (
-                  <PersonCard key={item.id} item={item} isFollowedByMe={myFollowingIds.has(fid)} />
+                  <PersonCard
+                    key={item.id}
+                    item={item}
+                    isFollowedByMe={Boolean(item.isFollowedByMe)}
+                  />
                 );
               })}
             </div>

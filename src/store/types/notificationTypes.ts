@@ -33,6 +33,7 @@ export interface NotificationMeta {
   totalPage: number;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
+  unreadCount?: number;
 }
 
 export interface NotificationListResponse {

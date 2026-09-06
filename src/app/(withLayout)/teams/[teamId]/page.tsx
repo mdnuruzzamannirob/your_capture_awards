@@ -16,6 +16,7 @@ import { useGetTeamMembersQuery, useGetTeamQuery, useJoinTeamMutation } from '@/
 import { showErrorToast } from '@/utils/team-feedback';
 import { getAvatarClass, getInitials, getMemberName } from '@/utils/team-utils';
 import { BadgeCheck, BarChartBig, Languages, MapPin, Medal, Trophy, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 function formatSkillLabel(value: string) {
   return value.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
@@ -124,6 +125,7 @@ export default function TeamDetailPage() {
   const router = useRouter();
   const teamId = params?.teamId as string | undefined;
   const { user } = useAuth();
+  const [memberPage, setMemberPage] = useState(1);
 
   const {
     data: apiResp,
@@ -136,7 +138,7 @@ export default function TeamDetailPage() {
     data: membersResp,
     isLoading: isMembersLoading,
     isError: isMembersError,
-  } = useGetTeamMembersQuery(teamId ?? '', {
+  } = useGetTeamMembersQuery({ teamId: teamId ?? '', page: memberPage, limit: 10 }, {
     skip: !teamId,
   });
 
@@ -159,6 +161,13 @@ export default function TeamDetailPage() {
     user?.joinedTeam?.team?.id === resolvedTeam?.id;
 
   const members = membersResp?.data ?? [];
+  const memberMeta = membersResp?.meta;
+
+  useEffect(() => {
+    if (memberMeta?.totalPage && memberPage > memberMeta.totalPage) {
+      setMemberPage(memberMeta.totalPage);
+    }
+  }, [memberMeta?.totalPage, memberPage]);
 
   const metrics = resolvedTeam
     ? [
@@ -212,7 +221,7 @@ export default function TeamDetailPage() {
 
   const rankedMembers = members.map((member, index) => ({
     ...member,
-    points: resolvedTeam.score - index * 123456,
+    points: resolvedTeam.score - ((memberPage - 1) * 10 + index) * 123456,
   }));
 
   return (
@@ -388,6 +397,17 @@ export default function TeamDetailPage() {
               </div>
             )}
           </div>
+          {memberMeta && memberMeta.totalPage > 1 && (
+            <div className="border-border flex items-center justify-between border-t px-5 py-4 sm:px-6">
+              <Button variant="outline" disabled={memberPage <= 1} onClick={() => setMemberPage((page) => page - 1)}>
+                Previous
+              </Button>
+              <span className="text-muted-foreground text-sm">Page {memberPage} of {memberMeta.totalPage}</span>
+              <Button variant="outline" disabled={memberPage >= memberMeta.totalPage} onClick={() => setMemberPage((page) => page + 1)}>
+                Next
+              </Button>
+            </div>
+          )}
         </section>
       </div>
     </main>

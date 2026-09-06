@@ -5,14 +5,18 @@ import CompletedContestCard from './CompletedContestCard';
 import OpenContestCardSkeleton from '../open/OpenContestCardSkeleton';
 import { useGetPrivateContestsQuery } from '@/store/apis/contestApi';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+// Stable reference so the accumulation effect below doesn't re-fire every render -
+// `?? []` would create a brand-new array each render, and since that's an effect
+// dependency, it caused an infinite render loop while `data` was still loading.
+const EMPTY_CONTESTS: any[] = [];
 
 const CompletedContest = () => {
   const [page, setPage] = useState(1);
   const [allContests, setAllContests] = useState<any[]>([]);
-  const initializedRef = useRef(false);
 
   const { data, isLoading, isFetching, isError, error, refetch } = useGetPrivateContestsQuery(
     {
@@ -23,27 +27,19 @@ const CompletedContest = () => {
     { refetchOnMountOrArgChange: 60 },
   );
 
-  const completedResult = (data as any)?.data ?? [];
+  const completedResult = (data as any)?.data ?? EMPTY_CONTESTS;
   const hasMore = Boolean((data as any)?.meta?.hasNextPage);
 
   // Accumulate contests as pages load
   useEffect(() => {
-    if (!completedResult.length) return;
-
-    if (!initializedRef.current) {
+    if (page === 1) {
       setAllContests(completedResult);
-      initializedRef.current = true;
       return;
     }
-
-    if (page > 1) {
-      setAllContests((prev) => {
-        const newContests = completedResult.filter(
-          (contest: any) => !prev.some((p) => p.id === contest.id),
-        );
-        return [...prev, ...newContests];
-      });
-    }
+    setAllContests((prev) => {
+      const existingIds = new Set(prev.map((contest) => contest.id));
+      return [...prev, ...completedResult.filter((contest: any) => !existingIds.has(contest.id))];
+    });
   }, [completedResult, page]);
 
   // Infinite scroll hook

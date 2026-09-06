@@ -8,7 +8,6 @@ import VoteModal, { VoteModalRef } from '@/components/VoteModal';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useGetContestQuery,
-  useGetJoinedContestQuery,
   useGetPublicContestQuery,
   useLazyGetContestRankPhotosQuery,
 } from '@/store/apis/contestApi';
@@ -31,13 +30,10 @@ const ContestDetails = ({ id }: { id: string }) => {
     ? privateContestQuery
     : publicContestQuery;
   // Same args as JoinedContest.tsx → shares RTK Query cache, no duplicate network call.
-  const { data: joinedContestData, isLoading: joinedLoading } = useGetJoinedContestQuery(
-    { page: 1, limit: 10 },
-    { skip: !isAuthenticated },
-  );
   const [rankPhotosTrigger] = useLazyGetContestRankPhotosQuery();
   const searchParams = useSearchParams();
   const modalParam = searchParams.get('modal');
+  const tabParam = searchParams.get('tab');
 
   // Avoid SSR/client hydration mismatch — joinedLoading differs between server and client.
   const [isMounted, setIsMounted] = useState(false);
@@ -50,16 +46,25 @@ const ContestDetails = ({ id }: { id: string }) => {
     typeof contest?.banner === 'string' && contest.banner.trim() ? contest.banner.trim() : null;
   const [failedBannerSrc, setFailedBannerSrc] = useState<string | null>(null);
 
-  // Find the joined entry for this specific contest to get accurate upload data.
-  const joinedEntry = joinedContestData?.data?.find((c: any) => c.id === id);
-  const isJoined = !!joinedEntry;
+  const isJoined = Boolean(contest?.joined);
 
   const maxUploads: number = contest?.maxUploads ?? contest?.maxUpload ?? 0;
-  const uploadedCount = joinedEntry?.uploadCount ?? joinedEntry?.photos?.length ?? 0;
+  const uploadedCount = contest?.uploadCount ?? 0;
   const remaining = Math.max(0, maxUploads - uploadedCount);
 
   const tabs = getContestTabs(contest?.status);
-  const [activeTab, setActiveTab] = useState(tabs?.[0]?.key);
+  const initialTab = tabs?.some((tab) => tab.key === tabParam) ? tabParam! : tabs?.[0]?.key;
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  // Deep-link support (e.g. a "Ranking" button linking to ?tab=rank) - only needs to
+  // react once tabs/contest status finish loading, since initial state above only
+  // fires on mount and contest.status may not be known yet at that point.
+  useEffect(() => {
+    if (tabParam && tabs?.some((tab) => tab.key === tabParam) && activeTab !== tabParam) {
+      setActiveTab(tabParam);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabParam, contest?.status]);
 
   const uploadModalRef = useRef<UploadModalRef>(null);
   const voteModalRef = useRef<VoteModalRef>(null);
@@ -134,7 +139,7 @@ const ContestDetails = ({ id }: { id: string }) => {
               />
 
               <div className="mt-5 flex items-center justify-center gap-5">
-                {!isMounted || joinedLoading ? (
+                {!isMounted || contestLoading ? (
                   buttonSkeleton
                 ) : (
                   <>
@@ -161,7 +166,7 @@ const ContestDetails = ({ id }: { id: string }) => {
                 )}
 
                 {/* Vote button */}
-                {isMounted && !joinedLoading && isJoined && (
+                {isMounted && !contestLoading && isJoined && (
                   <>
                     <button
                       onClick={() => voteModalRef.current?.open()}

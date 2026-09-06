@@ -371,7 +371,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
             contestId,
             photoId: targetPhotoId,
           }).unwrap();
-          toast.success(response.message || 'Photo charged successfully.');
+          toast.success(response.message || 'Photo promoted successfully.');
         } else {
           const payload: TradeContestPhotoPayload = {
             contestId,
@@ -414,7 +414,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
     };
 
     // ── Navigation helpers ────────────────────────────────────────────────
-    const actionLabel = actionType === 'boost' ? 'Charge' : 'Trade';
+    const actionLabel = actionType === 'boost' ? 'Promote' : 'Trade';
     const actionLoading = actionType === 'boost' ? isPromoting : isTrading;
     const actionIcon =
       actionType === 'boost' ? (
@@ -472,8 +472,8 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
     const dialogTitle =
       actionType === 'boost'
         ? step === 'selectContestPhoto'
-          ? 'Charge Contest Photo'
-          : 'Confirm Charge'
+          ? 'Promote Contest Photo'
+          : 'Confirm Promote'
         : step === 'chooseSwapSource'
           ? 'Trade Contest Photo'
           : step === 'selectTradeTarget'
@@ -536,7 +536,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                     onClick={handleSubmit}
                     className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm disabled:opacity-60"
                   >
-                    {isSubmitting || actionLoading ? 'Processing...' : 'Charge'}
+                    {isSubmitting || actionLoading ? 'Processing...' : 'Promote'}
                   </button>
                 </div>
               </div>
@@ -743,7 +743,8 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                     <div className="bg-surface-secondary flex flex-col items-center justify-center gap-3 rounded-xl p-4">
                       <AiOutlineThunderbolt className="text-primary size-10" />
                       <p className="text-muted-foreground text-center text-sm">
-                        This photo will be boosted to the top of the contest rankings.
+                        This photo will be promoted (boosted in visibility) for approximately 24
+                        hours.
                       </p>
                     </div>
                   ) : (

@@ -12,7 +12,7 @@ import { NotificationItem, NotificationType } from '@/store/types/notificationTy
 import { cn } from '@/utils/cn';
 import { formatDistanceToNow } from 'date-fns';
 import { Bell, BellOff, CheckCheck } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 const typeLabel: Record<NotificationType, string> = {
@@ -37,8 +37,10 @@ const formatRelative = (dateString: string) => {
 export default function NotificationModal() {
   const { token } = useAuth();
   const [open, setOpen] = useState(false);
-  const { data, isLoading } = useGetUserNotificationsQuery(
-    { page: 1, limit: 10 },
+  const [page, setPage] = useState(1);
+  const [notificationItems, setNotificationItems] = useState<NotificationItem[]>([]);
+  const { data, isLoading, isFetching } = useGetUserNotificationsQuery(
+    { page, limit: 10 },
     { skip: !token },
   );
   const [markAllRead, { isLoading: isMarking }] = useMarkAllNotificationsReadMutation();
@@ -51,16 +53,38 @@ export default function NotificationModal() {
   >({});
   const isHandlingInvitation = isAcceptingInvitation || isRejectingInvitation;
 
-  const notifications = data?.data.notifications ?? [];
-  const unreadCount = useMemo(
+  const notifications = notificationItems;
+  const loadedUnreadCount = useMemo(
     () => notifications.filter((notification) => !notification.isRead).length,
     [notifications],
   );
+  const unreadCount = data?.data.meta.unreadCount ?? loadedUnreadCount;
+  const hasMore = data?.data.meta.hasNextPage ?? false;
+
+  useEffect(() => {
+    setPage(1);
+    setNotificationItems([]);
+  }, [token]);
+
+  useEffect(() => {
+    const incoming = data?.data.notifications;
+    if (!incoming) return;
+
+    setNotificationItems((current) => {
+      if (page === 1) return incoming;
+      const map = new Map(current.map((notification) => [notification.id, notification]));
+      incoming.forEach((notification) => map.set(notification.id, notification));
+      return Array.from(map.values());
+    });
+  }, [data?.data.notifications, page]);
 
   const handleMarkAllRead = async () => {
     if (!unreadCount) return;
     try {
       await markAllRead().unwrap();
+      setNotificationItems((current) =>
+        current.map((notification) => ({ ...notification, isRead: true })),
+      );
       toast.success('All notifications marked as read');
     } catch {
       toast.error('Failed to mark notifications as read');
@@ -72,6 +96,9 @@ export default function NotificationModal() {
 
     try {
       await markNotificationRead(notification.id).unwrap();
+      setNotificationItems((current) =>
+        current.map((item) => (item.id === notification.id ? { ...item, isRead: true } : item)),
+      );
     } catch {
       toast.error('Failed to mark notification as read');
     }
@@ -242,6 +269,16 @@ export default function NotificationModal() {
               <BellOff className="text-muted-foreground mx-auto mb-3 size-6" />
               No new notifications.
             </div>
+          )}
+          {hasMore && (
+            <button
+              type="button"
+              disabled={isFetching}
+              onClick={() => setPage((current) => current + 1)}
+              className="border-border text-primary hover:bg-surface-secondary w-full rounded-md border px-3 py-2 text-sm disabled:opacity-60"
+            >
+              {isFetching ? 'Loading...' : 'Load more'}
+            </button>
           )}
         </div>
       </PopoverContent>

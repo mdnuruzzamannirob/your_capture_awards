@@ -30,7 +30,7 @@ import { Accessibility, Role, TeamMember } from '@/types/team';
 import { showErrorToast } from '@/utils/team-feedback';
 import { getMemberName } from '@/utils/team-utils';
 import { useRouter } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 type JoinRequestViewModel = {
@@ -53,15 +53,25 @@ export default function TeamPage() {
 
   const { data: teamData, isLoading: isTeamLoading, isError: isTeamError } = useGetMyTeamQuery();
   const team = teamData?.data?.team;
+  const allTeamMembers = teamData?.data?.members ?? [];
+  const membership = allTeamMembers.find((member) => member.memberId === currentUserId);
+  const isLeader = membership?.level === 'LEADER';
+  const isMod = membership?.level === 'LEADER' || membership?.level === 'MODERATOR';
+  const [memberPage, setMemberPage] = useState(1);
+  const [requestPage, setRequestPage] = useState(1);
   const {
     data: membersData,
     isLoading: isMembersLoading,
     isError: isMembersError,
-  } = useGetTeamMembersQuery(team?.id || '', {
+  } = useGetTeamMembersQuery({ teamId: team?.id || '', page: memberPage, limit: 10 }, {
     skip: !team?.id,
   });
-  const { data: requestsData } = useGetPendingRequestsQuery(teamData?.data?.team?.id || '', {
-    skip: !teamData?.data?.team?.id,
+  const { data: requestsData } = useGetPendingRequestsQuery({
+    teamId: team?.id || '',
+    page: requestPage,
+    limit: 10,
+  }, {
+    skip: !team?.id || !isMod,
   });
 
   const [approveRequest] = useApproveJoinRequestMutation();
@@ -86,18 +96,25 @@ export default function TeamPage() {
 
   const members: TeamMember[] = membersData?.data || [];
   const requests = (requestsData?.data || []) as JoinRequestViewModel[];
-  const hasInviteSlots = team ? members.length < team.member_slots : false;
-
-  const me = useMemo(
-    () => members.find((m: TeamMember) => m.memberId === currentUserId),
-    [members, currentUserId],
-  );
-  const isLeader = me?.level === 'LEADER';
-  const isMod = me?.level === 'LEADER' || me?.level === 'MODERATOR';
+  const memberMeta = membersData?.meta;
+  const requestMeta = requestsData?.meta;
+  const hasInviteSlots = team ? (teamData?.data?.memberCount ?? 0) < team.member_slots : false;
   const leaveCandidates = useMemo(
-    () => members.filter((member: TeamMember) => member.memberId !== currentUserId),
-    [members, currentUserId],
+    () => allTeamMembers.filter((member: TeamMember) => member.memberId !== currentUserId),
+    [allTeamMembers, currentUserId],
   );
+
+  useEffect(() => {
+    if (memberMeta?.totalPage && memberPage > memberMeta.totalPage) {
+      setMemberPage(memberMeta.totalPage);
+    }
+  }, [memberMeta?.totalPage, memberPage]);
+
+  useEffect(() => {
+    if (requestMeta?.totalPage && requestPage > requestMeta.totalPage) {
+      setRequestPage(requestMeta.totalPage);
+    }
+  }, [requestMeta?.totalPage, requestPage]);
 
   const handleAcceptRequest = useCallback(
     async (req: { id: string }) => {
@@ -326,6 +343,10 @@ export default function TeamPage() {
           }))}
           onAccept={handleAcceptRequest}
           onDecline={handleDeclineRequest}
+          page={requestPage}
+          total={requestMeta?.total ?? requests.length}
+          totalPage={requestMeta?.totalPage ?? 1}
+          onPageChange={setRequestPage}
         />
       )}
 
@@ -338,6 +359,10 @@ export default function TeamPage() {
         onRemove={setRemoveTarget}
         canInvite={hasInviteSlots}
         onInvite={handleOpenInvite}
+        page={memberPage}
+        total={memberMeta?.total ?? members.length}
+        totalPage={memberMeta?.totalPage ?? 1}
+        onPageChange={setMemberPage}
       />
 
       <EditTeamModal
@@ -351,7 +376,7 @@ export default function TeamPage() {
         open={inviteOpen}
         onClose={() => setInviteOpen(false)}
         teamId={team.id}
-        members={members}
+        members={allTeamMembers}
         hasSlots={hasInviteSlots}
       />
 

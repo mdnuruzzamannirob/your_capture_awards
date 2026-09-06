@@ -132,10 +132,14 @@ export const teamApi = createApi({
     }),
 
     // ── Get Team Members ──────────────────────────────────────────────────
-    getTeamMembers: builder.query<GetTeamMembersResponse, string>({
-      query: (teamId) => ({
+    getTeamMembers: builder.query<
+      GetTeamMembersResponse,
+      { teamId: string; page?: number; limit?: number }
+    >({
+      query: ({ teamId, page = 1, limit = 10 }) => ({
         url: `/teams/members/${teamId}`,
         method: 'GET',
+        params: { page, limit },
       }),
       providesTags: ['TeamMembers'],
     }),
@@ -355,10 +359,14 @@ export const teamApi = createApi({
     }),
 
     // ── Get Pending Join Requests ─────────────────────────────────────────
-    getPendingRequests: builder.query<GetPendingRequestsResponse, string>({
-      query: (teamId) => ({
+    getPendingRequests: builder.query<
+      GetPendingRequestsResponse,
+      { teamId: string; page?: number; limit?: number }
+    >({
+      query: ({ teamId, page = 1, limit = 10 }) => ({
         url: `/teams/request/pending/${teamId}`,
         method: 'GET',
+        params: { page, limit },
       }),
       providesTags: ['JoinRequests'],
     }),

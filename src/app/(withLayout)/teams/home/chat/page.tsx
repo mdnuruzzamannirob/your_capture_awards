@@ -258,6 +258,8 @@ export default function TeamChatPage() {
 
   const loadTeamMessages = useCallback(
     (socket: Socket, currentTeamId: string, targetPage = 1, appendOlder = false) => {
+      if (appendOlder && isPrependingOlderRef.current) return;
+
       if (appendOlder) {
         setIsLoadingOlder(true);
         isPrependingOlderRef.current = true;
@@ -274,6 +276,8 @@ export default function TeamChatPage() {
           if (!response?.success) {
             toast.error(response?.message || 'Failed to load team messages');
             setIsLoadingOlder(false);
+            isPrependingOlderRef.current = false;
+            olderScrollStateRef.current = null;
             return;
           }
 
@@ -325,7 +329,14 @@ export default function TeamChatPage() {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    if (container.scrollTop < 24 && socket && teamId && hasMoreOlder && !isLoadingOlder) {
+    if (
+      container.scrollTop < 24 &&
+      socket &&
+      teamId &&
+      hasMoreOlder &&
+      !isLoadingOlder &&
+      !isPrependingOlderRef.current
+    ) {
       void loadTeamMessages(socket, teamId, page + 1, true);
     }
 

@@ -18,6 +18,11 @@ import ContestActionModal, { ContestActionModalRef } from './ContestActionModal'
 import JoinedContestCard from './JoinedContestCard';
 import JoinedContestCardSkeleton from './JoinedContestCardSkeleton';
 
+// Stable reference so the accumulation effect below doesn't re-fire every render -
+// `?? []` would create a brand-new array each render, and since that's an effect
+// dependency, it caused an infinite render loop while `data` was still loading.
+const EMPTY_CONTESTS: any[] = [];
+
 const JoinedContest = () => {
   const searchParams = useSearchParams();
   const joinSuccess = searchParams.get('modal');
@@ -31,7 +36,6 @@ const JoinedContest = () => {
   const [uploadModal, setUploadModal] = useState(false);
   const [page, setPage] = useState(1);
   const [allContests, setAllContests] = useState<any[]>([]);
-  const initializedRef = useRef(false);
   const actionModalRef = useRef<ContestActionModalRef>(null);
 
   // Set mounted on client
@@ -71,34 +75,19 @@ const JoinedContest = () => {
   const firstActiveContest = (data as any)?.data?.find(
     (c: any) => c.status === 'ACTIVE' || !c.status,
   );
-  const joinedResult = (data as any)?.data ?? [];
+  const joinedResult = (data as any)?.data ?? EMPTY_CONTESTS;
   const hasMore = Boolean((data as any)?.meta?.hasNextPage);
   const voteContestId = (firstActiveContest?.id as string | undefined) ?? contestId ?? '';
 
   useEffect(() => {
-    if (!joinedResult.length) return;
-
-    if (!initializedRef.current) {
+    if (page === 1) {
       setAllContests(joinedResult);
-      initializedRef.current = true;
       return;
     }
-
-    if (page === 1) {
-      setAllContests((prev) => {
-        const updatedMap = new Map(joinedResult.map((item: any) => [item.id, item]));
-        const merged = prev.map((item) => updatedMap.get(item.id) ?? item);
-        const existingIds = new Set(prev.map((item) => item.id));
-        const newOnes = joinedResult.filter((item: any) => !existingIds.has(item.id));
-        return [...newOnes, ...merged];
-      });
-    } else {
-      setAllContests((prev) => {
-        const existingIds = new Set(prev.map((item) => item.id));
-        const newContests = joinedResult.filter((item: any) => !existingIds.has(item.id));
-        return [...prev, ...newContests];
-      });
-    }
+    setAllContests((prev) => {
+      const existingIds = new Set(prev.map((contest) => contest.id));
+      return [...prev, ...joinedResult.filter((contest: any) => !existingIds.has(contest.id))];
+    });
   }, [joinedResult, page]);
 
   const { loadMoreRef } = useInfiniteScroll({
@@ -231,7 +220,7 @@ const JoinedContest = () => {
                 onClick={handleChargeClick}
                 className="text-primary border-primary rounded-sm border px-5 py-2 text-sm"
               >
-                Charge
+                Promote
               </button>
               <button
                 onClick={handleVoteClick}

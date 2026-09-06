@@ -5,6 +5,14 @@ import { Photo, ProfileAchievementsResponse, Stats } from '../types/profileTypes
 
 type PhotosResponse = {
   data: Photo[] | { photos?: Photo[] };
+  meta?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPage: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
 };
 
 export const profileApi = createApi({
@@ -29,17 +37,22 @@ export const profileApi = createApi({
       invalidatesTags: ['Photos', 'Stats'],
     }),
 
-    getPhotos: builder.query<PhotosResponse, void>({
-      query: () => '/profiles/photos',
+    getPhotos: builder.query<PhotosResponse, { page?: number; limit?: number } | void>({
+      query: (params) => {
+        const { page = 1, limit = 20 } = params ?? {};
+        return `/profiles/photos?page=${page}&limit=${limit}`;
+      },
       providesTags: ['Photos'],
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const {
             data: { data },
           } = await queryFulfilled;
 
-          const photos = Array.isArray(data) ? data : (data.photos ?? []);
-          dispatch(setPhotos(photos));
+          if ((params?.page ?? 1) === 1) {
+            const photos = Array.isArray(data) ? data : (data.photos ?? []);
+            dispatch(setPhotos(photos));
+          }
         } catch {}
       },
     }),

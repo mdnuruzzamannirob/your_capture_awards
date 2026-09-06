@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { PhotoCard, TabErrorState, TabSectionHeader } from './public-tab-ui';
 
 import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
@@ -14,6 +14,9 @@ type Props = {
   photos?: any[];
   isLoading?: boolean;
   userId?: string;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
 };
 
 const PhotosTabContent = ({
@@ -23,13 +26,27 @@ const PhotosTabContent = ({
   photos: initialPhotos = [],
   isLoading = false,
   userId,
+  hasMore = false,
+  isLoadingMore = false,
+  onLoadMore,
 }: Props) => {
   const [error, setError] = useState<string | null>(null);
   const [photoFilter, setPhotoFilter] = useState('like');
 
-  const photoOptions = ['like', 'view', 'vote'];
+  const photoOptions = ['like', 'view', 'vote'] as const;
+  const filterSortKey: Record<(typeof photoOptions)[number], string> = {
+    like: 'likes',
+    view: 'views',
+    vote: 'totalVotes',
+  };
 
-  const photosList = initialPhotos;
+  // Photos already carry likes/views/totalVotes from the backend - the dropdown just
+  // needs to actually sort by whichever one is selected, most first.
+  const photosList = useMemo(() => {
+    const key = filterSortKey[photoFilter as (typeof photoOptions)[number]] ?? 'likes';
+    return [...initialPhotos].sort((a, b) => (Number(b?.[key]) || 0) - (Number(a?.[key]) || 0));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialPhotos, photoFilter]);
   const isPhotosLoading = isLoading;
 
   const gridItems = isOwn
@@ -131,6 +148,18 @@ const PhotosTabContent = ({
           ))}
         </div>
       ) : null}
+      {hasMore && onLoadMore && (
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            onClick={onLoadMore}
+            disabled={isLoadingMore}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-6 py-2.5 text-sm font-semibold disabled:opacity-60"
+          >
+            {isLoadingMore ? 'Loading...' : 'Load more photos'}
+          </button>
+        </div>
+      )}
     </section>
   );
 };

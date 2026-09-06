@@ -123,15 +123,18 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
 
   // Local comments state — populated from RTK cache or fresh fetch
   const [comments, setComments] = useState<Comment[]>([]);
+  const [commentPage, setCommentPage] = useState(1);
+  const [commentsHasMore, setCommentsHasMore] = useState(false);
+  const [commentTotal, setCommentTotal] = useState(0);
+  const [isLoadingMoreComments, setIsLoadingMoreComments] = useState(false);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
-  const loadComments = async (photoId: string): Promise<Comment[]> => {
+  const loadComments = async (photoId: string, page = 1) => {
     try {
       // preferCacheValue: true — returns cached data immediately if available
-      const result = await fetchComments(photoId, true).unwrap();
-      return (result.data as Comment[]) || [];
+      return await fetchComments({ photoId, page, limit: 10 }, true).unwrap();
     } catch {
-      return [];
+      return null;
     }
   };
 
@@ -149,6 +152,16 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
       setLiked(cached.liked);
       setOwnerIsFollowed(cached.ownerIsFollowed);
       setComments(cached.comments);
+      setCommentPage(1);
+      setCommentsHasMore(false);
+      setCommentTotal(cached.comments.length);
+      const commentsResult = await loadComments(photoId);
+      if (commentsResult) {
+        setComments((commentsResult.data as Comment[]) || []);
+        setCommentPage(1);
+        setCommentsHasMore(commentsResult.meta?.hasNextPage ?? false);
+        setCommentTotal(commentsResult.meta?.total ?? commentsResult.data.length);
+      }
       return;
     }
 
@@ -189,7 +202,8 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
       }
 
       // Fetch comments via RTK Query (uses cache automatically on revisit)
-      const commentsList = await loadComments(photoId);
+      const commentsResult = await loadComments(photoId);
+      const commentsList = (commentsResult?.data as Comment[]) || [];
 
       setPhoto(photoData);
       setProfileOwner(photoOwner);
@@ -198,6 +212,9 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
       console.debug('PublicPhotoPage setLiked', isLikedFromApi, 'photoId', photoId);
       setOwnerIsFollowed(isFollowedFromApi);
       setComments(commentsList);
+      setCommentPage(1);
+      setCommentsHasMore(commentsResult?.meta?.hasNextPage ?? false);
+      setCommentTotal(commentsResult?.meta?.total ?? commentsList.length);
 
       // Save to local cache
       setPhotoCache((prev) => ({
@@ -376,14 +393,43 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
   // ── Comment handlers (all via RTK Query) ───────────────────────────────────
   const refreshComments = async () => {
     // Force fresh fetch and update local state + cache
-    const result = await fetchComments(currentPhotoId).unwrap();
+    const result = await fetchComments({ photoId: currentPhotoId, page: 1, limit: 10 }).unwrap();
     const updated = (result.data as unknown as Comment[]) || [];
     setComments(updated);
+    setCommentPage(1);
+    setCommentsHasMore(result.meta?.hasNextPage ?? false);
+    setCommentTotal(result.meta?.total ?? updated.length);
     setPhotoCache((old) => {
       if (!old[currentPhotoId]) return old;
       return { ...old, [currentPhotoId]: { ...old[currentPhotoId], comments: updated } };
     });
     return updated;
+  };
+
+  const handleLoadMoreComments = async () => {
+    if (!commentsHasMore || isLoadingMoreComments) return;
+
+    setIsLoadingMoreComments(true);
+    try {
+      const nextPage = commentPage + 1;
+      const result = await fetchComments({
+        photoId: currentPhotoId,
+        page: nextPage,
+        limit: 10,
+      }).unwrap();
+      const incoming = (result.data as Comment[]) || [];
+      setComments((current) => {
+        const ids = new Set(current.map((comment) => comment.id));
+        return [...current, ...incoming.filter((comment) => !ids.has(comment.id))];
+      });
+      setCommentPage(nextPage);
+      setCommentsHasMore(result.meta?.hasNextPage ?? false);
+      setCommentTotal(result.meta?.total ?? 0);
+    } catch {
+      toast.error('Could not load more comments.');
+    } finally {
+      setIsLoadingMoreComments(false);
+    }
   };
 
   const handleAddComment = async (text: string, parentId?: string) => {
@@ -497,6 +543,10 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
               onDeleteComment={handleDeleteComment}
               onEditComment={handleUpdateComment}
               isLoading={isCommentBusy}
+              hasMore={commentsHasMore}
+              isLoadingMore={isLoadingMoreComments}
+              onLoadMore={handleLoadMoreComments}
+              total={commentTotal}
             />
           </div>
         </aside>

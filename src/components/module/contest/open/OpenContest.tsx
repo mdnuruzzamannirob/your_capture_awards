@@ -14,10 +14,14 @@ interface OpenContestProps {
   isAuthenticated?: boolean;
 }
 
+// Stable reference so the accumulation effect below doesn't re-fire every render -
+// `?? []` would create a brand-new array each render, and since that's an effect
+// dependency, it caused an infinite render loop while `data` was still loading.
+const EMPTY_CONTESTS: any[] = [];
+
 const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenContestProps) => {
   const [page, setPage] = useState(1);
   const [allContests, setAllContests] = useState<any[]>([]);
-  const initializedRef = useRef(false);
 
   // Use client-side auth as source of truth (synchronous, no hydration delay)
   const { isAuthenticated: clientIsAuthenticated } = useAuth();
@@ -25,6 +29,7 @@ const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenConte
   // Use client auth; during SSR hydration, prop value is used as fallback
   const isAuthenticated =
     clientIsAuthenticated !== null ? clientIsAuthenticated : propIsAuthenticated;
+  const sourceRef = useRef(isAuthenticated);
   // Use private API if authenticated, public API otherwise
   const publicQuery = useGetPublicContestsQuery(
     { status: 'ACTIVE', page, limit: 10 },
@@ -38,28 +43,27 @@ const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenConte
   const { data, isLoading, refetch, isFetching, isError, error } = isAuthenticated
     ? privateQuery
     : publicQuery;
-  const openResult = (data as any)?.data ?? [];
+  const openResult = (data as any)?.data ?? EMPTY_CONTESTS;
   const hasMore = Boolean((data as any)?.meta?.hasNextPage);
 
   // Accumulate contests as pages load
   useEffect(() => {
-    if (!openResult.length) return;
-
-    if (!initializedRef.current) {
+    if (sourceRef.current !== isAuthenticated) {
+      sourceRef.current = isAuthenticated;
+      setPage(1);
+      setAllContests([]);
+      return;
+    }
+    if (page === 1) {
       setAllContests(openResult);
-      initializedRef.current = true;
       return;
     }
 
-    if (page > 1) {
-      setAllContests((prev) => {
-        const newContests = openResult.filter(
-          (contest: any) => !prev.some((p) => p.id === contest.id),
-        );
-        return [...prev, ...newContests];
-      });
-    }
-  }, [openResult, page]);
+    setAllContests((prev) => {
+      const existingIds = new Set(prev.map((contest) => contest.id));
+      return [...prev, ...openResult.filter((contest: any) => !existingIds.has(contest.id))];
+    });
+  }, [isAuthenticated, openResult, page]);
 
   // Infinite scroll hook
   const { loadMoreRef } = useInfiniteScroll({

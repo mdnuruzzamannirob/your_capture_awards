@@ -14,7 +14,10 @@ import { useGetUserProgressQuery, type UserProgress } from '@/store/apis/levelsA
 
 import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
 import { resolveImageUrl } from '@/utils/resolveImageUrl';
+import { Flag } from 'lucide-react';
 import { toast } from 'sonner';
+
+import ReportUserModal, { type ReportUserModalRef } from '@/components/ReportUserModal';
 
 export interface VoteModalRef {
   open: () => void;
@@ -77,6 +80,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
   const [photos, setPhotos] = useState<ContestPhoto[]>([]);
   const [page, setPage] = useState<number>(1);
   const [hasNextPage, setHasNextPage] = useState<boolean>(true);
+  const seedRef = useRef<string | undefined>(undefined);
   // isLoading from the lazy query only reflects the *first-ever* fetch for
   // this hook instance — on re-open we clear `photos` and force a refetch,
   // but isLoading stays false, so the empty-state briefly flashes before the
@@ -84,6 +88,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
   const [initialLoading, setInitialLoading] = useState<boolean>(false);
 
   const observerRef = useRef<HTMLDivElement | null>(null);
+  const reportModalRef = useRef<ReportUserModalRef>(null);
 
   const [trigger, { isFetching }] = useLazyGetContestPhotosQuery();
   const [voteUpload, { isLoading: voteLoading }] = useCreateVoteMutation();
@@ -102,12 +107,14 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
     async (targetPage: number, reset = false) => {
       try {
         const res = await trigger(
-          { id, page: targetPage, limit: LIMIT },
+          { id, page: targetPage, limit: LIMIT, seed: reset ? undefined : seedRef.current },
           // Backend randomizes the response on every call, so always force a
           // fresh network request — serving the RTK Query cache here would
           // keep replaying whatever order was first fetched.
           false,
         ).unwrap();
+
+        if (res?.meta?.seed) seedRef.current = res.meta.seed;
 
         const incomingPhotos = (res?.data || [])
           .map((photo) => ({
@@ -142,6 +149,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
       setSelectedIds([]);
       setPage(1);
       setHasNextPage(true);
+      seedRef.current = undefined;
 
       // If we already have cached photos for page 1, show them immediately
       // (photos state keeps the previous session; reset them first so the
@@ -285,12 +293,27 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
                               </div>
                             )}
                           </button>
+
+                          <button
+                            type="button"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              reportModalRef.current?.open(img.id);
+                            }}
+                            title="Report user"
+                            aria-label="Report user"
+                            className="bg-overlay text-foreground hover:bg-background/70 absolute top-1.5 right-1.5 flex size-6 items-center justify-center rounded-full opacity-0 transition group-hover:opacity-100"
+                          >
+                            <Flag className="size-3.5" />
+                          </button>
                         </div>
                       );
                     })}
                   </div>
                 ))}
               </div>
+
+              <ReportUserModal ref={reportModalRef} />
 
               {isFetching && (
                 <div className="flex flex-wrap gap-0.5 p-0.5">
