@@ -24,12 +24,20 @@ const prizeIcon = (prize: any) => {
   return Trophy;
 };
 
+// Top 10/20/50/100/200 (Photos/Photographers) are ranking badges only - the
+// contest doesn't actually attach a reward to them, so showing them in the
+// Prizes tab alongside real rewards (Top Photo, Top Photographer, etc.) is
+// misleading. Only the un-numbered TOP_PHOTO/TOP_PHOTOGRAPHER awards remain.
+const isTierRankingPrize = (prize: any) => /^TOP_\d+_/.test(prize?.category ?? '');
+
 const PrizesTab = ({ contest, value }: { contest: any; value: string }) => {
+  const visiblePrizes = (contest?.prizes ?? [])
+    .filter((prize: any) => prize?.enabled !== false && !isTierRankingPrize(prize))
+    .sort((a: any, b: any) => (a?.order ?? 0) - (b?.order ?? 0));
+
   return (
     <TabsContent value={value} className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-5 sm:grid-cols-2">
-      {(contest?.prizes ?? [])
-        .filter((prize: any) => prize?.enabled !== false)
-        .sort((a: any, b: any) => (a?.order ?? 0) - (b?.order ?? 0))
+      {visiblePrizes
         .map((prize: any) => {
           const Icon = prizeIcon(prize);
           const stats = [
@@ -64,7 +72,7 @@ const PrizesTab = ({ contest, value }: { contest: any; value: string }) => {
             </article>
           );
         })}
-      {!contest?.prizes?.length && (
+      {!visiblePrizes.length && (
         <p className="text-muted-foreground col-span-full py-12 text-center">No prizes have been added for this contest.</p>
       )}
     </TabsContent>
