@@ -291,13 +291,13 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
 
       // 2. File size validation
       const minSize = 500 * 1024; // 500 KB
-      const maxSize = 10 * 1024 * 1024; // 10 MB
+      const maxSize = 25 * 1024 * 1024; // 25 MB
       if (imgFile.size < minSize) {
         toast.error('File size too small. Minimum size required is 500 KB.');
         return;
       }
       if (imgFile.size > maxSize) {
-        toast.error('File size too large. Maximum size allowed is 10 MB.');
+        toast.error('File size too large. Maximum size allowed is 25 MB.');
         return;
       }
 
