@@ -17,8 +17,17 @@ export interface NotificationItem {
   type: NotificationType;
   isRead: boolean;
   data?: {
+    event?: string;
     code?: string;
     teamId?: string;
+    teamName?: string;
+    contestId?: string;
+    contestTitle?: string;
+    contestName?: string;
+    contestPhotoId?: string;
+    voterId?: string;
+    voterName?: string;
+    totalVotes?: number;
     joinRequestId?: string;
     invitationStatus?: 'accepted' | 'rejected';
     [key: string]: unknown;

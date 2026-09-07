@@ -182,6 +182,25 @@ export const contestApi = createApi({
       },
     ),
 
+    // photos this user has previously traded out of this contest and can bring
+    // back in with their banked vote count resumed instead of starting at zero
+    getTradeableHistory: builder.query<
+      {
+        data: {
+          tradeRecordId: string;
+          photoId: string;
+          url: string;
+          title?: string | null;
+          frozenVoteCount: number;
+          tradedOutAt: string;
+        }[];
+      },
+      { id: string }
+    >({
+      query: ({ id }) => `/contests/${id}/tradeable-history`,
+      providesTags: (result, error, { id }) => [{ type: 'UserPhotos', id }],
+    }),
+
     // get contest rank photos
     getContestRankPhotos: builder.query<
       { data: any[]; meta: PaginationMeta },
@@ -351,6 +370,7 @@ export const {
   useLazyGetContestPhotosQuery,
   useLazyGetUserPhotosQuery,
   useGetUserPhotosQuery,
+  useLazyGetTradeableHistoryQuery,
   useGetContestRankPhotosQuery,
   useLazyGetContestRankPhotosQuery,
   useGetContestRankPhotographersQuery,

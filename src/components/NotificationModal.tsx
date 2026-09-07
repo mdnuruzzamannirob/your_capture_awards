@@ -1,5 +1,6 @@
 'use client';
 
+import NotificationMessage from '@/components/NotificationMessage';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -10,8 +11,10 @@ import {
 import { useJoinByInvitationMutation, useRejectInvitationMutation } from '@/store/apis/teamApi';
 import { NotificationItem, NotificationType } from '@/store/types/notificationTypes';
 import { cn } from '@/utils/cn';
+import { getNotificationHref } from '@/utils/notification-links';
 import { formatDistanceToNow } from 'date-fns';
 import { Bell, BellOff, CheckCheck } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -36,6 +39,7 @@ const formatRelative = (dateString: string) => {
 
 export default function NotificationModal() {
   const { token } = useAuth();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [notificationItems, setNotificationItems] = useState<NotificationItem[]>([]);
@@ -92,15 +96,21 @@ export default function NotificationModal() {
   };
 
   const handleNotificationClick = async (notification: NotificationItem) => {
-    if (notification.isRead) return;
+    if (!notification.isRead) {
+      try {
+        await markNotificationRead(notification.id).unwrap();
+        setNotificationItems((current) =>
+          current.map((item) => (item.id === notification.id ? { ...item, isRead: true } : item)),
+        );
+      } catch {
+        toast.error('Failed to mark notification as read');
+      }
+    }
 
-    try {
-      await markNotificationRead(notification.id).unwrap();
-      setNotificationItems((current) =>
-        current.map((item) => (item.id === notification.id ? { ...item, isRead: true } : item)),
-      );
-    } catch {
-      toast.error('Failed to mark notification as read');
+    const href = getNotificationHref(notification);
+    if (href) {
+      setOpen(false);
+      router.push(href);
     }
   };
 
@@ -184,22 +194,25 @@ export default function NotificationModal() {
           {isLoading ? (
             <div className="text-muted-foreground p-4 text-center text-sm">Loading...</div>
           ) : notifications.length > 0 ? (
-            notifications.map((notification: NotificationItem) => (
+            notifications.map((notification: NotificationItem) => {
+              const href = getNotificationHref(notification);
+              const isClickable = Boolean(href) || !notification.isRead;
+
+              return (
               <div
                 key={notification.id}
-                role={notification.isRead ? undefined : 'button'}
-                tabIndex={notification.isRead ? undefined : 0}
-                onClick={() => void handleNotificationClick(notification)}
+                role={isClickable ? 'button' : undefined}
+                tabIndex={isClickable ? 0 : undefined}
+                onClick={isClickable ? () => void handleNotificationClick(notification) : undefined}
                 onKeyDown={(event) => {
-                  if (notification.isRead || (event.key !== 'Enter' && event.key !== ' ')) return;
+                  if (!isClickable || (event.key !== 'Enter' && event.key !== ' ')) return;
                   event.preventDefault();
                   void handleNotificationClick(notification);
                 }}
                 className={cn(
                   'relative flex items-start gap-3 rounded-xl border p-3 transition',
-                  notification.isRead
-                    ? 'border-border bg-background'
-                    : 'border-primary/20 bg-primary/5 cursor-pointer',
+                  notification.isRead ? 'border-border bg-background' : 'border-primary/20 bg-primary/5',
+                  isClickable && 'cursor-pointer',
                 )}
               >
                 <div
@@ -217,7 +230,7 @@ export default function NotificationModal() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold">{notification.title}</p>
-                      <p className="text-muted-foreground mt-0.5 text-xs">{notification.message}</p>
+                      <NotificationMessage notification={notification} />
                     </div>
                     {!notification.isRead && (
                       <span className="bg-primary mt-1 size-2 shrink-0 rounded-full" />
@@ -241,7 +254,10 @@ export default function NotificationModal() {
                             type="button"
                             className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-8 items-center justify-center rounded-md px-3 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
                             disabled={isHandlingInvitation}
-                            onClick={() => handleAcceptInvitation(notification)}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleAcceptInvitation(notification);
+                            }}
                           >
                             {activeInvitationId === notification.id && isAcceptingInvitation
                               ? 'Accepting...'
@@ -251,7 +267,10 @@ export default function NotificationModal() {
                             type="button"
                             className="border-border bg-background hover:bg-accent inline-flex h-8 items-center justify-center rounded-md border px-3 text-xs font-medium transition"
                             disabled={isHandlingInvitation}
-                            onClick={() => handleRejectInvitation(notification)}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleRejectInvitation(notification);
+                            }}
                           >
                             {activeInvitationId === notification.id && isRejectingInvitation
                               ? 'Rejecting...'
@@ -263,7 +282,8 @@ export default function NotificationModal() {
                   )}
                 </div>
               </div>
-            ))
+              );
+            })
           ) : (
             <div className="border-border bg-surface-secondary text-muted-foreground rounded-2xl border p-6 text-center text-sm">
               <BellOff className="text-muted-foreground mx-auto mb-3 size-6" />
