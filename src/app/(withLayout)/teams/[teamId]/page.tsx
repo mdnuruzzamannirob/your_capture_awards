@@ -407,9 +407,9 @@ export default function TeamDetailPage() {
 
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold sm:text-base">{name}</p>
-                        <p className="text-muted-foreground text-xs">
-                          {member.member.location ?? 'Unknown location'}
-                        </p>
+                        {member.member.location && (
+                          <p className="text-muted-foreground text-xs">{member.member.location}</p>
+                        )}
                       </div>
                     </div>
 

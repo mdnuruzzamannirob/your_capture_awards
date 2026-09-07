@@ -63,10 +63,14 @@ const ProfileHeader = () => {
               </button>
             </h1>
             <div className="flex items-center gap-5 text-xs sm:text-sm">
-              <p className="flex items-center gap-2">
-                <FaRegFlag className="size-4" /> {user?.location || 'N/A'}
-              </p>{' '}
-              |
+              {user?.location && (
+                <>
+                  <p className="flex items-center gap-2">
+                    <FaRegFlag className="size-4" /> {user.location}
+                  </p>
+                  |
+                </>
+              )}
               <p className="flex items-center gap-2">
                 <MdOutlineHowToVote className="size-5" /> Total Votes
               </p>

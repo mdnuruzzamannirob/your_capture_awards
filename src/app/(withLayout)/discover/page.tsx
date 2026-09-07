@@ -123,7 +123,7 @@ export default function DiscoverPage() {
                   ? user.fullName || `${user.firstName} ${user.lastName}`.trim()
                   : 'Anonymous';
                 const avatar = user?.avatar;
-                const location = user?.location || 'Unknown Location';
+                const location = user?.location;
 
                 return (
                   <div
@@ -154,10 +154,12 @@ export default function DiscoverPage() {
                         <p className="text-primary-foreground truncate text-sm font-semibold drop-shadow">
                           {name}
                         </p>
-                        <div className="text-muted-foreground flex items-center gap-1 text-xs">
-                          <MapPin className="size-3" />
-                          <span className="truncate drop-shadow">{location}</span>
-                        </div>
+                        {location && (
+                          <div className="text-muted-foreground flex items-center gap-1 text-xs">
+                            <MapPin className="size-3" />
+                            <span className="truncate drop-shadow">{location}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
