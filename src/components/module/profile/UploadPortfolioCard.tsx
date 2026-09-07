@@ -46,15 +46,15 @@ export default function UploadPortfolioCard() {
       return;
     }
 
-    // 2. File size (100 KB – 10 MB)
+    // 2. File size (100 KB – 25 MB)
     const minSize = 100 * 1024;
-    const maxSize = 10 * 1024 * 1024;
+    const maxSize = 25 * 1024 * 1024;
     if (selectedFile.size < minSize) {
       toast.error('File too small — minimum 100 KB.');
       return;
     }
     if (selectedFile.size > maxSize) {
-      toast.error('File too large — maximum 10 MB.');
+      toast.error('File too large — maximum 25 MB.');
       return;
     }
 
@@ -139,7 +139,7 @@ export default function UploadPortfolioCard() {
           </span>
           <div className="border-border/60 mt-3 flex w-full max-w-45 flex-col items-center gap-1 border-t pt-2">
             <span className="text-caption-foreground text-[10px]">JPG · PNG · AVIF · WebP</span>
-            <span className="text-caption-foreground text-[10px]">100 KB – 10 MB</span>
+            <span className="text-caption-foreground text-[10px]">100 KB – 25 MB</span>
           </div>
         </div>
       )}
