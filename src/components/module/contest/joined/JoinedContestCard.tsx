@@ -15,7 +15,8 @@ import { Flame, Repeat2, Timer, Trophy, Vote } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AiOutlineThunderbolt } from 'react-icons/ai';
-import { MdOutlineCameraswitch, MdOutlineCampaign, MdOutlineHowToVote } from 'react-icons/md';
+import { IoKeyOutline } from 'react-icons/io5';
+import { MdOutlineCameraswitch, MdOutlineHowToVote } from 'react-icons/md';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
@@ -472,7 +473,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
             <Dialog open={confirmPromoteOpen} onOpenChange={setConfirmPromoteOpen}>
               <DialogContent className="border-border border-2 sm:max-w-sm">
                 <DialogTitle className="flex items-center gap-2">
-                  <MdOutlineCampaign className="text-primary size-5" />
+                  <AiOutlineThunderbolt className="text-primary size-5" />
                   Charge Exposure
                 </DialogTitle>
                 <DialogDescription>
@@ -533,44 +534,49 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-1 px-3 md:gap-3 lg:px-5">
-        <button
-          onClick={() => modalRef.current?.open()}
-          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
-        >
-          <MdOutlineHowToVote /> Vote
-        </button>
+      <div className="flex flex-col gap-1 px-3 md:gap-3 lg:px-5">
+        <div className="grid grid-cols-3 gap-1 md:gap-3">
+          <button
+            onClick={openPromoteConfirm}
+            disabled={isExposureMaxed || isPromotingExposure}
+            title={isExposureMaxed ? 'Exposure is already at 100%' : undefined}
+            className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition disabled:cursor-not-allowed disabled:opacity-50 max-md:text-sm md:px-5"
+          >
+            <AiOutlineThunderbolt className="size-4" />
+            {isPromotingExposure ? 'Charging...' : 'Charge'}
+          </button>
+          <button
+            onClick={() => actionModalRef.current?.open('trade')}
+            disabled={!canUsePhotoActions}
+            className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition disabled:cursor-not-allowed disabled:opacity-50 max-md:text-sm md:px-5"
+          >
+            <MdOutlineCameraswitch className="rotate-90" /> Trade
+          </button>
+          <button
+            onClick={() => actionModalRef.current?.open('boost')}
+            disabled={!canUsePhotoActions}
+            className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition disabled:cursor-not-allowed disabled:opacity-50 max-md:text-sm md:px-5"
+          >
+            <IoKeyOutline /> Promote
+          </button>
+        </div>
+
+        <div className="flex justify-center gap-1 md:gap-3">
+          <button
+            onClick={() => modalRef.current?.open()}
+            className="text-primary border-primary/25 flex w-full max-w-56 items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
+          >
+            <MdOutlineHowToVote /> Vote
+          </button>
+          <Link
+            href={`/contest/${contest?.id}?tab=rank`}
+            className="text-primary border-primary/25 flex w-full max-w-56 items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
+          >
+            <Trophy className="size-4" /> Ranking
+          </Link>
+        </div>
 
         <VoteModal ref={modalRef} id={contest?.id} />
-        <button
-          onClick={() => actionModalRef.current?.open('trade')}
-          disabled={!canUsePhotoActions}
-          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition disabled:cursor-not-allowed disabled:opacity-50 max-md:text-sm md:px-5"
-        >
-          <MdOutlineCameraswitch className="rotate-90" /> Trade
-        </button>
-        <button
-          onClick={() => actionModalRef.current?.open('boost')}
-          disabled={!canUsePhotoActions}
-          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition disabled:cursor-not-allowed disabled:opacity-50 max-md:text-sm md:px-5"
-        >
-          <AiOutlineThunderbolt /> Promote
-        </button>
-        <Link
-          href={`/contest/${contest?.id}?tab=rank`}
-          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
-        >
-          <Trophy className="size-4" /> Ranking
-        </Link>
-        <button
-          onClick={openPromoteConfirm}
-          disabled={isExposureMaxed || isPromotingExposure}
-          title={isExposureMaxed ? 'Exposure is already at 100%' : undefined}
-          className="text-primary border-primary/25 flex w-full items-center justify-center gap-2 rounded-sm border px-3 py-2 transition disabled:cursor-not-allowed disabled:opacity-50 max-md:text-sm md:px-5"
-        >
-          <MdOutlineCampaign className="size-4" />
-          {isPromotingExposure ? 'Charging...' : 'Charge'}
-        </button>
         <ContestActionModal
           ref={actionModalRef}
           contestId={contest?.id}

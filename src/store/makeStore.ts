@@ -12,6 +12,7 @@ import { commentsApi } from '@/store/apis/commentsApi';
 import { levelsApi } from '@/store/apis/levelsApi';
 import { notificationApi } from '@/store/apis/notificationApi';
 import { reportApi } from '@/store/apis/reportApi';
+import { socialLinkApi } from '@/store/apis/socialLinkApi';
 import { statsApi } from '@/store/apis/statsApi';
 import authReducer from '@/store/slices/authSlice';
 import profileReducer from '@/store/slices/profileSlice';
@@ -36,6 +37,7 @@ export const makeStore = (preloadedState = {}) => {
       [levelsApi.reducerPath]: levelsApi.reducer,
       [notificationApi.reducerPath]: notificationApi.reducer,
       [reportApi.reducerPath]: reportApi.reducer,
+      [socialLinkApi.reducerPath]: socialLinkApi.reducer,
       [statsApi.reducerPath]: statsApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
@@ -56,6 +58,7 @@ export const makeStore = (preloadedState = {}) => {
         levelsApi.middleware,
         notificationApi.middleware,
         reportApi.middleware,
+        socialLinkApi.middleware,
         statsApi.middleware,
       ),
     preloadedState,

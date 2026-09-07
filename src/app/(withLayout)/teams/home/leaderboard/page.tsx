@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -19,12 +20,17 @@ function getTeamName(row: TeamLeaderboardRow) {
 }
 
 // Coins paid per member of the top-3 teams once the period ends - see the
-// team:weeklyPayout / team:monthlyPayout backend cron. Yearly amounts are not
-// yet confirmed, so no reward is shown for that period.
-const PERIOD_REWARDS: Record<LeaderboardPeriod, number[] | null> = {
+// team:weeklyPayout / team:monthlyPayout / team:yearlyPayout backend crons.
+const PERIOD_REWARDS: Record<LeaderboardPeriod, number[]> = {
   weekly: [1000, 750, 500],
   monthly: [10000, 5000, 2500],
-  yearly: null,
+  yearly: [15000, 10000, 5000],
+};
+
+const PERIOD_NOUN: Record<LeaderboardPeriod, string> = {
+  weekly: 'week',
+  monthly: 'month',
+  yearly: 'year',
 };
 
 function LeaderboardSkeleton() {
@@ -53,31 +59,21 @@ function LeaderboardSkeleton() {
 }
 
 const RANK_MEDALS = ['🥇', '🥈', '🥉'];
-const RANK_LABELS = ['1st place', '2nd place', '3rd place'];
 
 function RewardsSummary({ period }: { period: LeaderboardPeriod }) {
   const rewards = PERIOD_REWARDS[period];
-
-  if (!rewards) {
-    return (
-      <div className="border-border bg-surface/50 rounded-md border p-4">
-        <p className="text-muted-foreground text-sm">
-          Yearly rewards haven&apos;t been finalized yet — rankings are shown for reference only.
-        </p>
-      </div>
-    );
-  }
+  const periodNoun = PERIOD_NOUN[period];
 
   return (
     <div className="border-border bg-surface/50 rounded-md border p-4">
-      <p className="text-sm font-semibold">
-        {period === 'weekly' ? "This week's" : "This month's"} rewards
-      </p>
+      <p className="text-sm font-semibold">This {periodNoun}&apos;s rewards</p>
       <div className="mt-2 flex flex-col gap-1.5">
         {rewards.map((coins, index) => (
-          <div key={index} className="flex items-center gap-3 text-sm">
-            <span className="text-2xl leading-none">{RANK_MEDALS[index]}</span>
-            <span className="w-20 shrink-0 font-medium">{RANK_LABELS[index]}</span>
+          <div key={index} className="flex w-full items-center justify-between gap-3 text-sm">
+            <span className="flex items-center gap-3">
+              <span className="text-2xl leading-none">{RANK_MEDALS[index]}</span>
+              <span className="w-6 shrink-0 font-medium">{index + 1}</span>
+            </span>
             <span>
               <span className="text-primary font-semibold">{coins.toLocaleString()} coins</span>
               <span className="text-muted-foreground"> / member</span>
@@ -86,8 +82,8 @@ function RewardsSummary({ period }: { period: LeaderboardPeriod }) {
         ))}
       </div>
       <p className="text-muted-foreground mt-2 text-xs">
-        Estimated based on the current standing — nothing is awarded until this{' '}
-        {period === 'weekly' ? 'week' : 'month'} ends, and rankings can still change.
+        Estimated based on the current standing — nothing is awarded until this {periodNoun} ends,
+        and rankings can still change.
       </p>
     </div>
   );
@@ -207,7 +203,16 @@ const TeamLeaderboard = () => {
                   </div>
 
                   <div className="min-w-0">
-                    <p className="truncate font-semibold">{getTeamName(row)}</p>
+                    {row.team?.id ? (
+                      <Link
+                        href={`/teams/${row.team.id}`}
+                        className="hover:text-primary truncate font-semibold"
+                      >
+                        {teamName}
+                      </Link>
+                    ) : (
+                      <p className="truncate font-semibold">{teamName}</p>
+                    )}
                   </div>
                 </div>
 

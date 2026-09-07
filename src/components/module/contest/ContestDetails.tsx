@@ -125,6 +125,14 @@ const ContestDetails = ({ id }: { id: string }) => {
 
         <CornerCount count={contest?.maxUpload ?? contest?.maxUploads} />
 
+        {/* Uploader credit — bottom right of the banner, only shown when the admin
+            picked an existing user submission as the banner image. */}
+        {contest?.bannerUploader?.fullName && (
+          <div className="absolute right-3 bottom-3 z-10 max-w-[70%] truncate rounded-md bg-black/60 px-2.5 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
+            📷 {contest.bannerUploader.fullName}
+          </div>
+        )}
+
         <div className="absolute top-1/2 left-1/2 w-full -translate-x-1/2 -translate-y-1/2 space-y-3 text-center">
           <h2 className="inline-block text-2xl font-semibold sm:text-3xl md:text-4xl lg:text-5xl">
             {contest?.title}

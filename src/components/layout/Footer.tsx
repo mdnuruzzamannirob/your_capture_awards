@@ -1,8 +1,38 @@
+'use client';
+
 import { MdLocationCity, MdOutlineMail } from 'react-icons/md';
+import {
+  FaFacebook,
+  FaInstagram,
+  FaLinkedin,
+  FaPinterest,
+  FaTiktok,
+  FaWhatsapp,
+  FaYoutube,
+} from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
+import { HiOutlineGlobeAlt } from 'react-icons/hi';
 import LogoName from '../LogoName';
 import Link from 'next/link';
+import { useGetSocialLinksQuery, type SocialPlatform } from '@/store/apis/socialLinkApi';
+
+const socialIcon: Record<SocialPlatform, React.ReactNode> = {
+  FACEBOOK: <FaFacebook className="size-5" />,
+  INSTAGRAM: <FaInstagram className="size-5" />,
+  X: <FaXTwitter className="size-5" />,
+  YOUTUBE: <FaYoutube className="size-5" />,
+  TIKTOK: <FaTiktok className="size-5" />,
+  LINKEDIN: <FaLinkedin className="size-5" />,
+  PINTEREST: <FaPinterest className="size-5" />,
+  WHATSAPP: <FaWhatsapp className="size-5" />,
+  EMAIL: <MdOutlineMail className="size-5" />,
+  WEBSITE: <HiOutlineGlobeAlt className="size-5" />,
+};
 
 const Footer = () => {
+  const { data } = useGetSocialLinksQuery();
+  const socialLinks = data?.data ?? [];
+
   return (
     <footer className="border-border mt-20 border-t py-20">
       <div className="container flex flex-col-reverse items-center justify-center gap-20 md:flex-row">
@@ -62,12 +92,26 @@ const Footer = () => {
             There are many variations <br /> of product of Image.
           </p>
           <div className="flex items-center justify-center gap-3">
-            <Link
-              href="mailto:info@yourcaptureawards.org"
-              className="bg-primary text-primary-foreground flex items-center justify-center rounded-full p-3"
-            >
-              <MdOutlineMail className="size-5" />
-            </Link>
+            {socialLinks.length > 0 ? (
+              socialLinks.map((link) => (
+                <Link
+                  key={link.id}
+                  href={link.url}
+                  target={link.platform === 'EMAIL' ? undefined : '_blank'}
+                  rel={link.platform === 'EMAIL' ? undefined : 'noopener noreferrer'}
+                  className="bg-primary text-primary-foreground flex items-center justify-center rounded-full p-3 transition hover:opacity-90"
+                >
+                  {socialIcon[link.platform]}
+                </Link>
+              ))
+            ) : (
+              <Link
+                href="mailto:info@yourcaptureawards.org"
+                className="bg-primary text-primary-foreground flex items-center justify-center rounded-full p-3"
+              >
+                <MdOutlineMail className="size-5" />
+              </Link>
+            )}
           </div>
         </div>
       </div>

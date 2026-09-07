@@ -67,6 +67,9 @@
   --surface-tertiary: var(--color-zinc-850);
   --elevated: color-mix(in oklab, var(--color-zinc-900) 88%, var(--color-zinc-0));
   --overlay: color-mix(in oklab, var(--color-zinc-950) 72%, transparent);
+  /* Lighter than --overlay - used only on the homepage hero so its background image
+     reads more clearly, without touching the darker overlay shared elsewhere (e.g. RankTab). */
+  --overlay-hero: color-mix(in oklab, var(--color-zinc-950) 45%, transparent);
 
   /* Typography */
   --foreground: var(--color-zinc-50);
@@ -164,6 +167,7 @@
   --color-surface-tertiary: var(--surface-tertiary);
   --color-elevated: var(--elevated);
   --color-overlay: var(--overlay);
+  --color-overlay-hero: var(--overlay-hero);
 
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);

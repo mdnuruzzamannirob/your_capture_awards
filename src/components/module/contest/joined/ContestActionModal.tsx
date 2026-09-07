@@ -18,9 +18,9 @@ import { resolveImageUrl } from '@/utils/resolveImageUrl';
 import { ArrowLeft, UploadCloud } from 'lucide-react';
 import Image from 'next/image';
 import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { AiOutlineThunderbolt } from 'react-icons/ai';
 import { FaRegUser } from 'react-icons/fa';
 import { HiOutlineDesktopComputer } from 'react-icons/hi';
+import { IoKeyOutline } from 'react-icons/io5';
 import { MdOutlineCameraswitch } from 'react-icons/md';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
@@ -418,7 +418,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
     const actionLoading = actionType === 'boost' ? isPromoting : isTrading;
     const actionIcon =
       actionType === 'boost' ? (
-        <AiOutlineThunderbolt className="text-primary size-5" />
+        <IoKeyOutline className="text-primary size-5" />
       ) : (
         <MdOutlineCameraswitch className="text-primary size-5 rotate-90" />
       );
@@ -741,7 +741,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                   {/* Right: action info or swap preview */}
                   {actionType === 'boost' ? (
                     <div className="bg-surface-secondary flex flex-col items-center justify-center gap-3 rounded-xl p-4">
-                      <AiOutlineThunderbolt className="text-primary size-10" />
+                      <IoKeyOutline className="text-primary size-10" />
                       <p className="text-muted-foreground text-center text-sm">
                         This photo will be promoted (boosted in visibility) for approximately 24
                         hours.

@@ -22,7 +22,7 @@ import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-const SUPPORT_EMAIL = 'support@yourcaptureawards.com';
+const SUPPORT_EMAIL = 'info@yourcaptureawards.org';
 
 const HELP_TOPICS = [
   {

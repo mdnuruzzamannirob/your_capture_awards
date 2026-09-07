@@ -99,13 +99,13 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
         <span>|</span>
 
         <p className="flex items-center gap-1">
-          <AiOutlineThunderbolt />x{prize.boost}
+          <IoKeyOutline />x{prize.boost}
         </p>
 
         <span>|</span>
 
         <p className="flex items-center gap-1">
-          <IoKeyOutline />x{prize.key}
+          <AiOutlineThunderbolt />x{prize.key}
         </p>
       </div>
     );

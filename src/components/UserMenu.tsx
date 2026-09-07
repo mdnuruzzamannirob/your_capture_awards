@@ -89,7 +89,7 @@ const UserMenu = () => {
             className="border-border hover:bg-surface-secondary flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm transition"
           >
             <span className="flex items-center gap-2">
-              <IoKeyOutline className="text-primary size-4" />
+              <AiOutlineThunderbolt className="text-primary size-4" />
               <ResourceValue isLoading={isStatsLoading} value={stats?.key ?? 0} />
             </span>
             <span className="flex items-center gap-2">
@@ -97,7 +97,7 @@ const UserMenu = () => {
               <ResourceValue isLoading={isStatsLoading} value={stats?.swap ?? 0} />
             </span>
             <span className="flex items-center gap-2">
-              <AiOutlineThunderbolt className="text-primary size-4" />
+              <IoKeyOutline className="text-primary size-4" />
               <ResourceValue isLoading={isStatsLoading} value={stats?.boost ?? 0} />
             </span>
             <span className="bg-primary/90 text-primary-foreground flex size-8 items-center justify-center rounded-md">

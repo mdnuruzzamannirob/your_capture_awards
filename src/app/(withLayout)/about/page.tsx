@@ -221,7 +221,7 @@ export default function AboutPage() {
       </section>
 
       <section className="container pb-16 lg:pb-24">
-        <div className="border-border grid gap-8 border-t pt-10 lg:grid-cols-[0.36fr_0.64fr]">
+        <div className="border-border border-t pt-10 text-left">
           <div>
             <p className="text-primary text-sm font-semibold tracking-wide uppercase">
               Official Overview
@@ -232,7 +232,7 @@ export default function AboutPage() {
             )}
           </div>
 
-          <div className="min-w-0">
+          <div className="mt-6 min-w-0 text-left">
             {isLoading ? (
               <div className="border-border bg-surface flex min-h-64 flex-col items-center justify-center gap-3 rounded-lg border">
                 <Spinner className="text-primary size-8" />

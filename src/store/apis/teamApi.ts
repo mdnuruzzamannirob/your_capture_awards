@@ -237,6 +237,21 @@ export const teamApi = createApi({
       },
     }),
 
+    // ── Switch Team (leave current, join a different one atomically) ───────
+    switchTeam: builder.mutation<JoinTeamResponse, string>({
+      query: (teamId) => ({
+        url: `/teams/switch/${teamId}`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Team', 'TeamMembers', 'Teams', 'SuggestedTeams'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(authApi.util.invalidateTags(['Auth']));
+        } catch {}
+      },
+    }),
+
     // ── Invite Member ─────────────────────────────────────────────────────
     inviteMember: builder.mutation<InviteMemberResponse, { teamId: string; userId: string }>({
       query: ({ teamId, userId }) => ({
@@ -441,6 +456,7 @@ export const {
   useGetTeamMatchSearchStatusQuery,
   useGetTeamContestMatchViewQuery,
   useJoinTeamMutation,
+  useSwitchTeamMutation,
   useCreateTeamMutation,
   useGetMyTeamQuery,
   useUploadChatFileMutation,
