@@ -30,7 +30,7 @@ import { cn } from '@/utils/cn';
 import { AlertCircle, ExternalLink, Loader2, Swords, ThumbsUp, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 const MIN_TEAM_MATCH_MEMBERS = 3;
@@ -399,7 +399,15 @@ export default function TeamMatchPage() {
     });
   }, [contestPage, contestsQuery.data?.data]);
 
+  // Reset pagination only when the team actually changes (e.g. the user
+  // switched teams) — not on every mount. A plain `[teamId]` effect fires
+  // unconditionally on mount too, which raced with the effect above and wiped
+  // out contests that were already sitting in the RTK Query cache whenever
+  // this page remounted (e.g. navigating back from another tab).
+  const previousTeamIdRef = useRef(teamId);
   useEffect(() => {
+    if (previousTeamIdRef.current === teamId) return;
+    previousTeamIdRef.current = teamId;
     setContestPage(1);
     setContestItems([]);
   }, [teamId]);
