@@ -55,6 +55,19 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
           </p>
         </div>
 
+        {/* Uploader credit — bottom right of the banner, only shown when the admin
+            picked an existing user submission as the banner image. Hover-reveal on
+            desktop like the creator badge; kept clear of the footer stats bar below. */}
+        {contest?.bannerUploader?.fullName && (
+          <Link
+            href={`/profile/${contest.bannerUploader.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="pointer-events-none absolute right-2 bottom-[5.5rem] z-20 max-w-[70%] truncate rounded-md bg-black/60 px-2 py-1 text-[10px] font-medium text-white opacity-0 backdrop-blur-sm transition-all duration-300 md:pointer-events-auto md:group-hover:opacity-100"
+          >
+            📷 {contest.bannerUploader.fullName}
+          </Link>
+        )}
+
         {/* Title — top left (visible normally, hidden when hovered to show Creator Info).
             The hide-on-hover behavior only applies at md+; on mobile there's no hover
             affordance so the title always stays visible. */}

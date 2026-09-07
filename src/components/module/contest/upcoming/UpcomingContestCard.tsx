@@ -56,6 +56,19 @@ const UpcomingContestCard = ({
           </p>
         </div>
 
+        {/* Uploader credit — bottom right of the banner, only shown when the admin
+            picked an existing user submission as the banner image. Hover-reveal on
+            desktop like the creator badge; kept clear of the footer stats bar below. */}
+        {contest?.bannerUploader?.fullName && (
+          <Link
+            href={`/profile/${contest.bannerUploader.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="pointer-events-none absolute right-2 bottom-20 z-20 max-w-[70%] truncate rounded-md bg-black/60 px-2 py-1 text-[10px] font-medium text-white opacity-0 backdrop-blur-sm transition-all duration-300 md:pointer-events-auto md:group-hover:opacity-100"
+          >
+            📷 {contest.bannerUploader.fullName}
+          </Link>
+        )}
+
         {/* Title — top left. Hides on hover to reveal Creator Info, but only at md+
             since mobile has no hover to bring it back. */}
         <Link

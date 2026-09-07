@@ -2,6 +2,7 @@ import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import { CalendarDays } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { MdOutlineHowToVote } from 'react-icons/md';
 import SafeBannerImage from '@/components/SafeBannerImage';
@@ -101,6 +102,7 @@ const EntryPhoto = ({ src }: { src?: string }) => {
 };
 
 const CompletedContestCard = ({ contest }: { contest: any }) => {
+  const router = useRouter();
   const achievements = getContestAchievements(contest);
   const photos = contest?.photos?.data ?? [];
 
@@ -123,6 +125,24 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
         <span className="bg-primary text-primary-foreground absolute top-3 left-3 rounded-full px-3 py-1 text-[10px] font-bold tracking-wider uppercase shadow-sm">
           Completed
         </span>
+
+        {/* Uploader credit — top right of the banner, only shown when the admin
+            picked an existing user submission as the banner image. A nested <a> isn't
+            valid here (the whole banner is already a Link), so this navigates via the
+            router instead and stops the click from also triggering the outer link. */}
+        {contest?.bannerUploader?.fullName && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              router.push(`/profile/${contest.bannerUploader.id}`);
+            }}
+            className="absolute top-3 right-3 max-w-[60%] truncate rounded-md bg-black/60 px-2 py-1 text-[10px] font-medium text-white backdrop-blur-sm hover:text-primary"
+          >
+            📷 {contest.bannerUploader.fullName}
+          </button>
+        )}
 
         <h2 className="absolute inset-x-0 bottom-0 line-clamp-2 p-4 text-xl font-bold text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.8)] md:text-2xl">
           {contest?.title}

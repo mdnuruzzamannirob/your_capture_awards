@@ -213,7 +213,7 @@ export default function SwapBoostKeyModal() {
           className="text-primary bg-primary/10 flex items-center justify-center gap-3 rounded-sm p-2"
         >
           <span className="flex items-center gap-2">
-            <AiOutlineThunderbolt className="size-5" /> 0
+            <IoKeyOutline className="size-5" /> 0
           </span>
           <span className="bg-primary text-foreground rounded p-1">
             <FaPlus />
@@ -224,7 +224,7 @@ export default function SwapBoostKeyModal() {
           className="text-primary bg-primary/10 flex items-center justify-center gap-3 rounded-sm p-2"
         >
           <span className="flex items-center gap-2">
-            <IoKeyOutline className="size-5" /> 0
+            <AiOutlineThunderbolt className="size-5" /> 0
           </span>
           <span className="bg-primary text-foreground rounded p-1">
             <FaPlus />
@@ -257,13 +257,13 @@ export default function SwapBoostKeyModal() {
                 value="boost"
                 className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary py-2"
               >
-                <AiOutlineThunderbolt /> Boost
+                <IoKeyOutline /> Boost
               </TabsTrigger>
               <TabsTrigger
                 value="key"
                 className="data-[state=active]:bg-primary/15 data-[state=active]:text-primary py-2"
               >
-                <IoKeyOutline /> Key
+                <AiOutlineThunderbolt /> Key
               </TabsTrigger>
             </TabsList>
 

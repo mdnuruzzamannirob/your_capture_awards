@@ -27,8 +27,8 @@ const Banner = () => {
           priority
           className="object-cover object-center"
         />
-        {/* Dark overlay for text readability */}
-        <div className="bg-overlay absolute inset-0" />
+        {/* Lighter overlay so the background image stays clearer, while keeping text readable */}
+        <div className="bg-overlay-hero absolute inset-0" />
       </div>
 
       <div className="relative z-10 container flex flex-col items-start justify-between gap-10 py-28 lg:flex-row">

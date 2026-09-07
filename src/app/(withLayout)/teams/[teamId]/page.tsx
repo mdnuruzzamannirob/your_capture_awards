@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 
+import SwitchTeamDialog from '@/components/module/team/SwitchTeamDialog';
 import { teamCardClass, teamShellClass } from '@/components/module/teams/teamUi';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -12,8 +13,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import type { TeamDetail } from '@/lib/mock/teamDetails';
 import { useGetAllLevelsQuery, useGetUserProgressQuery } from '@/store/apis/levelsApi';
-import { useGetTeamMembersQuery, useGetTeamQuery, useJoinTeamMutation } from '@/store/apis/teamApi';
-import { showErrorToast } from '@/utils/team-feedback';
+import {
+  useGetTeamMembersQuery,
+  useGetTeamQuery,
+  useJoinTeamMutation,
+  useSwitchTeamMutation,
+} from '@/store/apis/teamApi';
+import { getErrorMessage, showErrorToast } from '@/utils/team-feedback';
 import { getAvatarClass, getInitials, getMemberName } from '@/utils/team-utils';
 import { BadgeCheck, BarChartBig, Languages, MapPin, Medal, Trophy, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -143,6 +149,8 @@ export default function TeamDetailPage() {
   });
 
   const [joinTeam, { isLoading: isJoining }] = useJoinTeamMutation();
+  const [switchTeam, { isLoading: isSwitching }] = useSwitchTeamMutation();
+  const [switchDialogOpen, setSwitchDialogOpen] = useState(false);
   const { data: levelsData } = useGetAllLevelsQuery({ page: 1, limit: 50 });
   const { data: progressData } = useGetUserProgressQuery(undefined, {
     skip: !user,
@@ -215,7 +223,23 @@ export default function TeamDetailPage() {
       await joinTeam(teamId).unwrap();
       router.replace('/teams/home');
     } catch (error) {
+      if (getErrorMessage(error, '').toLowerCase().includes('already joined a team')) {
+        setSwitchDialogOpen(true);
+        return;
+      }
       showErrorToast(error, 'Failed to join team');
+    }
+  };
+
+  const handleSwitchTeam = async () => {
+    if (!teamId) return;
+
+    try {
+      await switchTeam(teamId).unwrap();
+      setSwitchDialogOpen(false);
+      router.replace('/teams/home');
+    } catch (error) {
+      showErrorToast(error, 'Failed to switch team');
     }
   };
 
@@ -306,6 +330,14 @@ export default function TeamDetailPage() {
                 >
                   {isJoined ? 'Joined' : isJoining ? 'Joining...' : 'Join Team'}
                 </Button>
+                <SwitchTeamDialog
+                  open={switchDialogOpen}
+                  onClose={() => setSwitchDialogOpen(false)}
+                  currentTeamName={user?.joinedTeam?.team?.name || 'your current team'}
+                  newTeamName={resolvedTeam?.name || 'this team'}
+                  isSubmitting={isSwitching}
+                  onConfirm={handleSwitchTeam}
+                />
               </div>
             </div>
 

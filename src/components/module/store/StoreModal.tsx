@@ -40,9 +40,9 @@ const formatMoney = (amount: number, currency: string) =>
   }).format(amount);
 
 const itemIcon = {
-  KEY: <IoKeyOutline className="text-primary size-3" />,
+  KEY: <AiOutlineThunderbolt className="text-primary size-3" />,
   SWAP: <MdOutlineCameraswitch className="text-primary size-3 rotate-90" />,
-  BOOST: <AiOutlineThunderbolt className="text-primary size-3" />,
+  BOOST: <IoKeyOutline className="text-primary size-3" />,
 };
 
 const itemLabel = {
@@ -308,7 +308,7 @@ const StoreModal = () => {
             <div className="border-border-subtle bg-surface-secondary flex h-8 items-stretch overflow-hidden rounded-lg border">
               {[
                 {
-                  icon: <IoKeyOutline className="text-primary size-3" />,
+                  icon: <AiOutlineThunderbolt className="text-primary size-3" />,
                   value: stats?.key ?? 0,
                   label: 'Charges',
                 },
@@ -318,7 +318,7 @@ const StoreModal = () => {
                   label: 'Trades',
                 },
                 {
-                  icon: <AiOutlineThunderbolt className="text-primary size-3" />,
+                  icon: <IoKeyOutline className="text-primary size-3" />,
                   value: stats?.boost ?? 0,
                   label: 'Promotes',
                 },
@@ -356,7 +356,7 @@ const StoreModal = () => {
               <div className="border-border-subtle bg-surface-secondary flex h-9 items-stretch overflow-hidden rounded-xl border backdrop-blur-sm">
                 {[
                   {
-                    icon: <IoKeyOutline className="text-primary size-3.5" />,
+                    icon: <AiOutlineThunderbolt className="text-primary size-3.5" />,
                     value: stats?.key ?? 0,
                     label: 'Charges',
                   },
@@ -366,7 +366,7 @@ const StoreModal = () => {
                     label: 'Trades',
                   },
                   {
-                    icon: <AiOutlineThunderbolt className="text-primary size-3.5" />,
+                    icon: <IoKeyOutline className="text-primary size-3.5" />,
                     value: stats?.boost ?? 0,
                     label: 'Promotes',
                   },

@@ -15,6 +15,14 @@ import { useAppDispatch } from '@/store/hooks';
 import { setSwiperPhotos } from '@/store/slices/profileSlice';
 import { MdOutlineHowToVote } from 'react-icons/md';
 
+// Stable references for the "no data yet" fallback - a fresh `[]` literal on every
+// render would change identity each time even though it's logically the same empty
+// list, which fed straight into a useEffect dependency below and caused an infinite
+// render loop while the query was still loading (setState with a new array -> effect
+// reruns because the dep "changed" -> setState with another new array -> ...).
+const EMPTY_PHOTOS: any[] = [];
+const EMPTY_PHOTOGRAPHERS: any[] = [];
+
 const EmptyState = ({ title, description }: { title: string; description: string }) => (
   <div className="col-span-full flex flex-col items-center justify-center text-center">
     <h3 className="text-lg font-semibold">{title}</h3>
@@ -39,7 +47,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
     page: photoPage,
     limit: 12,
   });
-  const rankPhotos = rankPhotosData?.data ?? [];
+  const rankPhotos = rankPhotosData?.data ?? EMPTY_PHOTOS;
   const rankPhotosHasMore = Boolean(rankPhotosData?.meta?.hasNextPage);
 
   const [
@@ -50,7 +58,7 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
       isFetching: isRankPhotographerFetching,
     },
   ] = useLazyGetContestRankPhotographersQuery();
-  const rankPhotographers = rankPhotographersDataPage?.data?.participants ?? [];
+  const rankPhotographers = rankPhotographersDataPage?.data?.participants ?? EMPTY_PHOTOGRAPHERS;
   const rankPhotographersHasMore = Boolean(rankPhotographersDataPage?.meta?.hasNextPage);
 
   useEffect(() => {

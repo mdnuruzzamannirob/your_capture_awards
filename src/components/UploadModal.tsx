@@ -1,5 +1,6 @@
 'use client';
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
@@ -11,6 +12,7 @@ import {
 import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { PhotoToContestPayload } from '@/store/types/contestTypes';
 import { compressImage } from '@/utils/compressImage';
+import { resolveImageUrl } from '@/utils/resolveImageUrl';
 import { ArrowLeft, UploadCloud } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -20,6 +22,7 @@ import { FaRegUser } from 'react-icons/fa';
 import { HiOutlineDesktopComputer } from 'react-icons/hi';
 import { IoImagesOutline } from 'react-icons/io5';
 import { toast } from 'sonner';
+import SafeBannerImage from './SafeBannerImage';
 import TipTapViewer from './custom/tiptap-editor/TipTapViewer';
 
 export type ModalContentType = 'preview' | 'choose' | 'select';
@@ -190,7 +193,6 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     },
     ref,
   ) => {
-    void contest;
     void contestType;
 
     const [modalContentType, setModalContentType] = useState<ModalContentType>(
@@ -414,7 +416,10 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
 
     const modalContentView = () => {
       switch (modalContentType) {
-        case 'preview':
+        case 'preview': {
+          const creatorName = contest?.creator?.fullName ?? 'Unknown';
+          const creatorAvatar = resolveImageUrl(contest?.creator?.avatar);
+
           return (
             <div className="space-y-5">
               {/* header */}
@@ -423,11 +428,26 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                 <p>{maxUploads} Photo Challenge</p>
               </div>
 
+              {/* banner */}
+              {contest?.banner && (
+                <div className="relative h-40 w-full overflow-hidden rounded-xl sm:h-52">
+                  <SafeBannerImage
+                    src={contest.banner}
+                    alt={`${title || 'Contest'} banner`}
+                    sizes="(max-width: 640px) 100vw, 640px"
+                    className="object-cover"
+                  />
+                </div>
+              )}
+
               {/* content */}
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <p className="size-12 rounded-full border"></p>
-                  <h3 className="font-medium">By Md. Nuruzzaman</h3>
+                  <Avatar className="size-12 border">
+                    {creatorAvatar && <AvatarImage src={creatorAvatar} className="object-cover" />}
+                    <AvatarFallback>{creatorName.slice(0, 1).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <h3 className="font-medium">By {creatorName}</h3>
                 </div>
 
                 <TipTapViewer content={description} className="max-h-60 min-h-28 overflow-y-auto" />
@@ -435,7 +455,13 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
 
               {/* footer */}
               <div className="border-border-subtle flex items-center justify-between gap-5 border-t-[0.5px] pt-5">
-                <button className="text-primary border-primary rounded-sm border px-5 py-2 text-sm">
+                <button
+                  onClick={() => {
+                    resetModal();
+                    router.push(`/contest/${contestId}?tab=rules`);
+                  }}
+                  className="text-primary border-primary rounded-sm border px-5 py-2 text-sm"
+                >
                   View Rules
                 </button>
                 <button
@@ -447,6 +473,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               </div>
             </div>
           );
+        }
         case 'choose':
           return (
             <div className="space-y-5">

@@ -11,6 +11,7 @@ import 'swiper/css/scrollbar';
 import { FreeMode, Scrollbar } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
+import SwitchTeamDialog from '@/components/module/team/SwitchTeamDialog';
 import TeamMembershipLoading from '@/components/module/team/TeamMembershipLoading';
 import { Avatar, AvatarFallback, AvatarGroup, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -23,9 +24,10 @@ import {
   useGetSuggestedTeamsQuery,
   useGetTeamsQuery,
   useJoinTeamMutation,
+  useSwitchTeamMutation,
 } from '@/store/apis/teamApi';
 import type { PaginationMeta, TeamListItem, TeamUserSummary } from '@/store/types/teamTypes';
-import { showErrorToast } from '@/utils/team-feedback';
+import { getErrorMessage, showErrorToast } from '@/utils/team-feedback';
 
 const PAGE_SIZE = 8;
 const FEATURED_LIMIT = 8;
@@ -81,16 +83,20 @@ function getTeamAvatars(team: TeamListItem) {
 
 function JoinTeamButton({
   teamId,
+  teamName,
   minRequirement,
   className,
 }: {
   teamId: string;
+  teamName: string;
   minRequirement?: string | null;
   className?: string;
 }) {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
-  const [joinTeam, { isLoading }] = useJoinTeamMutation();
+  const { isAuthenticated, user } = useAuth();
+  const [joinTeam, { isLoading: isJoining }] = useJoinTeamMutation();
+  const [switchTeam, { isLoading: isSwitching }] = useSwitchTeamMutation();
+  const [switchDialogOpen, setSwitchDialogOpen] = useState(false);
   const { data: levelsData } = useGetAllLevelsQuery(
     { page: 1, limit: 50 },
     { skip: !isAuthenticated },
@@ -100,6 +106,7 @@ function JoinTeamButton({
   const teamLevels = levelsData?.data ?? [];
   const requiredLevelOrder =
     teamLevels.find((level) => level.levelName === minRequirement)?.order ?? 0;
+  const isLoading = isJoining || isSwitching;
 
   const handleJoin = async () => {
     if (isLoading) return;
@@ -115,14 +122,38 @@ function JoinTeamButton({
       await joinTeam(teamId).unwrap();
       router.replace('/teams/home');
     } catch (error) {
+      if (getErrorMessage(error, '').toLowerCase().includes('already joined a team')) {
+        setSwitchDialogOpen(true);
+        return;
+      }
       showErrorToast(error, 'Failed to join team');
     }
   };
 
+  const handleSwitch = async () => {
+    try {
+      await switchTeam(teamId).unwrap();
+      setSwitchDialogOpen(false);
+      router.replace('/teams/home');
+    } catch (error) {
+      showErrorToast(error, 'Failed to switch team');
+    }
+  };
+
   return (
-    <Button type="button" onClick={handleJoin} disabled={isLoading} className={className}>
-      {isLoading ? 'Joining...' : 'Join'}
-    </Button>
+    <>
+      <Button type="button" onClick={handleJoin} disabled={isLoading} className={className}>
+        {isJoining ? 'Joining...' : 'Join'}
+      </Button>
+      <SwitchTeamDialog
+        open={switchDialogOpen}
+        onClose={() => setSwitchDialogOpen(false)}
+        currentTeamName={user?.joinedTeam?.team?.name || 'your current team'}
+        newTeamName={teamName}
+        isSubmitting={isSwitching}
+        onConfirm={handleSwitch}
+      />
+    </>
   );
 }
 
@@ -288,6 +319,7 @@ function MoreTeamCard({ team }: { team: TeamListItem }) {
         </Button>
         <JoinTeamButton
           teamId={team.id}
+          teamName={team.name}
           minRequirement={team.min_requirement}
           className="bg-primary text-primary-foreground hover:bg-primary/90 flex-1 px-3"
         />

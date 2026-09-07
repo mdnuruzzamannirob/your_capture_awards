@@ -14,7 +14,6 @@ const ContestHeader = () => {
     const baseTabs = [
       { href: '/contest/open', label: 'Open' },
       { href: '/contest/upcoming', label: 'Upcoming' },
-      { href: '/contest/closed', label: 'Closed' },
     ];
 
     if (!isAuthenticated) return baseTabs;

@@ -5,6 +5,7 @@ import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import { resolveImageUrl } from '@/utils/resolveImageUrl';
 import { getAvatarClass, getInitials, getMemberName, getRoleChipClass } from '@/utils/team-utils';
 import { UserPlus } from 'lucide-react';
+import Link from 'next/link';
 import MemberManagePopover from './MemberManagePopover';
 
 interface MemberListProps {
@@ -77,7 +78,16 @@ function MemberList({
 
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="truncate text-sm font-medium">{name}</span>
+                  {isMe ? (
+                    <span className="truncate text-sm font-medium">{name}</span>
+                  ) : (
+                    <Link
+                      href={`/profile/${m.memberId}`}
+                      className="hover:text-primary truncate text-sm font-medium"
+                    >
+                      {name}
+                    </Link>
+                  )}
                   <span
                     className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold ${getRoleChipClass(m.level)}`}
                   >
