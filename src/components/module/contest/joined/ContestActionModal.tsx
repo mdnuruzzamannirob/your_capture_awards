@@ -7,6 +7,7 @@ import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
 import { useStoreModal } from '@/providers/StoreModalProvider';
 import {
   TradeContestPhotoPayload,
+  useLazyGetTradeableHistoryQuery,
   useLazyGetUserPhotosQuery,
   usePromoteContestPhotoMutation,
   useTradeContestPhotoMutation,
@@ -21,7 +22,7 @@ import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'reac
 import { FaRegUser } from 'react-icons/fa';
 import { HiOutlineDesktopComputer } from 'react-icons/hi';
 import { IoKeyOutline } from 'react-icons/io5';
-import { MdOutlineCameraswitch } from 'react-icons/md';
+import { MdOutlineCameraswitch, MdOutlineHowToVote } from 'react-icons/md';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
 
@@ -32,6 +33,7 @@ type ActionStep =
   | 'selectTradeSource'
   | 'selectTradeTarget'
   | 'review';
+type SwapSource = 'computer' | 'profile';
 
 export interface ContestActionModalRef {
   open: (type: ActionType) => void;
@@ -147,6 +149,77 @@ function ContestPhotoJustifiedPicker({
   );
 }
 
+// ── Helper: Previously-traded photo picker - brings back a photo swapped out
+// of this contest earlier, resuming the vote count it had banked ─────────────
+function TradeHistoryPicker({
+  photos,
+  isLoading,
+  selectedId,
+  onSelect,
+}: {
+  photos: { id: string; url: string; frozenVoteCount: number }[];
+  isLoading: boolean;
+  selectedId: string;
+  onSelect: (photo: { id: string; url: string }) => void;
+}) {
+  if (isLoading) {
+    return (
+      <div className="flex max-h-64 scrollbar-thin flex-wrap gap-2 overflow-y-auto">
+        {[1, 2, 3, 4].map((item) => (
+          <Skeleton
+            key={item}
+            className="bg-surface-secondary rounded-lg"
+            style={{ height: 150, width: 150 }}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (!photos.length) {
+    return (
+      <div className="border-border text-muted-foreground rounded-xl border border-dashed p-6 text-center text-sm">
+        You haven&apos;t traded any photos out of this contest yet.
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid max-h-64 grid-cols-3 gap-2 overflow-y-auto scrollbar-thin sm:grid-cols-4">
+      {photos.map((photo) => {
+        const isSelected = selectedId === photo.id;
+        return (
+          <button
+            key={photo.id}
+            type="button"
+            onClick={() => onSelect(photo)}
+            className={cn(
+              'relative aspect-square overflow-hidden rounded-lg border transition',
+              isSelected ? 'border-primary ring-primary/40 ring-2' : 'border-transparent',
+            )}
+          >
+            <Image
+              src={resolveImageUrl(photo.url)}
+              alt="Previously traded photo"
+              fill
+              sizes="150px"
+              className="object-cover"
+            />
+            <span className="bg-overlay absolute right-1.5 bottom-1.5 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium text-white">
+              <MdOutlineHowToVote /> {photo.frozenVoteCount}
+            </span>
+            {isSelected && (
+              <span className="bg-primary text-primary-foreground absolute top-1 right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold shadow">
+                ✓
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 // ── Helper: Trade profile photo picker with Justified Layout ─────────────────
 function TradePhotoJustifiedPicker({
   photos,
@@ -244,13 +317,15 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
     });
     const [triggerPhotos, { data: userPhotos, isFetching: isPhotosLoading }] =
       useLazyGetUserPhotosQuery();
+    const [triggerHistory, { data: tradeHistoryData, isFetching: isHistoryLoading }] =
+      useLazyGetTradeableHistoryQuery();
     const [promoteContestPhoto, { isLoading: isPromoting }] = usePromoteContestPhotoMutation();
     const [tradeContestPhoto, { isLoading: isTrading }] = useTradeContestPhotoMutation();
 
     const [open, setOpen] = useState(false);
     const [actionType, setActionType] = useState<ActionType>('boost');
     const [step, setStep] = useState<ActionStep>('selectContestPhoto');
-    const [swapSource, setSwapSource] = useState<'computer' | 'profile' | null>(null);
+    const [swapSource, setSwapSource] = useState<SwapSource | null>(null);
     const [selectedContestPhotoId, setSelectedContestPhotoId] = useState('');
     // For trade → profile: single photo id (swap is 1-for-1)
     const [selectedUserPhotoId, setSelectedUserPhotoId] = useState('');
@@ -280,6 +355,22 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
       () => new Set(currentContestPhotos.map((photo) => photo.sourcePhotoId).filter(Boolean)),
       [currentContestPhotos],
     );
+    const tradeableHistory = useMemo(
+      () =>
+        (tradeHistoryData?.data ?? []).map((record) => ({
+          id: record.photoId,
+          url: resolveImageUrl(record.url),
+          frozenVoteCount: record.frozenVoteCount,
+        })),
+      [tradeHistoryData],
+    );
+    const tradeHistoryPhotoIds = useMemo(
+      () => new Set(tradeableHistory.map((photo) => photo.id)),
+      [tradeableHistory],
+    );
+    // "Fresh" uploads - excludes anything currently occupying a slot in this
+    // contest, and anything already offered below as a previously-traded photo
+    // (see tradeableHistory) so a photo only ever appears in one section.
     const uploadedPhotos = useMemo(() => {
       const rawPhotos = Array.isArray(userPhotos?.data)
         ? userPhotos.data
@@ -295,9 +386,10 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
           (photo: { id: string; url: string }) =>
             Boolean(photo.id && photo.url) &&
             !contestSourcePhotoIds.has(photo.id) &&
-            !contestPhotoUrls.has(photo.url),
+            !contestPhotoUrls.has(photo.url) &&
+            !tradeHistoryPhotoIds.has(photo.id),
         );
-    }, [contestPhotoUrls, contestSourcePhotoIds, userPhotos]);
+    }, [contestPhotoUrls, contestSourcePhotoIds, tradeHistoryPhotoIds, userPhotos]);
 
     // ── Open ─────────────────────────────────────────────────────────────
     useImperativeHandle(ref, () => ({
@@ -329,6 +421,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
         setOpen(true);
         if (type === 'trade') {
           triggerPhotos({ id: contestId });
+          triggerHistory({ id: contestId });
         }
       },
     }));
@@ -379,7 +472,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
           };
           if (swapSource === 'profile') {
             if (!selectedUserPhotoId) {
-              toast.error('Please choose a replacement photo from your uploads.');
+              toast.error('Please choose a replacement photo.');
               return;
             }
             payload.newPhotoId = selectedUserPhotoId;
@@ -449,7 +542,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
     const selectTradeSource = () => {
       if (swapSource === 'profile') {
         if (!selectedUserPhotoId) {
-          toast.error('Please choose a replacement photo from your uploads.');
+          toast.error('Please choose a replacement photo.');
           return;
         }
       } else if (swapSource === 'computer') {
@@ -558,7 +651,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                 </div>
 
                 {/* content */}
-                <div className="flex h-54 items-center justify-center gap-5">
+                <div className="flex flex-wrap items-center justify-center gap-5">
                   {/* Computer */}
                   <button
                     type="button"
@@ -579,6 +672,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                       setSwapSource('profile');
                       setStep('selectTradeSource');
                       triggerPhotos({ id: contestId });
+                      triggerHistory({ id: contestId });
                     }}
                     className="border-primary hover:bg-primary/5 flex size-36 flex-col items-center justify-center gap-4 rounded-xl border transition-colors"
                   >
@@ -602,7 +696,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                   <p className="text-primary-foreground/50 text-sm">
                     {swapSource === 'computer'
                       ? 'Choose a photo from your computer'
-                      : 'Pick one photo from your uploaded photos'}
+                      : 'Pick a fresh photo, or bring back one you traded out earlier'}
                   </p>
                 </div>
 
@@ -641,15 +735,37 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                   </>
                 ) : (
                   swapSource === 'profile' && (
-                    <TradePhotoJustifiedPicker
-                      photos={uploadedPhotos}
-                      isLoading={isPhotosLoading}
-                      selectedId={selectedUserPhotoId}
-                      onSelect={(photo) => {
-                        setSelectedUserPhotoId(photo.id);
-                        setSelectedUserPhotoUrl(resolveImageUrl(photo.url));
-                      }}
-                    />
+                    <div className="space-y-6">
+                      <div className="space-y-2.5">
+                        <p className="text-primary-foreground/60 text-xs font-semibold tracking-wide uppercase">
+                          Fresh uploads
+                        </p>
+                        <TradePhotoJustifiedPicker
+                          photos={uploadedPhotos}
+                          isLoading={isPhotosLoading}
+                          selectedId={selectedUserPhotoId}
+                          onSelect={(photo) => {
+                            setSelectedUserPhotoId(photo.id);
+                            setSelectedUserPhotoUrl(resolveImageUrl(photo.url));
+                          }}
+                        />
+                      </div>
+
+                      <div className="border-border-subtle space-y-2.5 border-t pt-5">
+                        <p className="text-primary-foreground/60 text-xs font-semibold tracking-wide uppercase">
+                          Previously traded
+                        </p>
+                        <TradeHistoryPicker
+                          photos={tradeableHistory}
+                          isLoading={isHistoryLoading}
+                          selectedId={selectedUserPhotoId}
+                          onSelect={(photo) => {
+                            setSelectedUserPhotoId(photo.id);
+                            setSelectedUserPhotoUrl(resolveImageUrl(photo.url));
+                          }}
+                        />
+                      </div>
+                    </div>
                   )
                 )}
 
@@ -664,7 +780,9 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                   </button>
                   <button
                     type="button"
-                    disabled={swapSource === 'profile' ? !selectedUserPhotoId : !replacementFile}
+                    disabled={
+                      swapSource === 'computer' ? !replacementFile : !selectedUserPhotoId
+                    }
                     onClick={selectTradeSource}
                     className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm disabled:opacity-60"
                   >
@@ -755,7 +873,6 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                       <div className="flex w-full items-center justify-center overflow-hidden rounded-lg">
                         {/* FIX: use stored selectedUserPhotoUrl directly — no filter needed */}
                         {swapSource === 'profile' && selectedUserPhotoUrl && (
-                          /* eslint-disable-next-line @next/next/no-img-element */
                           <div className="relative h-60 w-full">
                             <Image
                               src={selectedUserPhotoUrl}
