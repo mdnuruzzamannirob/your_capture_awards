@@ -13,6 +13,7 @@ import {
 } from '@/store/apis/contestApi';
 import getContestTabs from '@/utils/getContestTabs';
 // Use native <img> for banner to avoid Next/Image SSR hydration attribute mismatch
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import CountdownTimer from '@/components/CountdownTimer';
@@ -128,9 +129,12 @@ const ContestDetails = ({ id }: { id: string }) => {
         {/* Uploader credit — bottom right of the banner, only shown when the admin
             picked an existing user submission as the banner image. */}
         {contest?.bannerUploader?.fullName && (
-          <div className="absolute right-3 bottom-3 z-10 max-w-[70%] truncate rounded-md bg-black/60 px-2.5 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
+          <Link
+            href={`/profile/${contest.bannerUploader.id}`}
+            className="absolute right-3 bottom-3 z-10 max-w-[70%] truncate rounded-md bg-black/60 px-2.5 py-1.5 text-xs font-medium text-white backdrop-blur-sm hover:text-primary"
+          >
             📷 {contest.bannerUploader.fullName}
-          </div>
+          </Link>
         )}
 
         <div className="absolute top-1/2 left-1/2 w-full -translate-x-1/2 -translate-y-1/2 space-y-3 text-center">
