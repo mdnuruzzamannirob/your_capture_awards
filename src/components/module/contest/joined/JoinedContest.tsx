@@ -6,16 +6,16 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { useGetJoinedContestQuery } from '@/store/apis/contestApi';
+import { useGetJoinedContestQuery, useGetVoteCountsQuery } from '@/store/apis/contestApi';
 import { useGetAllLevelsQuery, useGetUserProgressQuery } from '@/store/apis/levelsApi';
 import { cn } from '@/utils/cn';
 import { labels, totalLevels } from '@/utils/valueToExposureLabel';
 import { AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import ContestActionModal, { ContestActionModalRef } from './ContestActionModal';
-import JoinedContestCard from './JoinedContestCard';
+import JoinedContestCard, { getContestPhotoId } from './JoinedContestCard';
 import JoinedContestCardSkeleton from './JoinedContestCardSkeleton';
 
 // Stable reference so the accumulation effect below doesn't re-fire every render -
@@ -90,6 +90,33 @@ const JoinedContest = () => {
     });
   }, [joinedResult, page]);
 
+  // Every submitted photo slot currently on screen, polled for its live vote
+  // count on a short interval - a dedicated, tiny endpoint instead of
+  // re-fetching the full joined-contest payload (banner, rules, etc.) just to
+  // catch a vote count changing. Capped at 100 to match the backend's limit
+  // on this endpoint even if infinite-scroll has accumulated more than that.
+  const contestPhotoIds = useMemo(() => {
+    const ids = allContests.flatMap((contest: any) =>
+      Array.isArray(contest?.photos)
+        ? contest.photos.map((photo: any, index: number) => getContestPhotoId(photo, index))
+        : [],
+    );
+    return Array.from(new Set(ids)).slice(0, 100);
+  }, [allContests]);
+
+  const { data: voteCountsData } = useGetVoteCountsQuery(
+    { contestPhotoIds },
+    { skip: contestPhotoIds.length === 0, pollingInterval: 8_000 },
+  );
+
+  const liveVoteCounts = useMemo(() => {
+    const map: Record<string, number> = {};
+    voteCountsData?.data?.forEach((entry) => {
+      map[entry.contestPhotoId] = entry.voteCount;
+    });
+    return map;
+  }, [voteCountsData]);
+
   const { loadMoreRef } = useInfiniteScroll({
     hasMore,
     isLoading: isFetching,
@@ -157,7 +184,12 @@ const JoinedContest = () => {
           </div>
         ) : (
           allContests.map((contest: any, index: number) => (
-            <JoinedContestCard key={index} contest={contest} refetch={refetch} />
+            <JoinedContestCard
+              key={index}
+              contest={contest}
+              refetch={refetch}
+              liveVoteCounts={liveVoteCounts}
+            />
           ))
         )}
       </div>

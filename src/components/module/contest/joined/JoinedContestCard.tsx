@@ -67,7 +67,7 @@ const getContestPhotoUrl = (photo: any) =>
   photo?.image?.url ??
   '';
 
-const getContestPhotoId = (photo: any, index: number) =>
+export const getContestPhotoId = (photo: any, index: number) =>
   photo?.id ??
   photo?.contestPhotoId ??
   photo?.photoId ??
@@ -157,19 +157,24 @@ const isPhotoTraded = (photo: ContestPhoto) => {
 function UploadedPhoto({
   photo,
   fallbackVotes,
+  liveVoteCount,
   href,
   now,
   index,
 }: {
   photo: ContestPhoto;
   fallbackVotes: number;
+  liveVoteCount?: number;
   href?: string;
   now: number;
   index: number;
 }) {
   const [imageError, setImageError] = useState(false);
   const resolvedPhotoUrl = resolveImageUrl(photo.url);
-  const ownVotes = getPhotoVotes(photo);
+  // The polled realtime count (see JoinedContest's useGetVoteCountsQuery) wins
+  // whenever it's available - it's always fresher than whatever came down with
+  // the joined-contest payload, which only re-fetches every 60s.
+  const ownVotes = typeof liveVoteCount === 'number' ? liveVoteCount : getPhotoVotes(photo);
   const votes = ownVotes > 0 ? ownVotes : fallbackVotes;
   const promoted = isPhotoPromoted(photo, now);
   const traded = isPhotoTraded(photo);
@@ -276,7 +281,15 @@ function BannerImage({ src, alt }: { src?: string | null; alt?: string }) {
   );
 }
 
-const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => Promise<any> }) => {
+const JoinedContestCard = ({
+  contest,
+  refetch,
+  liveVoteCounts,
+}: {
+  contest: any;
+  refetch: () => Promise<any>;
+  liveVoteCounts?: Record<string, number>;
+}) => {
   const { user, isAuthenticated } = useAuth();
   const dispatch = useDispatch();
   const { openStore } = useStoreModal();
@@ -516,6 +529,7 @@ const JoinedContestCard = ({ contest, refetch }: { contest: any; refetch: () => 
                 key={photo.id}
                 photo={photo}
                 fallbackVotes={photos.length === 1 ? totalVotes : 0}
+                liveVoteCount={liveVoteCounts?.[photo.id]}
                 href={photoHref}
                 now={now}
                 index={index}
