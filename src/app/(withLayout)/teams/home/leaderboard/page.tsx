@@ -65,26 +65,28 @@ function RewardsSummary({ period }: { period: LeaderboardPeriod }) {
   const periodNoun = PERIOD_NOUN[period];
 
   return (
-    <div className="border-border bg-surface/50 rounded-md border p-4">
-      <p className="text-sm font-semibold">This {periodNoun}&apos;s rewards</p>
-      <div className="mt-2 flex flex-col gap-1.5">
-        {rewards.map((coins, index) => (
-          <div key={index} className="flex w-full items-center justify-between gap-3 text-sm">
-            <span className="flex items-center gap-3">
-              <span className="text-2xl leading-none">{RANK_MEDALS[index]}</span>
-              <span className="w-6 shrink-0 font-medium">{index + 1}</span>
-            </span>
-            <span className="shrink-0 text-right whitespace-nowrap">
-              <span className="text-primary font-semibold">{coins.toLocaleString()} coins</span>
-              <span className="text-muted-foreground"> / member</span>
-            </span>
-          </div>
-        ))}
+    <div className="flex justify-end">
+      <div className="border-border bg-surface/50 w-full max-w-sm rounded-md border p-4 sm:max-w-md">
+        <p className="text-sm font-semibold">This {periodNoun}&apos;s rewards</p>
+        <div className="mt-2 flex flex-col gap-1.5">
+          {rewards.map((coins, index) => (
+            <div key={index} className="flex w-full items-center justify-between gap-3 text-sm">
+              <span className="flex items-center gap-3">
+                <span className="text-2xl leading-none">{RANK_MEDALS[index]}</span>
+                <span className="w-6 shrink-0 font-medium">{index + 1}</span>
+              </span>
+              <span className="shrink-0 text-right whitespace-nowrap">
+                <span className="text-primary font-semibold">{coins.toLocaleString()} coins</span>
+                <span className="text-muted-foreground"> / member</span>
+              </span>
+            </div>
+          ))}
+        </div>
+        <p className="text-muted-foreground mt-2 text-xs">
+          Estimated based on the current standing — nothing is awarded until this {periodNoun}{' '}
+          ends, and rankings can still change.
+        </p>
       </div>
-      <p className="text-muted-foreground mt-2 text-xs">
-        Estimated based on the current standing — nothing is awarded until this {periodNoun} ends,
-        and rankings can still change.
-      </p>
     </div>
   );
 }
