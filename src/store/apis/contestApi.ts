@@ -295,6 +295,21 @@ export const contestApi = createApi({
       ],
     }),
 
+    // Bulk, tag-free vote-count lookup for realtime polling. Kept deliberately
+    // outside the invalidatesTags/providesTags system so watching it never
+    // touches the much larger JoinedContests cache - the component polls this
+    // on its own short interval instead of re-fetching full contest payloads.
+    getVoteCounts: builder.query<
+      { data: { contestPhotoId: string; voteCount: number }[] },
+      { contestPhotoIds: string[] }
+    >({
+      query: ({ contestPhotoIds }) => ({
+        url: '/votes/counts',
+        method: 'POST',
+        body: { contestPhotoIds },
+      }),
+    }),
+
     // promote a contest photo
     promoteContestPhoto: builder.mutation<
       { success: boolean; message: string; data?: any },
@@ -375,6 +390,7 @@ export const {
   useLazyGetContestRankPhotosQuery,
   useGetContestRankPhotographersQuery,
   useLazyGetContestRankPhotographersQuery,
+  useGetVoteCountsQuery,
   useCreateVoteMutation,
   usePromoteContestPhotoMutation,
   useTradeContestPhotoMutation,

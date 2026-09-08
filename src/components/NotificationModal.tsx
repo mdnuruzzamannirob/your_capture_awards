@@ -11,10 +11,8 @@ import {
 import { useJoinByInvitationMutation, useRejectInvitationMutation } from '@/store/apis/teamApi';
 import { NotificationItem, NotificationType } from '@/store/types/notificationTypes';
 import { cn } from '@/utils/cn';
-import { getNotificationHref } from '@/utils/notification-links';
 import { formatDistanceToNow } from 'date-fns';
 import { Bell, BellOff, CheckCheck } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -39,7 +37,6 @@ const formatRelative = (dateString: string) => {
 
 export default function NotificationModal() {
   const { token } = useAuth();
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [notificationItems, setNotificationItems] = useState<NotificationItem[]>([]);
@@ -95,22 +92,20 @@ export default function NotificationModal() {
     }
   };
 
+  // Clicking a notification only ever marks it read - it never navigates or
+  // closes the panel. Navigation happens exclusively through the specific
+  // entity links rendered inside the message itself (see NotificationMessage),
+  // so the rest of the card stays a plain "mark as read" surface.
   const handleNotificationClick = async (notification: NotificationItem) => {
-    if (!notification.isRead) {
-      try {
-        await markNotificationRead(notification.id).unwrap();
-        setNotificationItems((current) =>
-          current.map((item) => (item.id === notification.id ? { ...item, isRead: true } : item)),
-        );
-      } catch {
-        toast.error('Failed to mark notification as read');
-      }
-    }
+    if (notification.isRead) return;
 
-    const href = getNotificationHref(notification);
-    if (href) {
-      setOpen(false);
-      router.push(href);
+    try {
+      await markNotificationRead(notification.id).unwrap();
+      setNotificationItems((current) =>
+        current.map((item) => (item.id === notification.id ? { ...item, isRead: true } : item)),
+      );
+    } catch {
+      toast.error('Failed to mark notification as read');
     }
   };
 
@@ -195,8 +190,7 @@ export default function NotificationModal() {
             <div className="text-muted-foreground p-4 text-center text-sm">Loading...</div>
           ) : notifications.length > 0 ? (
             notifications.map((notification: NotificationItem) => {
-              const href = getNotificationHref(notification);
-              const isClickable = Boolean(href) || !notification.isRead;
+              const isClickable = !notification.isRead;
 
               return (
               <div
