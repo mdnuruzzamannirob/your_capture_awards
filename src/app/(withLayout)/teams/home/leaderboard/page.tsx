@@ -74,7 +74,7 @@ function RewardsSummary({ period }: { period: LeaderboardPeriod }) {
               <span className="text-2xl leading-none">{RANK_MEDALS[index]}</span>
               <span className="w-6 shrink-0 font-medium">{index + 1}</span>
             </span>
-            <span>
+            <span className="shrink-0 text-right whitespace-nowrap">
               <span className="text-primary font-semibold">{coins.toLocaleString()} coins</span>
               <span className="text-muted-foreground"> / member</span>
             </span>
