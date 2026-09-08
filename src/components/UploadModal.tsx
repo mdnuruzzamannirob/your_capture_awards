@@ -401,8 +401,12 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         onSuccess?.();
 
         if (type === 'join' && redirectOnJoinSuccess) {
+          // Contest titles can contain "&", "#", "%", etc. - unescaped, any of
+          // those breaks the query string (an "&" in particular gets read as
+          // the start of a new param, silently truncating the title at that
+          // point, e.g. "Red & Green" showing up as just "Red ").
           router.push(
-            `/contest/joined?modal=joinSuccess&contestId=${contestId}&contestTitle=${title}`,
+            `/contest/joined?modal=joinSuccess&contestId=${encodeURIComponent(contestId)}&contestTitle=${encodeURIComponent(title)}`,
           );
         }
 

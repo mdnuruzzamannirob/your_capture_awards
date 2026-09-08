@@ -14,6 +14,7 @@ type ContestPrize = {
   boost: number;
   swap: number;
   key: number;
+  coin: number;
 };
 
 type Winner = {
@@ -106,6 +107,13 @@ const WinnersTab = ({ contest, value }: { contest: any; value: string }) => {
 
         <p className="flex items-center gap-1">
           <AiOutlineThunderbolt />x{prize.key}
+        </p>
+
+        <span>|</span>
+
+        <p className="flex items-center gap-1">
+          <Image src="/icons/ycw-coin.png" alt="Coins" width={16} height={16} className="size-4" />
+          x{prize.coin}
         </p>
       </div>
     );
