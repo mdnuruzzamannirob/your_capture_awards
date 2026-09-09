@@ -75,7 +75,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         email: data?.email,
         firstName: data?.firstName,
         lastName: data?.lastName,
-        phone: data?.phone,
         password: data?.password,
         confirmPassword: data?.confirmPassword,
         remember_me: rememberMe,
@@ -233,15 +232,6 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
         register={signupForm.register}
         error={signupForm.formState.errors.email?.message as string}
       />
-      <FormField<SignupFormData>
-        label="Contact Number"
-        id="phone"
-        type="tel"
-        placeholder="Enter your contact number"
-        register={signupForm.register}
-        error={signupForm.formState.errors.phone?.message}
-      />
-
       <div className="relative">
         <FormField<SignupFormData>
           label="Password"

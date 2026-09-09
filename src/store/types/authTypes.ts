@@ -41,7 +41,7 @@ export interface AuthUser {
   username: string | null;
   email: string;
   role: string;
-  phone: string | number;
+  phone?: string | number;
   avatar: string;
   cover: string;
   location: string | null;
@@ -61,7 +61,6 @@ export type SignupData = {
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
   password: string;
   confirmPassword: string;
   remember_me?: boolean;

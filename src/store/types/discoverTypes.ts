@@ -26,7 +26,7 @@ export interface DiscoverPhotoItem {
       lastName: string;
       fullName: string;
       username: string | null;
-      phone: string;
+      phone?: string;
       email: string;
       location: string;
       country: string | null;

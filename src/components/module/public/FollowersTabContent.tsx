@@ -48,7 +48,7 @@ function PersonCard({ item, isFollowedByMe }: { item: any; isFollowedByMe: boole
       : '') ||
     'User';
   const avatar = follower?.avatar || '';
-  const country = follower?.location || follower?.country || 'Bangladesh';
+  const country = follower?.location || follower?.country || '';
   const cover =
     item.cover ??
     'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80';
@@ -115,9 +115,11 @@ function PersonCard({ item, isFollowedByMe }: { item: any; isFollowedByMe: boole
               </Link>
             )}
 
-            <p className="text-caption-foreground mt-0.5 flex items-center gap-1 truncate text-xs">
-              <MapPin size={14} className="shrink-0" /> {country}
-            </p>
+            {country && (
+              <p className="text-caption-foreground mt-0.5 flex items-center gap-1 truncate text-xs">
+                <MapPin size={14} className="shrink-0" /> {country}
+              </p>
+            )}
           </div>
         </div>
 

@@ -415,12 +415,14 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                     <h1 className="text-foreground mb-1.5 leading-tight font-bold tracking-tight sm:text-lg">
                       {fullName}
                     </h1>
-                    <div className="space-y-1">
-                      <span className="text-muted-foreground flex items-center gap-1.5 text-xs font-semibold">
-                        <MapPin className="text-muted-foreground size-3.5" />
-                        {profile?.location || profile?.country || 'Bangladesh'}
-                      </span>
-                    </div>
+                    {(profile?.location || profile?.country) && (
+                      <div className="space-y-1">
+                        <span className="text-muted-foreground flex items-center gap-1.5 text-xs font-semibold">
+                          <MapPin className="text-muted-foreground size-3.5" />
+                          {profile?.location || profile?.country}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 )}
 
