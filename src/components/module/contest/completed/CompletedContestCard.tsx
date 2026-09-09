@@ -95,24 +95,26 @@ const AchievementBadge = ({
   return (
     <div
       key={achievement.id || index}
-      className="flex w-20 flex-col items-center gap-2 text-center"
+      className="flex w-28 flex-col items-center gap-2 text-center"
     >
-      <div className="ring-border bg-surface relative flex size-20 items-center justify-center overflow-hidden rounded-full ring-1">
-        {icon && !showTextOnly ? (
-          <Image
-            alt={label}
-            src={icon}
-            fill
-            className="object-contain p-3"
-            onError={() => setShowTextOnly(true)}
-          />
-        ) : (
-          <span className="text-muted-foreground px-2 text-[10px] font-medium">
-            {formatAchievementLabel(label)}
-          </span>
-        )}
+      <div className="relative size-28">
+        <div className="ring-border bg-surface flex size-full items-center justify-center overflow-hidden rounded-full ring-1">
+          {icon && !showTextOnly ? (
+            <Image
+              alt={label}
+              src={icon}
+              fill
+              className="object-contain p-3"
+              onError={() => setShowTextOnly(true)}
+            />
+          ) : (
+            <span className="text-muted-foreground px-2 text-[10px] font-medium">
+              {formatAchievementLabel(label)}
+            </span>
+          )}
+        </div>
         {count > 1 && (
-          <span className="bg-primary text-primary-foreground absolute right-0 bottom-0 flex size-5 items-center justify-center rounded-full text-[10px] font-bold shadow-sm">
+          <span className="bg-primary text-primary-foreground ring-surface absolute right-0 bottom-0 flex size-6 items-center justify-center rounded-full text-xs font-bold shadow-sm ring-2">
             {count}
           </span>
         )}
