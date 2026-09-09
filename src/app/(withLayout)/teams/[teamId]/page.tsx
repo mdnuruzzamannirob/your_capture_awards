@@ -390,27 +390,36 @@ export default function TeamDetailPage() {
                       <span className="text-muted-foreground block w-5 shrink-0 text-center text-sm font-medium sm:hidden">
                         {index + 1}
                       </span>
-                      <Avatar className="size-10 shrink-0 sm:size-12">
-                        {member.member.avatar && (
-                          <AvatarImage src={member.member.avatar} className="object-cover" />
-                        )}
-                        <AvatarFallback
-                          className={`text-sm font-semibold ${getAvatarClass(member.level)}`}
-                        >
-                          {getInitials(
-                            member.member.fullName,
-                            member.member.firstName ?? undefined,
-                            member.member.lastName ?? undefined,
+                      <Link
+                        href={`/profile/${member.member.id}`}
+                        className="group flex min-w-0 flex-1 items-center gap-3"
+                      >
+                        <Avatar className="size-10 shrink-0 sm:size-12">
+                          {member.member.avatar && (
+                            <AvatarImage src={member.member.avatar} className="object-cover" />
                           )}
-                        </AvatarFallback>
-                      </Avatar>
+                          <AvatarFallback
+                            className={`text-sm font-semibold ${getAvatarClass(member.level)}`}
+                          >
+                            {getInitials(
+                              member.member.fullName,
+                              member.member.firstName ?? undefined,
+                              member.member.lastName ?? undefined,
+                            )}
+                          </AvatarFallback>
+                        </Avatar>
 
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold sm:text-base">{name}</p>
-                        {member.member.location && (
-                          <p className="text-muted-foreground text-xs">{member.member.location}</p>
-                        )}
-                      </div>
+                        <div className="min-w-0">
+                          <p className="group-hover:text-primary truncate text-sm font-semibold transition-colors sm:text-base">
+                            {name}
+                          </p>
+                          {member.member.location && (
+                            <p className="text-muted-foreground text-xs">
+                              {member.member.location}
+                            </p>
+                          )}
+                        </div>
+                      </Link>
                     </div>
 
                     <div className="flex shrink-0 items-center justify-end">
