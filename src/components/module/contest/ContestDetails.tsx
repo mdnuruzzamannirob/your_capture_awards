@@ -108,28 +108,16 @@ const ContestDetails = ({ id }: { id: string }) => {
     <main className="margin-user space-y-10">
       <section className="bg-surface-secondary text-body relative h-64 w-full overflow-hidden sm:h-80 md:h-96 lg:h-125">
         {bannerSrc && failedBannerSrc !== bannerSrc ? (
-          <>
-            <img
-              src={bannerSrc}
-              alt=""
-              aria-hidden="true"
-              width={1920}
-              height={500}
-              decoding="async"
-              loading="lazy"
-              className="absolute inset-0 size-full scale-105 object-cover opacity-35 blur-md"
-            />
-            <img
-              src={bannerSrc}
-              alt="Banner"
-              width={1920}
-              height={500}
-              decoding="async"
-              loading="lazy"
-              className="absolute inset-0 size-full object-contain opacity-85"
-              onError={() => setFailedBannerSrc(bannerSrc)}
-            />
-          </>
+          <img
+            src={bannerSrc}
+            alt="Banner"
+            width={1920}
+            height={500}
+            decoding="async"
+            loading="lazy"
+            className="size-full object-cover opacity-60"
+            onError={() => setFailedBannerSrc(bannerSrc)}
+          />
         ) : (
           <div className="bg-surface-secondary text-body flex h-full w-full items-center justify-center">
             <p>No banner</p>
