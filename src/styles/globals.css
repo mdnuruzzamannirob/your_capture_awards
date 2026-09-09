@@ -243,6 +243,11 @@
     color: var(--placeholder-foreground);
   }
 
+  img {
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+
   hr,
   [role='separator'] {
     border-color: var(--border);

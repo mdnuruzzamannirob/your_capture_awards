@@ -5,6 +5,7 @@ import { Kumbh_Sans } from 'next/font/google';
 import AuthRedirectHandler from '../components/module/auth/AuthRedirectHandler';
 import StoreModal from '../components/module/store/StoreModal';
 import CookieConsent from '../components/CookieConsent';
+import ImageProtection from '../components/ImageProtection';
 import ReduxProvider from '../providers/ReduxProvider';
 import { SocketProvider } from '../providers/SocketProvider';
 import { StoreModalProvider } from '../providers/StoreModalProvider';
@@ -76,6 +77,7 @@ export default async function RootLayout({
             <SocketProvider>
               <StoreModalProvider>
                 <AuthRedirectHandler />
+                <ImageProtection />
                 {children} <StoreModal />
                 <CookieConsent />
                 <Toaster
