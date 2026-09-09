@@ -16,6 +16,39 @@ const achievementIconMap: Record<string, string> = {
   SUPREME: '/icons/contest-level-supreme.svg',
   SUPERIOR: '/icons/contest-level-superior.svg',
   TOP_NOTCH: '/icons/contest-level-top-notch.svg',
+  TOP_10_PHOTO: '/icons/top-photo-10.png',
+  TOP_10_PHOTOGRAPHER: '/icons/top-photographer-10.png',
+  TOP_20_PHOTO: '/icons/top-photo-20.png',
+  TOP_20_PHOTOGRAPHER: '/icons/top-photographer-20.png',
+  TOP_50_PHOTO: '/icons/top-photo-50.png',
+  TOP_50_PHOTOGRAPHER: '/icons/top-photographer-50.png',
+  TOP_100_PHOTO: '/icons/top-photo-100.png',
+  TOP_100_PHOTOGRAPHER: '/icons/top-photographer-100.png',
+  TOP_200_PHOTO: '/icons/top-photo-v2.png',
+  TOP_200_PHOTOGRAPHER: '/icons/top-photographer-v2.png',
+};
+
+// Award grants are per-photo (e.g. two of a user's photos can both land in the
+// contest's Top 10), so the raw achievement list can contain several rows for
+// the same category. Collapse those into a single badge with a count instead
+// of rendering duplicate circles.
+const groupAchievementsByBadge = (achievements: any[]) => {
+  const order: string[] = [];
+  const grouped = new Map<string, { achievement: any; count: number }>();
+
+  achievements.forEach((achievement) => {
+    const key = achievement?.category || achievement?.levelBadge || achievement?.id;
+    const existing = grouped.get(key);
+
+    if (existing) {
+      existing.count += 1;
+    } else {
+      grouped.set(key, { achievement, count: 1 });
+      order.push(key);
+    }
+  });
+
+  return order.map((key) => grouped.get(key)!);
 };
 
 const formatAchievementLabel = (value: string) => {
@@ -38,7 +71,15 @@ const getContestAchievements = (contest: any) => {
   return [];
 };
 
-const AchievementBadge = ({ achievement, index }: { achievement: any; index: number }) => {
+const AchievementBadge = ({
+  achievement,
+  count,
+  index,
+}: {
+  achievement: any;
+  count: number;
+  index: number;
+}) => {
   const [showTextOnly, setShowTextOnly] = useState(false);
   const icon =
     achievement.imageUrl ||
@@ -68,6 +109,11 @@ const AchievementBadge = ({ achievement, index }: { achievement: any; index: num
         ) : (
           <span className="text-muted-foreground px-2 text-[10px] font-medium">
             {formatAchievementLabel(label)}
+          </span>
+        )}
+        {count > 1 && (
+          <span className="bg-primary text-primary-foreground absolute right-0 bottom-0 flex size-5 items-center justify-center rounded-full text-[10px] font-bold shadow-sm">
+            {count}
           </span>
         )}
       </div>
@@ -103,7 +149,7 @@ const EntryPhoto = ({ src }: { src?: string }) => {
 
 const CompletedContestCard = ({ contest }: { contest: any }) => {
   const router = useRouter();
-  const achievements = getContestAchievements(contest);
+  const achievements = groupAchievementsByBadge(getContestAchievements(contest));
   const photos = contest?.photos?.data ?? [];
 
   return (
@@ -157,10 +203,11 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
           </h3>
           {achievements.length ? (
             <div className="flex flex-wrap gap-4">
-              {achievements.map((achievement: any, index: number) => (
+              {achievements.map(({ achievement, count }, index: number) => (
                 <AchievementBadge
                   key={achievement.id || index}
                   achievement={achievement}
+                  count={count}
                   index={index}
                 />
               ))}
