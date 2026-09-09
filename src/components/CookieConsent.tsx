@@ -1,31 +1,38 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import {
+  CONSENT_EVENT,
+  getConsent,
+  isConsentStorageAvailable,
+  setConsent,
+  type ConsentChoice,
+} from '@/lib/consent';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-
-const CONSENT_STORAGE_KEY = 'yca-cookie-consent';
 
 const CookieConsent = () => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    try {
-      if (!localStorage.getItem(CONSENT_STORAGE_KEY)) {
-        setVisible(true);
-      }
-    } catch {
-      // localStorage unavailable (private mode, blocked storage) - skip the banner
-      // rather than risk breaking the page.
-    }
+    // Only ask when the answer can be stored, otherwise the banner would
+    // reappear on every page load with no way to dismiss it for good.
+    const sync = () => setVisible(isConsentStorageAvailable() && !getConsent());
+
+    sync();
+    // Answering in another tab counts as answered here too.
+    window.addEventListener(CONSENT_EVENT, sync);
+    window.addEventListener('storage', sync);
+
+    return () => {
+      window.removeEventListener(CONSENT_EVENT, sync);
+      window.removeEventListener('storage', sync);
+    };
   }, []);
 
-  const respond = (choice: 'accepted' | 'declined') => {
-    try {
-      localStorage.setItem(CONSENT_STORAGE_KEY, choice);
-    } catch {
-      // ignore - the banner just won't be remembered on the next visit
-    }
+  const respond = (choice: ConsentChoice) => {
+    // Notifies GoogleAnalytics, which starts (or stays off) on this same visit.
+    setConsent(choice);
     setVisible(false);
   };
 
