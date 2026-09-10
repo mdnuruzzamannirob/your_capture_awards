@@ -512,22 +512,24 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
             <div className="flex w-full items-center gap-3 overflow-hidden lg:w-auto">
               {/* Total votes received across all participated contests */}
               {isLoading && !stats ? (
-                <div className="border-border bg-surface/30 flex h-12 shrink-0 animate-pulse items-center justify-center rounded-sm border px-5 shadow-md">
+                <div className="border-warning-500/25 bg-warning-500/5 flex h-12 shrink-0 animate-pulse items-center justify-center rounded-full border px-6">
                   <div className="flex flex-col items-center gap-1.5">
-                    <div className="bg-surface-secondary h-4 w-6 rounded" />
-                    <div className="bg-surface-secondary h-2 w-10 rounded" />
+                    <div className="bg-warning-500/25 h-4 w-6 rounded" />
+                    <div className="bg-warning-500/20 h-2 w-10 rounded" />
                   </div>
                 </div>
               ) : (
                 <div
                   title="Total votes received across all contests"
-                  className="border-border bg-surface/30 flex h-12 shrink-0 items-center justify-center rounded-sm border px-5 shadow-md"
+                  className="border-warning-500/40 from-warning-500/20 via-warning-500/8 relative flex h-12 shrink-0 cursor-default items-center justify-center overflow-hidden rounded-full border bg-linear-to-b to-transparent px-6 select-none"
                 >
-                  <div className="flex flex-col items-center justify-center">
-                    <span className="text-foreground text-sm leading-tight font-bold">
+                  {/* Soft gold glow so the badge reads as an earned reward, not a button */}
+                  <div className="bg-warning-500/30 pointer-events-none absolute -top-7 left-1/2 size-16 -translate-x-1/2 rounded-full blur-2xl" />
+                  <div className="relative flex flex-col items-center justify-center">
+                    <span className="text-warning-500 text-base leading-tight font-bold">
                       {Number(totalVotes).toLocaleString()}
                     </span>
-                    <span className="text-muted-foreground text-[10px] font-semibold tracking-wider whitespace-nowrap uppercase">
+                    <span className="text-warning-500/70 text-[9px] font-semibold tracking-[0.18em] whitespace-nowrap uppercase">
                       Votes
                     </span>
                   </div>
