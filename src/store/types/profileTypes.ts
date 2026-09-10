@@ -28,6 +28,7 @@ export type Stats = {
   likes: number;
   userPhotos: number;
   achievements: number;
+  totalVotes: number;
 };
 
 export type AchievementCard = {
