@@ -514,9 +514,9 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
               {isLoading && !stats ? (
                 <div className="border-border bg-surface/30 flex h-12 shrink-0 animate-pulse items-center gap-2.5 rounded-sm border px-4 shadow-md">
                   <div className="bg-surface-secondary size-5 rounded" />
-                  <div className="flex flex-col gap-1.5">
-                    <div className="bg-surface-secondary h-4 w-10 rounded" />
-                    <div className="bg-surface-secondary h-2 w-16 rounded" />
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className="bg-surface-secondary h-4 w-6 rounded" />
+                    <div className="bg-surface-secondary h-2 w-10 rounded" />
                   </div>
                 </div>
               ) : (
@@ -525,12 +525,12 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                   className="border-border bg-surface/30 flex h-12 shrink-0 items-center gap-2.5 rounded-sm border px-4 shadow-md"
                 >
                   <Vote className="text-primary size-5 shrink-0" />
-                  <div className="flex flex-col items-start justify-center">
+                  <div className="flex flex-col items-center justify-center">
                     <span className="text-foreground text-sm leading-tight font-bold">
                       {Number(totalVotes).toLocaleString()}
                     </span>
                     <span className="text-muted-foreground text-[10px] font-semibold tracking-wider whitespace-nowrap uppercase">
-                      Total Votes
+                      Votes
                     </span>
                   </div>
                 </div>
