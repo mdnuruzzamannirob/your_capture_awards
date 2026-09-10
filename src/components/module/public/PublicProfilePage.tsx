@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/utils/cn';
-import { AlertTriangle, Loader2, MapPin, Vote } from 'lucide-react';
+import { AlertTriangle, Loader2, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -512,8 +512,7 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
             <div className="flex w-full items-center gap-3 overflow-hidden lg:w-auto">
               {/* Total votes received across all participated contests */}
               {isLoading && !stats ? (
-                <div className="border-border bg-surface/30 flex h-12 shrink-0 animate-pulse items-center gap-2.5 rounded-sm border px-4 shadow-md">
-                  <div className="bg-surface-secondary size-5 rounded" />
+                <div className="border-border bg-surface/30 flex h-12 shrink-0 animate-pulse items-center justify-center rounded-sm border px-5 shadow-md">
                   <div className="flex flex-col items-center gap-1.5">
                     <div className="bg-surface-secondary h-4 w-6 rounded" />
                     <div className="bg-surface-secondary h-2 w-10 rounded" />
@@ -522,9 +521,8 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
               ) : (
                 <div
                   title="Total votes received across all contests"
-                  className="border-border bg-surface/30 flex h-12 shrink-0 items-center gap-2.5 rounded-sm border px-4 shadow-md"
+                  className="border-border bg-surface/30 flex h-12 shrink-0 items-center justify-center rounded-sm border px-5 shadow-md"
                 >
-                  <Vote className="text-primary size-5 shrink-0" />
                   <div className="flex flex-col items-center justify-center">
                     <span className="text-foreground text-sm leading-tight font-bold">
                       {Number(totalVotes).toLocaleString()}
