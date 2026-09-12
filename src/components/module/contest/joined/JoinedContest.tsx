@@ -252,7 +252,7 @@ const JoinedContest = () => {
                 onClick={handleChargeClick}
                 className="text-primary border-primary rounded-sm border px-5 py-2 text-sm"
               >
-                Promote
+                Charge Exposure
               </button>
               <button
                 onClick={handleVoteClick}
