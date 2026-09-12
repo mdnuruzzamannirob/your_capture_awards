@@ -4,9 +4,11 @@ import { formatPrizeRange } from '@/utils/formatPrizeRange';
 import Image from 'next/image';
 import Link from 'next/link';
 import SafeBannerImage from '@/components/SafeBannerImage';
+import { getUserDisplayName } from '@/utils/getUserDisplayName';
 
 const ClosedContestCard = ({ contest }: { contest: any }) => {
   const maxUploads = contest?.maxUploads ?? contest?.maxUpload ?? 0;
+  const creatorName = getUserDisplayName(contest?.cardAttribution?.user ?? contest?.creator);
 
   return (
     <div>
@@ -39,7 +41,7 @@ const ClosedContestCard = ({ contest }: { contest: any }) => {
             className="bg-border size-7 min-w-7 rounded-full border border-white/20 object-cover"
           />
           <p className="text-xs font-semibold text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]">
-            By {contest?.creator?.fullName ?? 'Unknown'}
+            By {creatorName}
           </p>
         </div>
 

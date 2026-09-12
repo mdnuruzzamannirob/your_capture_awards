@@ -12,6 +12,7 @@ import {
 import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { PhotoToContestPayload } from '@/store/types/contestTypes';
 import { compressImage } from '@/utils/compressImage';
+import { getUserDisplayName } from '@/utils/getUserDisplayName';
 import { resolveImageUrl } from '@/utils/resolveImageUrl';
 import { ArrowLeft, UploadCloud } from 'lucide-react';
 import Image from 'next/image';
@@ -421,7 +422,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const modalContentView = () => {
       switch (modalContentType) {
         case 'preview': {
-          const creatorName = contest?.creator?.fullName ?? 'Unknown';
+          const creatorName = getUserDisplayName(contest?.cardAttribution?.user ?? contest?.creator);
           const creatorAvatar = resolveImageUrl(contest?.creator?.avatar);
 
           return (

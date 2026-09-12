@@ -4,6 +4,7 @@ import TipTapViewer from '@/components/custom/tiptap-editor/TipTapViewer';
 import { TabsContent } from '@/components/ui/tabs';
 import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
+import { getUserDisplayName } from '@/utils/getUserDisplayName';
 import { Globe, UserRound } from 'lucide-react';
 import Image from 'next/image';
 import { FaHourglassHalf } from 'react-icons/fa';
@@ -14,6 +15,10 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
   const now = new Date();
   const contestStart = new Date(contest?.startDate);
   const contestEnd = new Date(contest?.endDate);
+  const creatorName = getUserDisplayName(
+    contest?.cardAttribution?.user ?? contest?.creator,
+    'Contest creator',
+  );
 
   const hasStarted = now >= contestStart;
   const hasEnded = now > contestEnd;
@@ -76,7 +81,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
         <div className="flex w-full shrink-0 flex-col items-center justify-center gap-3 text-center sm:w-40">
           {contest?.creator?.avatar ? (
             <Image
-              alt={contest?.creator?.fullName ?? 'Contest creator'}
+              alt={creatorName}
               src={contest.creator.avatar}
               width={96}
               height={96}
@@ -88,7 +93,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
             </div>
           )}
           <div>
-            <p className="font-medium">{contest?.creator?.fullName ?? 'Contest creator'}</p>
+            <p className="font-medium">{creatorName}</p>
             {contest?.creator?.location && (
               <p className="text-muted-foreground mt-1 flex items-center justify-center gap-1 text-xs">
                 <Globe className="size-3.5" /> {contest.creator.location}
