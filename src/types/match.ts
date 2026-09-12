@@ -29,4 +29,6 @@ export interface Match {
   hasJoined?: boolean;
   countLabel?: string;
   queueStatus?: 'WAITING_FOR_MEMBERS' | 'SEARCHING';
+  lockedByTeamMatch?: boolean;
+  lockReason?: string;
 }
