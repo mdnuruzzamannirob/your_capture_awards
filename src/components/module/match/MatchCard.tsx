@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import CountdownTimer from '@/components/CountdownTimer';
 import { cn } from '@/utils/cn';
 import { Match } from '@/types/match';
-import { Search, Users } from 'lucide-react';
+import { LockKeyhole, Search, Users } from 'lucide-react';
 import Image from 'next/image';
 
 interface MatchCardProps {
@@ -42,6 +42,7 @@ function MatchCard({
   const banner = match.teamA.badge || '/images/TeamPhoto.png';
   const startDate = new Date(match.endsAt.getTime() - 1000 * 60 * 60 * 24 * 30).toISOString();
   const endDate = match.endsAt.toISOString();
+  const isLockedByTeamMatch = Boolean(match.lockedByTeamMatch && !match.queueStatus);
   const buttonLabel = match.queueStatus
     ? 'View Match'
     : match.hasJoined || canManageMatch
@@ -50,14 +51,22 @@ function MatchCard({
   const StatusIcon = match.queueStatus === 'WAITING_FOR_MEMBERS' ? Users : Search;
 
   return (
-    <article className="group border-border bg-surface-secondary/80 overflow-hidden rounded-xl border-2">
+    <article
+      className={cn(
+        'group bg-surface-secondary/80 overflow-hidden rounded-xl border-2',
+        isLockedByTeamMatch ? 'border-warning/40' : 'border-border',
+      )}
+    >
       <div className="relative h-72 overflow-hidden">
         {/* Banner image */}
         <Image
           src={banner}
           alt={match.theme}
           fill
-          className="object-cover transition duration-300 group-hover:brightness-50"
+          className={cn(
+            'object-cover transition duration-300',
+            isLockedByTeamMatch ? 'brightness-50 grayscale-[35%]' : 'group-hover:brightness-50',
+          )}
           sizes="(max-width: 768px) 100vw, 500px"
         />
 
@@ -87,20 +96,43 @@ function MatchCard({
           </div>
         )}
 
+        {isLockedByTeamMatch && (
+          <div className="absolute top-14 left-3 z-10">
+            <div className="bg-warning/90 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold text-black shadow-sm backdrop-blur-sm">
+              <LockKeyhole className="size-3" />
+              Match locked
+            </div>
+          </div>
+        )}
+
         {/* Action Button — center; always visible once a match is in progress, otherwise hover only */}
         <div
           className={cn(
             'pointer-events-none absolute inset-0 z-10 flex items-center justify-center transition-all duration-300',
-            match.queueStatus ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+            match.queueStatus || isLockedByTeamMatch
+              ? 'opacity-100'
+              : 'opacity-0 group-hover:opacity-100',
           )}
         >
-          <Button
-            className="bg-primary text-primary-foreground hover:bg-primary/90 pointer-events-auto rounded px-6 py-2 text-sm font-medium uppercase shadow-lg transition disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={() => onStart(match)}
-            disabled={actionDisabled}
-          >
-            {buttonLabel}
-          </Button>
+          {isLockedByTeamMatch ? (
+            <div className="mx-4 max-w-xs rounded-lg border border-white/15 bg-black/70 px-4 py-3 text-center text-white shadow-lg backdrop-blur-sm">
+              <div className="flex items-center justify-center gap-2 text-sm font-bold">
+                <LockKeyhole className="text-warning size-4" />
+                Team match in progress
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-white/75">
+                {match.lockReason || 'Finish or cancel the current match before starting another.'}
+              </p>
+            </div>
+          ) : (
+            <Button
+              className="bg-primary text-primary-foreground hover:bg-primary/90 pointer-events-auto rounded px-6 py-2 text-sm font-medium uppercase shadow-lg transition disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={() => onStart(match)}
+              disabled={actionDisabled}
+            >
+              {buttonLabel}
+            </Button>
+          )}
         </div>
 
         {/* Footer stats — absolute bottom, zero gap */}
