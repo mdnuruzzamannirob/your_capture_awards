@@ -27,7 +27,7 @@ import type { AvailableTeamContest, TeamMatchEligibleMember } from '@/store/type
 import { Match } from '@/types/match';
 import { getImageUrl, mapActiveMatchToMatch } from '@/utils/activeTeamMatch';
 import { cn } from '@/utils/cn';
-import { AlertCircle, ExternalLink, Loader2, Swords, ThumbsUp, Users } from 'lucide-react';
+import { AlertCircle, ExternalLink, Loader2, LockKeyhole, Swords, ThumbsUp, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -68,6 +68,7 @@ function mapContestToMatch(
   contest: AvailableTeamContest,
   currentUserId?: string,
   queueStatus?: 'WAITING_FOR_MEMBERS' | 'SEARCHING',
+  teamMatchLock?: { locked: boolean; reason: string },
 ): Match {
   const eligibleCount =
     contest.eligibleMemberCount ??
@@ -90,6 +91,8 @@ function mapContestToMatch(
     minRequirement: 'APPRENTICE',
     hasJoined,
     queueStatus,
+    lockedByTeamMatch: Boolean(teamMatchLock?.locked && !queueStatus),
+    lockReason: teamMatchLock?.reason,
     teamA: {
       id: contest.id,
       name: contest.title,
@@ -357,9 +360,6 @@ export default function TeamMatchPage() {
     skip: !teamId,
   });
 
-  // A team can have several active matches running at once (one per
-  // contest), so browsing/starting new matches stays available regardless of
-  // whether any are already in progress elsewhere.
   const activeMatches = useMemo(() => activeMatchQuery.data?.data ?? [], [activeMatchQuery.data]);
   const shouldFetchAvailableContests = Boolean(teamId) && !activeMatchQuery.isLoading;
 
@@ -389,6 +389,38 @@ export default function TeamMatchPage() {
     () => activeMatches.map((match) => ({ match, view: mapActiveMatchToMatch(match) })),
     [activeMatches],
   );
+  const teamMatchLock = useMemo(() => {
+    const activeMatch = activeMatchViews[0]?.match;
+    if (activeMatch) {
+      return {
+        contestId: activeMatch.contestId,
+        contestTitle: activeMatch.contest?.title ?? 'Current match',
+        title: 'One team match is already active',
+        description: 'Finish the current match before starting another team match.',
+        cardReason: 'Finish the current match before starting another.',
+        actionLabel: 'View current match',
+      };
+    }
+
+    const activeSearch = activeSearches[0];
+    if (activeSearch) {
+      const isWaiting = activeSearch.status === 'WAITING_FOR_MEMBERS';
+      return {
+        contestId: activeSearch.contestId,
+        contestTitle: activeSearch.contestTitle,
+        title: isWaiting ? 'Team match is waiting for members' : 'Team match search is in progress',
+        description: isWaiting
+          ? 'This team is already waiting on one contest. You cannot start another team match yet.'
+          : 'This team is already searching for an opponent. You cannot start another team match yet.',
+        cardReason: isWaiting
+          ? 'Current match is waiting for members.'
+          : 'Current match is searching for an opponent.',
+        actionLabel: 'View match status',
+      };
+    }
+
+    return null;
+  }, [activeMatchViews, activeSearches]);
   useEffect(() => {
     const incoming = contestsQuery.data?.data;
     if (!incoming) return;
@@ -415,17 +447,18 @@ export default function TeamMatchPage() {
   const availableContests = contestItems;
   const matches = useMemo(
     () =>
-      availableContests.map((contest) =>
-        mapContestToMatch(
-          contest,
-          currentUserId,
-          searchStatusByContestId.get(contest.id)?.status as
-            | 'WAITING_FOR_MEMBERS'
-            | 'SEARCHING'
-            | undefined,
-        ),
-      ),
-    [availableContests, currentUserId, searchStatusByContestId],
+      availableContests.map((contest) => {
+        const queueStatus = searchStatusByContestId.get(contest.id)?.status as
+          | 'WAITING_FOR_MEMBERS'
+          | 'SEARCHING'
+          | undefined;
+
+        return mapContestToMatch(contest, currentUserId, queueStatus, {
+          locked: Boolean(teamMatchLock && !queueStatus),
+          reason: teamMatchLock?.cardReason ?? '',
+        });
+      }),
+    [availableContests, currentUserId, searchStatusByContestId, teamMatchLock],
   );
   const selectedContest = useMemo(
     () => availableContests.find((contest) => contest.id === selectedContestId) ?? null,
@@ -460,6 +493,11 @@ export default function TeamMatchPage() {
         return;
       }
 
+      if (teamMatchLock) {
+        toast.error('A team match is already in progress. Finish or cancel it before starting another.');
+        return;
+      }
+
       // Leaders/moderators can start the match flow whether or not they've
       // personally joined this contest — any 3 team members joining (in any
       // combination) is enough to move from "waiting for members" to an
@@ -477,7 +515,7 @@ export default function TeamMatchPage() {
 
       toast.error('Only team leaders and moderators can start a team match.');
     },
-    [availableContests, canManageMatch, router],
+    [availableContests, canManageMatch, router, teamMatchLock],
   );
 
   const handleStartMatch = useCallback(async () => {
@@ -527,8 +565,8 @@ export default function TeamMatchPage() {
         <div>
           <h2 className="font-kumbh text-xl font-bold">Team Match</h2>
           <p className="text-muted-foreground mt-1 text-sm">
-            {activeMatchViews.length > 0
-              ? `${activeMatchViews.length} live match${activeMatchViews.length > 1 ? 'es' : ''} in progress`
+            {teamMatchLock
+              ? 'One team match is already in progress. Other contests are locked for now.'
               : 'Start with all joined members and auto-match against an equal rival team'}
           </p>
         </div>
@@ -539,6 +577,33 @@ export default function TeamMatchPage() {
           </Link>
         </Button>
       </div>
+
+      {teamMatchLock && (
+        <div className="border-warning/35 bg-warning/10 flex flex-col gap-4 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex gap-3">
+            <span className="bg-warning/15 text-warning flex size-10 shrink-0 items-center justify-center rounded-full">
+              <LockKeyhole className="size-5" />
+            </span>
+            <div>
+              <p className="font-semibold">{teamMatchLock.title}</p>
+              <p className="text-muted-foreground mt-1 text-sm">
+                {teamMatchLock.description}
+              </p>
+              <p className="text-muted-foreground mt-1 text-xs">
+                Current contest: {teamMatchLock.contestTitle}
+              </p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            className="shrink-0"
+            onClick={() => router.push(`/teams/home/match/${teamMatchLock.contestId}`)}
+          >
+            {teamMatchLock.actionLabel}
+          </Button>
+        </div>
+      )}
 
       {activeMatchViews.length > 0 && (
         <div className="space-y-4">
@@ -565,7 +630,8 @@ export default function TeamMatchPage() {
           onStart={handleAvailableMatchAction}
           actionLabel={canManageMatch ? 'Start Match' : 'Joined'}
           actionDisabled={(match) =>
-            !match.queueStatus && Boolean(match.hasJoined && !canManageMatch)
+            !match.queueStatus &&
+            (Boolean(match.lockedByTeamMatch) || Boolean(match.hasJoined && !canManageMatch))
           }
           canManageMatch={canManageMatch}
         />

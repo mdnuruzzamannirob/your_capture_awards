@@ -286,7 +286,7 @@ export interface GetAvailableTeamContestsResponse {
 export interface GetActiveTeamMatchResponse {
   success: boolean;
   message: string;
-  // A team can have several active matches at once (one per contest).
+  // Kept as an array for API compatibility, though a team can only have one active match.
   data: ActiveTeamMatch[];
 }
 
