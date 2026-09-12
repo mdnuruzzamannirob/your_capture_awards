@@ -2,19 +2,27 @@
 
 import { LevelProgressBar } from '@/components/LevelProgressBar';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { useGetJoinedContestQuery, useGetVoteCountsQuery } from '@/store/apis/contestApi';
+import { useStoreModal } from '@/providers/StoreModalProvider';
+import {
+  useChargeContestExposureMutation,
+  useGetJoinedContestQuery,
+  useGetVoteCountsQuery,
+} from '@/store/apis/contestApi';
 import { useGetAllLevelsQuery, useGetUserProgressQuery } from '@/store/apis/levelsApi';
+import { storeApi, useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { cn } from '@/utils/cn';
 import { labels, totalLevels } from '@/utils/valueToExposureLabel';
 import { AlertTriangle } from 'lucide-react';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import ContestActionModal, { ContestActionModalRef } from './ContestActionModal';
+import { AiOutlineThunderbolt } from 'react-icons/ai';
+import { useDispatch } from 'react-redux';
+import { toast } from 'sonner';
 import JoinedContestCard, { getContestPhotoId } from './JoinedContestCard';
 import JoinedContestCardSkeleton from './JoinedContestCardSkeleton';
 
@@ -31,12 +39,19 @@ const JoinedContest = () => {
   const voteModalRef = useRef<VoteModalRef>(null);
 
   const { isAuthenticated } = useAuth();
+  const { openStore } = useStoreModal();
+  const dispatch = useDispatch();
   const [mounted, setMounted] = useState(false);
 
   const [uploadModal, setUploadModal] = useState(false);
+  const [chargeDialogOpen, setChargeDialogOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [allContests, setAllContests] = useState<any[]>([]);
-  const actionModalRef = useRef<ContestActionModalRef>(null);
+  const { data: storeStats, isFetching: isStatsFetching } = useGetStoreStatsQuery(undefined, {
+    skip: !isAuthenticated,
+  });
+  const [chargeContestExposure, { isLoading: isChargingExposure }] =
+    useChargeContestExposureMutation();
 
   // Set mounted on client
   useEffect(() => {
@@ -147,9 +162,44 @@ const JoinedContest = () => {
 
   const handleChargeClick = () => {
     if (!voteContestId) return;
-    actionModalRef.current?.open('boost');
+    if (!isAuthenticated) {
+      toast.error('Please sign in to charge exposure.');
+      return;
+    }
+    if (isStatsFetching && !storeStats) {
+      toast.loading('Checking your store tokens...');
+      return;
+    }
+    if ((storeStats?.data?.key ?? 0) <= 0) {
+      setUploadModal(false);
+      clearSearchParams();
+      openStore();
+      return;
+    }
     setUploadModal(false);
     clearSearchParams();
+    setChargeDialogOpen(true);
+  };
+
+  const handleConfirmCharge = async () => {
+    if (!voteContestId) return;
+    if ((storeStats?.data?.key ?? 0) <= 0) {
+      setChargeDialogOpen(false);
+      openStore();
+      return;
+    }
+
+    try {
+      const response = await chargeContestExposure({ contestId: voteContestId }).unwrap();
+      toast.success(response.message || 'Exposure refilled to 100%.');
+      dispatch(storeApi.util.invalidateTags(['StoreStats']));
+      setChargeDialogOpen(false);
+      await refetch();
+    } catch (error: any) {
+      toast.error(
+        error?.data?.message || error?.message || 'Something went wrong. Please try again.',
+      );
+    }
   };
 
   return (
@@ -267,13 +317,41 @@ const JoinedContest = () => {
 
       {/* Vote Modal */}
       <VoteModal ref={voteModalRef} id={voteContestId} />
-      <ContestActionModal
-        ref={actionModalRef}
-        contestId={voteContestId}
-        contestTitle={contestTitle ?? firstActiveContest?.title ?? ''}
-        contestPhotos={firstActiveContest?.photos ?? []}
-        onSuccess={() => void refetch()}
-      />
+
+      {/* Charge Exposure Modal */}
+      <Dialog open={chargeDialogOpen} onOpenChange={setChargeDialogOpen}>
+        <DialogContent className="border-border border-2 sm:max-w-sm">
+          <DialogTitle className="flex items-center gap-2">
+            <AiOutlineThunderbolt className="text-primary size-5" />
+            Charge Exposure
+          </DialogTitle>
+          <DialogDescription>
+            This will refill{' '}
+            <span className="text-foreground font-medium">
+              {contestTitle ?? firstActiveContest?.title ?? 'this contest entry'}
+            </span>{' '}
+            exposure to 100% (Level H) and use 1 charge. Continue?
+          </DialogDescription>
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setChargeDialogOpen(false)}
+              disabled={isChargingExposure}
+              className="text-primary border-primary rounded-sm border px-5 py-2 text-sm disabled:opacity-60"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={isChargingExposure}
+              onClick={handleConfirmCharge}
+              className="bg-primary text-primary-foreground rounded-sm px-5 py-2 text-sm disabled:opacity-60"
+            >
+              {isChargingExposure ? 'Charging...' : 'Charge'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
