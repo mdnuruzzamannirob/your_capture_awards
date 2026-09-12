@@ -2,6 +2,7 @@
 
 import { Heart, MapPin, Loader2, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { useGetDiscoverPhotosQuery } from '@/store/apis/discoverApi';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
@@ -124,6 +125,28 @@ export default function DiscoverPage() {
                   : 'Anonymous';
                 const avatar = user?.avatar;
                 const location = user?.location;
+                const profileIdentifier = user?.id || user?.username;
+                const ownerInfo = (
+                  <>
+                    <Avatar className="border-border-subtle size-9 shrink-0 border">
+                      {avatar ? <AvatarImage src={avatar} alt={name} /> : null}
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
+                        {getInitials(name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="text-primary-foreground truncate text-sm font-semibold drop-shadow">
+                        {name}
+                      </p>
+                      {location && (
+                        <div className="text-muted-foreground flex items-center gap-1 text-xs">
+                          <MapPin className="size-3" />
+                          <span className="truncate drop-shadow">{location}</span>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                );
 
                 return (
                   <div
@@ -143,25 +166,18 @@ export default function DiscoverPage() {
                     <div className="absolute inset-0 flex flex-col justify-between bg-linear-to-b from-zinc-950/70 via-zinc-950/20 to-zinc-950/80 p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
                     {/* Top Info overlay (Profile, Name, Location) */}
-                    <div className="absolute inset-x-0 top-0 flex -translate-y-2 transform items-center gap-3 p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                      <Avatar className="border-border-subtle size-9 shrink-0 border">
-                        {avatar ? <AvatarImage src={avatar} alt={name} /> : null}
-                        <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
-                          {getInitials(name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0">
-                        <p className="text-primary-foreground truncate text-sm font-semibold drop-shadow">
-                          {name}
-                        </p>
-                        {location && (
-                          <div className="text-muted-foreground flex items-center gap-1 text-xs">
-                            <MapPin className="size-3" />
-                            <span className="truncate drop-shadow">{location}</span>
-                          </div>
-                        )}
+                    {profileIdentifier ? (
+                      <Link
+                        href={`/profile/${profileIdentifier}`}
+                        className="absolute inset-x-0 top-0 z-10 flex -translate-y-2 transform items-center gap-3 p-4 opacity-0 transition-all duration-300 hover:opacity-90 group-hover:translate-y-0 group-hover:opacity-100"
+                      >
+                        {ownerInfo}
+                      </Link>
+                    ) : (
+                      <div className="absolute inset-x-0 top-0 z-10 flex -translate-y-2 transform items-center gap-3 p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                        {ownerInfo}
                       </div>
-                    </div>
+                    )}
 
                     {/* Bottom Info overlay (Votes count) */}
                     <div className="absolute inset-x-0 bottom-0 flex translate-y-2 transform items-center justify-between p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
