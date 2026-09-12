@@ -33,7 +33,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-const MIN_TEAM_MATCH_MEMBERS = 3;
+const MIN_TEAM_MATCH_MEMBERS = 1;
 
 function levelBadgeClass(level: string) {
   switch (level) {

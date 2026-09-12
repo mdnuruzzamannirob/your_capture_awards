@@ -27,7 +27,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
-const MIN_TEAM_MATCH_MEMBERS = 3;
+const MIN_TEAM_MATCH_MEMBERS = 1;
 
 function levelBadgeClass(level: string) {
   switch (level) {

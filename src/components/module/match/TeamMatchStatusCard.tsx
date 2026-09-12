@@ -66,7 +66,7 @@ function TeamMatchStatusCard({
   const isWaiting = status === 'WAITING_FOR_MEMBERS';
   const StatusIcon = isWaiting ? Users : Search;
   const statusLabel = isWaiting
-    ? `Waiting for minimum ${minMembers ?? 3} members`
+    ? `Waiting for minimum ${minMembers ?? 1} members`
     : 'Waiting for opponent';
 
   return (
