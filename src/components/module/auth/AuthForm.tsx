@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { FaGoogle } from 'react-icons/fa';
-import { IoCheckboxOutline } from 'react-icons/io5';
+import { Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
@@ -180,11 +180,9 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
           onClick={() => setRememberMe(!rememberMe)}
           className="text-foreground flex items-center gap-2 text-sm font-medium select-none"
         >
-          {rememberMe ? (
-            <span className="border-primary inline-block size-6 rounded-[5px] border-2" />
-          ) : (
-            <IoCheckboxOutline className="text-primary size-6" />
-          )}
+          <span className="border-primary text-primary inline-flex size-6 items-center justify-center rounded-[5px] border-2">
+            {rememberMe && <Check className="size-4 stroke-[3]" />}
+          </span>
           Remember Me
         </button>
         <Link
@@ -301,12 +299,8 @@ const AuthForm = ({ type = 'signin' }: { type: 'signin' | 'signup' }) => {
       <div className="mt-1 flex flex-col gap-1">
         <label className="text-foreground flex cursor-pointer items-center gap-2 text-sm font-medium select-none">
           <input type="checkbox" id="agree" className="sr-only" {...signupForm.register('agree')} />
-          <span className="mt-0.5 shrink-0">
-            {agreeValue ? (
-              <span className="border-primary inline-block size-5 rounded-[4px] border-2" />
-            ) : (
-              <IoCheckboxOutline className="text-primary size-5" />
-            )}
+          <span className="border-primary text-primary mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-[4px] border-2">
+            {agreeValue && <Check className="size-3.5 stroke-[3]" />}
           </span>
           <span className="text-muted-foreground text-xs leading-normal">
             I agree to the{' '}
