@@ -43,7 +43,7 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
   const totalVotes = getContestVotes(contest);
   const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
   const entryCurrency = contest?.currency ?? 'USD';
-  const hasMoneyEntryFee = Boolean(contest?.isMoneyContest && entryFeeAmount > 0);
+  const hasMoneyEntryFee = entryFeeAmount > 0;
 
   const isFuture = contestStart > now;
   const startDate = isFuture ? now.toISOString() : contestStart.toISOString();

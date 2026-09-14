@@ -78,7 +78,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
             </p>
           </div>
         )}
-        {contest?.isMoneyContest && entryFeeAmount > 0 && (
+        {entryFeeAmount > 0 && (
           <div className="flex flex-1 items-center gap-3 whitespace-nowrap">
             <MdOutlinePaid className="text-primary size-8 lg:size-10" />{' '}
             <p className="flex items-center gap-2 uppercase">
