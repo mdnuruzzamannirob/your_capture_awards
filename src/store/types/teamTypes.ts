@@ -385,7 +385,9 @@ export interface TeamLeaderboardRow {
     skill_level: string;
   };
   wins: number;
+  draws?: number;
   score: number;
+  totalVotes?: number;
 }
 
 export interface GetTeamLeaderboardResponse {

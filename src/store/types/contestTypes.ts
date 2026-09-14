@@ -12,6 +12,13 @@ export type ContestPayload = {
   status?: Status;
 };
 
+export type ContestEntryFeeFields = {
+  isMoneyContest?: boolean;
+  currency?: string | null;
+  entryFeeAmount?: number;
+  entryFeeCoins?: number;
+};
+
 export type PaginationMeta = {
   page: number;
   limit: number;

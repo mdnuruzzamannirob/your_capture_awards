@@ -200,7 +200,7 @@ export default function TeamDetailPage() {
 
   const metrics = resolvedTeam
     ? [
-        { icon: Trophy, label: 'Team Score', value: resolvedTeam.score.toLocaleString() },
+        { icon: Trophy, label: 'Team Votes', value: resolvedTeam.score.toLocaleString() },
         { icon: Medal, label: 'Team Wins', value: resolvedTeam.win.toLocaleString() },
         {
           icon: BadgeCheck,
