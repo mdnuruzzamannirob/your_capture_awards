@@ -27,6 +27,9 @@ const typeLabel: Record<NotificationType, string> = {
   [NotificationType.TEAM_JOIN_REJECTED]: 'Team rejected',
 };
 
+const getTypeLabel = (type?: string | null) =>
+  type && type in typeLabel ? typeLabel[type as NotificationType] : 'Update';
+
 const formatRelative = (dateString: string) => {
   try {
     return formatDistanceToNow(new Date(dateString), { addSuffix: true });
@@ -191,6 +194,11 @@ export default function NotificationModal() {
           ) : notifications.length > 0 ? (
             notifications.map((notification: NotificationItem) => {
               const isClickable = !notification.isRead;
+              const label = getTypeLabel(notification.type);
+              const title =
+                typeof notification.title === 'string' && notification.title.trim()
+                  ? notification.title
+                  : label;
 
               return (
               <div
@@ -217,13 +225,13 @@ export default function NotificationModal() {
                       : 'bg-primary text-white',
                   )}
                 >
-                  {typeLabel[notification.type].slice(0, 1)}
+                  {label.slice(0, 1)}
                 </div>
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold">{notification.title}</p>
+                      <p className="truncate text-sm font-semibold">{title}</p>
                       <NotificationMessage notification={notification} />
                     </div>
                     {!notification.isRead && (
@@ -231,7 +239,7 @@ export default function NotificationModal() {
                     )}
                   </div>
                   <div className="text-muted-foreground mt-2 flex items-center justify-between text-[11px]">
-                    <span>{typeLabel[notification.type]}</span>
+                    <span>{label}</span>
                     <span>{formatRelative(notification.createdAt)}</span>
                   </div>
                   {notification.type === NotificationType.INVITATION && (
