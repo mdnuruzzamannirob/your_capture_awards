@@ -5,7 +5,7 @@ import { useToggleLikeMutation } from '@/store/apis/socialApi';
 import { useAppDispatch } from '@/store/hooks';
 import { setSwiperPhotos } from '@/store/slices/profileSlice';
 import { cn } from '@/utils/cn';
-import { Eye, Heart, Loader2, Vote } from 'lucide-react';
+import { Heart, Loader2, Vote } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
@@ -130,10 +130,6 @@ export function PhotoCard({
             <span className="inline-flex items-center gap-1">
               <Vote size={18} />
               {(photo.totalVotes ?? photo.votes ?? 0).toLocaleString()}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Eye size={18} />
-              {(photo.views ?? 0).toLocaleString()}
             </span>
             <span className="inline-flex items-center gap-1">
               <Heart size={18} />
