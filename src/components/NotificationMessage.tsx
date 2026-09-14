@@ -92,6 +92,10 @@ function getEntityLinks(notification: NotificationItem): EntityLink[] {
 export default function NotificationMessage({ notification }: { notification: NotificationItem }) {
   const data = notification.data;
   const event = typeof data?.event === 'string' ? data.event : undefined;
+  const message =
+    typeof notification.message === 'string' && notification.message.trim()
+      ? notification.message
+      : 'You have a new notification.';
 
   if (event === 'VOTE_RECEIVED') {
     const voterId = typeof data?.voterId === 'string' ? data.voterId : undefined;
@@ -130,7 +134,7 @@ export default function NotificationMessage({ notification }: { notification: No
 
   return (
     <p className="text-muted-foreground mt-0.5 text-xs">
-      {linkifyMessage(notification.message, getEntityLinks(notification))}
+      {linkifyMessage(message, getEntityLinks(notification))}
     </p>
   );
 }
