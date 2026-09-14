@@ -58,7 +58,7 @@ const ContestDetails = ({ id }: { id: string }) => {
   const remaining = Math.max(0, maxUploads - uploadedCount);
   const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
   const entryCurrency = contest?.currency ?? 'USD';
-  const hasMoneyEntryFee = Boolean(contest?.isMoneyContest && entryFeeAmount > 0);
+  const hasMoneyEntryFee = entryFeeAmount > 0;
 
   const tabs = getContestTabs(contest?.status);
   const initialTab = tabs?.some((tab) => tab.key === tabParam) ? tabParam! : tabs?.[0]?.key;

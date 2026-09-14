@@ -233,7 +233,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const requiredCoins = contest?.entryFeeCoins ?? 0;
     const entryCurrency = contest?.currency ?? 'USD';
     const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
-    const hasMoneyEntryFee = Boolean(contest?.isMoneyContest && entryFeeAmount > 0);
+    const hasMoneyEntryFee = entryFeeAmount > 0;
     const isSubmitting = isLoading || isCustomSubmitting || isEntryCheckoutLoading;
     const resolvedSubmitLabel =
       submitLabel ?? (type === 'join' ? 'Join' : type === 'upload' ? 'Upload' : 'Submit');
@@ -276,7 +276,8 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         }
 
         if (type === 'join' && hasMoneyEntryFee) {
-          setShowMoneyConfirm(true);
+          if (isEntryCheckoutLoading) return;
+          void handleContestEntryCheckout();
           return;
         }
 
