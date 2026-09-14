@@ -1,6 +1,6 @@
 'use client';
 
-import { Heart, MapPin, Loader2, Image as ImageIcon } from 'lucide-react';
+import { MapPin, Loader2, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
@@ -179,12 +179,6 @@ export default function DiscoverPage() {
                       </div>
                     )}
 
-                    {/* Bottom Info overlay (Votes count) */}
-                    <div className="absolute inset-x-0 bottom-0 flex translate-y-2 transform items-center justify-between p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                      <div className="border-border-subtle bg-overlay text-primary-foreground flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs backdrop-blur-md">
-                        <span className="font-semibold">{item.voteCount ?? 0} Votes</span>
-                      </div>
-                    </div>
                   </div>
                 );
               })}
