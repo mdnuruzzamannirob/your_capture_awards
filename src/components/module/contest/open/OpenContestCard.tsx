@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useRef } from 'react';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
-import { formatCompactCount } from '@/utils/formatCompactCount';
 import CornerCount from '@/components/CornerCount';
 import { Clock3, Trophy, Vote } from 'lucide-react';
 import SafeBannerImage from '@/components/SafeBannerImage';
@@ -23,6 +22,16 @@ const getContestVotes = (contest: any) =>
     asNumber(contest?.votes),
     asNumber(contest?._count?.votes),
   );
+
+const formatCompactCount = (value: unknown) => {
+  const numericValue = asNumber(value);
+  const absoluteValue = Math.abs(numericValue);
+
+  if (absoluteValue < 1000) return numericValue.toLocaleString();
+
+  const thousands = Math.round((numericValue / 1000) * 10) / 10;
+  return `${Number.isInteger(thousands) ? thousands : thousands.toFixed(1)}k`;
+};
 
 const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Promise<any> }) => {
   const now = new Date();
