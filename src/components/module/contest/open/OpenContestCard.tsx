@@ -9,12 +9,27 @@ import { Clock3, Trophy, Vote } from 'lucide-react';
 import SafeBannerImage from '@/components/SafeBannerImage';
 import { getUserDisplayName } from '@/utils/getUserDisplayName';
 
+const asNumber = (value: unknown) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const getContestVotes = (contest: any) =>
+  Math.max(
+    asNumber(contest?.totalVotes),
+    asNumber(contest?.contestTotalVotes),
+    asNumber(contest?.voteCount),
+    asNumber(contest?.votes),
+    asNumber(contest?._count?.votes),
+  );
+
 const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Promise<any> }) => {
   const now = new Date();
   const contestStart = new Date(contest?.startDate);
   const contestEnd = new Date(contest?.endDate);
   const maxUploads = contest?.maxUploads ?? contest?.maxUpload ?? 0;
   const creatorName = getUserDisplayName(contest?.cardAttribution?.user ?? contest?.creator);
+  const totalVotes = getContestVotes(contest);
 
   const isFuture = contestStart > now;
   const startDate = isFuture ? now.toISOString() : contestStart.toISOString();
@@ -152,7 +167,7 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
                 <Vote className="text-primary size-3" />
                 <span>Votes</span>
               </div>
-              <p className="mt-1 text-sm font-bold tabular-nums">0</p>
+              <p className="mt-1 text-sm font-bold tabular-nums">{totalVotes.toLocaleString()}</p>
             </div>
           )}
         </div>
