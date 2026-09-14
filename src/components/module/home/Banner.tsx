@@ -78,7 +78,7 @@ const Banner = () => {
 
           {/* Button */}
           <Link
-            href="/support"
+            href="/signin"
             className="border-primary hover:border-primary/90 text-primary-foreground flex w-fit items-center gap-2 rounded-sm border px-5 py-2 font-medium transition-colors"
           >
             Learn More
