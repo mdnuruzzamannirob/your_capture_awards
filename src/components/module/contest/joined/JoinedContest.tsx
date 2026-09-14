@@ -92,7 +92,7 @@ const JoinedContest = () => {
   );
   const joinedResult = (data as any)?.data ?? EMPTY_CONTESTS;
   const hasMore = Boolean((data as any)?.meta?.hasNextPage);
-  const voteContestId = (firstActiveContest?.id as string | undefined) ?? contestId ?? '';
+  const voteContestId = contestId ?? (firstActiveContest?.id as string | undefined) ?? '';
 
   useEffect(() => {
     if (page === 1) {
