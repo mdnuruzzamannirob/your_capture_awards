@@ -2,7 +2,7 @@
 
 import { useDeletePhotoMutation } from '@/store/apis/profileApi';
 import { Photo } from '@/store/types/profileTypes';
-import { Eye, Heart, Loader2, Trash2, Trophy } from 'lucide-react';
+import { Heart, Loader2, Trash2, Trophy } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -102,10 +102,6 @@ const PortfolioCard = ({
           <span className="inline-flex items-center gap-1">
             <Trophy size={18} />
             {(item.totalVotes ?? 0).toLocaleString()}
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <Eye size={18} />
-            {(item.views ?? 0).toLocaleString()}
           </span>
           <span className="inline-flex items-center gap-1">
             <Heart size={18} />
