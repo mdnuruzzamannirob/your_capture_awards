@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRef } from 'react';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
+import { formatCompactCount } from '@/utils/formatCompactCount';
 import CornerCount from '@/components/CornerCount';
 import { Clock3, Trophy, Vote } from 'lucide-react';
 import SafeBannerImage from '@/components/SafeBannerImage';
@@ -167,7 +168,9 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
                 <Vote className="text-primary size-3" />
                 <span>Votes</span>
               </div>
-              <p className="mt-1 text-sm font-bold tabular-nums">{totalVotes.toLocaleString()}</p>
+              <p className="mt-1 text-sm font-bold tabular-nums">
+                {formatCompactCount(totalVotes)}
+              </p>
             </div>
           )}
         </div>

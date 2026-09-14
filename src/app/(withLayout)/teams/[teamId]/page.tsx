@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 
+import LeaveTeamDialog from '@/components/module/team/LeaveTeamDialog';
 import SwitchTeamDialog from '@/components/module/team/SwitchTeamDialog';
 import { teamCardClass, teamShellClass } from '@/components/module/teams/teamUi';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -14,15 +15,19 @@ import { useAuth } from '@/hooks/useAuth';
 import type { TeamDetail } from '@/lib/mock/teamDetails';
 import { useGetAllLevelsQuery, useGetUserProgressQuery } from '@/store/apis/levelsApi';
 import {
+  useGetMyTeamQuery,
   useGetTeamMembersQuery,
   useGetTeamQuery,
   useJoinTeamMutation,
+  useLeaveTeamMutation,
   useSwitchTeamMutation,
 } from '@/store/apis/teamApi';
+import type { TeamMember } from '@/types/team';
 import { getErrorMessage, showErrorToast } from '@/utils/team-feedback';
 import { getAvatarClass, getInitials, getMemberName } from '@/utils/team-utils';
 import { BadgeCheck, BarChartBig, Languages, MapPin, Medal, Trophy, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 function formatSkillLabel(value: string) {
   return value.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
@@ -132,6 +137,7 @@ export default function TeamDetailPage() {
   const teamId = params?.teamId as string | undefined;
   const { user } = useAuth();
   const [memberPage, setMemberPage] = useState(1);
+  const [hasLeftTeam, setHasLeftTeam] = useState(false);
 
   const {
     data: apiResp,
@@ -144,13 +150,18 @@ export default function TeamDetailPage() {
     data: membersResp,
     isLoading: isMembersLoading,
     isError: isMembersError,
-  } = useGetTeamMembersQuery({ teamId: teamId ?? '', page: memberPage, limit: 10 }, {
-    skip: !teamId,
-  });
+  } = useGetTeamMembersQuery(
+    { teamId: teamId ?? '', page: memberPage, limit: 10 },
+    {
+      skip: !teamId,
+    },
+  );
 
   const [joinTeam, { isLoading: isJoining }] = useJoinTeamMutation();
   const [switchTeam, { isLoading: isSwitching }] = useSwitchTeamMutation();
+  const [leaveTeam, { isLoading: isLeaving }] = useLeaveTeamMutation();
   const [switchDialogOpen, setSwitchDialogOpen] = useState(false);
+  const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
   const { data: levelsData } = useGetAllLevelsQuery({ page: 1, limit: 50 });
   const { data: progressData } = useGetUserProgressQuery(undefined, {
     skip: !user,
@@ -158,18 +169,28 @@ export default function TeamDetailPage() {
 
   const apiTeam = ((apiResp as any)?.data ?? apiResp) as any;
   const resolvedTeam = apiTeam;
+  const joinedTeamId = user?.joinedTeam?.teamId ?? user?.joinedTeam?.team?.id;
 
   const userLevelOrder = progressData?.data?.currentStatus?.order ?? 0;
   const requiredLevelOrder =
-    levelsData?.data?.find((level) => level.levelName === resolvedTeam?.min_requirement_str)?.order ??
-    0;
+    levelsData?.data?.find((level) => level.levelName === resolvedTeam?.min_requirement_str)
+      ?.order ?? 0;
 
-  const isJoined =
-    user?.joinedTeam?.teamId === resolvedTeam?.id ||
-    user?.joinedTeam?.team?.id === resolvedTeam?.id;
+  const isJoined = !hasLeftTeam && joinedTeamId === resolvedTeam?.id;
+  const { data: myTeamData } = useGetMyTeamQuery(undefined, {
+    skip: !isJoined,
+  });
 
   const members = membersResp?.data ?? [];
   const memberMeta = membersResp?.meta;
+  const allMyTeamMembers = (myTeamData?.data?.members ?? []) as TeamMember[];
+  const currentMembership = allMyTeamMembers.find(
+    (member) => member.memberId === user?.id || member.member?.id === user?.id,
+  );
+  const isLeader = currentMembership?.level === 'LEADER' || user?.joinedTeam?.level === 'LEADER';
+  const leaveCandidates = allMyTeamMembers.filter(
+    (member) => member.memberId !== user?.id && member.member?.id !== user?.id,
+  );
 
   useEffect(() => {
     if (memberMeta?.totalPage && memberPage > memberMeta.totalPage) {
@@ -231,6 +252,24 @@ export default function TeamDetailPage() {
     }
   };
 
+  const handleLeaveTeam = async (memberId?: string) => {
+    if (!teamId || isLeaving) return;
+
+    if (isLeader && !memberId) {
+      toast.error('Select a member to transfer leadership before leaving.');
+      return;
+    }
+
+    try {
+      await leaveTeam({ teamId, memberId }).unwrap();
+      toast.success('You left the team.');
+      setHasLeftTeam(true);
+      setLeaveDialogOpen(false);
+    } catch (error) {
+      showErrorToast(error, 'Failed to leave team');
+    }
+  };
+
   const handleSwitchTeam = async () => {
     if (!teamId) return;
 
@@ -269,7 +308,11 @@ export default function TeamDetailPage() {
               <div className="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:items-start">
                 <div className="border-border bg-surface-secondary relative size-28 shrink-0 overflow-hidden rounded-full border-4 sm:size-32 lg:size-36">
                   {resolvedTeam.badge ? (
-                    <img src={resolvedTeam.badge} alt={resolvedTeam.name} className="size-full object-cover" />
+                    <img
+                      src={resolvedTeam.badge}
+                      alt={resolvedTeam.name}
+                      className="size-full object-cover"
+                    />
                   ) : (
                     <div className="bg-primary text-primary-foreground flex size-full items-center justify-center text-2xl font-bold">
                       {resolvedTeam.name.slice(0, 2).toUpperCase()}
@@ -324,11 +367,17 @@ export default function TeamDetailPage() {
               <div className="flex w-full shrink-0 justify-end lg:w-auto">
                 <Button
                   type="button"
-                  onClick={handleJoinTeam}
-                  disabled={isJoining || isJoined}
+                  onClick={isJoined ? () => setLeaveDialogOpen(true) : handleJoinTeam}
+                  disabled={isJoining || isLeaving}
                   className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 w-full rounded-md px-8 font-semibold disabled:cursor-not-allowed disabled:opacity-70 lg:w-auto"
                 >
-                  {isJoined ? 'Joined' : isJoining ? 'Joining...' : 'Join Team'}
+                  {isLeaving
+                    ? 'Leaving...'
+                    : isJoined
+                      ? 'Leave'
+                      : isJoining
+                        ? 'Joining...'
+                        : 'Join Team'}
                 </Button>
                 <SwitchTeamDialog
                   open={switchDialogOpen}
@@ -337,6 +386,15 @@ export default function TeamDetailPage() {
                   newTeamName={resolvedTeam?.name || 'this team'}
                   isSubmitting={isSwitching}
                   onConfirm={handleSwitchTeam}
+                />
+                <LeaveTeamDialog
+                  open={leaveDialogOpen}
+                  onClose={() => setLeaveDialogOpen(false)}
+                  teamName={resolvedTeam?.name || 'this team'}
+                  currentUserId={user?.id || ''}
+                  members={leaveCandidates}
+                  isLeader={isLeader}
+                  onLeave={handleLeaveTeam}
                 />
               </div>
             </div>
@@ -440,11 +498,21 @@ export default function TeamDetailPage() {
           </div>
           {memberMeta && memberMeta.totalPage > 1 && (
             <div className="border-border flex items-center justify-between border-t px-5 py-4 sm:px-6">
-              <Button variant="outline" disabled={memberPage <= 1} onClick={() => setMemberPage((page) => page - 1)}>
+              <Button
+                variant="outline"
+                disabled={memberPage <= 1}
+                onClick={() => setMemberPage((page) => page - 1)}
+              >
                 Previous
               </Button>
-              <span className="text-muted-foreground text-sm">Page {memberPage} of {memberMeta.totalPage}</span>
-              <Button variant="outline" disabled={memberPage >= memberMeta.totalPage} onClick={() => setMemberPage((page) => page + 1)}>
+              <span className="text-muted-foreground text-sm">
+                Page {memberPage} of {memberMeta.totalPage}
+              </span>
+              <Button
+                variant="outline"
+                disabled={memberPage >= memberMeta.totalPage}
+                onClick={() => setMemberPage((page) => page + 1)}
+              >
                 Next
               </Button>
             </div>
