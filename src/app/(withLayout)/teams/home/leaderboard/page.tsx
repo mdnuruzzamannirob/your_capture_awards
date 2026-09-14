@@ -219,8 +219,8 @@ const TeamLeaderboard = () => {
                 </div>
 
                 <div className="shrink-0 text-right sm:text-left">
-                  <p className="font-semibold">{row.score}</p>
-                  <p className="text-caption-foreground text-xs">Score</p>
+                  <p className="font-semibold">{row.totalVotes ?? row.score}</p>
+                  <p className="text-caption-foreground text-xs">Votes</p>
                 </div>
               </div>
             );

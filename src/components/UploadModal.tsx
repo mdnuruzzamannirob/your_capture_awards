@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
 import { useStoreModal } from '@/providers/StoreModalProvider';
 import {
+  useCreateContestEntryCheckoutMutation,
   useCreatePhotoToContestMutation,
   useLazyGetUserPhotosQuery,
 } from '@/store/apis/contestApi';
@@ -13,6 +14,7 @@ import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { PhotoToContestPayload } from '@/store/types/contestTypes';
 import { compressImage } from '@/utils/compressImage';
 import { getUserDisplayName } from '@/utils/getUserDisplayName';
+import { formatMoney } from '@/utils/formatMoney';
 import { resolveImageUrl } from '@/utils/resolveImageUrl';
 import { ArrowLeft, UploadCloud } from 'lucide-react';
 import Image from 'next/image';
@@ -25,6 +27,9 @@ import { IoImagesOutline } from 'react-icons/io5';
 import { toast } from 'sonner';
 import SafeBannerImage from './SafeBannerImage';
 import TipTapViewer from './custom/tiptap-editor/TipTapViewer';
+
+const getApiErrorMessage = (error: any, fallback: string) =>
+  error?.data?.message || error?.message || fallback;
 
 export type ModalContentType = 'preview' | 'choose' | 'select';
 export type UploadSource = 'computer' | 'profile';
@@ -201,6 +206,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     );
     const [uploadModal, setUploadModal] = useState(false);
     const [showCoinConfirm, setShowCoinConfirm] = useState(false);
+    const [showMoneyConfirm, setShowMoneyConfirm] = useState(false);
     const [uploadSource, setUploadSource] = useState<UploadSource | null>(null);
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string>('');
@@ -216,13 +222,19 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const stats = storeStats?.data;
 
     const [createPhotoToContest, { isLoading }] = useCreatePhotoToContestMutation();
+    const [createContestEntryCheckout, { isLoading: isEntryCheckoutLoading }] =
+      useCreateContestEntryCheckoutMutation();
     const [isCustomSubmitting, setIsCustomSubmitting] = useState(false);
     const [trigger, { data, isLoading: isPhotosLoading }] = useLazyGetUserPhotosQuery();
     const photos = (Array.isArray(data?.data) ? data.data : (data?.data?.data ?? [])) as {
       id: string;
       url: string;
     }[];
-    const isSubmitting = isLoading || isCustomSubmitting;
+    const requiredCoins = contest?.entryFeeCoins ?? 0;
+    const entryCurrency = contest?.currency ?? 'USD';
+    const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
+    const hasMoneyEntryFee = Boolean(contest?.isMoneyContest && entryFeeAmount > 0);
+    const isSubmitting = isLoading || isCustomSubmitting || isEntryCheckoutLoading;
     const resolvedSubmitLabel =
       submitLabel ?? (type === 'join' ? 'Join' : type === 'upload' ? 'Upload' : 'Submit');
     const resolvedLoadingLabel = loadingLabel ?? 'Uploading...';
@@ -263,9 +275,13 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
           return;
         }
 
+        if (type === 'join' && hasMoneyEntryFee) {
+          setShowMoneyConfirm(true);
+          return;
+        }
+
         // Check coin requirement if type is join
-        const hasCoinRequirement = (contest?.entryFeeCoins ?? 0) > 0;
-        if (type === 'join' && hasCoinRequirement) {
+        if (type === 'join' && requiredCoins > 0) {
           setShowCoinConfirm(true);
           return;
         }
@@ -416,6 +432,36 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         toast.error(err.message || err.data?.message || 'Something went wrong!');
       } finally {
         setIsCustomSubmitting(false);
+      }
+    };
+
+    const handleContestEntryCheckout = async () => {
+      const userCoins = stats?.coins ?? 0;
+      if (requiredCoins > 0 && userCoins < requiredCoins) {
+        setShowMoneyConfirm(false);
+        openStore();
+        return;
+      }
+
+      try {
+        const origin = window.location.origin;
+        const response = await createContestEntryCheckout({
+          contestId,
+          success_url: `${origin}/contest/${contestId}?payment=success&modal=joinSuccess&contestTitle=${encodeURIComponent(title)}`,
+          cancel_url: `${origin}/contest/${contestId}?payment=cancelled`,
+        }).unwrap();
+
+        if (response.data?.url) {
+          toast.loading('Redirecting to Stripe checkout...');
+          window.location.assign(response.data.url);
+          return;
+        }
+
+        toast.success(response.data?.message || response.message || 'You joined the contest.');
+        setShowMoneyConfirm(false);
+        onSuccess?.();
+      } catch (error) {
+        toast.error(getApiErrorMessage(error, 'Unable to start contest entry payment.'));
       }
     };
 
@@ -640,8 +686,6 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
           break;
       }
     };
-    const requiredCoins = contest?.entryFeeCoins ?? 0;
-
     return (
       <>
         <Dialog
@@ -675,6 +719,48 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
             </DialogTitle>
 
             {modalContentView()}
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showMoneyConfirm} onOpenChange={setShowMoneyConfirm}>
+          <DialogContent className="border-border max-w-sm space-y-6 border-2 p-6 text-center">
+            <div className="flex flex-col items-center justify-center gap-3">
+              <div className="bg-primary/10 text-primary flex h-14 w-14 items-center justify-center rounded-full border border-primary/20 text-xl font-bold shadow-inner">
+                $
+              </div>
+              <DialogTitle className="text-foreground text-xl font-bold uppercase">
+                Entry Fee Required
+              </DialogTitle>
+            </div>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Joining this contest requires a{' '}
+              <span className="text-primary font-bold">
+                {formatMoney(entryFeeAmount, entryCurrency)}
+              </span>{' '}
+              payment through Stripe
+              {requiredCoins > 0 ? (
+                <>
+                  {' '}
+                  and <span className="text-primary font-bold">{requiredCoins}</span> coins
+                </>
+              ) : null}
+              .
+            </p>
+            <div className="flex items-center justify-center gap-4 pt-2">
+              <button
+                onClick={() => setShowMoneyConfirm(false)}
+                className="border-primary text-primary hover:bg-primary/5 w-full rounded-md border py-2.5 text-sm font-medium transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleContestEntryCheckout}
+                disabled={isEntryCheckoutLoading}
+                className="bg-primary text-primary-foreground hover:bg-primary/95 w-full rounded-md py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isEntryCheckoutLoading ? 'Redirecting...' : 'Continue'}
+              </button>
+            </div>
           </DialogContent>
         </Dialog>
 

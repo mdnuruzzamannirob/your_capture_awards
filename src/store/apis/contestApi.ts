@@ -18,6 +18,13 @@ export type ChargeContestExposurePayload = {
   contestId: string;
 };
 
+export type ContestEntryCheckoutPayload = {
+  contestId: string;
+  success_url?: string;
+  cancel_url?: string;
+  acceptedRuleKeys?: string[];
+};
+
 const normalizeContestListResponse = (response: any) => {
   const payload = response?.data ?? response ?? {};
   const contests = Array.isArray(payload) ? payload : payload?.contests ?? [];
@@ -295,6 +302,23 @@ export const contestApi = createApi({
       ],
     }),
 
+    createContestEntryCheckout: builder.mutation<
+      { success: boolean; message: string; data?: { url?: string; message?: string } },
+      ContestEntryCheckoutPayload
+    >({
+      query: (body) => ({
+        url: '/payments/contest-entry',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: (result, error, { contestId }) => [
+        { type: 'Contest', id: contestId },
+        { type: 'JoinedContests', id: 'LIST' },
+        { type: 'PublicContests', id: 'LIST' },
+        { type: 'PrivateContests', id: 'LIST' },
+      ],
+    }),
+
     // Bulk, tag-free vote-count lookup for realtime polling. Kept deliberately
     // outside the invalidatesTags/providesTags system so watching it never
     // touches the much larger JoinedContests cache - the component polls this
@@ -392,6 +416,7 @@ export const {
   useLazyGetContestRankPhotographersQuery,
   useGetVoteCountsQuery,
   useCreateVoteMutation,
+  useCreateContestEntryCheckoutMutation,
   usePromoteContestPhotoMutation,
   useTradeContestPhotoMutation,
   useChargeContestExposureMutation,

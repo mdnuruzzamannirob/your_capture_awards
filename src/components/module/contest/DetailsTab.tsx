@@ -3,6 +3,7 @@
 import TipTapViewer from '@/components/custom/tiptap-editor/TipTapViewer';
 import { TabsContent } from '@/components/ui/tabs';
 import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
+import { formatMoney } from '@/utils/formatMoney';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
 import { getUserDisplayName } from '@/utils/getUserDisplayName';
 import { Globe, UserRound } from 'lucide-react';
@@ -19,6 +20,8 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
     contest?.cardAttribution?.user ?? contest?.creator,
     'Contest creator',
   );
+  const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
+  const entryCurrency = contest?.currency ?? 'USD';
 
   const hasStarted = now >= contestStart;
   const hasEnded = now > contestEnd;
@@ -72,6 +75,17 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
                 {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
               </span>{' '}
               IN AWARDS
+            </p>
+          </div>
+        )}
+        {contest?.isMoneyContest && entryFeeAmount > 0 && (
+          <div className="flex flex-1 items-center gap-3 whitespace-nowrap">
+            <MdOutlinePaid className="text-primary size-8 lg:size-10" />{' '}
+            <p className="flex items-center gap-2 uppercase">
+              <span className="text-lg font-semibold">
+                {formatMoney(entryFeeAmount, entryCurrency)}
+              </span>{' '}
+              ENTRY FEE
             </p>
           </div>
         )}

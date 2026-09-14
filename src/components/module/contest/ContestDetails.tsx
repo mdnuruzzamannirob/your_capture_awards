@@ -12,11 +12,13 @@ import {
   useLazyGetContestRankPhotosQuery,
 } from '@/store/apis/contestApi';
 import getContestTabs from '@/utils/getContestTabs';
+import { formatMoney } from '@/utils/formatMoney';
 // Use native <img> for banner to avoid Next/Image SSR hydration attribute mismatch
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import CountdownTimer from '@/components/CountdownTimer';
+import { toast } from 'sonner';
 import DetailsTab from './DetailsTab';
 import PrizesTab from './PrizesTab';
 import RankTab from './RankTab';
@@ -30,11 +32,13 @@ const ContestDetails = ({ id }: { id: string }) => {
   const { data: contestData, isLoading: contestLoading } = isAuthenticated
     ? privateContestQuery
     : publicContestQuery;
+  const contestRefetch = isAuthenticated ? privateContestQuery.refetch : publicContestQuery.refetch;
   // Same args as JoinedContest.tsx → shares RTK Query cache, no duplicate network call.
   const [rankPhotosTrigger] = useLazyGetContestRankPhotosQuery();
   const searchParams = useSearchParams();
   const modalParam = searchParams.get('modal');
   const tabParam = searchParams.get('tab');
+  const paymentParam = searchParams.get('payment');
 
   // Avoid SSR/client hydration mismatch — joinedLoading differs between server and client.
   const [isMounted, setIsMounted] = useState(false);
@@ -52,6 +56,9 @@ const ContestDetails = ({ id }: { id: string }) => {
   const maxUploads: number = contest?.maxUploads ?? contest?.maxUpload ?? 0;
   const uploadedCount = contest?.uploadCount ?? 0;
   const remaining = Math.max(0, maxUploads - uploadedCount);
+  const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
+  const entryCurrency = contest?.currency ?? 'USD';
+  const hasMoneyEntryFee = Boolean(contest?.isMoneyContest && entryFeeAmount > 0);
 
   const tabs = getContestTabs(contest?.status);
   const initialTab = tabs?.some((tab) => tab.key === tabParam) ? tabParam! : tabs?.[0]?.key;
@@ -69,6 +76,7 @@ const ContestDetails = ({ id }: { id: string }) => {
 
   const uploadModalRef = useRef<UploadModalRef>(null);
   const voteModalRef = useRef<VoteModalRef>(null);
+  const paymentToastShownRef = useRef(false);
 
   // Auto-open join modal if redirected from login
   useEffect(() => {
@@ -76,6 +84,19 @@ const ContestDetails = ({ id }: { id: string }) => {
       uploadModalRef.current.open();
     }
   }, [modalParam]);
+
+  useEffect(() => {
+    if (paymentToastShownRef.current) return;
+    if (paymentParam === 'success') {
+      paymentToastShownRef.current = true;
+      toast.success('Payment received. Your contest entry is being confirmed.');
+      void contestRefetch();
+    }
+    if (paymentParam === 'cancelled') {
+      paymentToastShownRef.current = true;
+      toast.error('Contest entry payment was cancelled.');
+    }
+  }, [contestRefetch, paymentParam]);
 
   if (contestLoading || !contest || Object.keys(contest).length === 0) {
     return <div className="flex items-center justify-center py-20 text-lg">Loading contest...</div>;
@@ -170,6 +191,11 @@ const ContestDetails = ({ id }: { id: string }) => {
                           <div className="bg-primary-foreground absolute -right-3 -bottom-2.5 flex items-center gap-1.5 rounded-full border border-sky-400 py-1 pr-3 pl-1 text-sm font-bold text-sky-500 shadow-md select-none">
                             <div className="border-warning/40 from-warning-500 to-warning-500 h-5 w-5 animate-pulse rounded-full border bg-linear-to-tr" />
                             <span>{contest?.entryFeeCoins}</span>
+                          </div>
+                        )}
+                        {!isJoined && hasMoneyEntryFee && (
+                          <div className="bg-primary-foreground absolute -left-3 -bottom-2.5 rounded-full border border-emerald-400 px-3 py-1 text-sm font-bold text-emerald-600 shadow-md select-none">
+                            {formatMoney(entryFeeAmount, entryCurrency)}
                           </div>
                         )}
                       </div>

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRef } from 'react';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
+import { formatMoney } from '@/utils/formatMoney';
 import CornerCount from '@/components/CornerCount';
 import { Clock3, Trophy, Vote } from 'lucide-react';
 import SafeBannerImage from '@/components/SafeBannerImage';
@@ -40,6 +41,9 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
   const maxUploads = contest?.maxUploads ?? contest?.maxUpload ?? 0;
   const creatorName = getUserDisplayName(contest?.cardAttribution?.user ?? contest?.creator);
   const totalVotes = getContestVotes(contest);
+  const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
+  const entryCurrency = contest?.currency ?? 'USD';
+  const hasMoneyEntryFee = Boolean(contest?.isMoneyContest && entryFeeAmount > 0);
 
   const isFuture = contestStart > now;
   const startDate = isFuture ? now.toISOString() : contestStart.toISOString();
@@ -125,6 +129,11 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
               <div className="bg-primary-foreground absolute -right-4 -bottom-2 flex items-center gap-1 rounded-full border border-sky-400 py-0.5 pr-2 pl-0.5 text-[10px] font-bold text-sky-500 shadow-sm select-none">
                 <div className="border-warning/40 from-warning-500 to-warning-500 h-4 w-4 animate-pulse rounded-full border bg-linear-to-tr" />
                 <span>{contest?.entryFeeCoins}</span>
+              </div>
+            )}
+            {hasMoneyEntryFee && (
+              <div className="bg-primary-foreground absolute -left-4 -bottom-2 rounded-full border border-emerald-400 px-2 py-0.5 text-[10px] font-bold text-emerald-600 shadow-sm select-none">
+                {formatMoney(entryFeeAmount, entryCurrency)}
               </div>
             )}
           </div>
