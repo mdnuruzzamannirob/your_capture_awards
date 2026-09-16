@@ -18,10 +18,12 @@ import { toast } from 'sonner';
 
 const typeLabel: Record<NotificationType, string> = {
   [NotificationType.DEFAULT]: 'Update',
+  [NotificationType.CHAT]: 'Chat',
   [NotificationType.INVITATION]: 'Invitation',
   [NotificationType.PAYMENT]: 'Payment',
   [NotificationType.VOTE]: 'Vote',
   [NotificationType.LIKE]: 'Like',
+  [NotificationType.COMMENT]: 'Comment',
   [NotificationType.TEAM_JOIN_REQUEST]: 'Team request',
   [NotificationType.TEAM_JOIN_APPROVED]: 'Team approved',
   [NotificationType.TEAM_JOIN_REJECTED]: 'Team rejected',
