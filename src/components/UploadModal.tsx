@@ -31,6 +31,25 @@ import TipTapViewer from './custom/tiptap-editor/TipTapViewer';
 const getApiErrorMessage = (error: any, fallback: string) =>
   error?.data?.message || error?.message || fallback;
 
+const getRequiredPaidJoinRuleKeys = (contest: any): string[] => {
+  const rules = Array.isArray(contest?.rules) ? contest.rules : [];
+  return rules.flatMap((rule: any) => {
+    if (rule?.enabled === false) return [];
+    const value = rule?.value ?? {};
+    if (rule?.key === 'ELIGIBILITY' && value?.requiresAcceptance) return ['ELIGIBILITY'];
+    if (
+      rule?.key === 'COPYRIGHT' &&
+      (value?.requiresAcceptance || value?.requiresOwnership)
+    ) {
+      return ['COPYRIGHT'];
+    }
+    if (rule?.key === 'PARTICIPATION' && value?.requiresTermsAcceptance) {
+      return ['PARTICIPATION'];
+    }
+    return [];
+  });
+};
+
 export type ModalContentType = 'preview' | 'choose' | 'select';
 export type UploadSource = 'computer' | 'profile';
 export type UploadModalPayload = {
@@ -207,6 +226,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const [uploadModal, setUploadModal] = useState(false);
     const [showCoinConfirm, setShowCoinConfirm] = useState(false);
     const [showMoneyConfirm, setShowMoneyConfirm] = useState(false);
+    const [acceptedPaidJoinRules, setAcceptedPaidJoinRules] = useState(false);
     const [uploadSource, setUploadSource] = useState<UploadSource | null>(null);
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string>('');
@@ -234,6 +254,10 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const entryCurrency = contest?.currency ?? 'USD';
     const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
     const hasMoneyEntryFee = entryFeeAmount > 0;
+    const requiredPaidJoinRuleKeys = useMemo(
+      () => getRequiredPaidJoinRuleKeys(contest),
+      [contest],
+    );
     const isSubmitting = isLoading || isCustomSubmitting || isEntryCheckoutLoading;
     const resolvedSubmitLabel =
       submitLabel ?? (type === 'join' ? 'Join' : type === 'upload' ? 'Upload' : 'Submit');
@@ -277,7 +301,8 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
 
         if (type === 'join' && hasMoneyEntryFee) {
           if (isEntryCheckoutLoading) return;
-          void handleContestEntryCheckout();
+          setAcceptedPaidJoinRules(false);
+          setShowMoneyConfirm(true);
           return;
         }
 
@@ -450,6 +475,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
           contestId,
           success_url: `${origin}/contest/${contestId}?payment=success&modal=joinSuccess&contestTitle=${encodeURIComponent(title)}`,
           cancel_url: `${origin}/contest/${contestId}?payment=cancelled`,
+          acceptedRuleKeys: acceptedPaidJoinRules ? requiredPaidJoinRuleKeys : [],
         }).unwrap();
 
         if (response.data?.url) {
@@ -461,6 +487,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         toast.success(response.data?.message || response.message || 'You joined the contest.');
         setShowMoneyConfirm(false);
         onSuccess?.();
+        window.location.assign(`/contest/${contestId}?payment=success`);
       } catch (error) {
         toast.error(getApiErrorMessage(error, 'Unable to start contest entry payment.'));
       }
@@ -723,7 +750,13 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
           </DialogContent>
         </Dialog>
 
-        <Dialog open={showMoneyConfirm} onOpenChange={setShowMoneyConfirm}>
+        <Dialog
+          open={showMoneyConfirm}
+          onOpenChange={(open) => {
+            setShowMoneyConfirm(open);
+            if (!open) setAcceptedPaidJoinRules(false);
+          }}
+        >
           <DialogContent className="border-border max-w-sm space-y-6 border-2 p-6 text-center">
             <div className="flex flex-col items-center justify-center gap-3">
               <div className="bg-primary/10 text-primary flex h-14 w-14 items-center justify-center rounded-full border border-primary/20 text-xl font-bold shadow-inner">
@@ -747,6 +780,30 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               ) : null}
               .
             </p>
+            {requiredPaidJoinRuleKeys.length > 0 && (
+              <label className="border-border-subtle bg-surface-secondary flex cursor-pointer items-start gap-3 rounded-md border p-3 text-left text-sm">
+                <input
+                  type="checkbox"
+                  checked={acceptedPaidJoinRules}
+                  onChange={(event) => setAcceptedPaidJoinRules(event.target.checked)}
+                  className="mt-0.5 size-4 accent-current"
+                />
+                <span>
+                  I have read and accept the contest eligibility, copyright, and participation
+                  rules.
+                </span>
+              </label>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                setShowMoneyConfirm(false);
+                router.push(`/contest/${contestId}?tab=rules`);
+              }}
+              className="text-primary text-sm underline underline-offset-4"
+            >
+              Review contest rules
+            </button>
             <div className="flex items-center justify-center gap-4 pt-2">
               <button
                 onClick={() => setShowMoneyConfirm(false)}
@@ -756,7 +813,10 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               </button>
               <button
                 onClick={handleContestEntryCheckout}
-                disabled={isEntryCheckoutLoading}
+                disabled={
+                  isEntryCheckoutLoading ||
+                  (requiredPaidJoinRuleKeys.length > 0 && !acceptedPaidJoinRules)
+                }
                 className="bg-primary text-primary-foreground hover:bg-primary/95 w-full rounded-md py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isEntryCheckoutLoading ? 'Redirecting...' : 'Continue'}

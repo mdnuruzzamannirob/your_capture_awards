@@ -131,6 +131,26 @@ export const teamApi = createApi({
       }),
     }),
 
+    getChatUnreadCount: builder.query<
+      { success: boolean; data: { unreadCount: number } },
+      string
+    >({
+      query: (teamId) => ({
+        url: `/chats/${teamId}/unread`,
+        method: 'GET',
+      }),
+    }),
+
+    markChatRead: builder.mutation<
+      { success: boolean; data: { unreadCount: number } },
+      string
+    >({
+      query: (teamId) => ({
+        url: `/chats/${teamId}/read`,
+        method: 'PATCH',
+      }),
+    }),
+
     // ── Get Team Members ──────────────────────────────────────────────────
     getTeamMembers: builder.query<
       GetTeamMembersResponse,
@@ -460,6 +480,8 @@ export const {
   useCreateTeamMutation,
   useGetMyTeamQuery,
   useUploadChatFileMutation,
+  useGetChatUnreadCountQuery,
+  useMarkChatReadMutation,
   useGetTeamMembersQuery,
   useInviteMemberMutation,
   useGetTeamInvitationsQuery,

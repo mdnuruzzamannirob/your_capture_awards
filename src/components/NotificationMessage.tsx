@@ -79,6 +79,24 @@ function getEntityLinks(notification: NotificationItem): EntityLink[] {
       const newLevel = str('newLevel');
       return newLevel ? [{ value: newLevel, href: '/profile' }] : [];
     }
+    case 'COMMENT_RECEIVED':
+    case 'COMMENT_REPLY_RECEIVED': {
+      const commenterId = str('commenterId');
+      const commenterName = str('commenterName');
+      const photoId = str('photoId');
+      const photoTitle = str('photoTitle');
+      const links: EntityLink[] = [];
+
+      if (commenterId && commenterName) {
+        links.push({ value: commenterName, href: `/profile/${commenterId}` });
+      }
+
+      if (photoId && photoTitle) {
+        links.push({ value: photoTitle, href: `/photo/${photoId}` });
+      }
+
+      return links;
+    }
     default:
       return [];
   }
