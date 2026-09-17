@@ -13,6 +13,7 @@ import { TabSectionHeader } from './public-tab-ui';
 
 type Props = {
   username: string;
+  userId?: string;
   isOwn?: boolean;
 };
 
@@ -45,7 +46,7 @@ function SubTabButton({
   );
 }
 
-const AchievementsTabContent = ({ username, isOwn = false }: Props) => {
+const AchievementsTabContent = ({ username, userId, isOwn = false }: Props) => {
   const { isAuthenticated } = useAuth();
   const [mounted, setMounted] = useState(false);
 
@@ -68,9 +69,9 @@ const AchievementsTabContent = ({ username, isOwn = false }: Props) => {
     isLoading: isAchievementsLoading,
     isError: isAchievementsError,
   } = useGetProfileAchievementsQuery(
-    { isOwn, userId: username },
+    { isOwn, userId: userId ?? username },
     {
-      skip: !isOwn && !username,
+      skip: !isOwn && !(userId ?? username),
     },
   );
 

@@ -110,7 +110,9 @@ function ProfileContent({
         if (!visitedTabs.has(tab)) return null;
         return (
           <div key={tab} className={tab === activeTab ? 'block' : 'hidden'}>
-            {tab === 'achievements' && <AchievementsTabContent username={username} isOwn={isOwn} />}
+            {tab === 'achievements' && (
+              <AchievementsTabContent username={username} userId={profile?.id} isOwn={isOwn} />
+            )}
             {tab === 'followers' && (
               <FollowersTabContent username={username} userId={profile?.id} isOwn={isOwn} />
             )}
