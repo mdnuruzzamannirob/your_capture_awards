@@ -338,20 +338,22 @@ const JoinedContestCard = ({
     return () => window.clearInterval(timer);
   }, []);
 
+  const contestPhotos = contest?.photos;
+
   useEffect(() => {
     setLocalImageUrls([]);
-  }, [contest?.photos]);
+  }, [contestPhotos]);
 
   const serverPhotos = useMemo<ContestPhoto[]>(() => {
-    if (!Array.isArray(contest?.photos)) return [];
-    return contest.photos
+    if (!Array.isArray(contestPhotos)) return [];
+    return contestPhotos
       .map((photo: any, index: number) => ({
         ...photo,
         id: getContestPhotoId(photo, index),
         url: resolveImageUrl(getContestPhotoUrl(photo)),
       }))
       .filter((photo: ContestPhoto) => Boolean(photo.url));
-  }, [contest?.photos]);
+  }, [contestPhotos]);
 
   const photos = useMemo<ContestPhoto[]>(() => {
     const existingUrls = new Set(serverPhotos.map((photo) => photo.url));
