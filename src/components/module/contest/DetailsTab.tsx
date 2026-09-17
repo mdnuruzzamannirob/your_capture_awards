@@ -21,7 +21,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
     'Contest creator',
   );
   const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
-  const entryCurrency = contest?.currency ?? 'USD';
+  const entryCurrency = 'USD';
 
   const hasStarted = now >= contestStart;
   const hasEnded = now > contestEnd;
