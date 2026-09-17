@@ -236,7 +236,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const { isAuthenticated } = useAuth();
     const { openStore } = useStoreModal();
-    const { data: storeStats } = useGetStoreStatsQuery(undefined, {
+    const { data: storeStats, isFetching: isStoreStatsFetching } = useGetStoreStatsQuery(undefined, {
       skip: !isAuthenticated,
     });
     const stats = storeStats?.data;
@@ -251,7 +251,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       url: string;
     }[];
     const requiredCoins = contest?.entryFeeCoins ?? 0;
-    const entryCurrency = contest?.currency ?? 'USD';
+    const entryCurrency = 'USD';
     const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
     const hasMoneyEntryFee = entryFeeAmount > 0;
     const requiredPaidJoinRuleKeys = useMemo(
@@ -462,6 +462,16 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     };
 
     const handleContestEntryCheckout = async () => {
+      if (requiredPaidJoinRuleKeys.length > 0 && !acceptedPaidJoinRules) {
+        toast.error('Please accept the contest rules before continuing to payment.');
+        return;
+      }
+
+      if (requiredCoins > 0 && isStoreStatsFetching) {
+        toast.info('Checking your coin balance. Please try again in a moment.');
+        return;
+      }
+
       const userCoins = stats?.coins ?? 0;
       if (requiredCoins > 0 && userCoins < requiredCoins) {
         setShowMoneyConfirm(false);
@@ -815,11 +825,16 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                 onClick={handleContestEntryCheckout}
                 disabled={
                   isEntryCheckoutLoading ||
+                  (requiredCoins > 0 && isStoreStatsFetching) ||
                   (requiredPaidJoinRuleKeys.length > 0 && !acceptedPaidJoinRules)
                 }
                 className="bg-primary text-primary-foreground hover:bg-primary/95 w-full rounded-md py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isEntryCheckoutLoading ? 'Redirecting...' : 'Continue'}
+                {isStoreStatsFetching && requiredCoins > 0
+                  ? 'Checking balance...'
+                  : isEntryCheckoutLoading
+                    ? 'Redirecting...'
+                    : 'Continue'}
               </button>
             </div>
           </DialogContent>
@@ -849,6 +864,10 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               </button>
               <button
                 onClick={() => {
+                  if (isStoreStatsFetching) {
+                    toast.info('Checking your coin balance. Please try again in a moment.');
+                    return;
+                  }
                   setShowCoinConfirm(false);
                   const userCoins = stats?.coins ?? 0;
                   if (userCoins < requiredCoins) {
@@ -857,9 +876,10 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                     setUploadModal(true);
                   }
                 }}
-                className="bg-primary text-primary-foreground hover:bg-primary/95 w-full rounded-md py-2.5 text-sm font-semibold transition"
+                disabled={isStoreStatsFetching}
+                className="bg-primary text-primary-foreground hover:bg-primary/95 w-full rounded-md py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Continue
+                {isStoreStatsFetching ? 'Checking balance...' : 'Continue'}
               </button>
             </div>
           </DialogContent>

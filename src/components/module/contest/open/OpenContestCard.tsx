@@ -42,7 +42,7 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
   const creatorName = getUserDisplayName(contest?.cardAttribution?.user ?? contest?.creator);
   const totalVotes = getContestVotes(contest);
   const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
-  const entryCurrency = contest?.currency ?? 'USD';
+  const entryCurrency = 'USD';
   const hasMoneyEntryFee = entryFeeAmount > 0;
 
   const isFuture = contestStart > now;

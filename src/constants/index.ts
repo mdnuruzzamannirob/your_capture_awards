@@ -7,6 +7,7 @@ export const navLinks: NavLink[] = [
     tags: ['/contest', '/joined', '/open', '/closed', '/completed', '/upcoming'],
   },
   { name: 'Discover', href: '/discover' },
+  { name: 'FAQ', href: '/faqs' },
   { name: 'Support', href: '/support' },
   { name: 'About', href: '/about' },
 ];
@@ -22,6 +23,7 @@ export const loggedInNavLinks: NavLink[] = [
     href: '/teams',
     tags: ['/teams/home', '/teams/create'],
   },
+  { name: 'FAQ', href: '/faqs' },
   { name: 'Support', href: '/support' },
   { name: 'About', href: '/about' },
 ];

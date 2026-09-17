@@ -1,6 +1,7 @@
 import { authApi } from '@/store/apis/authApi';
 import { contestApi } from '@/store/apis/contestApi';
 import { discoverApi } from '@/store/apis/discoverApi';
+import { faqApi } from '@/store/apis/faqApi';
 import { profileApi } from '@/store/apis/profileApi';
 import { supportApi } from '@/store/apis/supportApi';
 import { storeApi } from '@/store/apis/storeApi';
@@ -31,6 +32,7 @@ export const makeStore = (preloadedState = {}) => {
       [storeApi.reducerPath]: storeApi.reducer,
       [supportApi.reducerPath]: supportApi.reducer,
       [discoverApi.reducerPath]: discoverApi.reducer,
+      [faqApi.reducerPath]: faqApi.reducer,
       [sitePolicyApi.reducerPath]: sitePolicyApi.reducer,
       [socialApi.reducerPath]: socialApi.reducer,
       [commentsApi.reducerPath]: commentsApi.reducer,
@@ -52,6 +54,7 @@ export const makeStore = (preloadedState = {}) => {
         storeApi.middleware,
         supportApi.middleware,
         discoverApi.middleware,
+        faqApi.middleware,
         sitePolicyApi.middleware,
         socialApi.middleware,
         commentsApi.middleware,
