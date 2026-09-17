@@ -70,6 +70,12 @@ const Footer = () => {
             About Us
           </Link>
           <Link
+            href="/faqs"
+            className="text-muted-foreground hover:text-primary text-sm transition-colors"
+          >
+            FAQs
+          </Link>
+          <Link
             href="/terms"
             className="text-muted-foreground hover:text-primary text-sm transition-colors"
           >

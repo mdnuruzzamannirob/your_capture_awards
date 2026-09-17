@@ -15,7 +15,7 @@ import getContestTabs from '@/utils/getContestTabs';
 import { formatMoney } from '@/utils/formatMoney';
 // Use native <img> for banner to avoid Next/Image SSR hydration attribute mismatch
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import CountdownTimer from '@/components/CountdownTimer';
 import { toast } from 'sonner';
@@ -35,6 +35,7 @@ const ContestDetails = ({ id }: { id: string }) => {
   const contestRefetch = isAuthenticated ? privateContestQuery.refetch : publicContestQuery.refetch;
   // Same args as JoinedContest.tsx → shares RTK Query cache, no duplicate network call.
   const [rankPhotosTrigger] = useLazyGetContestRankPhotosQuery();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const modalParam = searchParams.get('modal');
   const tabParam = searchParams.get('tab');
@@ -57,7 +58,7 @@ const ContestDetails = ({ id }: { id: string }) => {
   const uploadedCount = contest?.uploadCount ?? 0;
   const remaining = Math.max(0, maxUploads - uploadedCount);
   const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
-  const entryCurrency = contest?.currency ?? 'USD';
+  const entryCurrency = 'USD';
   const hasMoneyEntryFee = entryFeeAmount > 0;
 
   const tabs = getContestTabs(contest?.status);
@@ -77,6 +78,11 @@ const ContestDetails = ({ id }: { id: string }) => {
   const uploadModalRef = useRef<UploadModalRef>(null);
   const voteModalRef = useRef<VoteModalRef>(null);
   const paymentToastShownRef = useRef(false);
+  const contestRefetchRef = useRef(contestRefetch);
+
+  useEffect(() => {
+    contestRefetchRef.current = contestRefetch;
+  }, [contestRefetch]);
 
   // Auto-open join modal if redirected from login
   useEffect(() => {
@@ -89,14 +95,49 @@ const ContestDetails = ({ id }: { id: string }) => {
     if (paymentToastShownRef.current) return;
     if (paymentParam === 'success') {
       paymentToastShownRef.current = true;
-      toast.success('Payment received. Your contest entry is being confirmed.');
-      void contestRefetch();
+      let cancelled = false;
+      let retryTimer: ReturnType<typeof setTimeout> | undefined;
+      const toastId = 'contest-entry-payment-confirmation';
+
+      toast.loading('Payment received. Confirming your contest entry...', { id: toastId });
+
+      const confirmEntry = async (attempt: number) => {
+        try {
+          const result = await contestRefetchRef.current();
+          if (cancelled) return;
+
+          if (Boolean(result.data?.data?.joined)) {
+            toast.success('Payment confirmed. You can now submit photos.', { id: toastId });
+            router.replace(`/contest/${id}`);
+            return;
+          }
+        } catch {
+          // Webhook delivery and the following refetch can briefly race. Retry below.
+        }
+
+        if (cancelled) return;
+        if (attempt < 14) {
+          retryTimer = setTimeout(() => void confirmEntry(attempt + 1), 2000);
+          return;
+        }
+
+        toast.info('Payment is still being confirmed. Please refresh this page shortly.', {
+          id: toastId,
+        });
+      };
+
+      void confirmEntry(0);
+      return () => {
+        cancelled = true;
+        if (retryTimer) clearTimeout(retryTimer);
+      };
     }
     if (paymentParam === 'cancelled') {
       paymentToastShownRef.current = true;
       toast.error('Contest entry payment was cancelled.');
+      router.replace(`/contest/${id}`);
     }
-  }, [contestRefetch, paymentParam]);
+  }, [id, paymentParam, router]);
 
   if (contestLoading || !contest || Object.keys(contest).length === 0) {
     return <div className="flex items-center justify-center py-20 text-lg">Loading contest...</div>;
