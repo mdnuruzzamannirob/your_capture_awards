@@ -161,8 +161,8 @@ export const contestApi = createApi({
         };
         data: {
           id: string;
-          contestPhotoId?: string;
-          photoId?: string;
+          contestPhotoId: string;
+          photoId: string;
           url: string;
           voteCount: number;
         }[];
@@ -286,11 +286,14 @@ export const contestApi = createApi({
     }),
 
     // create contest vote
-    createVote: builder.mutation<{ data: { data: any } }, { id: string; photoIds: string[] }>({
-      query: ({ id, photoIds }) => ({
+    createVote: builder.mutation<
+      { data: { data: any } },
+      { id: string; contestPhotoIds: string[] }
+    >({
+      query: ({ id, contestPhotoIds }) => ({
         url: `/votes/${id}`,
         method: 'POST',
-        body: { photoIds },
+        body: { contestPhotoIds },
       }),
       invalidatesTags: (result, error, { id }) => [
         // Refresh only the targeted elements to maintain caching efficiency
