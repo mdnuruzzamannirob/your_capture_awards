@@ -29,6 +29,8 @@ interface VoteModalProps {
 
 interface ContestPhoto {
   id: string;
+  contestPhotoId?: string;
+  photoId?: string;
   url: string;
   voteCount: number;
 }
@@ -111,9 +113,11 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
         const incomingPhotos = (res?.data || [])
           .map((photo) => ({
             ...photo,
+            id: photo.contestPhotoId ?? photo.id,
+            contestPhotoId: photo.contestPhotoId ?? photo.id,
             url: resolveImageUrl(photo.url),
           }))
-          .filter((photo) => Boolean(photo.id && photo.url));
+          .filter((photo) => Boolean(photo.contestPhotoId && photo.url));
 
         setHasNextPage(res?.meta?.hasNextPage ?? false);
 
@@ -126,7 +130,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
 
           prev.forEach((item) => map.set(item.id, item));
 
-          incomingPhotos.forEach((item) => map.set(item.id, item));
+          incomingPhotos.forEach((item) => map.set(item.contestPhotoId ?? item.id, item));
 
           return Array.from(map.values());
         });
@@ -189,9 +193,11 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
     };
   }, [loadMore, open]);
 
-  const toggleVote = (photoId: string) => {
+  const toggleVote = (contestPhotoId: string) => {
     setSelectedIds((prev) =>
-      prev.includes(photoId) ? prev.filter((item) => item !== photoId) : [...prev, photoId],
+      prev.includes(contestPhotoId)
+        ? prev.filter((item) => item !== contestPhotoId)
+        : [...prev, contestPhotoId],
     );
   };
 
@@ -254,15 +260,16 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
                     style={{ height: `${row.height}px`, gap: '2px' }}
                   >
                     {row.items.map(({ item: img, width, height }) => {
-                      const selected = selectedIds.includes(img.id);
+                      const voteId = img.contestPhotoId ?? img.id;
+                      const selected = selectedIds.includes(voteId);
                       return (
                         <div
-                          key={img.id}
+                          key={voteId}
                           className="group relative shrink-0 overflow-hidden rounded"
                           style={{ width: `${width}px`, height: `${height}px` }}
                         >
                           <button
-                            onClick={() => toggleVote(img.id)}
+                            onClick={() => toggleVote(voteId)}
                             className="block h-full w-full"
                           >
                             <Image
