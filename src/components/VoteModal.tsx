@@ -29,8 +29,8 @@ interface VoteModalProps {
 
 interface ContestPhoto {
   id: string;
-  contestPhotoId?: string;
-  photoId?: string;
+  contestPhotoId: string;
+  photoId: string;
   url: string;
   voteCount: number;
 }
@@ -207,7 +207,7 @@ const VoteModal = forwardRef<VoteModalRef, VoteModalProps>(({ id }, ref) => {
     try {
       await voteUpload({
         id,
-        photoIds: selectedIds,
+        contestPhotoIds: selectedIds,
       }).unwrap();
 
       toast.success('Your votes have been submitted successfully!');
