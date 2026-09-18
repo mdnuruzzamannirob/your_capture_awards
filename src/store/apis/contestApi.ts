@@ -161,6 +161,8 @@ export const contestApi = createApi({
         };
         data: {
           id: string;
+          contestPhotoId?: string;
+          photoId?: string;
           url: string;
           voteCount: number;
         }[];
