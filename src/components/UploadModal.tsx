@@ -325,14 +325,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       const imgFile = e.target.files?.[0];
       if (!imgFile) return;
 
-      // 1. Format validation: Strictly JPG, JPEG
-      const allowedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
-      if (!allowedFormats.includes(imgFile.type)) {
-        toast.error('Allowed formats: Strictly JPG, JPEG, PNG, WebP.');
-        return;
-      }
-
-      // 2. File size validation
+      // File size is the only restriction for contest uploads from a computer.
       const minSize = 500 * 1024; // 500 KB
       const maxSize = 25 * 1024 * 1024; // 25 MB
       if (imgFile.size < minSize) {
@@ -344,34 +337,10 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         return;
       }
 
-      // 3. Resolution validation
-      const img = new window.Image();
-      img.src = URL.createObjectURL(imgFile);
-      img.onload = () => {
-        const width = img.width;
-        const height = img.height;
-        URL.revokeObjectURL(img.src);
-
-        const longestEdge = Math.max(width, height);
-        const shortestEdge = Math.min(width, height);
-
-        if (longestEdge < 1920) {
-          toast.error('Minimum resolution: 1920 pixels on the longest edge.');
-          return;
-        }
-        if (longestEdge > 6000 || shortestEdge > 4000) {
-          toast.error('Maximum resolution: 6000x4000 pixels (24MP).');
-          return;
-        }
-
-        setFile(imgFile);
-        const reader = new FileReader();
-        reader.onload = (ev) => setPreview(ev.target?.result as string);
-        reader.readAsDataURL(imgFile);
-      };
-      img.onerror = () => {
-        toast.error('Failed to load image for validation.');
-      };
+      setFile(imgFile);
+      const reader = new FileReader();
+      reader.onload = (ev) => setPreview(ev.target?.result as string);
+      reader.readAsDataURL(imgFile);
     };
 
     const imageSelectHandler = (image: { id: string; url: string }) => {
