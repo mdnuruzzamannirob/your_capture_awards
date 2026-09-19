@@ -285,10 +285,12 @@ const JoinedContestCard = ({
   contest,
   refetch,
   liveVoteCounts,
+  livePhotoRanks,
 }: {
   contest: any;
   refetch: () => Promise<any>;
   liveVoteCounts?: Record<string, number>;
+  livePhotoRanks?: Record<string, number>;
 }) => {
   const { user, isAuthenticated } = useAuth();
   const dispatch = useDispatch();
@@ -374,7 +376,10 @@ const JoinedContestCard = ({
   const totalVotes = asNumber(contest?.level_data?.totalVotes);
   const nextLevelPoint = asNumber(contest?.level_data?.nextLevel?.point);
   const votesToNextLevel = Math.max(0, nextLevelPoint - totalVotes);
-  const rank = contest?.level_data?.rank ?? null;
+  const liveRanks = photos
+    .map((photo) => livePhotoRanks?.[photo.id])
+    .filter((rank): rank is number => typeof rank === 'number');
+  const rank = liveRanks.length > 0 ? Math.min(...liveRanks) : contest?.level_data?.rank ?? null;
   const promotedCount = photos.filter((photo) => isPhotoPromoted(photo, now)).length;
   const tradedCount = photos.filter(isPhotoTraded).length;
   const canUsePhotoActions = serverPhotos.length > 0;
