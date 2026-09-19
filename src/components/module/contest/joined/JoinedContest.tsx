@@ -132,6 +132,16 @@ const JoinedContest = () => {
     return map;
   }, [voteCountsData]);
 
+  const livePhotoRanks = useMemo(() => {
+    const map: Record<string, number> = {};
+    voteCountsData?.data?.forEach((entry) => {
+      if (typeof entry.rank === 'number') {
+        map[entry.contestPhotoId] = entry.rank;
+      }
+    });
+    return map;
+  }, [voteCountsData]);
+
   const { loadMoreRef } = useInfiniteScroll({
     hasMore,
     isLoading: isFetching,
@@ -239,6 +249,7 @@ const JoinedContest = () => {
               contest={contest}
               refetch={refetch}
               liveVoteCounts={liveVoteCounts}
+              livePhotoRanks={livePhotoRanks}
             />
           ))
         )}
