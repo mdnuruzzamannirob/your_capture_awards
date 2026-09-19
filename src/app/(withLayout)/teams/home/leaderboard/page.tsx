@@ -23,8 +23,8 @@ function getTeamName(row: TeamLeaderboardRow) {
 // team:weeklyPayout / team:monthlyPayout / team:yearlyPayout backend crons.
 const PERIOD_REWARDS: Record<LeaderboardPeriod, number[]> = {
   weekly: [1000, 750, 500],
-  monthly: [10000, 5000, 2500],
-  yearly: [15000, 10000, 5000],
+  monthly: [2000, 1500, 1000],
+  yearly: [5000, 2500, 1500],
 };
 
 const PERIOD_NOUN: Record<LeaderboardPeriod, string> = {
