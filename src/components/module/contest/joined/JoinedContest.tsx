@@ -132,7 +132,7 @@ const JoinedContest = () => {
     return map;
   }, [voteCountsData]);
 
-  const livePhotoRanks = useMemo(() => {
+  const liveParticipantRanks = useMemo(() => {
     const map: Record<string, number> = {};
     voteCountsData?.data?.forEach((entry) => {
       if (typeof entry.rank === 'number') {
@@ -249,7 +249,7 @@ const JoinedContest = () => {
               contest={contest}
               refetch={refetch}
               liveVoteCounts={liveVoteCounts}
-              livePhotoRanks={livePhotoRanks}
+              liveParticipantRanks={liveParticipantRanks}
             />
           ))
         )}

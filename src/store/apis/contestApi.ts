@@ -329,7 +329,7 @@ export const contestApi = createApi({
     // touches the much larger JoinedContests cache - the component polls this
     // on its own short interval instead of re-fetching full contest payloads.
     getVoteCounts: builder.query<
-      { data: { contestPhotoId: string; voteCount: number; rank?: number | null }[] },
+      { data: { contestPhotoId: string; voteCount: number; rank?: number | null; photoRank?: number | null }[] },
       { contestPhotoIds: string[] }
     >({
       query: ({ contestPhotoIds }) => ({
