@@ -97,6 +97,38 @@ function getEntityLinks(notification: NotificationItem): EntityLink[] {
 
       return links;
     }
+    case 'TEAM_MATCH_STARTED': {
+      const links: EntityLink[] = [];
+      const rivalTeamId = str('rivalTeamId');
+      const rivalTeamName = str('rivalTeamName');
+      const contestId = str('contestId');
+      const contestName = str('contestName');
+
+      if (rivalTeamId && rivalTeamName) {
+        links.push({ value: rivalTeamName, href: `/teams/${rivalTeamId}` });
+      }
+
+      if (contestId && contestName) {
+        links.push({ value: contestName, href: `/contest/${contestId}` });
+      }
+
+      return links;
+    }
+    case 'TEAM_MATCH_ENDED': {
+      // The message names the contest only (result and scores are not linkable).
+      const contestId = str('contestId');
+      const contestName = str('contestName');
+      return contestId && contestName
+        ? [{ value: contestName, href: `/contest/${contestId}` }]
+        : [];
+    }
+    case 'TEAM_MATCH_SEARCH_TIMEOUT': {
+      const contestId = str('contestId');
+      const contestName = str('contestName');
+      return contestId && contestName
+        ? [{ value: contestName, href: `/contest/${contestId}` }]
+        : [];
+    }
     default:
       return [];
   }
