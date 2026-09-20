@@ -1,10 +1,9 @@
 'use client';
 
-import { Eye, Heart } from 'lucide-react';
+import { Heart } from 'lucide-react';
 
 interface SidebarMetricsProps {
   votes: number;
-  views: number;
   likes: number;
   achievements?: number;
 }
@@ -29,18 +28,13 @@ function VoteIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-export function SidebarMetrics({ votes, views, likes }: SidebarMetricsProps) {
+export function SidebarMetrics({ votes, likes }: SidebarMetricsProps) {
   return (
-    <section className="border-border bg-background grid grid-cols-3 border-b py-6 text-center">
+    <section className="border-border bg-background grid grid-cols-2 border-b py-6 text-center">
       <MetricItem
         icon={<VoteIcon className="text-muted-foreground size-6" />}
         value={votes}
         label="Votes"
-      />
-      <MetricItem
-        icon={<Eye className="text-muted-foreground size-6" />}
-        value={views}
-        label="Views"
       />
       <MetricItem
         icon={<Heart className="text-muted-foreground size-6" />}

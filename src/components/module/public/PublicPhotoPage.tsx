@@ -9,6 +9,7 @@ import { PhotoSkeleton } from './photo/PhotoSkeleton';
 import { PhotoViewer } from './photo/PhotoViewer';
 import { Comment, SidebarComments } from './photo/SidebarComments';
 import { SidebarHeader } from './photo/SidebarHeader';
+import { SidebarLabels } from './photo/SidebarLabels';
 import { SidebarMetrics } from './photo/SidebarMetrics';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -531,10 +532,10 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
           <div className="bg-background min-h-0 flex-1 scrollbar-thin overflow-y-auto">
             <SidebarMetrics
               votes={photo.totalVotes ?? photo.votes ?? 0}
-              views={photo.views ?? 0}
               likes={localLikesCount}
               achievements={photo.contestUpload?.length ?? photo.achievememnts?.length ?? 0}
             />
+            <SidebarLabels labels={photo.labels ?? []} />
             <SidebarComments
               photoId={currentPhotoId}
               comments={comments}

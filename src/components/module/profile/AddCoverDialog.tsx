@@ -18,6 +18,7 @@ import { ChangeEvent, useRef, useState } from 'react';
 import { FiEdit2, FiImage, FiUpload } from 'react-icons/fi';
 import { toast } from 'sonner';
 import { compressImage } from '@/utils/compressImage';
+import { getImageFileError, WEB_IMAGE_ACCEPT } from '@/constants/uploads';
 
 type Step = 'idle' | 'crop' | 'preview';
 
@@ -60,9 +61,9 @@ export default function AddCoverDialog() {
   const processFile = (selected: File) => {
     setError(null);
 
-    const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
-    if (!allowed.includes(selected.type)) {
-      setError('Unsupported format. Please upload a JPG, PNG, AVIF, or WebP file.');
+    const typeError = getImageFileError(selected, 'web');
+    if (typeError) {
+      setError(typeError);
       return;
     }
     if (selected.size < 50 * 1024) {
@@ -304,7 +305,7 @@ export default function AddCoverDialog() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
+            accept={WEB_IMAGE_ACCEPT}
             onChange={handleFileChange}
             className="hidden"
           />

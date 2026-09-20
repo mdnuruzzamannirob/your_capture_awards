@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Image as ImageIcon } from 'lucide-react';
+import { isWebImageFile, WEB_IMAGE_ACCEPT } from '@/constants/uploads';
 
 interface Props {
   editor?: Editor | null;
@@ -76,10 +77,14 @@ export const AddImagePopover: React.FC<Props> = ({ editor, className }) => {
         <input
           ref={fileRef}
           type="file"
-          accept="image/*"
+          accept={WEB_IMAGE_ACCEPT}
           hidden
           onChange={(e) => {
             const f = e.target.files?.[0];
+            if (f && !isWebImageFile(f)) {
+              if (fileRef.current) fileRef.current.value = '';
+              return;
+            }
             if (f) addImageFromFile(f);
             if (fileRef.current) fileRef.current.value = '';
           }}

@@ -1,9 +1,22 @@
+/** One contest photo thumbnail shown under a member in the match panel. */
+export interface MatchEntryPhoto {
+  id: string;
+  /** Id of the underlying UserPhoto - routes to /photo/[photoId]. */
+  userPhotoId: string;
+  url: string;
+  title: string | null;
+  votes: number;
+  rank: number | null;
+}
+
+/** A member's line in a match panel, with the photos they have standing. */
 export interface MatchPhoto {
   id: string;
   memberId: string;
   member: { fullName: string; avatar: string | null };
   votes: number;
-  imageUrl: string;
+  imageUrl: string | null;
+  photos: MatchEntryPhoto[];
 }
 
 export interface MatchTeam {

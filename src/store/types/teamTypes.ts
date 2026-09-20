@@ -17,6 +17,17 @@ export interface TeamMemberUser {
   level?: string;
 }
 
+/** A contest photo standing in the match, as returned on a match side. */
+export interface TeamMemberPhoto {
+  contestPhotoId: string;
+  userPhotoId: string;
+  url: string;
+  title: string | null;
+  votes: number;
+  rank: number | null;
+  createdAt: string;
+}
+
 export interface TeamMember {
   id: string;
   status: MemberStatus;
@@ -26,6 +37,8 @@ export interface TeamMember {
   member: TeamMemberUser;
   totalVote?: number;
   totalPhotoUploads?: number;
+  /** Present on match sides; absent on plain roster listings. */
+  photos?: TeamMemberPhoto[];
   createdAt: string;
   updatedAt: string;
 }

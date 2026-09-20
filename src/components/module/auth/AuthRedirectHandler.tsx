@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Cookies from 'js-cookie';
+import { setTokenCookie } from '@/utils/tokenCookie';
 import { toast } from 'sonner';
 
 function AuthRedirectHandlerContent() {
@@ -15,12 +15,7 @@ function AuthRedirectHandlerContent() {
 
     if (auth === 'success' && token) {
       // Store the token in Cookies (expires in 7 days, consistent with credentials signin)
-      Cookies.set('token', token, {
-        expires: 7,
-        secure: true,
-        sameSite: 'Strict',
-        path: '/',
-      });
+      setTokenCookie(token, 7);
 
       toast.success('Login Successful', {
         description: 'Welcome back!',

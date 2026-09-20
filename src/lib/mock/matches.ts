@@ -26,6 +26,15 @@ const makePhotos = (count: number, startVotes: number): MatchPhoto[] =>
     },
     votes: Math.max(0, startVotes - i * Math.floor(startVotes / (count + 1))),
     imageUrl: `https://picsum.photos/seed/${i + 10}/64/64`,
+    photos: [
+      {
+        id: `p${i}-entry`,
+        url: `https://picsum.photos/seed/${i + 10}/64/64`,
+        title: null,
+        votes: Math.max(0, startVotes - i * Math.floor(startVotes / (count + 1))),
+        rank: i + 1,
+      },
+    ],
   }));
 
 export const OPEN_MATCHES: Match[] = [

@@ -1,5 +1,6 @@
 import { fetchBaseQuery, BaseQueryFn } from '@reduxjs/toolkit/query/react';
 import Cookies from 'js-cookie';
+import { removeTokenCookie } from '@/utils/tokenCookie';
 import { FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { getServerToken } from '@/utils/getServerToken';
 import { resetAuth } from './slices/authSlice';
@@ -82,7 +83,7 @@ export const baseQuery = (
     const result = await rawBaseQuery(args, api, extraOptions);
 
     if (!isServer && result.error && isAuthRequiredError(result.error)) {
-      Cookies.remove('token', { path: '/' });
+      removeTokenCookie();
       api.dispatch(resetAuth());
       redirectToSignin();
     }
