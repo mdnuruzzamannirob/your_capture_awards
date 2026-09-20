@@ -399,6 +399,11 @@ export default function TeamMatchPage() {
         description: 'Finish the current match before starting another team match.',
         cardReason: 'Finish the current match before starting another.',
         actionLabel: 'View current match',
+        // The active match itself is rendered on this same page, so a
+        // "View current match" button would just point at what is already
+        // on screen. The search-status branch below still needs its button
+        // because nothing is displayed inline for that state.
+        hideAction: true,
       };
     }
 
@@ -416,6 +421,7 @@ export default function TeamMatchPage() {
           ? 'Current match is waiting for members.'
           : 'Current match is searching for an opponent.',
         actionLabel: 'View match status',
+        hideAction: false,
       };
     }
 
@@ -594,14 +600,16 @@ export default function TeamMatchPage() {
               </p>
             </div>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            className="shrink-0"
-            onClick={() => router.push(`/teams/home/match/${teamMatchLock.contestId}`)}
-          >
-            {teamMatchLock.actionLabel}
-          </Button>
+          {teamMatchLock.actionLabel && !teamMatchLock.hideAction && (
+            <Button
+              type="button"
+              variant="outline"
+              className="shrink-0"
+              onClick={() => router.push(`/teams/home/match/${teamMatchLock.contestId}`)}
+            >
+              {teamMatchLock.actionLabel}
+            </Button>
+          )}
         </div>
       )}
 

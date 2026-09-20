@@ -25,6 +25,7 @@ import { IoKeyOutline } from 'react-icons/io5';
 import { MdOutlineCameraswitch, MdOutlineHowToVote } from 'react-icons/md';
 import { useDispatch } from 'react-redux';
 import { toast } from 'sonner';
+import { getImageFileError, PHOTO_UPLOAD_ACCEPT } from '@/constants/uploads';
 
 type ActionType = 'boost' | 'trade';
 type ActionStep =
@@ -443,6 +444,14 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (!file) return;
+
+      const typeError = getImageFileError(file, 'photo');
+      if (typeError) {
+        toast.error(typeError);
+        event.target.value = '';
+        return;
+      }
+
       setReplacementFile(file);
       const reader = new FileReader();
       reader.onload = (ev) => setPreview(String(ev.target?.result || ''));
@@ -728,7 +737,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="image/*"
+                      accept={PHOTO_UPLOAD_ACCEPT}
                       className="hidden"
                       onChange={handleFileChange}
                     />

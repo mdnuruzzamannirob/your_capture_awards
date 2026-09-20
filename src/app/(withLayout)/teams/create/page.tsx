@@ -37,6 +37,7 @@ import { useCreateTeamMutation } from '@/store/apis/teamApi';
 import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { useStoreModal } from '@/providers/StoreModalProvider';
 import { showErrorToast } from '@/utils/team-feedback';
+import { isWebImageFile, WEB_IMAGE_ACCEPT } from '@/constants/uploads';
 
 const TEAM_COIN_COST = 500;
 
@@ -195,7 +196,7 @@ function TeamCreatePage() {
 
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
+    if (!isWebImageFile(file)) {
       toast.error('Please select an image file for the team badge.');
       event.target.value = '';
       return;
@@ -315,7 +316,7 @@ function TeamCreatePage() {
                   <input
                     ref={fileRef}
                     type="file"
-                    accept="image/png,image/jpeg,image/webp"
+                    accept={WEB_IMAGE_ACCEPT}
                     aria-label="Team badge upload"
                     title="Team badge upload"
                     className="hidden"

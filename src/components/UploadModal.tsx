@@ -27,6 +27,7 @@ import { IoImagesOutline } from 'react-icons/io5';
 import { toast } from 'sonner';
 import SafeBannerImage from './SafeBannerImage';
 import TipTapViewer from './custom/tiptap-editor/TipTapViewer';
+import { getImageFileError, PHOTO_UPLOAD_ACCEPT } from '@/constants/uploads';
 
 const getApiErrorMessage = (error: any, fallback: string) =>
   error?.data?.message || error?.message || fallback;
@@ -325,7 +326,12 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       const imgFile = e.target.files?.[0];
       if (!imgFile) return;
 
-      // File size is the only restriction for contest uploads from a computer.
+      const typeError = getImageFileError(imgFile, 'photo');
+      if (typeError) {
+        toast.error(typeError);
+        return;
+      }
+
       const minSize = 500 * 1024; // 500 KB
       const maxSize = 25 * 1024 * 1024; // 25 MB
       if (imgFile.size < minSize) {
@@ -609,7 +615,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept={PHOTO_UPLOAD_ACCEPT}
                     className="hidden"
                     onChange={handleFileChange}
                   />

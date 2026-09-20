@@ -34,6 +34,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
+import { isWebImageFile, WEB_IMAGE_ACCEPT } from '@/constants/uploads';
 
 interface EditTeamModalProps {
   open: boolean;
@@ -84,7 +85,7 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) {
+    if (!isWebImageFile(file)) {
       toast.error('Please select an image file.');
       return;
     }
@@ -137,7 +138,7 @@ function EditTeamModal({ open, onClose, team, onSave }: EditTeamModalProps) {
                   <Input
                     ref={fileRef}
                     type="file"
-                    accept="image/*"
+                    accept={WEB_IMAGE_ACCEPT}
                     className="hidden"
                     onChange={handleFileChange}
                   />

@@ -7,6 +7,7 @@ import { LucideCloudUpload, X } from 'lucide-react';
 import Image from 'next/image';
 import { ChangeEvent, DragEvent, KeyboardEvent, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { getImageFileError } from '@/constants/uploads';
 
 export default function UploadPortfolioCard() {
   const [file, setFile] = useState<File | null>(null);
@@ -40,9 +41,9 @@ export default function UploadPortfolioCard() {
 
   const validateAndUpload = (selectedFile: File) => {
     // 1. Format
-    const allowedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
-    if (!allowedFormats.includes(selectedFile.type)) {
-      toast.error('Format not supported. Use JPG, PNG, WebP or AVIF.');
+    const typeError = getImageFileError(selectedFile, 'photo');
+    if (typeError) {
+      toast.error(typeError);
       return;
     }
 

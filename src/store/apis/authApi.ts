@@ -1,6 +1,6 @@
 import { baseQuery } from '@/store/baseQuery';
+import { setTokenCookie } from '@/utils/tokenCookie';
 import { createApi } from '@reduxjs/toolkit/query/react';
-import Cookies from 'js-cookie';
 import { setTempEmail, setTempToken, setUser } from '../slices/authSlice';
 import { AuthUser, SigninData, SignupData } from '../types/authTypes';
 
@@ -21,12 +21,7 @@ export const authApi = createApi({
           const {
             data: { data },
           } = await queryFulfilled;
-          Cookies.set('token', data.token, {
-            expires: arg.remember_me ? 7 : 1,
-            secure: true,
-            sameSite: 'Strict',
-            path: '/',
-          });
+          setTokenCookie(data.token, arg.remember_me ? 7 : 1);
           dispatch(setUser(data.user));
         } catch (err) {}
       },
@@ -44,12 +39,7 @@ export const authApi = createApi({
           const {
             data: { data },
           } = await queryFulfilled;
-          Cookies.set('token', data.token, {
-            expires: arg.remember_me ? 7 : 1,
-            secure: true,
-            sameSite: 'Strict',
-            path: '/',
-          });
+          setTokenCookie(data.token, arg.remember_me ? 7 : 1);
           dispatch(setUser(data.user));
         } catch (err) {}
       },

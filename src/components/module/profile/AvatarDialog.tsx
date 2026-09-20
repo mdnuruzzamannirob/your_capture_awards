@@ -18,6 +18,7 @@ import Image from 'next/image';
 import { ChangeEvent, useRef, useState } from 'react';
 import { FiCamera, FiEdit2, FiUpload } from 'react-icons/fi';
 import { toast } from 'sonner';
+import { getImageFileError, WEB_IMAGE_ACCEPT } from '@/constants/uploads';
 
 type Step = 'idle' | 'crop' | 'preview';
 
@@ -66,9 +67,9 @@ export default function AvatarDialog() {
     if (!selected) return;
     setError(null);
 
-    const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
-    if (!allowed.includes(selected.type)) {
-      setError('Unsupported format. Please upload a JPG, PNG, AVIF, or WebP file.');
+    const typeError = getImageFileError(selected, 'web');
+    if (typeError) {
+      setError(typeError);
       return;
     }
     if (selected.size < 20 * 1024) {
@@ -311,7 +312,7 @@ export default function AvatarDialog() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
+            accept={WEB_IMAGE_ACCEPT}
             onChange={handleFileChange}
             className="hidden"
           />

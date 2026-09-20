@@ -5,6 +5,7 @@ import { formatPrizeRange } from '@/utils/formatPrizeRange';
 import CornerCount from '@/components/CornerCount';
 import SafeBannerImage from '@/components/SafeBannerImage';
 import { getUserDisplayName } from '@/utils/getUserDisplayName';
+import { UserRound } from 'lucide-react';
 
 const UpcomingContestCard = ({
   contest,
@@ -46,13 +47,19 @@ const UpcomingContestCard = ({
         {/* Creator Info on hover — top left. Desktop-only reveal (md+); touch devices
             have no hover state to trigger it. */}
         <div className="pointer-events-none absolute top-3 left-3 z-20 flex -translate-y-3 items-center gap-2 opacity-0 transition-all duration-300 md:group-hover:translate-y-0 md:group-hover:opacity-100">
-          <Image
-            src={contest?.creator?.avatar}
-            alt="Author"
-            width={28}
-            height={28}
-            className="size-7 min-w-7 rounded-full border border-white/20 object-cover"
-          />
+          {contest?.creator?.avatar ? (
+            <Image
+              src={contest.creator.avatar}
+              alt="Author"
+              width={28}
+              height={28}
+              className="size-7 min-w-7 rounded-full border border-white/20 object-cover"
+            />
+          ) : (
+            <div className="flex size-7 min-w-7 items-center justify-center rounded-full border border-white/20 bg-black/40">
+              <UserRound className="size-4 text-white/80" />
+            </div>
+          )}
           <p className="text-xs font-semibold text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.8)]">
             By {creatorName}
           </p>
