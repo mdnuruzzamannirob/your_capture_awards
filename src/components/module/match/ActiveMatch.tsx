@@ -110,9 +110,9 @@ function ActiveMatch({
         <Separator />
 
         <div className="flex gap-0">
-          <PhotoListPanel team={match.teamA} side="left" />
+          <PhotoListPanel team={match.teamA} side="left" photosRequired={match.photosRequired} />
           <div className="bg-border w-px shrink-0" />
-          <PhotoListPanel team={match.teamB} side="right" />
+          <PhotoListPanel team={match.teamB} side="right" photosRequired={match.photosRequired} />
         </div>
       </div>
     </div>
