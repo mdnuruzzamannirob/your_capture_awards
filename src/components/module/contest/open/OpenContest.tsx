@@ -6,7 +6,7 @@ import OpenContestCardSkeleton from './OpenContestCardSkeleton';
 import { useGetPublicContestsQuery, useGetPrivateContestsQuery } from '@/store/apis/contestApi';
 import { useAuth } from '@/hooks/useAuth';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
 
@@ -65,6 +65,18 @@ const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenConte
     });
   }, [isAuthenticated, openResult, page]);
 
+  // Open contests read as a queue of deadlines, so the one closing first sits at
+  // the top. The API orders them the same way - this keeps the order correct for
+  // the accumulated pages too, and for anything missing an end date.
+  const sortedContests = useMemo(() => {
+    const endTime = (contest: any) => {
+      const parsed = new Date(contest?.endDate ?? '').getTime();
+      return Number.isNaN(parsed) ? Number.POSITIVE_INFINITY : parsed;
+    };
+
+    return [...allContests].sort((a, b) => endTime(a) - endTime(b));
+  }, [allContests]);
+
   // Infinite scroll hook
   const { loadMoreRef } = useInfiniteScroll({
     hasMore,
@@ -92,14 +104,14 @@ const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenConte
             </div>
             <Button onClick={() => void refetch()}>Retry</Button>
           </div>
-        ) : allContests.length <= 0 ? (
+        ) : sortedContests.length <= 0 ? (
           <div className="col-span-full flex w-full flex-col items-center justify-center py-20">
             <Image alt="" src="/images/no-result-found.webp" width={400} height={400} />
             <p>No Data Found!</p>
           </div>
         ) : (
-          allContests?.map((contest: any, index: number) => (
-            <OpenContestCard key={index} contest={contest} refetch={refetch} />
+          sortedContests.map((contest: any) => (
+            <OpenContestCard key={contest.id} contest={contest} refetch={refetch} />
           ))
         )}
       </section>
