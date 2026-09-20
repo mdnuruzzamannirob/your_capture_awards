@@ -29,6 +29,7 @@ const makePhotos = (count: number, startVotes: number): MatchPhoto[] =>
     photos: [
       {
         id: `p${i}-entry`,
+        userPhotoId: `up${i}-entry`,
         url: `https://picsum.photos/seed/${i + 10}/64/64`,
         title: null,
         votes: Math.max(0, startVotes - i * Math.floor(startVotes / (count + 1))),
