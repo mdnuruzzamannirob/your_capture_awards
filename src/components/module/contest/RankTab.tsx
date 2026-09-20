@@ -23,6 +23,15 @@ import { MdOutlineHowToVote } from 'react-icons/md';
 const EMPTY_PHOTOS: any[] = [];
 const EMPTY_PHOTOGRAPHERS: any[] = [];
 
+// The rank endpoints return items keyed by `contestPhotoId` / `participantId` - there is
+// no `id` field on them. Deduping on `item.id` meant every key was `undefined`, so page 1
+// seeded the set with `undefined` and every later page was filtered out entirely: only
+// the first 12 ranked photos ever rendered even though page 2+ fetched fine.
+const getPhotoKey = (item: any) =>
+  item?.contestPhotoId ?? item?.userPhotoId ?? item?.id ?? null;
+const getPhotographerKey = (item: any) =>
+  item?.participantId ?? item?.user?.id ?? item?.id ?? null;
+
 const EmptyState = ({ title, description }: { title: string; description: string }) => (
   <div className="col-span-full flex flex-col items-center justify-center text-center">
     <h3 className="text-lg font-semibold">{title}</h3>
@@ -73,9 +82,10 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
       setPhotoItems(rankPhotos);
       return;
     }
+    if (!rankPhotos.length) return;
     setPhotoItems((prev) => {
-      const seen = new Set(prev.map((item) => item.id));
-      return [...prev, ...rankPhotos.filter((item: any) => !seen.has(item.id))];
+      const seen = new Set(prev.map(getPhotoKey).filter(Boolean));
+      return [...prev, ...rankPhotos.filter((item: any) => !seen.has(getPhotoKey(item)))];
     });
   }, [rankPhotos, photoPage]);
 
@@ -84,9 +94,13 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
       setPhotographerItems(rankPhotographers);
       return;
     }
+    if (!rankPhotographers.length) return;
     setPhotographerItems((prev) => {
-      const seen = new Set(prev.map((item) => item.id));
-      return [...prev, ...rankPhotographers.filter((item: any) => !seen.has(item.id))];
+      const seen = new Set(prev.map(getPhotographerKey).filter(Boolean));
+      return [
+        ...prev,
+        ...rankPhotographers.filter((item: any) => !seen.has(getPhotographerKey(item))),
+      ];
     });
   }, [rankPhotographers, photographerPage]);
 
