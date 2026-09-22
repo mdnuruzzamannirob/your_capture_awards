@@ -1,6 +1,7 @@
 import { MatchPhoto, MatchTeam } from '@/types/match';
 import { cn } from '@/utils/cn';
 import { getInitials } from '@/utils/match-utils';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ImageOff, Vote } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -47,16 +48,18 @@ function PhotoListPanel({ team, photosRequired }: PhotoListPanelProps) {
             No members joined yet
           </div>
         ) : (
-          sorted.map((photo, i) => (
-            <PhotoRow
-              key={photo.id}
-              photo={photo}
-              rank={i + 1}
-              maxVotes={maxVotes}
-              slots={slots}
-              returnTo={pathname}
-            />
-          ))
+          <AnimatePresence initial={false}>
+            {sorted.map((photo, i) => (
+              <PhotoRow
+                key={photo.id}
+                photo={photo}
+                rank={i + 1}
+                maxVotes={maxVotes}
+                slots={slots}
+                returnTo={pathname}
+              />
+            ))}
+          </AnimatePresence>
         )}
       </div>
     </div>
@@ -80,7 +83,11 @@ function PhotoRow({
   const emptySlots = Math.max(slots - photo.photos.length, 0);
 
   return (
-    <div className="bg-primary/5 relative overflow-hidden rounded-md px-2.5 py-2">
+    <motion.div
+      layout
+      transition={{ type: 'spring', stiffness: 350, damping: 32 }}
+      className="bg-primary/5 relative overflow-hidden rounded-md px-2.5 py-2"
+    >
       {/* Vote bar background */}
       <div
         className="bg-primary/8 absolute inset-y-0 left-0 rounded-md transition-all duration-500"
@@ -175,7 +182,7 @@ function PhotoRow({
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
