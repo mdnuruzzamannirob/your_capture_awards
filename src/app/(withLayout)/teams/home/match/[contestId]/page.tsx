@@ -12,6 +12,7 @@ import { useGetMyTeamQuery, useGetTeamContestMatchViewQuery } from '@/store/apis
 import type { TeamMatchEligibleMember } from '@/store/types/teamTypes';
 import { getImageUrl, mapActiveMatchToMatch } from '@/utils/activeTeamMatch';
 import { cn } from '@/utils/cn';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft,
   Clock3,
@@ -46,6 +47,16 @@ function memberLabel(member: TeamMatchEligibleMember) {
     [member.member.firstName, member.member.lastName].filter(Boolean).join(' ') ||
     'Team member'
   );
+}
+
+/** Highest votes first, mirroring the backend's ranking order so the list
+ * reorders live as members pick up votes instead of waiting for a refetch. */
+function sortByVotes(members: TeamMatchEligibleMember[]) {
+  return [...members].sort((a, b) => {
+    if (b.totalVote !== a.totalVote) return b.totalVote - a.totalVote;
+    if (b.totalPhotoUploads !== a.totalPhotoUploads) return b.totalPhotoUploads - a.totalPhotoUploads;
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  });
 }
 
 function formatCountdown(diffMs: number) {
@@ -144,6 +155,7 @@ export default function TeamMatchViewPage() {
 
   const { contest, eligibleMembers, queue, activeMatch } = matchViewData.data;
   const joinContest = joinContestData?.data;
+  const rankedMembers = sortByVotes(eligibleMembers);
 
   // Once the opponent search resolves into a real match, the status/roster
   // view below is replaced by the live scoreboard.
@@ -278,38 +290,42 @@ export default function TeamMatchViewPage() {
           </div>
 
           <div className="divide-border-subtle divide-y">
-            {eligibleMembers.map((member) => (
-              <div
-                key={member.id}
-                className="hover:bg-surface-secondary/60 flex items-center gap-3.5 px-5 py-3.5 transition-colors"
-              >
-                <Avatar className="border-border-subtle ring-background size-10 shrink-0 border ring-2">
-                  <AvatarImage
-                    src={getImageUrl(member.member.avatar) ?? undefined}
-                    alt={memberLabel(member)}
-                  />
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-                    {memberLabel(member).slice(0, 1).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{memberLabel(member)}</p>
-                  <p className="text-muted-foreground text-xs">
-                    {member.totalPhotoUploads} uploads
-                  </p>
-                </div>
-                <Badge variant="secondary" className="shrink-0 gap-1 font-semibold">
-                  <ThumbsUp className="size-3" />
-                  {member.totalVote}
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className={cn('shrink-0 text-[10px]', levelBadgeClass(member.level))}
+            <AnimatePresence initial={false}>
+              {rankedMembers.map((member) => (
+                <motion.div
+                  key={member.id}
+                  layout
+                  transition={{ type: 'spring', stiffness: 350, damping: 32 }}
+                  className="hover:bg-surface-secondary/60 flex items-center gap-3.5 px-5 py-3.5 transition-colors"
                 >
-                  {member.level}
-                </Badge>
-              </div>
-            ))}
+                  <Avatar className="border-border-subtle ring-background size-10 shrink-0 border ring-2">
+                    <AvatarImage
+                      src={getImageUrl(member.member.avatar) ?? undefined}
+                      alt={memberLabel(member)}
+                    />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                      {memberLabel(member).slice(0, 1).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{memberLabel(member)}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {member.totalPhotoUploads} uploads
+                    </p>
+                  </div>
+                  <Badge variant="secondary" className="shrink-0 gap-1 font-semibold">
+                    <ThumbsUp className="size-3" />
+                    {member.totalVote}
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className={cn('shrink-0 text-[10px]', levelBadgeClass(member.level))}
+                  >
+                    {member.level}
+                  </Badge>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
       ) : (
