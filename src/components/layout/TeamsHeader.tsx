@@ -62,7 +62,12 @@ const TeamsHeader = () => {
 
       if (isChatTab) {
         setChatUnreadCount(0);
-        void markChatRead(teamId);
+
+        // The server emits unreadCount: 0 after marking the chat as read.
+        // Do not answer that acknowledgement with another PATCH request.
+        if ((payload.unreadCount ?? 0) > 0) {
+          void markChatRead(teamId);
+        }
         return;
       }
 
