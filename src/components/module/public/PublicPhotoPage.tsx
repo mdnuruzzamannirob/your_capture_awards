@@ -241,13 +241,22 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
   const [fetchContestUserPhotos] = useLazyGetUserPhotosQuery();
   const [fetchProfileUserPhotos] = useLazyGetOtherUserPhotosQuery();
 
+  // Shows the list as slides and the opened photo as a placeholder until its
+  // details load. A list without the opened photo is someone else's (e.g. a
+  // leftover Redux swiper from an earlier page): using it would flash a
+  // different image first, so it is ignored.
+  const seedSlides = (items: any[]) => {
+    const seed = items.find((p) => p.id === initialPhotoId);
+    if (!seed) return false;
+    setSlides(items);
+    setPhoto((prev: any) => prev ?? seed);
+    return true;
+  };
+
   // On mount: seed slides from Redux swiper state, or fetch dynamically if empty
   useEffect(() => {
     const initializeSlides = async () => {
-      if (swiperPhotos.length > 0) {
-        setSlides(swiperPhotos);
-        const seed = swiperPhotos.find((p) => p.id === initialPhotoId) || swiperPhotos[0];
-        if (seed) setPhoto((prev: any) => prev ?? seed);
+      if (swiperPhotos.length > 0 && seedSlides(swiperPhotos)) {
         return;
       }
 
@@ -264,9 +273,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
             likes: p.likes || 0,
             totalVotes: p.voteCount || 0,
           }));
-          setSlides(items);
-          const seed = items.find((p: any) => p.id === initialPhotoId) || items[0];
-          if (seed) setPhoto((prev: any) => prev ?? seed);
+          seedSlides(items);
         } catch {}
       } else if (source === 'profile' && ownerIdParam) {
         try {
@@ -284,9 +291,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
             likes: p.likes || 0,
             totalVotes: p.totalVotes || p.voteCount || 0,
           }));
-          setSlides(items);
-          const seed = items.find((p: any) => p.id === initialPhotoId) || items[0];
-          if (seed) setPhoto((prev: any) => prev ?? seed);
+          seedSlides(items);
         } catch {}
       }
     };
