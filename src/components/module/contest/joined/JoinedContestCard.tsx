@@ -7,6 +7,7 @@ import VoteModal, { VoteModalRef } from '@/components/VoteModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useStoreModal } from '@/providers/StoreModalProvider';
 import { useChargeContestExposureMutation } from '@/store/apis/contestApi';
+import { setSwiperPhotos } from '@/store/slices/profileSlice';
 import { storeApi, useGetStoreStatsQuery } from '@/store/apis/storeApi';
 import { cn } from '@/utils/cn';
 import { resolveImageUrl } from '@/utils/resolveImageUrl';
@@ -159,6 +160,7 @@ function UploadedPhoto({
   fallbackVotes,
   liveVoteCount,
   href,
+  onOpen,
   now,
   index,
 }: {
@@ -166,6 +168,7 @@ function UploadedPhoto({
   fallbackVotes: number;
   liveVoteCount?: number;
   href?: string;
+  onOpen?: () => void;
   now: number;
   index: number;
 }) {
@@ -189,6 +192,7 @@ function UploadedPhoto({
     <div className="flex-1">
       <Link
         href={href || '#'}
+        onClick={href ? onOpen : undefined}
         aria-disabled={!href}
         className={cn(
           'border-border group/photo relative block h-24 overflow-hidden rounded-lg border bg-black shadow-sm',
@@ -367,6 +371,25 @@ const JoinedContestCard = ({
     return [...serverPhotos, ...localPhotos];
   }, [localImageUrls, serverPhotos]);
 
+  // Hand this contest's entries to the photo page so it opens on the clicked
+  // photo straight away (and can page between entries) instead of falling
+  // back to whatever swiper list an earlier page left behind.
+  const openPhotoViewer = () => {
+    dispatch(
+      setSwiperPhotos(
+        serverPhotos.map((photo) => ({
+          id: getPhotoDetailsId(photo),
+          url: resolveImageUrl(photo.url),
+          userId: user?.id ?? null,
+          title: '',
+          views: 0,
+          likes: 0,
+          totalVotes: getPhotoVotes(photo),
+        })),
+      ),
+    );
+  };
+
   const uploadedCount = Math.max(contest?.uploadCount ?? 0, photos.length);
   const maxUploads = contest?.maxUploads ?? contest?.maxUpload ?? 0;
   const remaining = Math.max(0, maxUploads - uploadedCount);
@@ -538,6 +561,7 @@ const JoinedContestCard = ({
                 fallbackVotes={photos.length === 1 ? totalVotes : 0}
                 liveVoteCount={liveVoteCounts?.[photo.id]}
                 href={photoHref}
+                onOpen={openPhotoViewer}
                 now={now}
                 index={index}
               />
