@@ -28,8 +28,17 @@ export function SidebarLabels({ labels, onSave }: SidebarLabelsProps) {
   const [isSaving, setIsSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // `labels` only seeds the list: the parent remounts this component (key)
-  // when the viewer moves to another photo.
+  // The page first shows a seed photo from the gallery list (often without
+  // labels) and swaps in the full details later under the same photo id, so
+  // follow the labels whenever their content changes. Compared by content
+  // because the parent passes a fresh array on every render.
+  const labelsSignature = (labels ?? []).join('\u0000');
+  useEffect(() => {
+    if (isSaving) return;
+    setItems(labelsSignature ? labelsSignature.split('\u0000') : []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [labelsSignature]);
+
   useEffect(() => {
     if (isAdding) inputRef.current?.focus();
   }, [isAdding]);
