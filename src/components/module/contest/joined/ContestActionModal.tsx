@@ -1,5 +1,6 @@
 'use client';
 
+import { filterPhotosByTags, PhotoTagSearch } from '@/components/PhotoTagSearch';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
@@ -227,11 +228,13 @@ function TradePhotoJustifiedPicker({
   isLoading,
   selectedId,
   onSelect,
+  emptyMessage = 'No profile photos available. Please upload some photos first.',
 }: {
   photos: { id: string; url: string }[];
   isLoading: boolean;
   selectedId: string;
   onSelect: (photo: { id: string; url: string }) => void;
+  emptyMessage?: string;
 }) {
   const { containerRef, rows } = useJustifiedLayout({
     items: photos.map((p) => ({ ...p })),
@@ -256,7 +259,7 @@ function TradePhotoJustifiedPicker({
   if (!photos || photos.length === 0) {
     return (
       <div className="border-border text-muted-foreground rounded-xl border border-dashed p-6 text-center text-sm">
-        No profile photos available. Please upload some photos first.
+        {emptyMessage}
       </div>
     );
   }
@@ -335,6 +338,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
     const [replacementFile, setReplacementFile] = useState<File | null>(null);
     const [preview, setPreview] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [tagQuery, setTagQuery] = useState('');
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const stats = storeStats?.data;
@@ -391,6 +395,10 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
             !tradeHistoryPhotoIds.has(photo.id),
         );
     }, [contestPhotoUrls, contestSourcePhotoIds, tradeHistoryPhotoIds, userPhotos]);
+    const filteredUploadedPhotos = useMemo(
+      () => filterPhotosByTags(uploadedPhotos, tagQuery),
+      [uploadedPhotos, tagQuery],
+    );
 
     // ── Open ─────────────────────────────────────────────────────────────
     useImperativeHandle(ref, () => ({
@@ -419,6 +427,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
         setSelectedUserPhotoUrl(''); // FIX: reset url state
         setReplacementFile(null);
         setPreview('');
+        setTagQuery('');
         setOpen(true);
         if (type === 'trade') {
           triggerPhotos({ id: contestId });
@@ -437,6 +446,7 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
       setSelectedUserPhotoUrl(''); // FIX: reset url state
       setReplacementFile(null);
       setPreview('');
+      setTagQuery('');
       setIsSubmitting(false);
     };
 
@@ -749,8 +759,20 @@ const ContestActionModal = forwardRef<ContestActionModalRef, ContestActionModalP
                         <p className="text-primary-foreground/60 text-xs font-semibold tracking-wide uppercase">
                           Fresh uploads
                         </p>
+                        {!isPhotosLoading && uploadedPhotos.length > 0 && (
+                          <PhotoTagSearch
+                            photos={uploadedPhotos}
+                            value={tagQuery}
+                            onChange={setTagQuery}
+                          />
+                        )}
                         <TradePhotoJustifiedPicker
-                          photos={uploadedPhotos}
+                          photos={filteredUploadedPhotos}
+                          emptyMessage={
+                            tagQuery.trim()
+                              ? `No photos tagged "${tagQuery.trim()}".`
+                              : undefined
+                          }
                           isLoading={isPhotosLoading}
                           selectedId={selectedUserPhotoId}
                           onSelect={(photo) => {

@@ -184,7 +184,10 @@ export const contestApi = createApi({
     }),
 
     // get user photos
-    getUserPhotos: builder.query<{ data: { data: { url: string; id: string }[] } }, { id: string }>(
+    getUserPhotos: builder.query<
+      { data: { data: { url: string; id: string; labels?: string[] }[] } },
+      { id: string }
+    >(
       {
         query: ({ id }) => `/contests/${id}/user-photos`,
         providesTags: (result, error, { id }) => [{ type: 'UserPhotos', id }],

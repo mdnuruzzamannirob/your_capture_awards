@@ -1,5 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { baseQuery } from '@/store/baseQuery';
+import { contestApi } from './contestApi';
 import { setPhoto, setPhotos, deletePhoto, setStats } from '../slices/profileSlice';
 import { Photo, ProfileAchievementsResponse, Stats } from '../types/profileTypes';
 
@@ -70,6 +71,26 @@ export const profileApi = createApi({
         } catch (err) {}
       },
       invalidatesTags: ['Photos', 'Stats'],
+    }),
+
+    // Owner-only: replaces the photo's labels (tags) with the given list
+    updatePhotoLabels: builder.mutation<
+      { data: { id: string; labels: string[] } },
+      { photoId: string; labels: string[] }
+    >({
+      query: ({ photoId, labels }) => ({
+        url: `/profiles/photos/${photoId}/labels`,
+        method: 'PATCH',
+        body: { labels },
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          // the contest "choose from profile" pickers search these labels
+          dispatch(contestApi.util.invalidateTags(['UserPhotos']));
+        } catch {}
+      },
+      invalidatesTags: (result, error, { photoId }) => [{ type: 'Photos', id: photoId }],
     }),
 
     getStats: builder.query<{ data: Stats }, void>({
@@ -148,6 +169,7 @@ export const {
   useGetPhotosQuery,
   useGetStatsQuery,
   useDeletePhotoMutation,
+  useUpdatePhotoLabelsMutation,
   useGetMyPhotoDetailsQuery,
   useLazyGetMyPhotoDetailsQuery,
   useGetOtherUserProfileQuery,

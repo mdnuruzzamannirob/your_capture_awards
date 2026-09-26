@@ -25,6 +25,7 @@ import {
   useLazyGetMyPhotoDetailsQuery,
   useLazyGetOtherUserPhotosQuery,
   useLazyGetPublicPhotoDetailsQuery,
+  useUpdatePhotoLabelsMutation,
 } from '@/store/apis/profileApi';
 import { useToggleFollowMutation, useToggleLikeMutation } from '@/store/apis/socialApi';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -114,6 +115,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
 
   const [toggleLike, { isLoading: isLiking }] = useToggleLikeMutation();
   const [toggleFollow, { isLoading: isFollowToggling }] = useToggleFollowMutation();
+  const [updatePhotoLabels] = useUpdatePhotoLabelsMutation();
 
   // Comments RTK Query — lazy so we control when to fetch
   const [fetchComments] = useLazyGetPhotoCommentsQuery();
@@ -391,6 +393,21 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
     } catch {}
   };
 
+  // Owner only. Throws on failure so SidebarLabels can roll back its list.
+  const handleSaveLabels = async (labels: string[]) => {
+    const photoId = photo?.id ?? currentPhotoId;
+    const res = await updatePhotoLabels({ photoId, labels }).unwrap();
+    const saved = res.data?.labels ?? labels;
+    setPhoto((prev: any) => (prev?.id === photoId ? { ...prev, labels: saved } : prev));
+    setPhotoCache((old) => {
+      if (!old[photoId]) return old;
+      return {
+        ...old,
+        [photoId]: { ...old[photoId], photo: { ...old[photoId].photo, labels: saved } },
+      };
+    });
+  };
+
   // ── Comment handlers (all via RTK Query) ───────────────────────────────────
   const refreshComments = async () => {
     // Force fresh fetch and update local state + cache
@@ -535,7 +552,11 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
               likes={localLikesCount}
               achievements={photo.contestUpload?.length ?? photo.achievememnts?.length ?? 0}
             />
-            <SidebarLabels labels={photo.labels ?? []} />
+            <SidebarLabels
+              key={photo.id ?? currentPhotoId}
+              labels={photo.labels ?? []}
+              onSave={isOwnPhoto ? handleSaveLabels : undefined}
+            />
             <SidebarComments
               photoId={currentPhotoId}
               comments={comments}

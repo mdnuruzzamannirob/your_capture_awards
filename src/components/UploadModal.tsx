@@ -27,6 +27,7 @@ import { IoImagesOutline } from 'react-icons/io5';
 import { toast } from 'sonner';
 import SafeBannerImage from './SafeBannerImage';
 import TipTapViewer from './custom/tiptap-editor/TipTapViewer';
+import { filterPhotosByTags, PhotoTagSearch } from './PhotoTagSearch';
 import { getImageFileError, PHOTO_UPLOAD_ACCEPT } from '@/constants/uploads';
 
 const getApiErrorMessage = (error: any, fallback: string) =>
@@ -94,11 +95,13 @@ function ProfilePhotoJustifiedPicker({
   isPhotosLoading,
   selectedImages,
   onSelect,
+  emptyMessage = 'No profile photos available. Please upload some photos first.',
 }: {
   photos: { id: string; url: string }[];
   isPhotosLoading: boolean;
   selectedImages: { id: string; url: string }[];
   onSelect: (photo: { id: string; url: string }) => void;
+  emptyMessage?: string;
 }) {
   const { containerRef, rows } = useJustifiedLayout({
     items: photos.map((p) => ({ ...p })),
@@ -146,7 +149,7 @@ function ProfilePhotoJustifiedPicker({
   if (!photos || photos.length === 0) {
     return (
       <div className="border-border text-muted-foreground rounded-xl border border-dashed p-6 text-center text-sm">
-        No profile photos available. Please upload some photos first.
+        {emptyMessage}
       </div>
     );
   }
@@ -250,7 +253,10 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const photos = (Array.isArray(data?.data) ? data.data : (data?.data?.data ?? [])) as {
       id: string;
       url: string;
+      labels?: string[];
     }[];
+    const [tagQuery, setTagQuery] = useState('');
+    const filteredPhotos = useMemo(() => filterPhotosByTags(photos, tagQuery), [photos, tagQuery]);
     const requiredCoins = contest?.entryFeeCoins ?? 0;
     const entryCurrency = 'USD';
     const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
@@ -288,6 +294,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       setPreview('');
       setSelectedImages([]);
       setUploadSource(null);
+      setTagQuery('');
     };
 
     // expose `open` method to parent
@@ -318,6 +325,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         setPreview('');
         setSelectedImages([]);
         setUploadSource(null);
+        setTagQuery('');
         setUploadModal(true);
       },
     }));
@@ -623,11 +631,19 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               ) : (
                 uploadSource === 'profile' && (
                   <div className="space-y-5">
+                    {!isPhotosLoading && photos.length > 0 && (
+                      <PhotoTagSearch photos={photos} value={tagQuery} onChange={setTagQuery} />
+                    )}
                     <ProfilePhotoJustifiedPicker
-                      photos={photos}
+                      photos={filteredPhotos}
                       isPhotosLoading={isPhotosLoading}
                       selectedImages={selectedImages}
                       onSelect={imageSelectHandler}
+                      emptyMessage={
+                        tagQuery.trim()
+                          ? `No photos tagged "${tagQuery.trim()}".`
+                          : undefined
+                      }
                     />
                     {selectedImages.length > 0 && (
                       <div className="border-border-subtle flex flex-wrap gap-0 border-t pt-5">
