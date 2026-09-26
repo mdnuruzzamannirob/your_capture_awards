@@ -40,6 +40,9 @@ next-env.d.ts
 .vscode
 .kilo
 .cursor
+<<<<<<< HEAD
 branch_structure.json
 temp_auto_push.bat
 temp_interactive_push.bat
+=======
+>>>>>>> 8ff3b1e68219027a03e8dd6e19eb5e1ffccf10b2
