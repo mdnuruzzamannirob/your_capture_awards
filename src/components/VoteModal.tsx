@@ -38,7 +38,7 @@ interface ContestPhoto {
 const LIMIT = 10;
 
 // Only these voting-power values have a matching icon asset in /public/icons.
-const VOTING_POWER_ICON_STEPS = [2, 4, 6, 8, 10, 12, 14, 16, 18];
+const VOTING_POWER_ICON_STEPS = [1, 2, 4,6, 8, 10, 12, 14, 16, 18];
 const DEFAULT_VOTING_POWER_ICON = '/icons/voting-power.png';
 
 const getVotingPowerIcon = (power: unknown) => {
