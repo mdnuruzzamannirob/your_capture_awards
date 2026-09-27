@@ -14,13 +14,20 @@ const labelKey = (label: string) => label.trim().toLowerCase();
 
 interface SidebarLabelsProps {
   labels: string[];
+  // Categories of the contests this photo was entered in. Read-only.
+  categories?: string[];
   // Photo owner only: when given, the tags can be edited and each change is
   // saved through it. It should throw when the save fails.
   onSave?: (labels: string[]) => Promise<void>;
 }
 
-export function SidebarLabels({ labels, onSave }: SidebarLabelsProps) {
+export function SidebarLabels({ labels, categories, onSave }: SidebarLabelsProps) {
   const editable = !!onSave;
+  const categoryItems = (categories ?? []).filter(
+    (category, index, all) =>
+      !!category.trim() &&
+      all.findIndex((other) => labelKey(other) === labelKey(category)) === index,
+  );
   const [items, setItems] = useState<string[]>(labels ?? []);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -43,7 +50,7 @@ export function SidebarLabels({ labels, onSave }: SidebarLabelsProps) {
     if (isAdding) inputRef.current?.focus();
   }, [isAdding]);
 
-  if (!editable && items.length === 0) return null;
+  if (!editable && items.length === 0 && categoryItems.length === 0) return null;
 
   const save = async (next: string[]) => {
     if (!onSave) return;
@@ -180,10 +187,30 @@ export function SidebarLabels({ labels, onSave }: SidebarLabelsProps) {
 
         {!isEditing && items.length === 0 && (
           <p className="text-muted-foreground/70 text-xs">
-            No tags yet. Add some to find this photo faster when entering contests.
+            {editable
+              ? 'No tags yet. Add some to find this photo faster when entering contests.'
+              : 'No tags yet.'}
           </p>
         )}
       </div>
+
+      {categoryItems.length > 0 && (
+        <div className="mt-5">
+          <h4 className="text-muted-foreground mb-3 text-xs font-bold tracking-wider uppercase">
+            Categories
+          </h4>
+          <div className="flex flex-wrap gap-2">
+            {categoryItems.map((category) => (
+              <span
+                key={category}
+                className="border-primary/30 bg-primary/10 text-primary inline-block rounded-md border px-3 py-1 text-xs font-bold"
+              >
+                {category}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

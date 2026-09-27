@@ -185,7 +185,9 @@ export const contestApi = createApi({
 
     // get user photos
     getUserPhotos: builder.query<
-      { data: { data: { url: string; id: string; labels?: string[] }[] } },
+      {
+        data: { data: { url: string; id: string; labels?: string[]; categories?: string[] }[] };
+      },
       { id: string }
     >(
       {

@@ -254,6 +254,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       id: string;
       url: string;
       labels?: string[];
+      categories?: string[];
     }[];
     const [tagQuery, setTagQuery] = useState('');
     const filteredPhotos = useMemo(() => filterPhotosByTags(photos, tagQuery), [photos, tagQuery]);

@@ -560,6 +560,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
             <SidebarLabels
               key={photo.id ?? currentPhotoId}
               labels={photo.labels ?? []}
+              categories={photo.categories ?? []}
               onSave={isOwnPhoto ? handleSaveLabels : undefined}
             />
             <SidebarComments

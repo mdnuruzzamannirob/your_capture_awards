@@ -5,18 +5,24 @@ import { useMemo } from 'react';
 
 import { cn } from '@/utils/cn';
 
-type TaggedPhoto = { labels?: string[] | null };
+type TaggedPhoto = { labels?: string[] | null; categories?: string[] | null };
+
+// Tags (labels) plus the categories of contests the photo was entered in
+const searchableTerms = (photo: TaggedPhoto) => [
+  ...(photo.labels ?? []),
+  ...(photo.categories ?? []),
+];
 
 const MAX_SUGGESTIONS = 8;
 
 // A photo matches when every word of the query is part of one of its tags
-// (tags and labels are the same thing), ignoring case.
+// (tags and labels are the same thing) or categories, ignoring case.
 export function filterPhotosByTags<T extends TaggedPhoto>(photos: T[], query: string): T[] {
   const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   if (terms.length === 0) return photos;
 
   return photos.filter((photo) => {
-    const labels = (photo.labels ?? []).map((label) => label.toLowerCase());
+    const labels = searchableTerms(photo).map((label) => label.toLowerCase());
     return terms.every((term) => labels.some((label) => label.includes(term)));
   });
 }
@@ -29,14 +35,17 @@ interface PhotoTagSearchProps {
 }
 
 // Search box for the "choose from profile" pickers, with the user's most used
-// tags offered as one-click filters.
+// tags and categories offered as one-click filters.
 export function PhotoTagSearch({ photos, value, onChange, className }: PhotoTagSearchProps) {
   const suggestions = useMemo(() => {
     const counts = new Map<string, { label: string; count: number }>();
     photos.forEach((photo) => {
-      (photo.labels ?? []).forEach((label) => {
+      // a photo counts once per term even if it is both a tag and a category
+      const seen = new Set<string>();
+      searchableTerms(photo).forEach((label) => {
         const key = label.trim().toLowerCase();
-        if (!key) return;
+        if (!key || seen.has(key)) return;
+        seen.add(key);
         const entry = counts.get(key);
         if (entry) entry.count += 1;
         else counts.set(key, { label: label.trim(), count: 1 });
@@ -58,7 +67,7 @@ export function PhotoTagSearch({ photos, value, onChange, className }: PhotoTagS
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Search your photos by tag"
+          placeholder="Search your photos by tag or category"
           className="text-foreground placeholder:text-muted-foreground/70 h-9 w-full bg-transparent text-sm outline-none"
         />
         {value && (
