@@ -9,6 +9,9 @@ export type NavLink = {
   name: string;
   href: string;
   tags?: string[];
+  // Shown instead of `name` in the desktop header below the xl breakpoint,
+  // where the full name would crowd the header.
+  shortName?: string;
 };
 
 export type MemoriesImage = {

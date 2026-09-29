@@ -10,10 +10,15 @@ const remoteImageHosts = new Set([
   'i.pravatar.cc',
 ]);
 
+// Social sign-in profile pictures, stored as the user's avatar.
+remoteImageHosts.add('graph.facebook.com');
+remoteImageHosts.add('platform-lookaside.fbsbx.com');
+
 // Unsplash serves images from several subdomains (images., plus., source.,
 // api.) — a wildcard avoids adding a new host every time a different one
-// shows up in seeded/placeholder data.
-const remoteImageWildcards = ['*.unsplash.com'];
+// shows up in seeded/placeholder data. Google profile pictures likewise come
+// from lh3…lh6.googleusercontent.com.
+const remoteImageWildcards = ['*.unsplash.com', '*.googleusercontent.com'];
 
 for (const value of [process.env.NEXT_PUBLIC_API_URL, process.env.NEXT_PUBLIC_API_URL_V1]) {
   try {

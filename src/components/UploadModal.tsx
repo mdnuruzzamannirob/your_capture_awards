@@ -95,12 +95,15 @@ function ProfilePhotoJustifiedPicker({
   isPhotosLoading,
   selectedImages,
   onSelect,
+  limitReached = false,
   emptyMessage = 'No profile photos available. Please upload some photos first.',
 }: {
   photos: { id: string; url: string }[];
   isPhotosLoading: boolean;
   selectedImages: { id: string; url: string }[];
   onSelect: (photo: { id: string; url: string }) => void;
+  // Every allowed slot is taken: only already selected photos stay clickable
+  limitReached?: boolean;
   emptyMessage?: string;
 }) {
   const { containerRef, rows } = useJustifiedLayout({
@@ -167,12 +170,17 @@ function ProfilePhotoJustifiedPicker({
         >
           {row.items.map(({ item: photo, width, height }) => {
             const isSelected = selectedUrls.has(photo.url);
+            const isBlocked = limitReached && !isSelected;
             return (
               <button
                 key={photo.id}
                 type="button"
                 onClick={() => onSelect(photo)}
-                className="relative shrink-0 overflow-hidden transition hover:opacity-90"
+                aria-disabled={isBlocked}
+                title={isBlocked ? 'Selection limit reached. Unselect a photo to pick another.' : undefined}
+                className={`relative shrink-0 overflow-hidden transition ${
+                  isBlocked ? 'cursor-not-allowed opacity-35' : 'hover:opacity-90'
+                }`}
                 style={{
                   width: `${width}px`,
                   height: `${height}px`,
@@ -358,17 +366,24 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       reader.readAsDataURL(imgFile);
     };
 
+    // How many photos may still be entered: the contest's max uploads minus
+    // what is already in it (`remaining`), falling back to max uploads.
+    const selectionLimit = Math.max(
+      0,
+      Number.isFinite(Number(remaining)) ? Number(remaining) : Number(maxUploads) || 0,
+    );
+    const isSelectionFull = selectedImages.length >= selectionLimit;
+
     const imageSelectHandler = (image: { id: string; url: string }) => {
-      // Check if image is already selected
+      // Clicking a selected photo again unselects it
       if (selectedImages.some((img) => img.id === image.id)) {
-        toast.error('This image is already selected.');
+        setSelectedImages(selectedImages.filter((img) => img.id !== image.id));
         return;
       }
 
-      // Check max limit
-      if (selectedImages.length >= remaining) {
+      if (isSelectionFull) {
         toast.error('Maximum limit reached.', {
-          description: 'You can upload up to 4 images only.',
+          description: `You can add ${selectionLimit} more photo${selectionLimit === 1 ? '' : 's'} to this contest. Unselect one to pick another.`,
         });
         return;
       }
@@ -390,6 +405,11 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
           payload = { contestId, photo: compressedFile };
         } else if (uploadSource === 'profile') {
           if (selectedImages.length === 0) throw new Error('No image selected');
+          if (selectedImages.length > selectionLimit) {
+            throw new Error(
+              `You can add only ${selectionLimit} more photo${selectionLimit === 1 ? '' : 's'} to this contest.`,
+            );
+          }
           payload = { contestId, photoIds: selectedImages.map((item) => item.id) };
         }
 
@@ -635,11 +655,22 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                     {!isPhotosLoading && photos.length > 0 && (
                       <PhotoTagSearch photos={photos} value={tagQuery} onChange={setTagQuery} />
                     )}
+                    {!isPhotosLoading && photos.length > 0 && (
+                      <p
+                        className={`text-xs ${isSelectionFull ? 'text-primary' : 'text-muted-foreground'}`}
+                      >
+                        {selectedImages.length} of {selectionLimit} selected
+                        {isSelectionFull
+                          ? ' · limit reached, unselect a photo to pick another'
+                          : ` · you can add ${selectionLimit - selectedImages.length} more`}
+                      </p>
+                    )}
                     <ProfilePhotoJustifiedPicker
                       photos={filteredPhotos}
                       isPhotosLoading={isPhotosLoading}
                       selectedImages={selectedImages}
                       onSelect={imageSelectHandler}
+                      limitReached={isSelectionFull}
                       emptyMessage={
                         tagQuery.trim()
                           ? `No photos tagged "${tagQuery.trim()}".`
@@ -651,7 +682,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                         <h4 className="text-foreground mb-2 flex w-full items-center gap-2 text-sm">
                           <IoImagesOutline className="size-4" /> Selected Images
                         </h4>
-                        {selectedImages?.slice(0, 4)?.map((img, i) => (
+                        {selectedImages.map((img, i) => (
                           <div
                             aria-hidden="true"
                             key={i}

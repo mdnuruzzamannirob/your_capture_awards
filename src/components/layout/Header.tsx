@@ -89,13 +89,22 @@ const Navbar = () => {
                     <Link
                       href={isActive ? '#' : href}
                       className={cn(
-                        'hover:text-primary p-1 text-sm font-medium transition-colors',
+                        'hover:text-primary p-1 text-sm font-medium whitespace-nowrap transition-colors',
                         isActive
                           ? 'text-primary pointer-events-none cursor-default'
                           : 'text-muted-foreground hover:text-foreground',
                       )}
                     >
-                      {link?.name}
+                      {link?.shortName ? (
+                        <>
+                          <span className="xl:hidden" title={link.name}>
+                            {link.shortName}
+                          </span>
+                          <span className="hidden xl:inline">{link.name}</span>
+                        </>
+                      ) : (
+                        link?.name
+                      )}
                     </Link>
                   </li>
                 );
