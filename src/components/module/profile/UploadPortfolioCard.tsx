@@ -23,10 +23,7 @@ export default function UploadPortfolioCard() {
 
     try {
       const fileToUpload = await compressImage(selectedFile);
-      const formData = new FormData();
-      formData.append('photo', fileToUpload);
-
-      await createPhoto(formData).unwrap();
+      await createPhoto(fileToUpload).unwrap();
 
       setFile(null);
       if (previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl);

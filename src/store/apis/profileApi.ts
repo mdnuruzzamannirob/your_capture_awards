@@ -16,17 +16,77 @@ type PhotosResponse = {
   };
 };
 
+type DirectUploadUrlResponse = {
+  data: {
+    uploadUrl: string;
+    key: string;
+    expiresIn: number;
+    headers: Record<string, string>;
+  };
+};
+
+type CreatePhotoResponse = {
+  data: Photo;
+};
+
 export const profileApi = createApi({
   reducerPath: 'profileApi',
   baseQuery: baseQuery(typeof window === 'undefined'),
   tagTypes: ['Photos', 'Stats', 'Achievements'],
   endpoints: (builder) => ({
-    createPhoto: builder.mutation<{ data: any }, FormData>({
-      query: (formData) => ({
-        url: '/profiles/photos/upload',
-        method: 'POST',
-        body: formData,
-      }),
+    createPhoto: builder.mutation<CreatePhotoResponse, File>({
+      async queryFn(file, _queryApi, _extraOptions, apiQuery) {
+        const presignResult = await apiQuery({
+          url: '/profiles/photos/direct-upload-url',
+          method: 'POST',
+          body: {
+            fileName: file.name,
+            contentType: file.type,
+            fileSize: file.size,
+          },
+        });
+
+        if (presignResult.error) return { error: presignResult.error };
+
+        const { uploadUrl, key, headers } = (presignResult.data as DirectUploadUrlResponse).data;
+
+        try {
+          // This request goes straight to DigitalOcean Spaces. In particular,
+          // it must not include the API bearer token added by our base query.
+          const uploadResult = await fetch(uploadUrl, {
+            method: 'PUT',
+            headers,
+            body: file,
+          });
+
+          if (!uploadResult.ok) {
+            return {
+              error: {
+                status: 'CUSTOM_ERROR',
+                error: `Spaces upload failed with status ${uploadResult.status}`,
+                data: { message: 'Unable to upload the photo. Please try again.' },
+              },
+            };
+          }
+        } catch (error) {
+          return {
+            error: {
+              status: 'CUSTOM_ERROR',
+              error: error instanceof Error ? error.message : 'Spaces upload failed',
+              data: { message: 'Unable to upload the photo. Please try again.' },
+            },
+          };
+        }
+
+        const confirmResult = await apiQuery({
+          url: '/profiles/photos/confirm-upload',
+          method: 'POST',
+          body: { key },
+        });
+
+        if (confirmResult.error) return { error: confirmResult.error };
+        return { data: confirmResult.data as CreatePhotoResponse };
+      },
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const {

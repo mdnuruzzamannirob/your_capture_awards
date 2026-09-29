@@ -7,6 +7,7 @@ const remoteImageHosts = new Set([
   'nyc3.digitaloceanspaces.com',
   'photos.gurushots.com',
   'picsum.photos',
+  "capture-bucket.sfo3.cdn.digitaloceanspaces.com",
   'i.pravatar.cc',
 ]);
 
