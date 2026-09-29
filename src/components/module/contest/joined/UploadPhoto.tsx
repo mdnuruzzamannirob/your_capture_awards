@@ -40,7 +40,7 @@ export default function UploadPhoto({
         ref={modalRef}
         type="upload"
         title={contest?.title}
-        maxUploads={contest?.maxUploads}
+        maxUploads={maxUploads}
         remaining={remaining}
         contestId={contest?.id}
         description={contest?.description}

@@ -207,8 +207,8 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
         contest={contest}
         contestType={contest?.type}
         title={contest?.title}
-        remaining={contest?.maxUploads}
-        maxUploads={contest?.maxUploads}
+        remaining={maxUploads}
+        maxUploads={maxUploads}
         contestId={contest?.id}
         description={contest?.description}
       />

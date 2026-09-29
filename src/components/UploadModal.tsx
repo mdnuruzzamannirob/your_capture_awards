@@ -368,10 +368,17 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
 
     // How many photos may still be entered: the contest's max uploads minus
     // what is already in it (`remaining`), falling back to max uploads.
-    const selectionLimit = Math.max(
-      0,
-      Number.isFinite(Number(remaining)) ? Number(remaining) : Number(maxUploads) || 0,
-    );
+    //
+    // A real 0 means "no slots left" and must be honoured, but null/undefined/''
+    // means the caller never supplied a count - Number() coerces all three to 0,
+    // which pinned the picker at "0 of 0" and blocked every photo. Those fall
+    // through to maxUploads instead.
+    const toSlotCount = (value: unknown) => {
+      if (value === null || value === undefined || value === '') return null;
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+    const selectionLimit = Math.max(0, toSlotCount(remaining) ?? toSlotCount(maxUploads) ?? 0);
     const isSelectionFull = selectedImages.length >= selectionLimit;
 
     const imageSelectHandler = (image: { id: string; url: string }) => {
