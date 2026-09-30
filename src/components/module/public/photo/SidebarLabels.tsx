@@ -53,47 +53,65 @@ export function SidebarLabels({ labels, categories, onSave }: SidebarLabelsProps
   if (!editable && items.length === 0 && categoryItems.length === 0) return null;
 
   const save = async (next: string[]) => {
-    if (!onSave) return;
+    if (!onSave) return false;
     const previous = items;
     setItems(next);
     setIsSaving(true);
     try {
       await onSave(next);
+      return true;
     } catch (err: any) {
       setItems(previous);
       toast.error(err?.data?.message || err?.message || 'Could not update tags.');
+      return false;
     } finally {
       setIsSaving(false);
     }
   };
 
-  const addDraft = async () => {
+  const addDraft = async (refocus = true) => {
     const value = draft.trim();
     if (!value) {
       setIsAdding(false);
-      return;
+      return true;
     }
     if (value.length > MAX_LABEL_LENGTH) {
       toast.error(`A tag can be at most ${MAX_LABEL_LENGTH} characters.`);
-      return;
+      return false;
     }
     if (items.some((item) => labelKey(item) === labelKey(value))) {
       toast.error('This photo already has that tag.');
-      return;
+      return false;
     }
     if (items.length >= MAX_LABELS) {
       toast.error(`A photo can have at most ${MAX_LABELS} tags.`);
-      return;
+      return false;
     }
     setDraft('');
-    await save([...items, value]);
-    inputRef.current?.focus();
+    const saved = await save([...items, value]);
+    if (!saved) {
+      setDraft(value);
+    } else if (refocus) {
+      inputRef.current?.focus();
+    }
+    return saved;
   };
 
   const removeItem = (label: string) => save(items.filter((item) => item !== label));
 
-  const toggleEditing = () => {
-    setIsEditing((prev) => !prev);
+  const toggleEditing = async () => {
+    if (isSaving) return;
+
+    if (!isEditing) {
+      setIsEditing(true);
+      setIsAdding(false);
+      setDraft('');
+      return;
+    }
+
+    if (draft.trim() && !(await addDraft(false))) return;
+
+    setIsEditing(false);
     setIsAdding(false);
     setDraft('');
   };
@@ -112,9 +130,10 @@ export function SidebarLabels({ labels, categories, onSave }: SidebarLabelsProps
         {editable && (
           <button
             type="button"
-            onClick={toggleEditing}
+            disabled={isSaving}
+            onClick={() => void toggleEditing()}
             className={cn(
-              'flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold transition',
+              'flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-50',
               isEditing
                 ? 'bg-primary text-primary-foreground hover:opacity-90'
                 : 'text-muted-foreground hover:text-foreground hover:bg-surface',
