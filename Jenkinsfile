@@ -1,11 +1,14 @@
 // Build & deploy pipeline for the Your Capture Awards Next.js frontend.
+// Runs on a Windows Jenkins agent and deploys to a Linux server over SSH.
 //
 // Required Jenkins setup:
-//   Plugins:     Pipeline, Git, NodeJS, SSH Agent, Credentials Binding, Timestamper
+//   Plugins:     Pipeline, Git, NodeJS, Credentials Binding, Timestamper
 //   Tools:       NodeJS installation named "node-24" (Manage Jenkins > Tools)
 //   Credentials: your-capture-awards-ssh  (SSH Username with private key, user "root")
 //                your-capture-awards-env  (Secret file: the production .env)
 //
+// Windows agent prerequisites: Windows 10 1809+ / Server 2019+ with the built-in
+// OpenSSH Client (ssh.exe, scp.exe) and tar.exe, Git, Windows PowerShell 5.1.
 // Server prerequisites: node >= 20, npm, pm2, curl, tar, flock.
 
 pipeline {
@@ -44,20 +47,24 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
                 script {
-                    def shortSha = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    def timestamp = sh(script: 'date -u +%Y%m%d%H%M%S', returnStdout: true).trim()
+                    def scmVars = checkout scm
+                    def shortSha = scmVars.GIT_COMMIT.substring(0, 7)
+                    def timestamp = powershell(returnStdout: true, script: '[DateTime]::UtcNow.ToString("yyyyMMddHHmmss")').trim()
                     env.RELEASE_ID = "${timestamp}-${env.BUILD_NUMBER}-${shortSha}"
                     currentBuild.displayName = "#${env.BUILD_NUMBER} (${shortSha})"
                 }
-                sh 'node --version && npm --version'
+                bat '''
+                    @echo off
+                    node --version || exit /b 1
+                    call npm --version || exit /b 1
+                '''
             }
         }
 
         stage('Install') {
             steps {
-                sh 'npm ci --no-audit --no-fund'
+                bat 'call npm ci --no-audit --no-fund'
             }
         }
 
@@ -65,29 +72,28 @@ pipeline {
             steps {
                 // NEXT_PUBLIC_* values are inlined at build time, so the env file must be present here.
                 withCredentials([file(credentialsId: env.ENV_FILE_CREDENTIALS_ID, variable: 'ENV_FILE')]) {
-                    sh '''
-                        set -eu
-                        install -m 600 "$ENV_FILE" .env
-                        npm run build
+                    bat '''
+                        @echo off
+                        copy /Y "%ENV_FILE%" .env >nul || exit /b 1
+                        call npm run build || exit /b 1
                     '''
                 }
             }
             post {
                 always {
-                    sh 'rm -f .env'
+                    bat '@if exist .env del /f /q .env'
                 }
             }
         }
 
         stage('Package') {
             steps {
-                sh '''
-                    set -eu
-                    rm -f "$ARTIFACT"
-                    tar --exclude='.next/cache' -czf "$ARTIFACT" \
-                        .next public package.json package-lock.json \
-                        next.config.ts tsconfig.json ecosystem.config.js
-                    ls -lh "$ARTIFACT"
+                // Uses the tar.exe that ships with Windows; its archives extract fine with GNU tar on Linux.
+                bat '''
+                    @echo off
+                    if exist "%ARTIFACT%" del /f /q "%ARTIFACT%"
+                    "%SystemRoot%/System32/tar.exe" --exclude=.next/cache -czf "%ARTIFACT%" .next public package.json package-lock.json next.config.ts tsconfig.json ecosystem.config.js || exit /b 1
+                    dir "%ARTIFACT%"
                 '''
                 archiveArtifacts artifacts: env.ARTIFACT, fingerprint: true
             }
@@ -105,25 +111,75 @@ pipeline {
                 }
             }
             steps {
-                sshagent(credentials: [env.SSH_CREDENTIALS_ID]) {
-                    withCredentials([file(credentialsId: env.ENV_FILE_CREDENTIALS_ID, variable: 'ENV_FILE')]) {
-                        sh '''
-                            set -eu
-                            SSH_OPTS="-o BatchMode=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 -o ServerAliveInterval=30"
-                            REMOTE="$DEPLOY_USER@$DEPLOY_HOST"
-                            RELEASE_DIR="$DEPLOY_PATH/releases/$RELEASE_ID"
+                withCredentials([
+                    sshUserPrivateKey(credentialsId: env.SSH_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY'),
+                    file(credentialsId: env.ENV_FILE_CREDENTIALS_ID, variable: 'ENV_FILE'),
+                ]) {
+                    powershell '''
+                        # Native tools write progress to stderr; failures are detected via exit codes instead.
+                        $ErrorActionPreference = 'Continue'
 
-                            echo "Uploading release $RELEASE_ID to $REMOTE"
-                            ssh $SSH_OPTS "$REMOTE" "mkdir -p '$RELEASE_DIR' '$DEPLOY_PATH/shared'"
-                            scp $SSH_OPTS "$ARTIFACT" "$REMOTE:$RELEASE_DIR/$ARTIFACT"
-                            ssh $SSH_OPTS "$REMOTE" "umask 077 && cat > '$DEPLOY_PATH/shared/.env'" < "$ENV_FILE"
+                        function Resolve-Tool([string]$Name) {
+                            $builtIn = Join-Path $env:SystemRoot "System32/OpenSSH/$Name.exe"
+                            if (Test-Path -LiteralPath $builtIn) { return $builtIn }
+                            $cmd = Get-Command "$Name.exe" -ErrorAction SilentlyContinue
+                            if ($cmd) { return $cmd.Source }
+                            throw "$Name.exe not found. Install the 'OpenSSH Client' Windows optional feature."
+                        }
 
-                            echo "Activating release"
-                            ssh $SSH_OPTS "$REMOTE" \
-                                "APP_NAME='$APP_NAME' DEPLOY_PATH='$DEPLOY_PATH' RELEASE_ID='$RELEASE_ID' APP_PORT='$APP_PORT' KEEP_RELEASES='$KEEP_RELEASES' bash -s" \
-                                < deploy/remote-deploy.sh
-                        '''
-                    }
+                        function Invoke-Native([string]$Exe, [string[]]$Arguments) {
+                            & $Exe @Arguments
+                            if ($LASTEXITCODE -ne 0) {
+                                throw ('{0} failed with exit code {1}' -f (Split-Path $Exe -Leaf), $LASTEXITCODE)
+                            }
+                        }
+
+                        $ssh = Resolve-Tool 'ssh'
+                        $scp = Resolve-Tool 'scp'
+                        $remote = "$env:DEPLOY_USER@$env:DEPLOY_HOST"
+                        $releaseDir = "$env:DEPLOY_PATH/releases/$env:RELEASE_ID"
+                        $sharedDir = "$env:DEPLOY_PATH/shared"
+                        $envUpload = '.env.deploy'
+                        $keyFile = [IO.Path]::GetTempFileName()
+
+                        try {
+                            # Windows OpenSSH refuses keys readable by other accounts, and needs LF line
+                            # endings plus a trailing newline. Lock the file down before writing the key.
+                            $me = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+                            Invoke-Native 'icacls.exe' @($keyFile, '/inheritance:r', '/grant:r', "*${me}:F")
+                            $keyText = (Get-Content -LiteralPath $env:SSH_KEY -Raw) -replace "`r`n", "`n"
+                            if (-not $keyText.EndsWith("`n")) { $keyText += "`n" }
+                            [IO.File]::WriteAllText($keyFile, $keyText)
+
+                            $sshOpts = @(
+                                '-i', $keyFile,
+                                '-o', 'IdentitiesOnly=yes',
+                                '-o', 'BatchMode=yes',
+                                '-o', 'StrictHostKeyChecking=accept-new',
+                                '-o', 'ConnectTimeout=15',
+                                '-o', 'ServerAliveInterval=30'
+                            )
+
+                            Write-Host "Uploading release $env:RELEASE_ID to $remote"
+                            Invoke-Native $ssh ($sshOpts + @($remote, "mkdir -p '$releaseDir' '$sharedDir' && chmod 700 '$sharedDir'"))
+
+                            # Relative paths keep scp from mistaking the Windows drive letter for a host name.
+                            Copy-Item -LiteralPath $env:ENV_FILE -Destination $envUpload -Force -ErrorAction Stop
+                            Invoke-Native $scp ($sshOpts + @($env:ARTIFACT, "${remote}:$releaseDir/$env:ARTIFACT"))
+                            Invoke-Native $scp ($sshOpts + @('deploy/remote-deploy.sh', "${remote}:$releaseDir/remote-deploy.sh"))
+                            Invoke-Native $scp ($sshOpts + @($envUpload, "${remote}:$sharedDir/.env.upload"))
+
+                            Write-Host 'Activating release'
+                            $vars = "APP_NAME='$env:APP_NAME' DEPLOY_PATH='$env:DEPLOY_PATH' RELEASE_ID='$env:RELEASE_ID' APP_PORT='$env:APP_PORT' KEEP_RELEASES='$env:KEEP_RELEASES'"
+                            $activate = "set -e; " +
+                                "mv -f '$sharedDir/.env.upload' '$sharedDir/.env'; chmod 600 '$sharedDir/.env'; " +
+                                "tr -d '\\r' < '$releaseDir/remote-deploy.sh' | $vars bash -s"
+                            Invoke-Native $ssh ($sshOpts + @($remote, $activate))
+                        }
+                        finally {
+                            Remove-Item -LiteralPath $keyFile, $envUpload -Force -ErrorAction SilentlyContinue
+                        }
+                    '''
                 }
             }
         }
@@ -131,13 +187,19 @@ pipeline {
 
     post {
         success {
-            echo "Build ${env.RELEASE_ID} succeeded."
+            echo "Build ${env.RELEASE_ID ?: currentBuild.displayName} succeeded."
         }
         failure {
-            echo "Build ${env.RELEASE_ID} failed. See the stage logs above; a failed deploy is rolled back automatically."
+            echo "Build ${env.RELEASE_ID ?: currentBuild.displayName} failed. See the stage logs above; a failed deploy is rolled back automatically."
         }
         always {
-            sh "rm -f .env '${env.ARTIFACT}'"
+            bat '''
+                @echo off
+                if exist .env del /f /q .env
+                if exist .env.deploy del /f /q .env.deploy
+                if exist "%ARTIFACT%" del /f /q "%ARTIFACT%"
+                exit /b 0
+            '''
         }
     }
 }
