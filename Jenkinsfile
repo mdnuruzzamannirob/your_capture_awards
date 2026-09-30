@@ -2,7 +2,7 @@
 //
 // Required Jenkins setup:
 //   Plugins:     Pipeline, Git, NodeJS, SSH Agent, Credentials Binding, Timestamper
-//   Tools:       NodeJS installation named "NodeJS-20" (Manage Jenkins > Tools)
+//   Tools:       NodeJS installation named "node-24" (Manage Jenkins > Tools)
 //   Credentials: your-capture-awards-ssh  (SSH Username with private key, user "root")
 //                your-capture-awards-env  (Secret file: the production .env)
 //
@@ -12,7 +12,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS-24'
+        nodejs 'node-24'
     }
 
     options {
