@@ -21,10 +21,24 @@ HEALTH_URL="http://127.0.0.1:${APP_PORT}${HEALTH_PATH}"
 log() { printf '[remote %s] %s\n' "$(date '+%H:%M:%S')" "$*"; }
 die() { log "ERROR: $*" >&2; exit 1; }
 
+log "Starting deployment of $RELEASE_ID"
+
 # Non-interactive SSH sessions don't read the login profile; load nvm if present.
+# nvm.sh is not safe under `set -euo pipefail` (it returns non-zero, e.g. 3, during
+# normal operation), so relax the shell options while loading it.
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
-# shellcheck disable=SC1091
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  saved_opts="$(set +o)"
+  set +Eeuo pipefail
+  # shellcheck disable=SC1091
+  . "$NVM_DIR/nvm.sh" --no-use
+  nvm use --silent default >/dev/null 2>&1 || nvm use --silent node >/dev/null 2>&1
+  eval "$saved_opts"
+  log "Loaded nvm (node $(node --version 2>/dev/null || echo 'not found'))"
+fi
+
+# Report the failing command instead of exiting silently.
+trap 'rc=$?; log "ERROR: \"$BASH_COMMAND\" failed with exit code $rc (line $LINENO)" >&2' ERR
 
 for bin in node npm pm2 curl tar flock; do
   command -v "$bin" >/dev/null 2>&1 || die "'$bin' is not installed on the server"

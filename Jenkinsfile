@@ -147,8 +147,21 @@ pipeline {
                             # endings plus a trailing newline. Lock the file down before writing the key.
                             $me = [Security.Principal.WindowsIdentity]::GetCurrent().User.Value
                             Invoke-Native 'icacls.exe' @($keyFile, '/inheritance:r', '/grant:r', "*${me}:F")
-                            $keyText = (Get-Content -LiteralPath $env:SSH_KEY -Raw) -replace "`r`n", "`n"
-                            if (-not $keyText.EndsWith("`n")) { $keyText += "`n" }
+                            $keyText = ([IO.File]::ReadAllText($env:SSH_KEY) -replace "`r`n", "`n").Trim() + "`n"
+                            # Only the header line is inspected/printed; the key itself never reaches the log.
+                            $header = ($keyText -split "`n")[0]
+                            if ($header -like 'PuTTY-User-Key-File*') {
+                                throw "Credential '$env:SSH_CREDENTIALS_ID' holds a PuTTY (.ppk) key. Export it in OpenSSH format (PuTTYgen > Conversions > Export OpenSSH key) and paste that instead."
+                            }
+                            if ($header -match '^(ssh-|ecdsa-)') {
+                                throw "Credential '$env:SSH_CREDENTIALS_ID' holds a PUBLIC key. Paste the PRIVATE key (the file without .pub)."
+                            }
+                            if ($header -notmatch '^-----BEGIN [A-Z ]*PRIVATE KEY-----$') {
+                                throw "Credential '$env:SSH_CREDENTIALS_ID' does not look like a private key (first line: '$($header.Substring(0, [Math]::Min(40, $header.Length)))'). Paste the whole key including the BEGIN/END lines."
+                            }
+                            if ($keyText -notmatch '-----END [A-Z ]*PRIVATE KEY-----') {
+                                throw "Credential '$env:SSH_CREDENTIALS_ID' is missing its '-----END ... PRIVATE KEY-----' line; the key was not pasted completely."
+                            }
                             [IO.File]::WriteAllText($keyFile, $keyText)
 
                             $sshOpts = @(
@@ -157,7 +170,9 @@ pipeline {
                                 '-o', 'BatchMode=yes',
                                 '-o', 'StrictHostKeyChecking=accept-new',
                                 '-o', 'ConnectTimeout=15',
-                                '-o', 'ServerAliveInterval=30'
+                                '-o', 'ServerAliveInterval=30',
+                                # Hide informational warnings (PowerShell renders any stderr line as an error record).
+                                '-o', 'LogLevel=ERROR'
                             )
 
                             Write-Host "Uploading release $env:RELEASE_ID to $remote"
@@ -173,7 +188,7 @@ pipeline {
                             $vars = "APP_NAME='$env:APP_NAME' DEPLOY_PATH='$env:DEPLOY_PATH' RELEASE_ID='$env:RELEASE_ID' APP_PORT='$env:APP_PORT' KEEP_RELEASES='$env:KEEP_RELEASES'"
                             $activate = "set -e; " +
                                 "mv -f '$sharedDir/.env.upload' '$sharedDir/.env'; chmod 600 '$sharedDir/.env'; " +
-                                "tr -d '\\r' < '$releaseDir/remote-deploy.sh' | $vars bash -s"
+                                "tr -d '\\r' < '$releaseDir/remote-deploy.sh' | $vars bash -s 2>&1"
                             Invoke-Native $ssh ($sshOpts + @($remote, $activate))
                         }
                         finally {
