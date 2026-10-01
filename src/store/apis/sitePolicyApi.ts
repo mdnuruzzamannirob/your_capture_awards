@@ -3,11 +3,14 @@ import { baseQuery } from '@/store/baseQuery';
 
 export type SitePolicy = {
   id: string;
-  type: 'ABOUT' | 'TERMS' | 'POLICY';
+  type: SitePolicyType;
+  title?: string | null;
   content: string;
   createdAt: string;
   updatedAt: string;
 };
+
+export type SitePolicyType = 'ABOUT' | 'TERMS' | 'POLICY' | 'PHOTOGRAPHER_OF_THE_YEAR';
 
 export type SitePolicyResponse = {
   success: boolean;
@@ -20,7 +23,7 @@ export const sitePolicyApi = createApi({
   baseQuery: baseQuery(typeof window === 'undefined'),
   tagTypes: ['SitePolicy'],
   endpoints: (builder) => ({
-    getSitePolicy: builder.query<SitePolicyResponse, { type: 'ABOUT' | 'TERMS' | 'POLICY' }>({
+    getSitePolicy: builder.query<SitePolicyResponse, { type: SitePolicyType }>({
       query: ({ type }) => `/site-policies?type=${type}`,
       providesTags: (result, error, { type }) => [{ type: 'SitePolicy', id: type }],
     }),

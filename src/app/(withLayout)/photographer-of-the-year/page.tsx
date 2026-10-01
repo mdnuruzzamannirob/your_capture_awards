@@ -48,17 +48,20 @@ export default function PhotographerOfTheYearPage() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/contest/open"
+                href="/photographer-of-the-year/learn-more"
                 className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-semibold transition"
               >
-                Explore Open Contests
+                Learn More
               </Link>
-              <Link
-                href="/discover"
-                className="border-border-strong bg-background/55 text-foreground hover:bg-surface inline-flex items-center justify-center rounded-md border px-5 py-3 text-sm font-semibold transition"
+              <button
+                type="button"
+                disabled
+                aria-disabled="true"
+                title="Joining will be available soon"
+                className="border-border-strong bg-background/55 text-disabled-foreground inline-flex items-center justify-center rounded-md border px-5 py-3 text-sm font-semibold opacity-60"
               >
-                Discover Photographers
-              </Link>
+                Join
+              </button>
             </div>
           </div>
         </div>
