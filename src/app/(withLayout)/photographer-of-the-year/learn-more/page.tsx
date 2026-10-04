@@ -24,24 +24,33 @@ export default function PhotographerOfTheYearLearnMorePage() {
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-35"
+          className="scale-105 object-cover opacity-45 blur-2xl"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,var(--background)_0%,color-mix(in_oklab,var(--background)_88%,transparent)_45%,color-mix(in_oklab,var(--background)_58%,transparent)_100%)]" />
-        <div className="absolute inset-x-0 bottom-0 h-48 bg-[linear-gradient(0deg,var(--background)_0%,transparent_100%)]" />
+        <div className="bg-background/20 absolute inset-0" />
+        <Image
+          src="/images/POTY.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover opacity-70 sm:object-contain"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,color-mix(in_oklab,var(--background)_38%,transparent)_0%,color-mix(in_oklab,var(--background)_12%,transparent)_38%,color-mix(in_oklab,var(--background)_42%,transparent)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(0deg,color-mix(in_oklab,var(--background)_72%,transparent)_0%,transparent_100%)]" />
       </div>
 
-      <section className="container py-12 sm:py-16 lg:py-20">
-        <div className="mx-auto max-w-5xl">
+      <section className="container py-10 sm:py-14 lg:py-16">
+        <div className="mx-auto max-w-4xl">
           <Link
             href="/photographer-of-the-year"
-            className="text-muted-foreground hover:text-primary inline-flex items-center gap-2 text-sm font-medium transition"
+            className="border-border/70 bg-background/55 text-muted-foreground hover:border-primary/40 hover:bg-background/70 hover:text-primary inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium shadow-lg shadow-black/10 backdrop-blur-md transition"
           >
             <ArrowLeft className="size-4" />
             Back to Photographer of the Year
           </Link>
         </div>
 
-        <article className="border-border bg-background/92 mx-auto mt-8 max-w-5xl rounded-2xl border p-5 shadow-2xl backdrop-blur-md sm:p-8 lg:px-14 lg:py-12">
+        <article className="border-border/80 bg-background/88 sm:bg-background/74 lg:bg-background/64 mx-auto mt-7 max-w-4xl rounded-2xl border p-5 shadow-[0_24px_80px_rgba(0,0,0,0.48)] backdrop-blur-xl sm:p-8 lg:px-14 lg:py-12">
           {isLoading ? (
             <div className="flex min-h-96 flex-col items-center justify-center gap-3">
               <Spinner className="text-primary size-8" />
