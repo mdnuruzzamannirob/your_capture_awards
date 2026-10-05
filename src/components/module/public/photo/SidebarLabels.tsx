@@ -6,51 +6,73 @@ import { toast } from 'sonner';
 
 import { cn } from '@/utils/cn';
 
-// Keep in sync with the backend profile.validation limits
+// Keep in sync with the backend profile.validation limits.
 const MAX_LABELS = 20;
 const MAX_LABEL_LENGTH = 30;
+const MAX_CATEGORIES = 20;
+const MAX_CATEGORY_LENGTH = 100;
 
-const labelKey = (label: string) => label.trim().toLowerCase();
+const termKey = (value: string) => value.trim().toLowerCase();
+
+const uniqueTerms = (values: string[]) =>
+  values.filter(
+    (value, index, all) =>
+      !!value.trim() && all.findIndex((other) => termKey(other) === termKey(value)) === index,
+  );
 
 interface SidebarLabelsProps {
   labels: string[];
-  // Categories of the contests this photo was entered in. Read-only.
   categories?: string[];
-  // Photo owner only: when given, the tags can be edited and each change is
-  // saved through it. It should throw when the save fails.
+  // Owner-only callbacks. Each should throw when saving fails so the editor can
+  // restore its previous list.
   onSave?: (labels: string[]) => Promise<void>;
+  onSaveCategories?: (categories: string[]) => Promise<void>;
 }
 
-export function SidebarLabels({ labels, categories, onSave }: SidebarLabelsProps) {
+interface EditableTermListProps {
+  title: string;
+  singular: string;
+  plural: string;
+  values: string[];
+  maxItems: number;
+  maxLength: number;
+  onSave?: (values: string[]) => Promise<void>;
+  categoryStyle?: boolean;
+}
+
+function EditableTermList({
+  title,
+  singular,
+  plural,
+  values,
+  maxItems,
+  maxLength,
+  onSave,
+  categoryStyle = false,
+}: EditableTermListProps) {
   const editable = !!onSave;
-  const categoryItems = (categories ?? []).filter(
-    (category, index, all) =>
-      !!category.trim() &&
-      all.findIndex((other) => labelKey(other) === labelKey(category)) === index,
-  );
-  const [items, setItems] = useState<string[]>(labels ?? []);
+  const normalizedValues = uniqueTerms(values ?? []);
+  const [items, setItems] = useState<string[]>(normalizedValues);
   const [isEditing, setIsEditing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [draft, setDraft] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // The page first shows a seed photo from the gallery list (often without
-  // labels) and swaps in the full details later under the same photo id, so
-  // follow the labels whenever their content changes. Compared by content
-  // because the parent passes a fresh array on every render.
-  const labelsSignature = (labels ?? []).join('\u0000');
+  // The page swaps a seed gallery photo for full details under the same id, so
+  // follow list changes by content rather than array identity.
+  const valuesSignature = normalizedValues.join('\u0000');
   useEffect(() => {
     if (isSaving) return;
-    setItems(labelsSignature ? labelsSignature.split('\u0000') : []);
+    setItems(valuesSignature ? valuesSignature.split('\u0000') : []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [labelsSignature]);
+  }, [valuesSignature]);
 
   useEffect(() => {
     if (isAdding) inputRef.current?.focus();
   }, [isAdding]);
 
-  if (!editable && items.length === 0 && categoryItems.length === 0) return null;
+  if (!editable && items.length === 0) return null;
 
   const save = async (next: string[]) => {
     if (!onSave) return false;
@@ -62,7 +84,7 @@ export function SidebarLabels({ labels, categories, onSave }: SidebarLabelsProps
       return true;
     } catch (err: any) {
       setItems(previous);
-      toast.error(err?.data?.message || err?.message || 'Could not update tags.');
+      toast.error(err?.data?.message || err?.message || `Could not update ${plural}.`);
       return false;
     } finally {
       setIsSaving(false);
@@ -75,18 +97,19 @@ export function SidebarLabels({ labels, categories, onSave }: SidebarLabelsProps
       setIsAdding(false);
       return true;
     }
-    if (value.length > MAX_LABEL_LENGTH) {
-      toast.error(`A tag can be at most ${MAX_LABEL_LENGTH} characters.`);
+    if (value.length > maxLength) {
+      toast.error(`A ${singular} can be at most ${maxLength} characters.`);
       return false;
     }
-    if (items.some((item) => labelKey(item) === labelKey(value))) {
-      toast.error('This photo already has that tag.');
+    if (items.some((item) => termKey(item) === termKey(value))) {
+      toast.error(`This photo already has that ${singular}.`);
       return false;
     }
-    if (items.length >= MAX_LABELS) {
-      toast.error(`A photo can have at most ${MAX_LABELS} tags.`);
+    if (items.length >= maxItems) {
+      toast.error(`A photo can have at most ${maxItems} ${plural}.`);
       return false;
     }
+
     setDraft('');
     const saved = await save([...items, value]);
     if (!saved) {
@@ -97,7 +120,7 @@ export function SidebarLabels({ labels, categories, onSave }: SidebarLabelsProps
     return saved;
   };
 
-  const removeItem = (label: string) => save(items.filter((item) => item !== label));
+  const removeItem = (value: string) => save(items.filter((item) => item !== value));
 
   const toggleEditing = async () => {
     if (isSaving) return;
@@ -117,13 +140,13 @@ export function SidebarLabels({ labels, categories, onSave }: SidebarLabelsProps
   };
 
   return (
-    <section className="border-border bg-background text-foreground border-b p-6">
+    <div>
       <div className="mb-4 flex items-center justify-between gap-3">
         <h4 className="text-muted-foreground text-xs font-bold tracking-wider uppercase">
-          Tags
+          {title}
           {isEditing && (
             <span className="text-muted-foreground/70 ml-2 font-medium normal-case">
-              {items.length}/{MAX_LABELS}
+              {items.length}/{maxItems}
             </span>
           )}
         </h4>
@@ -146,21 +169,24 @@ export function SidebarLabels({ labels, categories, onSave }: SidebarLabelsProps
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        {items.map((label) => (
+        {items.map((value) => (
           <span
-            key={label}
+            key={value}
             className={cn(
-              'border-border bg-surface text-muted-foreground inline-flex items-center gap-1 rounded-full border py-1.5 text-xs font-bold',
+              'inline-flex items-center gap-1 border py-1.5 text-xs font-bold',
+              categoryStyle
+                ? 'border-primary/30 bg-primary/10 text-primary rounded-md'
+                : 'border-border bg-surface text-muted-foreground rounded-full',
               isEditing ? 'pr-1.5 pl-3.5' : 'px-3.5',
             )}
           >
-            {label}
+            {value}
             {isEditing && (
               <button
                 type="button"
-                aria-label={`Remove tag ${label}`}
+                aria-label={`Remove ${singular} ${value}`}
                 disabled={isSaving}
-                onClick={() => removeItem(label)}
+                onClick={() => void removeItem(value)}
                 className="hover:bg-primary hover:text-primary-foreground flex size-4 items-center justify-center rounded-full transition disabled:opacity-50"
               >
                 <X className="size-3" />
@@ -174,15 +200,15 @@ export function SidebarLabels({ labels, categories, onSave }: SidebarLabelsProps
             <input
               ref={inputRef}
               value={draft}
-              maxLength={MAX_LABEL_LENGTH}
+              maxLength={maxLength}
               disabled={isSaving}
-              placeholder="New tag"
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ',') {
-                  e.preventDefault();
+              placeholder={`New ${singular}`}
+              onChange={(event) => setDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ',') {
+                  event.preventDefault();
                   void addDraft();
-                } else if (e.key === 'Escape') {
+                } else if (event.key === 'Escape') {
                   setDraft('');
                   setIsAdding(false);
                 }
@@ -193,13 +219,13 @@ export function SidebarLabels({ labels, categories, onSave }: SidebarLabelsProps
               className="border-primary bg-background text-foreground placeholder:text-muted-foreground/60 w-32 rounded-full border px-3.5 py-1.5 text-xs font-bold outline-none"
             />
           ) : (
-            items.length < MAX_LABELS && (
+            items.length < maxItems && (
               <button
                 type="button"
                 onClick={() => setIsAdding(true)}
                 className="border-border text-muted-foreground hover:border-primary hover:text-primary inline-flex items-center gap-1 rounded-full border border-dashed px-3 py-1.5 text-xs font-bold transition"
               >
-                <Plus className="size-3.5" /> Add tag
+                <Plus className="size-3.5" /> Add {singular}
               </button>
             )
           ))}
@@ -207,28 +233,50 @@ export function SidebarLabels({ labels, categories, onSave }: SidebarLabelsProps
         {!isEditing && items.length === 0 && (
           <p className="text-muted-foreground/70 text-xs">
             {editable
-              ? 'No tags yet. Add some to find this photo faster when entering contests.'
-              : 'No tags yet.'}
+              ? `No ${plural} yet. Add one to help organize this photo.`
+              : `No ${plural} yet.`}
           </p>
         )}
       </div>
+    </div>
+  );
+}
 
-      {categoryItems.length > 0 && (
-        <div className="mt-5">
-          <h4 className="text-muted-foreground mb-3 text-xs font-bold tracking-wider uppercase">
-            Categories
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {categoryItems.map((category) => (
-              <span
-                key={category}
-                className="border-primary/30 bg-primary/10 text-primary inline-block rounded-md border px-3 py-1 text-xs font-bold"
-              >
-                {category}
-              </span>
-            ))}
-          </div>
-        </div>
+export function SidebarLabels({
+  labels,
+  categories = [],
+  onSave,
+  onSaveCategories,
+}: SidebarLabelsProps) {
+  const showLabels = !!onSave || uniqueTerms(labels).length > 0;
+  const showCategories = !!onSaveCategories || uniqueTerms(categories).length > 0;
+
+  if (!showLabels && !showCategories) return null;
+
+  return (
+    <section className="border-border bg-background text-foreground space-y-6 border-b p-6">
+      {showLabels && (
+        <EditableTermList
+          title="Tags"
+          singular="tag"
+          plural="tags"
+          values={labels}
+          maxItems={MAX_LABELS}
+          maxLength={MAX_LABEL_LENGTH}
+          onSave={onSave}
+        />
+      )}
+      {showCategories && (
+        <EditableTermList
+          title="Categories"
+          singular="category"
+          plural="categories"
+          values={categories}
+          maxItems={MAX_CATEGORIES}
+          maxLength={MAX_CATEGORY_LENGTH}
+          onSave={onSaveCategories}
+          categoryStyle
+        />
       )}
     </section>
   );

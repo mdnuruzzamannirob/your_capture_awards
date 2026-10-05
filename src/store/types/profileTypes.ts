@@ -11,7 +11,8 @@ export type Photo = {
   id: string;
   userId: string;
   views: number;
-  labels: unknown[];
+  labels: string[];
+  categories: string[];
   contestUpload: ContestUpload[];
   title: string | null;
   description: string | null;

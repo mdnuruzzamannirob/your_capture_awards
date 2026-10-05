@@ -25,6 +25,7 @@ import {
   useLazyGetMyPhotoDetailsQuery,
   useLazyGetOtherUserPhotosQuery,
   useLazyGetPublicPhotoDetailsQuery,
+  useUpdatePhotoCategoriesMutation,
   useUpdatePhotoLabelsMutation,
 } from '@/store/apis/profileApi';
 import { useToggleFollowMutation, useToggleLikeMutation } from '@/store/apis/socialApi';
@@ -116,6 +117,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
   const [toggleLike, { isLoading: isLiking }] = useToggleLikeMutation();
   const [toggleFollow, { isLoading: isFollowToggling }] = useToggleFollowMutation();
   const [updatePhotoLabels] = useUpdatePhotoLabelsMutation();
+  const [updatePhotoCategories] = useUpdatePhotoCategoriesMutation();
 
   // Comments RTK Query — lazy so we control when to fetch
   const [fetchComments] = useLazyGetPhotoCommentsQuery();
@@ -179,7 +181,10 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
         const result = await fetchMyPhotoDetails(photoId, true).unwrap();
         const apiData: any = result.data;
         // Create a shallow copy so we don't mutate potentially non-extensible API objects
-        photoData = { ...(apiData.photo || {}), totalVotes: apiData.votes ?? apiData.photo?.totalVotes ?? 0 };
+        photoData = {
+          ...(apiData.photo || {}),
+          totalVotes: apiData.votes ?? apiData.photo?.totalVotes ?? 0,
+        };
         photoOwner = photoData?.user ?? null;
         // `isLiked` may be present at top-level `apiData` or under `photo`.
         isLikedFromApi = apiData.isLiked ?? photoData?.isLiked ?? false;
@@ -194,7 +199,10 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
         const result = await fetchPublicPhotoDetails({ id: ownerId, photoId }).unwrap();
         const apiData: any = result.data;
         // Create a shallow copy so we don't mutate potentially non-extensible API objects
-        photoData = { ...(apiData.photo || {}), totalVotes: apiData.votes ?? apiData.photo?.totalVotes ?? 0 };
+        photoData = {
+          ...(apiData.photo || {}),
+          totalVotes: apiData.votes ?? apiData.photo?.totalVotes ?? 0,
+        };
         // API sometimes returns owner nested under `photo.user` instead of `photoOwner`.
         photoOwner = apiData.photoOwner ?? apiData.photo?.user ?? null;
         // Read isLiked/isFollowed from top-level apiData when present
@@ -413,6 +421,22 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
     });
   };
 
+  // Owner only. Contest uploads add their category automatically, while this
+  // handler lets the owner curate the complete category list afterward.
+  const handleSaveCategories = async (categories: string[]) => {
+    const photoId = photo?.id ?? currentPhotoId;
+    const res = await updatePhotoCategories({ photoId, categories }).unwrap();
+    const saved = res.data?.categories ?? categories;
+    setPhoto((prev: any) => (prev?.id === photoId ? { ...prev, categories: saved } : prev));
+    setPhotoCache((old) => {
+      if (!old[photoId]) return old;
+      return {
+        ...old,
+        [photoId]: { ...old[photoId], photo: { ...old[photoId].photo, categories: saved } },
+      };
+    });
+  };
+
   // ── Comment handlers (all via RTK Query) ───────────────────────────────────
   const refreshComments = async () => {
     // Force fresh fetch and update local state + cache
@@ -562,6 +586,7 @@ export function PublicPhotoPage({ photoId: initialPhotoId }: Props) {
               labels={photo.labels ?? []}
               categories={photo.categories ?? []}
               onSave={isOwnPhoto ? handleSaveLabels : undefined}
+              onSaveCategories={isOwnPhoto ? handleSaveCategories : undefined}
             />
             <SidebarComments
               photoId={currentPhotoId}

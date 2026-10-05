@@ -93,6 +93,25 @@ export const profileApi = createApi({
       invalidatesTags: (result, error, { photoId }) => [{ type: 'Photos', id: photoId }],
     }),
 
+    // Owner-only: replaces the photo's categories with a deduplicated list
+    updatePhotoCategories: builder.mutation<
+      { data: { id: string; categories: string[] } },
+      { photoId: string; categories: string[] }
+    >({
+      query: ({ photoId, categories }) => ({
+        url: `/profiles/photos/${photoId}/categories`,
+        method: 'PATCH',
+        body: { categories },
+      }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(contestApi.util.invalidateTags(['UserPhotos']));
+        } catch {}
+      },
+      invalidatesTags: (result, error, { photoId }) => [{ type: 'Photos', id: photoId }],
+    }),
+
     getStats: builder.query<{ data: Stats }, void>({
       query: () => '/profiles/stats',
       providesTags: ['Stats'],
@@ -170,6 +189,7 @@ export const {
   useGetStatsQuery,
   useDeletePhotoMutation,
   useUpdatePhotoLabelsMutation,
+  useUpdatePhotoCategoriesMutation,
   useGetMyPhotoDetailsQuery,
   useLazyGetMyPhotoDetailsQuery,
   useGetOtherUserProfileQuery,
