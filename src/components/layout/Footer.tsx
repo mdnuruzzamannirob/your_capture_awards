@@ -50,10 +50,10 @@ const Footer = () => {
             <p className="border-border text-primary bg-surface-secondary flex items-center justify-center rounded-full border p-3">
               <MdLocationCity className="size-5" />
             </p>
-            <div className="space-y-1">
+            {/* <div className="space-y-1">
               <h4 className="text-lg font-medium">Location From</h4>
               <p className="">Moon-Sun, 9:00 AM -9:00 PM</p>
-            </div>
+            </div> */}
           </div>
         </div>
 
