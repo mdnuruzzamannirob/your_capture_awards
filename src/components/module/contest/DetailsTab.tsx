@@ -6,6 +6,7 @@ import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import { formatMoney } from '@/utils/formatMoney';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
 import { getUserDisplayName } from '@/utils/getUserDisplayName';
+import { getContestCategories } from '@/utils/getContestCategories';
 import { Globe, UserRound } from 'lucide-react';
 import Image from 'next/image';
 import { FaHourglassHalf } from 'react-icons/fa';
@@ -21,6 +22,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
     'Contest creator',
   );
   const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
+  const categories = getContestCategories(contest);
   const entryCurrency = 'USD';
 
   const hasStarted = now >= contestStart;
@@ -120,6 +122,18 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
           <h1 className="text-xl">
             <span className="text-primary font-bold">{contest?.title}</span> challenge
           </h1>
+          {categories.length > 0 && (
+            <ul className="flex flex-wrap gap-2" aria-label="Contest categories">
+              {categories.map((category) => (
+                <li
+                  key={category}
+                  className="border-border text-muted-foreground rounded-full border px-3 py-1 text-xs"
+                >
+                  {category}
+                </li>
+              ))}
+            </ul>
+          )}
           {contest?.description ? (
             <TipTapViewer content={contest.description} className="text-muted-foreground leading-relaxed" />
           ) : (
