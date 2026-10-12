@@ -11,7 +11,7 @@ import { Globe, UserRound } from 'lucide-react';
 import Image from 'next/image';
 import { FaHourglassHalf } from 'react-icons/fa';
 import { MdOutlineHowToVote, MdOutlinePaid } from 'react-icons/md';
-import CountdownTimer from '@/components/CountdownTimer';
+import ContestTiming from './ContestTiming';
 
 const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
   const now = new Date();
@@ -44,7 +44,7 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
           )}
         </p>
 
-        <div className="flex flex-1 items-center gap-3 whitespace-nowrap uppercase">
+        <div className="flex min-w-0 flex-1 items-center gap-3 uppercase">
           <FaHourglassHalf className="text-primary size-8 lg:size-10" />
           {hasEnded ? (
             <p className="flex items-center gap-2">
@@ -53,19 +53,8 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
               </span>
               Ended
             </p>
-          ) : hasStarted ? (
-            <CountdownTimer
-              startDate={contest?.startDate}
-              endDate={contest?.endDate}
-              className="text-lg font-semibold"
-            />
           ) : (
-            <p className="flex items-center gap-2">
-              <span className="text-lg font-semibold">
-                {formatDateToDayMonYear(contest?.startDate)}
-              </span>
-              Starts Soon
-            </p>
+            <ContestTiming startDate={contest?.startDate} endDate={contest?.endDate} compact />
           )}
         </div>
 
@@ -135,7 +124,10 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
             </ul>
           )}
           {contest?.description ? (
-            <TipTapViewer content={contest.description} className="text-muted-foreground leading-relaxed" />
+            <TipTapViewer
+              content={contest.description}
+              className="text-muted-foreground leading-relaxed"
+            />
           ) : (
             <p className="text-muted-foreground">No contest description has been added yet.</p>
           )}

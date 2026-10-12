@@ -17,7 +17,7 @@ import { formatMoney } from '@/utils/formatMoney';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import CountdownTimer from '@/components/CountdownTimer';
+import ContestTiming from './ContestTiming';
 import { toast } from 'sonner';
 import DetailsTab from './DetailsTab';
 import PrizesTab from './PrizesTab';
@@ -193,7 +193,7 @@ const ContestDetails = ({ id }: { id: string }) => {
         {contest?.bannerUploader?.fullName && (
           <Link
             href={`/profile/${contest.bannerUploader.id}`}
-            className="absolute right-3 bottom-3 z-10 max-w-[70%] truncate rounded-md bg-black/60 px-2.5 py-1.5 text-xs font-medium text-white backdrop-blur-sm hover:text-primary"
+            className="hover:text-primary absolute right-3 bottom-3 z-10 max-w-[70%] truncate rounded-md bg-black/60 px-2.5 py-1.5 text-xs font-medium text-white backdrop-blur-sm"
           >
             📷 {contest.bannerUploader.fullName}
           </Link>
@@ -204,71 +204,73 @@ const ContestDetails = ({ id }: { id: string }) => {
             {contest?.title}
           </h2>
 
-          {contest.status === 'ACTIVE' && (
+          {(contest.status === 'ACTIVE' || contest.status === 'UPCOMING') && (
             <>
-              <CountdownTimer
+              <ContestTiming
                 startDate={contest?.startDate}
                 endDate={contest?.endDate}
-                className="text-lg"
+                className="mt-3 space-y-1"
               />
 
-              <div className="mt-5 flex items-center justify-center gap-5">
-                {!isMounted || contestLoading ? (
-                  buttonSkeleton
-                ) : (
-                  <>
-                    {/* Hide when max uploads reached — applies to JOIN and Submit Photo */}
-                    {remaining > 0 && (
-                      <div className="relative w-full max-w-54">
-                        <button
-                          onClick={() => uploadModalRef.current?.open()}
-                          className="bg-background/20 text-foreground border-foreground hover:bg-surface-secondary w-full rounded-md border p-3 text-xl font-medium shadow transition"
-                        >
-                          {isJoined ? 'Submit Photo' : 'JOIN'}
-                        </button>
+              {contest.status === 'ACTIVE' && (
+                <div className="mt-5 flex items-center justify-center gap-5">
+                  {!isMounted || contestLoading ? (
+                    buttonSkeleton
+                  ) : (
+                    <>
+                      {/* Hide when max uploads reached — applies to JOIN and Submit Photo */}
+                      {remaining > 0 && (
+                        <div className="relative w-full max-w-54">
+                          <button
+                            onClick={() => uploadModalRef.current?.open()}
+                            className="bg-background/20 text-foreground border-foreground hover:bg-surface-secondary w-full rounded-md border p-3 text-xl font-medium shadow transition"
+                          >
+                            {isJoined ? 'Submit Photo' : 'JOIN'}
+                          </button>
 
-                        {/* Coin badge — only when not joined and coin required */}
-                        {!isJoined && (contest?.entryFeeCoins ?? 0) > 0 && (
-                          <div className="bg-primary-foreground absolute -right-3 -bottom-2.5 flex items-center gap-1.5 rounded-full border border-sky-400 py-1 pr-3 pl-1 text-sm font-bold text-sky-500 shadow-md select-none">
-                            <div className="border-warning/40 from-warning-500 to-warning-500 h-5 w-5 animate-pulse rounded-full border bg-linear-to-tr" />
-                            <span>{contest?.entryFeeCoins}</span>
-                          </div>
-                        )}
-                        {!isJoined && hasMoneyEntryFee && (
-                          <div className="bg-primary-foreground absolute -left-3 -bottom-2.5 rounded-full border border-emerald-400 px-3 py-1 text-sm font-bold text-emerald-600 shadow-md select-none">
-                            {formatMoney(entryFeeAmount, entryCurrency)}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
+                          {/* Coin badge — only when not joined and coin required */}
+                          {!isJoined && (contest?.entryFeeCoins ?? 0) > 0 && (
+                            <div className="bg-primary-foreground absolute -right-3 -bottom-2.5 flex items-center gap-1.5 rounded-full border border-sky-400 py-1 pr-3 pl-1 text-sm font-bold text-sky-500 shadow-md select-none">
+                              <div className="border-warning/40 from-warning-500 to-warning-500 h-5 w-5 animate-pulse rounded-full border bg-linear-to-tr" />
+                              <span>{contest?.entryFeeCoins}</span>
+                            </div>
+                          )}
+                          {!isJoined && hasMoneyEntryFee && (
+                            <div className="bg-primary-foreground absolute -bottom-2.5 -left-3 rounded-full border border-emerald-400 px-3 py-1 text-sm font-bold text-emerald-600 shadow-md select-none">
+                              {formatMoney(entryFeeAmount, entryCurrency)}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
 
-                {/* Vote button */}
-                {isMounted && !contestLoading && isJoined && (
-                  <>
-                    <button
-                      onClick={() => voteModalRef.current?.open()}
-                      className="bg-background/20 text-foreground border-foreground hover:bg-surface-secondary w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition"
-                    >
-                      Vote
-                    </button>
-                    <VoteModal ref={voteModalRef} id={contest?.id} />
-                  </>
-                )}
+                  {/* Vote button */}
+                  {isMounted && !contestLoading && isJoined && (
+                    <>
+                      <button
+                        onClick={() => voteModalRef.current?.open()}
+                        className="bg-background/20 text-foreground border-foreground hover:bg-surface-secondary w-full max-w-54 rounded-md border p-3 text-xl font-medium shadow transition"
+                      >
+                        Vote
+                      </button>
+                      <VoteModal ref={voteModalRef} id={contest?.id} />
+                    </>
+                  )}
 
-                <UploadModal
-                  ref={uploadModalRef}
-                  type={isJoined ? 'upload' : 'join'}
-                  contest={contest}
-                  contestType={contest?.type}
-                  title={contest?.title}
-                  remaining={remaining}
-                  maxUploads={maxUploads}
-                  contestId={contest?.id}
-                  description={contest?.description}
-                />
-              </div>
+                  <UploadModal
+                    ref={uploadModalRef}
+                    type={isJoined ? 'upload' : 'join'}
+                    contest={contest}
+                    contestType={contest?.type}
+                    title={contest?.title}
+                    remaining={remaining}
+                    maxUploads={maxUploads}
+                    contestId={contest?.id}
+                    description={contest?.description}
+                  />
+                </div>
+              )}
             </>
           )}
         </div>
