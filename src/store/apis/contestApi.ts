@@ -67,16 +67,23 @@ export const contestApi = createApi({
     'ContestRankPhotographers',
   ],
   endpoints: (builder) => ({
+    getPhotographyOfTheYearContests: builder.query<{ data: any[] }, void>({
+      query: () => '/photographer-of-the-year',
+      providesTags: [{ type: 'PublicContests', id: 'POTY' }],
+    }),
     // create single contest or upload contest photo
     createPhotoToContest: builder.mutation<{ data: { data: any } }, PhotoToContestPayload>({
-      query: ({ photo, photoIds, contestId }) => {
+      query: ({ photo, photoIds, contestId, isPhotographyOfYear }) => {
+        const uploadUrl = isPhotographyOfYear
+          ? `/photographer-of-the-year/${contestId}/upload`
+          : `/contests/${contestId}/upload`;
         // If uploading file
         if (photo) {
           const formData = new FormData();
           formData.append('photo', photo);
 
           return {
-            url: `/contests/${contestId}/upload`,
+            url: uploadUrl,
             method: 'POST',
             body: formData,
           };
@@ -84,7 +91,7 @@ export const contestApi = createApi({
 
         // If using existing profile photo
         return {
-          url: `/contests/${contestId}/upload`,
+          url: uploadUrl,
           method: 'POST',
           body: { photoIds },
         };
@@ -218,10 +225,12 @@ export const contestApi = createApi({
     // get contest rank photos
     getContestRankPhotos: builder.query<
       { data: any[]; meta: PaginationMeta },
-      { id: string; page?: number; limit?: number }
+      { id: string; page?: number; limit?: number; isPhotographyOfYear?: boolean }
     >({
-      query: ({ id, page = 1, limit = 12 }) =>
-        `/contests/${id}/rank-photos?page=${page}&limit=${limit}`,
+      query: ({ id, page = 1, limit = 12, isPhotographyOfYear }) =>
+        isPhotographyOfYear
+          ? `/photographer-of-the-year/${id}/ranking`
+          : `/contests/${id}/rank-photos?page=${page}&limit=${limit}`,
       transformResponse: (response: any) => {
         if (Array.isArray(response?.data)) {
           return response;
@@ -409,6 +418,7 @@ export const contestApi = createApi({
 });
 
 export const {
+  useGetPhotographyOfTheYearContestsQuery,
   useCreatePhotoToContestMutation,
   useGetPublicContestsQuery,
   useGetPrivateContestsQuery,

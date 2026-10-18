@@ -2,6 +2,7 @@ export type PhotoToContestPayload = {
   photo?: File;
   photoIds?: string[];
   contestId: string;
+  isPhotographyOfYear?: boolean;
 };
 
 export type Status = 'COMPLETED' | 'UPCOMING' | 'CLOSED' | 'ACTIVE';

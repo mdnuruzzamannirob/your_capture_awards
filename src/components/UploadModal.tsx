@@ -409,7 +409,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
           const compressedFile = await compressImage(file);
           toast.dismiss('upload-progress');
 
-          payload = { contestId, photo: compressedFile };
+          payload = { contestId, photo: compressedFile, isPhotographyOfYear: Boolean(contest?.isPhotographyOfYear) };
         } else if (uploadSource === 'profile') {
           if (selectedImages.length === 0) throw new Error('No image selected');
           if (selectedImages.length > selectionLimit) {
@@ -417,7 +417,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
               `You can add only ${selectionLimit} more photo${selectionLimit === 1 ? '' : 's'} to this contest.`,
             );
           }
-          payload = { contestId, photoIds: selectedImages.map((item) => item.id) };
+          payload = { contestId, photoIds: selectedImages.map((item) => item.id), isPhotographyOfYear: Boolean(contest?.isPhotographyOfYear) };
         }
 
         if (!payload) throw new Error('Invalid upload source');

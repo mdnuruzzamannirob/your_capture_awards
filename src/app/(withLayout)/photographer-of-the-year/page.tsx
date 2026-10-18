@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Photographer of the Year',
-  description: 'The Photographer of the Year contest is coming soon to Your Capture Awards.',
+  description: 'See the Photographer of the Year contest, dates, and photo rankings at Your Capture Awards.',
 };
 
 export default function PhotographerOfTheYearPage() {
@@ -34,16 +34,16 @@ export default function PhotographerOfTheYearPage() {
 
             <span className="border-primary/40 bg-primary/10 text-primary mb-5 flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold tracking-wider uppercase">
               <CalendarClock className="size-3.5" />
-              Coming soon
+              Year-long contest
             </span>
 
             <h1 className="text-heading text-4xl leading-[1.05] font-semibold tracking-normal sm:text-5xl lg:text-6xl">
-              The Photographer of the Year contest is coming soon.
+              Follow the year&apos;s leading photographs.
             </h1>
             <p className="text-body mt-6 max-w-2xl text-base leading-7 sm:text-lg">
-              We&apos;re preparing our biggest competition yet, celebrating the photographers whose
-              work stood out across the whole year. Keep entering contests and building your
-              portfolio in the meantime.
+              Photos earn their Photographer of the Year ranking through weighted votes in regular
+              contests during the dates set by the admin. Visit Learn More to see the contest and
+              its current photo ranking.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -53,15 +53,6 @@ export default function PhotographerOfTheYearPage() {
               >
                 Learn More
               </Link>
-              <button
-                type="button"
-                disabled
-                aria-disabled="true"
-                title="Joining will be available soon"
-                className="border-border-strong bg-background/55 text-disabled-foreground inline-flex items-center justify-center rounded-md border px-5 py-3 text-sm font-semibold opacity-60"
-              >
-                Join
-              </button>
             </div>
           </div>
         </div>

@@ -3,6 +3,14 @@
 import TipTapViewer from '@/components/custom/tiptap-editor/TipTapViewer';
 import { Spinner } from '@/components/ui/spinner';
 import { useGetSitePolicyQuery } from '@/store/apis/sitePolicyApi';
+import {
+  useGetJoinedContestQuery,
+  useGetPhotographyOfTheYearContestsQuery,
+} from '@/store/apis/contestApi';
+import { useAuth } from '@/hooks/useAuth';
+import OpenContestCard from '@/components/module/contest/open/OpenContestCard';
+import JoinedContestCard from '@/components/module/contest/joined/JoinedContestCard';
+import SafeBannerImage from '@/components/SafeBannerImage';
 import { ArrowLeft, Trophy } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -10,10 +18,26 @@ import Link from 'next/link';
 const FALLBACK_TITLE = 'Photographer of the Year';
 
 export default function PhotographerOfTheYearLearnMorePage() {
+  const { isAuthenticated } = useAuth();
   const { data, isLoading, error } = useGetSitePolicyQuery({
     type: 'PHOTOGRAPHER_OF_THE_YEAR',
   });
+  const {
+    data: potyContestsResponse,
+    isLoading: isLoadingPotyContests,
+    isError: isPotyContestsError,
+    refetch: refetchPotyContests,
+  } = useGetPhotographyOfTheYearContestsQuery();
+  const {
+    data: joinedContestsResponse,
+    refetch: refetchJoinedContests,
+  } = useGetJoinedContestQuery(
+    { page: 1, limit: 100 },
+    { skip: !isAuthenticated },
+  );
   const policy = data?.data?.[0];
+  const potyContests = potyContestsResponse?.data ?? [];
+  const joinedContests = joinedContestsResponse?.data ?? [];
 
   return (
     <main className="margin relative min-h-[calc(100dvh-59px)] overflow-hidden">
@@ -87,6 +111,63 @@ export default function PhotographerOfTheYearLearnMorePage() {
             </>
           )}
         </article>
+      </section>
+      <section className="container pb-12 sm:pb-16">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-6">
+            <p className="text-primary text-xs font-semibold tracking-[0.18em] uppercase">Year-long contest</p>
+            <h2 className="text-heading mt-2 text-2xl font-semibold sm:text-3xl">Photographer of the Year rankings</h2>
+            <p className="text-muted-foreground mt-2 max-w-2xl text-sm leading-6">
+              Submit up to 8 photos. Votes each photo receives in regular contests during this contest&apos;s dates count toward its ranking.
+            </p>
+          </div>
+          {isLoadingPotyContests ? (
+            <div className="bg-surface-secondary h-72 animate-pulse rounded-xl" />
+          ) : isPotyContestsError ? (
+            <p className="text-muted-foreground rounded-lg border p-5 text-sm">Unable to load Photographer of the Year contests right now.</p>
+          ) : potyContests.length ? (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              {potyContests.map((contest: any) => {
+                const joinedContest = joinedContests.find((joined: any) => joined.id === contest.id);
+                if (joinedContest) return (
+                  <JoinedContestCard
+                    key={contest.id}
+                    contest={{ ...contest, ...joinedContest, isPhotographyOfYear: true }}
+                    refetch={refetchJoinedContests}
+                  />
+                );
+                if (contest.status !== 'ACTIVE') return (
+                  <article key={contest.id} className="border-border bg-surface-secondary overflow-hidden rounded-xl border">
+                    <Link href={`/contest/${contest.id}${contest.status === 'COMPLETED' ? '?tab=rank' : ''}`} className="group block">
+                      <div className="relative h-48">
+                        <SafeBannerImage alt={`${contest.title} banner`} src={contest.banner} className="object-cover transition group-hover:brightness-75" />
+                      </div>
+                      <div className="p-4">
+                        <p className="text-primary text-[10px] font-semibold tracking-widest uppercase">{contest.status}</p>
+                        <h3 className="text-heading mt-1 text-lg font-semibold">{contest.title}</h3>
+                        <span className="border-border text-primary mt-4 inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium">
+                          {contest.status === 'COMPLETED' ? 'View top 10 ranking' : 'View contest details'}
+                        </span>
+                      </div>
+                    </Link>
+                  </article>
+                );
+                return (
+                  <OpenContestCard
+                    key={contest.id}
+                    contest={{ ...contest, isPhotographyOfYear: true }}
+                    refetch={refetchPotyContests}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <div className="border-border bg-background/60 rounded-xl border p-6 text-sm">
+              <h3 className="text-heading font-semibold">No Photographer of the Year contest is scheduled yet.</h3>
+              <p className="text-muted-foreground mt-2">Check back here when the next date range is announced.</p>
+            </div>
+          )}
+        </div>
       </section>
     </main>
   );

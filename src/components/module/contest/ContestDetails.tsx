@@ -152,7 +152,7 @@ const ContestDetails = ({ id }: { id: string }) => {
       case 'rules':
         return <RulesTab contest={contest} value={key} />;
       case 'rank':
-        return <RankTab value={key} id={id} />;
+        return <RankTab value={key} id={id} isPhotographyOfYear={Boolean(contest?.isPhotographyOfYear)} />;
       case 'winners':
         return <WinnersTab contest={contest} value={key} />;
       default:

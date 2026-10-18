@@ -39,7 +39,7 @@ const EmptyState = ({ title, description }: { title: string; description: string
   </div>
 );
 
-const RankTab = ({ value, id }: { value: string; id: string }) => {
+const RankTab = ({ value, id, isPhotographyOfYear = false }: { value: string; id: string; isPhotographyOfYear?: boolean }) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [activeRankTab, setActiveRankTab] = useState<'top-photo' | 'top-photographer'>('top-photo');
@@ -54,7 +54,8 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
   } = useGetContestRankPhotosQuery({
     id,
     page: photoPage,
-    limit: 12,
+    limit: isPhotographyOfYear ? 10 : 12,
+    isPhotographyOfYear,
   });
   const rankPhotos = rankPhotosData?.data ?? EMPTY_PHOTOS;
   const rankPhotosHasMore = Boolean(rankPhotosData?.meta?.hasNextPage);
@@ -136,12 +137,12 @@ const RankTab = ({ value, id }: { value: string; id: string }) => {
           >
             Top Photo
           </TabsTrigger>
-          <TabsTrigger
+          {!isPhotographyOfYear && <TabsTrigger
             value="top-photographer"
             className="data-[state=active]:border-primary data-[state=active]:text-primary hover:text-primary flex w-full items-center justify-center border-transparent py-3 transition"
           >
             Top Photographer
-          </TabsTrigger>
+          </TabsTrigger>}
         </TabsList>
 
         <TabsContent

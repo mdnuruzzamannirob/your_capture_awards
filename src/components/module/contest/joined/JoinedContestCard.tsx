@@ -405,6 +405,7 @@ const JoinedContestCard = ({
   const rank = liveRanks.length > 0 ? Math.min(...liveRanks) : contest?.level_data?.rank ?? null;
   const promotedCount = photos.filter((photo) => isPhotoPromoted(photo, now)).length;
   const tradedCount = photos.filter(isPhotoTraded).length;
+  const isPhotographyOfYear = Boolean(contest?.isPhotographyOfYear);
   const canUsePhotoActions = serverPhotos.length > 0;
 
   return (
@@ -580,7 +581,8 @@ const JoinedContestCard = ({
       </div>
 
       <div className="flex flex-col gap-1 px-3 md:gap-3 lg:px-5">
-        <div className="grid grid-cols-3 gap-1 md:gap-3">
+        <div className={isPhotographyOfYear ? "grid grid-cols-1 gap-1 md:gap-3" : "grid grid-cols-3 gap-1 md:gap-3"}>
+          {!isPhotographyOfYear && (
           <button
             onClick={openPromoteConfirm}
             disabled={isExposureMaxed || isPromotingExposure}
@@ -590,6 +592,7 @@ const JoinedContestCard = ({
             <AiOutlineThunderbolt className="size-4" />
             {isPromotingExposure ? 'Charging...' : 'Charge'}
           </button>
+          )}
           <button
             onClick={() => actionModalRef.current?.open('trade')}
             disabled={!canUsePhotoActions}
@@ -597,6 +600,7 @@ const JoinedContestCard = ({
           >
             <MdOutlineCameraswitch className="rotate-90" /> Trade
           </button>
+          {!isPhotographyOfYear && (
           <button
             onClick={() => actionModalRef.current?.open('boost')}
             disabled={!canUsePhotoActions}
@@ -604,15 +608,18 @@ const JoinedContestCard = ({
           >
             <IoKeyOutline /> Promote
           </button>
+          )}
         </div>
 
         <div className="flex justify-center gap-1 md:gap-3">
+          {!isPhotographyOfYear && (
           <button
             onClick={() => modalRef.current?.open()}
             className="text-primary border-primary/25 flex w-full max-w-56 items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
           >
             <MdOutlineHowToVote /> Vote
           </button>
+          )}
           <Link
             href={`/contest/${contest?.id}?tab=rank`}
             className="text-primary border-primary/25 flex w-full max-w-56 items-center justify-center gap-2 rounded-sm border px-3 py-2 transition max-md:text-sm md:px-5"
