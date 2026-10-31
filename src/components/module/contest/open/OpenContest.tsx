@@ -74,7 +74,9 @@ const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenConte
       return Number.isNaN(parsed) ? Number.POSITIVE_INFINITY : parsed;
     };
 
-    return [...allContests].sort((a, b) => endTime(a) - endTime(b));
+    return allContests
+      .filter((contest) => !contest?.isPhotographyOfYear)
+      .sort((a, b) => endTime(a) - endTime(b));
   }, [allContests]);
 
   // Infinite scroll hook
@@ -104,7 +106,7 @@ const OpenContest = ({ isAuthenticated: propIsAuthenticated = false }: OpenConte
             </div>
             <Button onClick={() => void refetch()}>Retry</Button>
           </div>
-        ) : sortedContests.length <= 0 ? (
+        ) : sortedContests.length <= 0 && !hasMore ? (
           <div className="col-span-full flex w-full flex-col items-center justify-center py-20">
             <Image alt="" src="/images/no-result-found.webp" width={400} height={400} />
             <p>No Data Found!</p>

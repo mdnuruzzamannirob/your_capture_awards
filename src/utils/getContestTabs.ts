@@ -6,7 +6,7 @@ const sortTabs = (tabs: { key: string; label: string }[]) => {
   return tabs.sort((a, b) => TAB_ORDER.indexOf(a.key as any) - TAB_ORDER.indexOf(b.key as any));
 };
 
-const getContestTabs = (status: Status) => {
+const getContestTabs = (status: Status, isPhotographyOfYear = false) => {
   let tabs = [
     { label: 'Details', key: 'details' },
     { label: 'Prizes', key: 'prizes' },
@@ -23,6 +23,11 @@ const getContestTabs = (status: Status) => {
 
   if (status === 'UPCOMING') {
     tabs = [...tabs, { label: 'Rules', key: 'rules' }].filter((item) => item.key !== 'rank');
+  }
+
+  // POTY has no prizes or award winners - its standing lives in the Rank tab.
+  if (isPhotographyOfYear) {
+    tabs = tabs.filter((item) => item.key !== 'prizes' && item.key !== 'winners');
   }
 
   return sortTabs(tabs);

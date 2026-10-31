@@ -5,10 +5,12 @@ import { useRef } from 'react';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
 import { formatMoney } from '@/utils/formatMoney';
-import CornerCount from '@/components/CornerCount';
+import ContestCorner from '../ContestCorner';
 import { Clock3, Trophy, UserRound, Vote } from 'lucide-react';
 import SafeBannerImage from '@/components/SafeBannerImage';
 import { getUserDisplayName } from '@/utils/getUserDisplayName';
+import PotyBadge from '../PotyBadge';
+import { getContestEntryFeeAmount, POTY_FALLBACK_BANNER, PotyStatsBar, potyCardClass } from '../poty';
 
 const asNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -40,9 +42,10 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
   const contestEnd = new Date(contest?.endDate);
   const maxUploads = contest?.maxUploads ?? contest?.maxUpload ?? 0;
   const creatorName = getUserDisplayName(contest?.cardAttribution?.user ?? contest?.creator);
+  const isPoty = Boolean(contest?.isPhotographyOfYear);
   const totalVotes = getContestVotes(contest);
-  const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
-  const entryCurrency = 'USD';
+  const entryFeeAmount = getContestEntryFeeAmount(contest);
+  const entryCurrency = contest?.currency ?? 'USD';
   const hasMoneyEntryFee = entryFeeAmount > 0;
 
   const isFuture = contestStart > now;
@@ -53,12 +56,17 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
 
   return (
     <div>
-      <div className="group border-border relative block h-72 overflow-hidden rounded-xl border-2">
+      <div
+        className={`group relative block h-72 overflow-hidden rounded-xl border-2 ${
+          isPoty ? potyCardClass : 'border-border'
+        }`}
+      >
         <Link href={`/contest/${contest.id}`} className="absolute inset-0 z-0">
           {/* Banner image */}
           <SafeBannerImage
             alt={`${contest?.title || 'Contest'} banner`}
             src={contest?.banner}
+            fallbackSrc={isPoty ? POTY_FALLBACK_BANNER : undefined}
             className="object-cover transition-all duration-300 group-hover:brightness-50"
             sizes="(max-width: 768px) 100vw, 500px"
             fallbackClassName="pb-16"
@@ -69,7 +77,7 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-linear-to-b from-black/85 to-transparent" />
 
         {/* Upload limit badge */}
-        <CornerCount count={maxUploads} className="z-10" />
+        <ContestCorner contest={contest} className="z-10" />
 
         {/* Creator Info on hover — top left. Hover reveal is desktop-only (md+) since
             touch devices have no real hover state and can get stuck mid-transition. */}
@@ -110,8 +118,9 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
             affordance so the title always stays visible. */}
         <Link
           href={`/contest/${contest.id}`}
-          className="absolute top-3 right-14 left-3 z-10 block transition-all duration-300 md:group-hover:opacity-0"
+          className={`absolute top-3 ${isPoty ? 'right-28' : 'right-14'} left-3 z-10 block transition-all duration-300 md:group-hover:opacity-0`}
         >
+          {contest?.isPhotographyOfYear && <PotyBadge className="mb-1" />}
           <h3 className="line-clamp-2 text-base leading-snug font-bold text-white [text-shadow:0_1px_6px_rgba(0,0,0,1)] hover:underline">
             {contest.title}
           </h3>
@@ -145,59 +154,76 @@ const OpenContestCard = ({ contest, refetch }: { contest: any; refetch: () => Pr
           </div>
         </div>
 
-        {/* Footer stats — the Prize cell only renders for money contests, so a contest
-            with no cash prize doesn't waste a slot announcing "No cash". */}
-        <div
-          className={`absolute inset-x-2 bottom-2 z-20 grid h-16 ${
-            contest?.isMoneyContest ? 'grid-cols-[1fr_1.3fr_0.85fr]' : 'grid-cols-2'
-          } divide-x divide-white/10 overflow-hidden rounded-lg border border-white/10 bg-zinc-950/88 text-white shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md`}
-        >
-          {contest?.isMoneyContest && (
-            <div className="flex min-w-0 items-center justify-center gap-2 px-2">
-              <div className="bg-primary/15 text-primary flex size-7 shrink-0 items-center justify-center rounded-md">
-                <Trophy className="size-3.5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[9px] leading-none tracking-[0.16em] text-white/50 uppercase">
-                  Prize
-                </p>
-                <p className="mt-1 truncate text-xs font-semibold">
-                  {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
-                </p>
-              </div>
-            </div>
-          )}
+        {isPoty ? (
+          <PotyStatsBar
+            contest={contest}
+            timeLabel={isFuture ? 'Starts in' : 'Time left'}
+            time={
+              <CountdownTimer
+                startDate={startDate}
+                endDate={endDate}
+                refetch={refetch}
+                className="gap-1.5 text-xs font-semibold text-white"
+              />
+            }
+          />
+        ) : (
+          <>
+            {/* Footer stats — the Prize cell only renders for money contests, so a contest
+                with no cash prize doesn't waste a slot announcing "No cash". */}
+            <div
+              className={`absolute inset-x-2 bottom-2 z-20 grid h-16 ${
+                contest?.isMoneyContest ? 'grid-cols-[1fr_1.3fr_0.85fr]' : 'grid-cols-2'
+              } divide-x divide-white/10 overflow-hidden rounded-lg border border-white/10 bg-zinc-950/88 text-white shadow-[0_8px_24px_rgba(0,0,0,0.45)] backdrop-blur-md`}
+            >
+              {contest?.isMoneyContest && (
+                <div className="flex min-w-0 items-center justify-center gap-2 px-2">
+                  <div className="bg-primary/15 text-primary flex size-7 shrink-0 items-center justify-center rounded-md">
+                    <Trophy className="size-3.5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[9px] leading-none tracking-[0.16em] text-white/50 uppercase">
+                      Prize
+                    </p>
+                    <p className="mt-1 truncate text-xs font-semibold">
+                      {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
+                    </p>
+                  </div>
+                </div>
+              )}
 
-          <div className="flex min-w-0 flex-col items-center justify-center px-2">
-            <div className="flex items-center gap-1.5 text-[9px] leading-none tracking-[0.16em] text-white/50 uppercase">
-              <Clock3 className="text-primary size-3" />
-              <span>{isFuture ? 'Starts in' : 'Time left'}</span>
-            </div>
-            <CountdownTimer
-              startDate={startDate}
-              endDate={endDate}
-              refetch={refetch}
-              className="mt-1.5 gap-1.5 text-xs font-semibold text-white"
-            />
-          </div>
-
-          {isFuture ? (
-            <div className="flex flex-col items-center justify-center px-1 text-center">
-              <Vote className="text-primary mb-1 size-3.5" />
-              <p className="text-[10px] leading-tight font-medium text-white/70">Voting soon</p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center px-1">
-              <div className="flex items-center gap-1 text-[9px] leading-none tracking-[0.16em] text-white/50 uppercase">
-                <Vote className="text-primary size-3" />
-                <span>Votes</span>
+              <div className="flex min-w-0 flex-col items-center justify-center px-2">
+                <div className="flex items-center gap-1.5 text-[9px] leading-none tracking-[0.16em] text-white/50 uppercase">
+                  <Clock3 className="text-primary size-3" />
+                  <span>{isFuture ? 'Starts in' : 'Time left'}</span>
+                </div>
+                <CountdownTimer
+                  startDate={startDate}
+                  endDate={endDate}
+                  refetch={refetch}
+                  className="mt-1.5 gap-1.5 text-xs font-semibold text-white"
+                />
               </div>
-              <p className="mt-1 text-sm font-bold tabular-nums">
-                {formatCompactCount(totalVotes)}
-              </p>
+
+              {isFuture ? (
+                <div className="flex flex-col items-center justify-center px-1 text-center">
+                  <Vote className="text-primary mb-1 size-3.5" />
+                  <p className="text-[10px] leading-tight font-medium text-white/70">Voting soon</p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center px-1">
+                  <div className="flex items-center gap-1 text-[9px] leading-none tracking-[0.16em] text-white/50 uppercase">
+                    <Vote className="text-primary size-3" />
+                    <span>Votes</span>
+                  </div>
+                  <p className="mt-1 text-sm font-bold tabular-nums">
+                    {formatCompactCount(totalVotes)}
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
 
       {/* Modal */}

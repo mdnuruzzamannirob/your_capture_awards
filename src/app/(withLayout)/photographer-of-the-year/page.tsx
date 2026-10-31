@@ -42,8 +42,8 @@ export default function PhotographerOfTheYearPage() {
             </h1>
             <p className="text-body mt-6 max-w-2xl text-base leading-7 sm:text-lg">
               Photos earn their Photographer of the Year ranking through weighted votes in regular
-              contests during the dates set by the admin. Visit Learn More to see the contest and
-              its current photo ranking.
+              contests during the dates set by the admin. Join it alongside the regular contests and
+              follow its ranking from the contest page.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -52,6 +52,12 @@ export default function PhotographerOfTheYearPage() {
                 className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-semibold transition"
               >
                 Learn More
+              </Link>
+              <Link
+                href="/photographer-of-the-year/contests"
+                className="border-border bg-background/30 text-foreground hover:bg-surface-secondary inline-flex items-center justify-center rounded-md border px-5 py-3 text-sm font-semibold transition"
+              >
+                Join
               </Link>
             </div>
           </div>

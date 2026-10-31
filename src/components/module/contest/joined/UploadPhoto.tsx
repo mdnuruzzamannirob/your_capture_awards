@@ -39,6 +39,7 @@ export default function UploadPhoto({
       <UploadModal
         ref={modalRef}
         type="upload"
+        contest={contest}
         title={contest?.title}
         maxUploads={maxUploads}
         remaining={remaining}

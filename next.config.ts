@@ -28,8 +28,13 @@ for (const value of [process.env.NEXT_PUBLIC_API_URL, process.env.NEXT_PUBLIC_AP
 }
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins:["10.10.28.200", "https://tunnel-dns-marine-copper.trycloudflare.com","https://poker-contribution-soccer-the.trycloudflare.com"],
   turbopack: {
     root: path.resolve(__dirname),
+  },
+  onDemandEntries: {
+    maxInactiveAge: 30 * 1000,
+    pagesBufferLength: 2,
   },
   images: {
     formats: ['image/avif', 'image/webp'],

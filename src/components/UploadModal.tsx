@@ -28,10 +28,58 @@ import { toast } from 'sonner';
 import SafeBannerImage from './SafeBannerImage';
 import TipTapViewer from './custom/tiptap-editor/TipTapViewer';
 import { filterPhotosByTags, PhotoTagSearch } from './PhotoTagSearch';
-import { getImageFileError, PHOTO_UPLOAD_ACCEPT } from '@/constants/uploads';
+import { getImageFileError, normalizeImageMimeType, PHOTO_UPLOAD_ACCEPT } from '@/constants/uploads';
+import { getContestEntryFeeAmount } from '@/components/module/contest/poty';
 
 const getApiErrorMessage = (error: any, fallback: string) =>
   error?.data?.message || error?.message || fallback;
+
+type SubmissionFormat = {
+  mimeTypes: string[];
+  minWidth: number;
+  minHeight: number;
+  maxSizeMB: number;
+};
+
+const DEFAULT_SUBMISSION_FORMAT: SubmissionFormat = {
+  mimeTypes: ['image/jpeg', 'image/png'],
+  minWidth: 700,
+  minHeight: 700,
+  maxSizeMB: 25,
+};
+
+const getSubmissionFormat = (contest: any): SubmissionFormat | null => {
+  const configuredRule = Array.isArray(contest?.rules)
+    ? contest.rules.find((rule: any) => rule?.key === 'SUBMISSION_FORMAT')
+    : undefined;
+
+  if (configuredRule?.enabled === false) return null;
+
+  const value = configuredRule?.value;
+  return {
+    mimeTypes: Array.isArray(value?.mimeTypes) && value.mimeTypes.length > 0
+      ? value.mimeTypes
+      : DEFAULT_SUBMISSION_FORMAT.mimeTypes,
+    minWidth: Number(value?.minWidth) > 0 ? Number(value.minWidth) : DEFAULT_SUBMISSION_FORMAT.minWidth,
+    minHeight: Number(value?.minHeight) > 0 ? Number(value.minHeight) : DEFAULT_SUBMISSION_FORMAT.minHeight,
+    maxSizeMB: Number(value?.maxSizeMB) > 0 ? Number(value.maxSizeMB) : DEFAULT_SUBMISSION_FORMAT.maxSizeMB,
+  };
+};
+
+const readFileDimensions = (file: File): Promise<{ width: number; height: number } | null> =>
+  new Promise((resolve) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new window.Image();
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve({ width: image.naturalWidth, height: image.naturalHeight });
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(null);
+    };
+    image.src = objectUrl;
+  });
 
 const getRequiredPaidJoinRuleKeys = (contest: any): string[] => {
   const rules = Array.isArray(contest?.rules) ? contest.rules : [];
@@ -95,13 +143,29 @@ function ProfilePhotoJustifiedPicker({
   isPhotosLoading,
   selectedImages,
   onSelect,
+  photoValidationMessage,
   limitReached = false,
   emptyMessage = 'No profile photos available. Please upload some photos first.',
 }: {
-  photos: { id: string; url: string }[];
+  photos: {
+    id: string;
+    url: string;
+    mimeType?: string | null;
+    width?: number | null;
+    height?: number | null;
+    sizeBytes?: number | null;
+  }[];
   isPhotosLoading: boolean;
   selectedImages: { id: string; url: string }[];
   onSelect: (photo: { id: string; url: string }) => void;
+  photoValidationMessage?: (photo: {
+    id: string;
+    url: string;
+    mimeType?: string | null;
+    width?: number | null;
+    height?: number | null;
+    sizeBytes?: number | null;
+  }) => string | null;
   // Every allowed slot is taken: only already selected photos stay clickable
   limitReached?: boolean;
   emptyMessage?: string;
@@ -170,14 +234,21 @@ function ProfilePhotoJustifiedPicker({
         >
           {row.items.map(({ item: photo, width, height }) => {
             const isSelected = selectedUrls.has(photo.url);
-            const isBlocked = limitReached && !isSelected;
+            const validationMessage = photoValidationMessage?.(photo) ?? null;
+            const isBlocked = (limitReached && !isSelected) || Boolean(validationMessage);
             return (
               <button
                 key={photo.id}
                 type="button"
-                onClick={() => onSelect(photo)}
+                onClick={() => {
+                  if (validationMessage) {
+                    toast.error(validationMessage);
+                    return;
+                  }
+                  onSelect(photo);
+                }}
                 aria-disabled={isBlocked}
-                title={isBlocked ? 'Selection limit reached. Unselect a photo to pick another.' : undefined}
+                title={validationMessage || (isBlocked ? 'Selection limit reached. Unselect a photo to pick another.' : undefined)}
                 className={`relative shrink-0 overflow-hidden transition ${
                   isBlocked ? 'cursor-not-allowed opacity-35' : 'hover:opacity-90'
                 }`}
@@ -263,13 +334,18 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       url: string;
       labels?: string[];
       categories?: string[];
+      mimeType?: string | null;
+      width?: number | null;
+      height?: number | null;
+      sizeBytes?: number | null;
     }[];
     const [tagQuery, setTagQuery] = useState('');
     const filteredPhotos = useMemo(() => filterPhotosByTags(photos, tagQuery), [photos, tagQuery]);
     const requiredCoins = contest?.entryFeeCoins ?? 0;
-    const entryCurrency = 'USD';
-    const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
+    const entryCurrency = contest?.currency ?? 'USD';
+    const entryFeeAmount = getContestEntryFeeAmount(contest);
     const hasMoneyEntryFee = entryFeeAmount > 0;
+    const submissionFormat = useMemo(() => getSubmissionFormat(contest), [contest]);
     const requiredPaidJoinRuleKeys = useMemo(
       () => getRequiredPaidJoinRuleKeys(contest),
       [contest],
@@ -339,7 +415,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       },
     }));
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const imgFile = e.target.files?.[0];
       if (!imgFile) return;
 
@@ -349,15 +425,36 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         return;
       }
 
-      const minSize = 500 * 1024; // 500 KB
-      const maxSize = 25 * 1024 * 1024; // 25 MB
-      if (imgFile.size < minSize) {
-        toast.error('File size too small. Minimum size required is 500 KB.');
+      if (
+        submissionFormat &&
+        !submissionFormat.mimeTypes
+          .map(normalizeImageMimeType)
+          .includes(normalizeImageMimeType(imgFile.type))
+      ) {
+        toast.error('This photo format is not allowed for the selected contest.');
         return;
       }
-      if (imgFile.size > maxSize) {
-        toast.error('File size too large. Maximum size allowed is 25 MB.');
+
+      if (submissionFormat && imgFile.size > submissionFormat.maxSizeMB * 1024 * 1024) {
+        toast.error(`File size too large. Maximum size allowed is ${submissionFormat.maxSizeMB} MB.`);
         return;
+      }
+
+      if (submissionFormat) {
+        const dimensions = await readFileDimensions(imgFile);
+        if (!dimensions) {
+          toast.error('Unable to read the photo dimensions. Please choose another image.');
+          return;
+        }
+        if (
+          dimensions.width < submissionFormat.minWidth ||
+          dimensions.height < submissionFormat.minHeight
+        ) {
+          toast.error(
+            `Photo resolution must be at least ${submissionFormat.minWidth}px x ${submissionFormat.minHeight}px.`,
+          );
+          return;
+        }
       }
 
       setFile(imgFile);
@@ -396,6 +493,35 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       }
 
       setSelectedImages([...selectedImages, image]);
+    };
+
+    const getProfilePhotoValidationMessage = (photo: {
+      mimeType?: string | null;
+      width?: number | null;
+      height?: number | null;
+      sizeBytes?: number | null;
+    }) => {
+      if (!submissionFormat) return null;
+
+      // Photos created before metadata was introduced are grandfathered by the
+      // API. Keep them selectable so existing gallery entries remain usable.
+      if (!photo.width || !photo.height || !photo.mimeType) return null;
+
+      if (
+        !submissionFormat.mimeTypes
+          .map(normalizeImageMimeType)
+          .includes(normalizeImageMimeType(photo.mimeType))
+      ) {
+        return 'This photo format is not allowed for the selected contest.';
+      }
+
+      if (photo.width < submissionFormat.minWidth || photo.height < submissionFormat.minHeight) {
+        return `Photo resolution must be at least ${submissionFormat.minWidth}px x ${submissionFormat.minHeight}px.`;
+      }
+      if (photo.sizeBytes && photo.sizeBytes > submissionFormat.maxSizeMB * 1024 * 1024) {
+        return `Photo size must be ${submissionFormat.maxSizeMB} MB or less.`;
+      }
+      return null;
     };
 
     const handleSubmit = async () => {
@@ -459,8 +585,12 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
           // those breaks the query string (an "&" in particular gets read as
           // the start of a new param, silently truncating the title at that
           // point, e.g. "Red & Green" showing up as just "Red ").
+          // POTY has no voting or exposure of its own, so skip the
+          // "Charge Exposure / Vote" join-success popup for it.
           router.push(
-            `/contest/joined?modal=joinSuccess&contestId=${encodeURIComponent(contestId)}&contestTitle=${encodeURIComponent(title)}`,
+            contest?.isPhotographyOfYear
+              ? '/contest/joined'
+              : `/contest/joined?modal=joinSuccess&contestId=${encodeURIComponent(contestId)}&contestTitle=${encodeURIComponent(title)}`,
           );
         }
 
@@ -583,6 +713,11 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                   UPLOAD PHOTOS TO <span className="text-primary">{title}</span> CHALLENGE
                 </h1>
                 <p>{maxUploads} Photo Challenge</p>
+                {submissionFormat && (
+                  <p className="text-muted-foreground normal-case text-xs">
+                    Minimum {submissionFormat.minWidth}px × {submissionFormat.minHeight}px · maximum {submissionFormat.maxSizeMB} MB
+                  </p>
+                )}
               </div>
 
               {/* content */}
@@ -677,6 +812,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                       isPhotosLoading={isPhotosLoading}
                       selectedImages={selectedImages}
                       onSelect={imageSelectHandler}
+                      photoValidationMessage={getProfilePhotoValidationMessage}
                       limitReached={isSelectionFull}
                       emptyMessage={
                         tagQuery.trim()

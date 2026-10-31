@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/utils/cn';
+import { useGetContestQuery, useGetPublicContestQuery } from '@/store/apis/contestApi';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLayoutEffect, useMemo, useState } from 'react';
@@ -9,6 +10,21 @@ import { useLayoutEffect, useMemo, useState } from 'react';
 const ContestHeader = () => {
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
+  const routeSegment = pathname.match(/^\/contest\/([^/]+)$/)?.[1] ?? '';
+  const isContestListRoute = ['joined', 'open', 'upcoming', 'closed', 'completed'].includes(
+    routeSegment,
+  );
+  const contestId = isContestListRoute ? '' : routeSegment;
+  const publicContestQuery = useGetPublicContestQuery(
+    { id: contestId },
+    { skip: !contestId || Boolean(isAuthenticated) },
+  );
+  const privateContestQuery = useGetContestQuery(
+    { id: contestId },
+    { skip: !contestId || !isAuthenticated },
+  );
+  const contestQuery = isAuthenticated ? privateContestQuery : publicContestQuery;
+  const isPhotographyOfYear = Boolean(contestQuery.data?.data?.isPhotographyOfYear);
 
   const tabs = useMemo(() => {
     const baseTabs = [
@@ -27,7 +43,7 @@ const ContestHeader = () => {
 
   const [mounted, setMounted] = useState(false);
   useLayoutEffect(() => setMounted(true), []);
-  if (!mounted) return null;
+  if (!mounted || isPhotographyOfYear || (contestId && contestQuery.isLoading)) return null;
 
   return (
     <header className="bg-background border-border fixed top-[59.45px] right-0 left-0 z-50 border-b">

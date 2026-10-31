@@ -17,6 +17,7 @@ const EMPTY_CONTESTS: any[] = [];
 const CompletedContest = () => {
   const [page, setPage] = useState(1);
   const [allContests, setAllContests] = useState<any[]>([]);
+  const regularContests = allContests.filter((contest) => !contest?.isPhotographyOfYear);
 
   const { data, isLoading, isFetching, isError, error, refetch } = useGetPrivateContestsQuery(
     {
@@ -69,13 +70,13 @@ const CompletedContest = () => {
               </div>
               <Button onClick={() => void refetch()}>Retry</Button>
             </div>
-          ) : allContests.length <= 0 ? (
+        ) : regularContests.length <= 0 && !hasMore ? (
             <div className="col-span-full flex w-full flex-col items-center justify-center py-20">
               <Image alt="" src="/images/no-result-found.webp" width={400} height={400} />
               <p>No Data Found!</p>
             </div>
           ) : (
-            allContests?.map((contest: any, index: number) => (
+            regularContests.map((contest: any, index: number) => (
               <CompletedContestCard key={index} contest={contest} />
             ))
           )}

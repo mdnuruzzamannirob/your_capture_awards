@@ -4,6 +4,7 @@ import TipTapViewer from '@/components/custom/tiptap-editor/TipTapViewer';
 import { TabsContent } from '@/components/ui/tabs';
 import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import { formatMoney } from '@/utils/formatMoney';
+import { getContestEntryFeeAmount } from './poty';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
 import { getUserDisplayName } from '@/utils/getUserDisplayName';
 import { getContestCategories } from '@/utils/getContestCategories';
@@ -21,9 +22,9 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
     contest?.cardAttribution?.user ?? contest?.creator,
     'Contest creator',
   );
-  const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
+  const entryFeeAmount = getContestEntryFeeAmount(contest);
   const categories = getContestCategories(contest);
-  const entryCurrency = 'USD';
+  const entryCurrency = contest?.currency ?? 'USD';
 
   const hasStarted = now >= contestStart;
   const hasEnded = now > contestEnd;
@@ -31,18 +32,36 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
   return (
     <TabsContent value={value} className="mx-auto w-full max-w-5xl space-y-10">
       <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center lg:gap-3">
-        <p className="flex flex-1 items-center gap-3 whitespace-nowrap uppercase">
-          <MdOutlineHowToVote className="text-primary size-8 lg:size-10" />{' '}
-          {!hasStarted ? (
-            <span className="flex items-center gap-2">
-              <span className="text-lg font-semibold">VOTING</span> STARTS SOON
-            </span>
-          ) : (
-            <span className="flex items-center gap-2">
-              <span className="text-lg font-semibold">{contest?.totalVotes}</span> Votes
-            </span>
-          )}
-        </p>
+        {contest?.isPhotographyOfYear ? (
+          // POTY has no votes of its own; its headline is the winners' prize pool.
+          <div className="flex flex-1 items-center gap-3">
+            <MdOutlinePaid className="text-primary size-8 lg:size-10" />
+            <div>
+              <p className="flex items-center gap-2 whitespace-nowrap uppercase">
+                <span className="text-lg font-semibold">
+                  {formatMoney(Number(contest?.potyPrizePool?.prizePool ?? 0), entryCurrency)}
+                </span>{' '}
+                Prize pool
+              </p>
+              <p className="text-muted-foreground text-xs">
+                {contest?.potyPrizePool?.sharePercent ?? 60}% of entry fees, shared by the 1st, 2nd and 3rd place winners
+              </p>
+            </div>
+          </div>
+        ) : (
+          <p className="flex flex-1 items-center gap-3 whitespace-nowrap uppercase">
+            <MdOutlineHowToVote className="text-primary size-8 lg:size-10" />{' '}
+            {!hasStarted ? (
+              <span className="flex items-center gap-2">
+                <span className="text-lg font-semibold">VOTING</span> STARTS SOON
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <span className="text-lg font-semibold">{contest?.totalVotes}</span> Votes
+              </span>
+            )}
+          </p>
+        )}
 
         <div className="flex min-w-0 flex-1 items-center gap-3 uppercase">
           <FaHourglassHalf className="text-primary size-8 lg:size-10" />

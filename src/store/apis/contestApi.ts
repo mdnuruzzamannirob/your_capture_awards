@@ -71,6 +71,22 @@ export const contestApi = createApi({
       query: () => '/photographer-of-the-year',
       providesTags: [{ type: 'PublicContests', id: 'POTY' }],
     }),
+    // signed-in user's POTY score: votes their entered photos got in regular contests
+    getPhotographyOfTheYearMyEntry: builder.query<
+      {
+        data: {
+          joined: boolean;
+          rank: number | null;
+          totalPhotographers: number;
+          totalVotes: number;
+          photos: { contestPhotoId: string; userPhotoId: string; voteCount: number; rank: number }[];
+        };
+      },
+      { contestId: string }
+    >({
+      query: ({ contestId }) => `/photographer-of-the-year/${contestId}/me`,
+      providesTags: (result, error, { contestId }) => [{ type: 'ContestPhotos', id: contestId }],
+    }),
     // create single contest or upload contest photo
     createPhotoToContest: builder.mutation<{ data: { data: any } }, PhotoToContestPayload>({
       query: ({ photo, photoIds, contestId, isPhotographyOfYear }) => {
@@ -229,7 +245,7 @@ export const contestApi = createApi({
     >({
       query: ({ id, page = 1, limit = 12, isPhotographyOfYear }) =>
         isPhotographyOfYear
-          ? `/photographer-of-the-year/${id}/ranking`
+          ? `/photographer-of-the-year/${id}/ranking?page=${page}&limit=${limit}`
           : `/contests/${id}/rank-photos?page=${page}&limit=${limit}`,
       transformResponse: (response: any) => {
         if (Array.isArray(response?.data)) {
@@ -264,10 +280,12 @@ export const contestApi = createApi({
     // get contest rank photographers
     getContestRankPhotographers: builder.query<
       { data: { participants: any[]; contestTotalVotes?: number }; meta: PaginationMeta },
-      { id: string; page?: number; limit?: number }
+      { id: string; page?: number; limit?: number; isPhotographyOfYear?: boolean }
     >({
-      query: ({ id, page = 1, limit = 12 }) =>
-        `/contests/${id}/rank-photographer?page=${page}&limit=${limit}`,
+      query: ({ id, page = 1, limit = 12, isPhotographyOfYear }) =>
+        isPhotographyOfYear
+          ? `/photographer-of-the-year/${id}/ranking/photographers?page=${page}&limit=${limit}`
+          : `/contests/${id}/rank-photographer?page=${page}&limit=${limit}`,
       transformResponse: (response: any) => {
         const payload = response?.data ?? response ?? {};
         const participants = payload?.participants ?? [];
@@ -419,6 +437,7 @@ export const contestApi = createApi({
 
 export const {
   useGetPhotographyOfTheYearContestsQuery,
+  useGetPhotographyOfTheYearMyEntryQuery,
   useCreatePhotoToContestMutation,
   useGetPublicContestsQuery,
   useGetPrivateContestsQuery,

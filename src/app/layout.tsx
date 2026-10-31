@@ -3,6 +3,7 @@ import { cn } from '@/utils/cn';
 import type { Metadata } from 'next';
 import { Kumbh_Sans } from 'next/font/google';
 import AuthRedirectHandler from '../components/module/auth/AuthRedirectHandler';
+import ChunkErrorRecovery from '../components/ChunkErrorRecovery';
 import StoreModal from '../components/module/store/StoreModal';
 import CookieConsent from '../components/CookieConsent';
 import GoogleAnalytics from '../components/GoogleAnalytics';
@@ -77,6 +78,7 @@ export default async function RootLayout({
           <ReduxProvider>
             <SocketProvider>
               <StoreModalProvider>
+                <ChunkErrorRecovery />
                 <AuthRedirectHandler />
                 <ImageProtection />
                 {children} <StoreModal />

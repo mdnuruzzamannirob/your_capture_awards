@@ -2,7 +2,7 @@
 import { cn } from '@/utils/cn';
 
 interface CornerCountProps {
-  count: number;
+  count: number | string;
   label?: string;
   className?: string;
 }
@@ -15,7 +15,10 @@ const CornerCount = ({ count = 0, label = 'PHOTOS', className }: CornerCountProp
         className,
       )}
     >
-      <span className="text-2xl font-bold">{count}</span>
+      {/* Money values (e.g. a prize pool) are wider than a photo count. */}
+      <span className={cn('font-bold', typeof count === 'string' ? 'text-lg leading-tight' : 'text-2xl')}>
+        {count}
+      </span>
       <span className="text-[11px] font-bold tracking-widest uppercase">{label}</span>
     </div>
   );

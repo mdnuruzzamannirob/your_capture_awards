@@ -54,7 +54,7 @@ const RankTab = ({ value, id, isPhotographyOfYear = false }: { value: string; id
   } = useGetContestRankPhotosQuery({
     id,
     page: photoPage,
-    limit: isPhotographyOfYear ? 10 : 12,
+    limit: 12,
     isPhotographyOfYear,
   });
   const rankPhotos = rankPhotosData?.data ?? EMPTY_PHOTOS;
@@ -107,9 +107,9 @@ const RankTab = ({ value, id, isPhotographyOfYear = false }: { value: string; id
 
   useEffect(() => {
     if (activeRankTab === 'top-photographer') {
-      loadRankPhotographers({ id, page: photographerPage, limit: 12 });
+      loadRankPhotographers({ id, page: photographerPage, limit: 12, isPhotographyOfYear });
     }
-  }, [activeRankTab, id, loadRankPhotographers, photographerPage]);
+  }, [activeRankTab, id, isPhotographyOfYear, loadRankPhotographers, photographerPage]);
 
   const { loadMoreRef: photoLoadMoreRef } = useInfiniteScroll({
     hasMore: activeRankTab === 'top-photo' && rankPhotosHasMore,
@@ -137,12 +137,15 @@ const RankTab = ({ value, id, isPhotographyOfYear = false }: { value: string; id
           >
             Top Photo
           </TabsTrigger>
-          {!isPhotographyOfYear && <TabsTrigger
-            value="top-photographer"
-            className="data-[state=active]:border-primary data-[state=active]:text-primary hover:text-primary flex w-full items-center justify-center border-transparent py-3 transition"
-          >
-            Top Photographer
-          </TabsTrigger>}
+          {/* POTY ranks photos only - there is no Top Photographer ranking. */}
+          {!isPhotographyOfYear && (
+            <TabsTrigger
+              value="top-photographer"
+              className="data-[state=active]:border-primary data-[state=active]:text-primary hover:text-primary flex w-full items-center justify-center border-transparent py-3 transition"
+            >
+              Top Photographer
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent

@@ -1,7 +1,9 @@
 'use client';
 /* eslint-disable @next/next/no-img-element */
 
-import CornerCount from '@/components/CornerCount';
+import ContestCorner from './ContestCorner';
+import { ArrowLeft } from 'lucide-react';
+import { getContestEntryFeeAmount, POTY_FALLBACK_BANNER } from './poty';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import UploadModal, { UploadModalRef } from '@/components/UploadModal';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
@@ -49,7 +51,11 @@ const ContestDetails = ({ id }: { id: string }) => {
 
   const contest = contestData?.data ?? {};
   const bannerSrc =
-    typeof contest?.banner === 'string' && contest.banner.trim() ? contest.banner.trim() : null;
+    typeof contest?.banner === 'string' && contest.banner.trim()
+      ? contest.banner.trim()
+      : contest?.isPhotographyOfYear
+        ? POTY_FALLBACK_BANNER
+        : null;
   const [failedBannerSrc, setFailedBannerSrc] = useState<string | null>(null);
 
   const isJoined = Boolean(contest?.joined);
@@ -57,11 +63,11 @@ const ContestDetails = ({ id }: { id: string }) => {
   const maxUploads: number = contest?.maxUploads ?? contest?.maxUpload ?? 0;
   const uploadedCount = contest?.uploadCount ?? 0;
   const remaining = Math.max(0, maxUploads - uploadedCount);
-  const entryFeeAmount = Number(contest?.entryFeeAmount ?? 0);
-  const entryCurrency = 'USD';
+  const entryFeeAmount = getContestEntryFeeAmount(contest);
+  const entryCurrency = contest?.currency ?? 'USD';
   const hasMoneyEntryFee = entryFeeAmount > 0;
 
-  const tabs = getContestTabs(contest?.status);
+  const tabs = getContestTabs(contest?.status, Boolean(contest?.isPhotographyOfYear));
   const initialTab = tabs?.some((tab) => tab.key === tabParam) ? tabParam! : tabs?.[0]?.key;
   const [activeTab, setActiveTab] = useState(initialTab);
 
@@ -73,7 +79,7 @@ const ContestDetails = ({ id }: { id: string }) => {
       setActiveTab(tabParam);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tabParam, contest?.status]);
+  }, [tabParam, contest?.status, contest?.isPhotographyOfYear]);
 
   const uploadModalRef = useRef<UploadModalRef>(null);
   const voteModalRef = useRef<VoteModalRef>(null);
@@ -167,7 +173,18 @@ const ContestDetails = ({ id }: { id: string }) => {
   );
 
   return (
-    <main className="margin-user space-y-10">
+    <main className={`${contest?.isPhotographyOfYear ? 'margin' : 'margin-user'} space-y-10`}>
+      {contest?.isPhotographyOfYear && (
+        <div className="container">
+          <Link
+            href="/photographer-of-the-year/contests"
+            className="text-muted-foreground hover:text-primary relative top-2 inline-flex items-center gap-2 text-sm font-medium transition-colors"
+          >
+            <ArrowLeft className="size-4" aria-hidden="true" />
+            All Photographer of the Year contests
+          </Link>
+        </div>
+      )}
       <section className="bg-surface-secondary text-body relative h-64 w-full overflow-hidden sm:h-80 md:h-96 lg:h-125">
         {bannerSrc && failedBannerSrc !== bannerSrc ? (
           <img
@@ -178,6 +195,7 @@ const ContestDetails = ({ id }: { id: string }) => {
             decoding="async"
             loading="lazy"
             className="size-full object-cover opacity-60"
+            suppressHydrationWarning
             onError={() => setFailedBannerSrc(bannerSrc)}
           />
         ) : (
@@ -186,7 +204,7 @@ const ContestDetails = ({ id }: { id: string }) => {
           </div>
         )}
 
-        <CornerCount count={contest?.maxUpload ?? contest?.maxUploads} />
+        <ContestCorner contest={contest} />
 
         {/* Uploader credit — bottom right of the banner, only shown when the admin
             picked an existing user submission as the banner image. */}
@@ -246,7 +264,7 @@ const ContestDetails = ({ id }: { id: string }) => {
                   )}
 
                   {/* Vote button */}
-                  {isMounted && !contestLoading && isJoined && (
+                  {isMounted && !contestLoading && isJoined && !contest?.isPhotographyOfYear && (
                     <>
                       <button
                         onClick={() => voteModalRef.current?.open()}

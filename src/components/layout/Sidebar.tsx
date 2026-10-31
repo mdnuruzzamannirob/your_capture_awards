@@ -5,6 +5,7 @@ import { loggedInNavLinks, navLinks } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useStoreModal } from '@/providers/StoreModalProvider';
 import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
+import { useGetContestQuery, useGetPublicContestQuery } from '@/store/apis/contestApi';
 import { cn } from '@/utils/cn';
 import { logout } from '@/utils/logout';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
@@ -30,6 +31,21 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const menuLinks = isAuthenticated ? loggedInNavLinks : navLinks;
   const stats = storeStats?.data;
+  const contestRouteId = pathname.match(/^\/contest\/([^/]+)$/)?.[1] ?? '';
+  const isContestListRoute = ['joined', 'open', 'upcoming', 'closed', 'completed'].includes(contestRouteId);
+  const contestId = isContestListRoute ? '' : contestRouteId;
+  const publicContestQuery = useGetPublicContestQuery(
+    { id: contestId },
+    { skip: !contestId || Boolean(isAuthenticated) },
+  );
+  const privateContestQuery = useGetContestQuery(
+    { id: contestId },
+    { skip: !contestId || !isAuthenticated },
+  );
+  const contestQuery = isAuthenticated ? privateContestQuery : publicContestQuery;
+  const isPhotographyOfYearContestDetail = Boolean(
+    contestId && contestQuery.data?.data?.isPhotographyOfYear,
+  );
 
   const handleLogout = () => {
     logout(dispatch);
@@ -64,9 +80,14 @@ const Sidebar = () => {
             <nav className="p-4">
               <ul className="space-y-1">
                 {menuLinks.map((item) => {
+                  const isPotyLink = item.href === '/photographer-of-the-year';
                   const isActive =
-                    pathname === item.href ||
-                    (Array.isArray(item.tags) && item.tags.some((tag) => pathname.includes(tag)));
+                    (isPotyLink &&
+                      (pathname === item.href || pathname.startsWith(`${item.href}/`) || isPhotographyOfYearContestDetail)) ||
+                    (!isPotyLink &&
+                      !isPhotographyOfYearContestDetail &&
+                      (pathname === item.href ||
+                        (Array.isArray(item.tags) && item.tags.some((tag) => pathname.includes(tag)))));
 
                   return (
                     <li key={item.name}>

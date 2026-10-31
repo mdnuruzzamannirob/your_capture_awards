@@ -12,6 +12,8 @@ type SafeBannerImageProps = {
   fallbackClassName?: string;
   unoptimized?: boolean;
   priority?: boolean;
+  /** Image shown instead of the "No banner" placeholder when src is missing or fails. */
+  fallbackSrc?: string;
 };
 
 /** Renders the same accessible fallback for both absent and failed banner images. */
@@ -23,9 +25,12 @@ const SafeBannerImage = ({
   fallbackClassName,
   unoptimized,
   priority,
+  fallbackSrc,
 }: SafeBannerImageProps) => {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
-  const normalizedSrc = typeof src === 'string' && src.trim() ? src.trim() : null;
+  const providedSrc = typeof src === 'string' && src.trim() ? src.trim() : null;
+  const normalizedSrc =
+    providedSrc && failedSrc !== providedSrc ? providedSrc : (fallbackSrc ?? providedSrc);
 
   if (!normalizedSrc || failedSrc === normalizedSrc) {
     return (

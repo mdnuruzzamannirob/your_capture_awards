@@ -9,6 +9,7 @@ import { loggedInNavLinks, navLinks } from '@/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useStoreModal } from '@/providers/StoreModalProvider';
 import { useGetStoreStatsQuery } from '@/store/apis/storeApi';
+import { useGetContestQuery, useGetPublicContestQuery } from '@/store/apis/contestApi';
 import { cn } from '@/utils/cn';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -45,6 +46,24 @@ const Navbar = () => {
   const pathname = usePathname();
   const stats = storeStats?.data;
 
+  const contestRouteId = pathname.match(/^\/contest\/([^/]+)$/)?.[1] ?? '';
+  const isContestListRoute = ['joined', 'open', 'upcoming', 'closed', 'completed'].includes(contestRouteId);
+  const contestId = isContestListRoute ? '' : contestRouteId;
+  const publicContestQuery = useGetPublicContestQuery(
+    { id: contestId },
+    { skip: !contestId || Boolean(isAuthenticated) },
+  );
+  const privateContestQuery = useGetContestQuery(
+    { id: contestId },
+    { skip: !contestId || !isAuthenticated },
+  );
+  const contestQuery = isAuthenticated ? privateContestQuery : publicContestQuery;
+  const isPhotographyOfYearContestDetail = Boolean(
+    contestId && contestQuery.data?.data?.isPhotographyOfYear,
+  );
+  const isPhotographyOfYearSection =
+    pathname === '/photographer-of-the-year' || pathname.startsWith('/photographer-of-the-year/');
+
   useLayoutEffect(() => setMounted(true), []);
 
   // "/" keyboard shortcut to open search
@@ -80,9 +99,15 @@ const Navbar = () => {
             <ul className="font-kumbh ml-3 hidden flex-1 items-center justify-center gap-4 uppercase select-none lg:flex">
               {menuLinks.map((link, index) => {
                 const href = link.href;
+                const isPotyLink = href === '/photographer-of-the-year';
                 const isActive =
-                  pathname === href ||
-                  (Array.isArray(link?.tags) && link?.tags.some((tag) => pathname.includes(tag)));
+                  (isPotyLink &&
+                    (pathname === href || pathname.startsWith(`${href}/`) || isPhotographyOfYearContestDetail)) ||
+                  (!isPotyLink &&
+                    !isPhotographyOfYearSection &&
+                    !isPhotographyOfYearContestDetail &&
+                    (pathname === href ||
+                      (Array.isArray(link?.tags) && link?.tags.some((tag) => pathname.includes(tag)))));
 
                 return (
                   <li key={index}>

@@ -1,4 +1,4 @@
-import CornerCount from '@/components/CornerCount';
+import ContestCorner from '../ContestCorner';
 import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import { formatPrizeRange } from '@/utils/formatPrizeRange';
 import Image from 'next/image';
@@ -6,19 +6,26 @@ import Link from 'next/link';
 import SafeBannerImage from '@/components/SafeBannerImage';
 import { getUserDisplayName } from '@/utils/getUserDisplayName';
 import { UserRound } from 'lucide-react';
+import PotyBadge from '../PotyBadge';
+import { POTY_FALLBACK_BANNER, PotyStatsBar, potyCardClass } from '../poty';
 
 const ClosedContestCard = ({ contest }: { contest: any }) => {
-  const maxUploads = contest?.maxUploads ?? contest?.maxUpload ?? 0;
   const creatorName = getUserDisplayName(contest?.cardAttribution?.user ?? contest?.creator);
+  const isPoty = Boolean(contest?.isPhotographyOfYear);
 
   return (
     <div>
-      <div className="group border-border relative block h-72 overflow-hidden rounded-xl border-2">
+      <div
+        className={`group relative block h-72 overflow-hidden rounded-xl border-2 ${
+          isPoty ? potyCardClass : 'border-border'
+        }`}
+      >
         <Link href={`/contest/${contest?.id}`} className="absolute inset-0 z-0">
           {/* Banner image */}
           <SafeBannerImage
             alt={`${contest?.title || 'Contest'} banner`}
             src={contest?.banner}
+            fallbackSrc={isPoty ? POTY_FALLBACK_BANNER : undefined}
             className="bg-surface-secondary object-cover transition-all duration-300 group-hover:brightness-50"
             sizes="(max-width: 768px) 100vw, 500px"
             fallbackClassName="pb-16"
@@ -29,7 +36,7 @@ const ClosedContestCard = ({ contest }: { contest: any }) => {
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-linear-to-b from-black/85 to-transparent" />
 
         {/* Upload limit badge */}
-        <CornerCount count={maxUploads} className="z-10" />
+        <ContestCorner contest={contest} className="z-10" />
 
         {/* Creator Info on hover — top left. Desktop-only reveal (md+); touch devices
             have no hover state to trigger it. */}
@@ -56,33 +63,47 @@ const ClosedContestCard = ({ contest }: { contest: any }) => {
             since mobile has no hover to bring it back. */}
         <Link
           href={`/contest/${contest?.id}`}
-          className="absolute top-3 right-14 left-3 z-10 block transition-all duration-300 md:group-hover:opacity-0"
+          className={`absolute top-3 ${isPoty ? 'right-28' : 'right-14'} left-3 z-10 block transition-all duration-300 md:group-hover:opacity-0`}
         >
+          {contest?.isPhotographyOfYear && <PotyBadge className="mb-1" />}
           <h3 className="line-clamp-2 text-base leading-snug font-bold text-white [text-shadow:0_1px_6px_rgba(0,0,0,1)] hover:underline">
             {contest?.title}
           </h3>
         </Link>
 
-        {/* Footer stats — absolute bottom, zero gap */}
-        <div className="text-primary-foreground absolute inset-x-0 bottom-0 z-10 flex items-center justify-between bg-zinc-950/90 py-2">
-          {contest?.isMoneyContest && (
-            <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
-              <p className="font-semibold">
-                {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
-              </p>
-              <p className="text-xs">Prizes</p>
+        {isPoty ? (
+          <PotyStatsBar
+            contest={contest}
+            timeLabel="Ended"
+            time={formatDateToDayMonYear(contest?.endDate)}
+          />
+        ) : (
+          <>
+            {/* Footer stats — absolute bottom, zero gap */}
+            <div className="text-primary-foreground absolute inset-x-0 bottom-0 z-10 flex items-center justify-between bg-zinc-950/90 py-2">
+              {contest?.isMoneyContest && (
+                <div className="border-primary flex h-12 flex-1 flex-col items-center justify-center border-r px-1">
+                  <p className="font-semibold">
+                    {formatPrizeRange(contest?.minPrize, contest?.maxPrize)}
+                  </p>
+                  <p className="text-xs">Prizes</p>
+                </div>
+              )}
+
+              <div className="border-primary flex h-12 flex-[1.3] flex-col items-center justify-center border-r px-1 text-sm">
+                {formatDateToDayMonYear(contest?.endDate)}
+              </div>
+
+              {/* POTY votes come from regular contests - the in-contest total is always 0. */}
+              {!contest?.isPhotographyOfYear && (
+                <div className="flex h-12 flex-1 flex-col items-center justify-center px-1">
+                  <p className="font-semibold">{contest?.totalVotes}</p>
+                  <p className="text-xs">Votes</p>
+                </div>
+              )}
             </div>
-          )}
-
-          <div className="border-primary flex h-12 flex-[1.3] flex-col items-center justify-center border-r px-1 text-sm">
-            {formatDateToDayMonYear(contest?.endDate)}
-          </div>
-
-          <div className="flex h-12 flex-1 flex-col items-center justify-center px-1">
-            <p className="font-semibold">{contest?.totalVotes}</p>
-            <p className="text-xs">Votes</p>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </div>
   );

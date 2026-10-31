@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { MdOutlineHowToVote } from 'react-icons/md';
 import SafeBannerImage from '@/components/SafeBannerImage';
+import PotyBadge from '../PotyBadge';
 
 const achievementIconMap: Record<string, string> = {
   TOP_PHOTOGRAPHER: '/icons/top-photographer-v2.png',
@@ -170,9 +171,12 @@ const CompletedContestCard = ({ contest }: { contest: any }) => {
 
         <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/85 via-black/10 to-transparent" />
 
-        <span className="bg-primary text-primary-foreground absolute top-3 left-3 rounded-full px-3 py-1 text-[10px] font-bold tracking-wider uppercase shadow-sm">
-          Completed
-        </span>
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+          <span className="bg-primary text-primary-foreground w-fit rounded-full px-3 py-1 text-[10px] font-bold tracking-wider uppercase shadow-sm">
+            Completed
+          </span>
+          {contest?.isPhotographyOfYear && <PotyBadge />}
+        </div>
 
         {/* Uploader credit — top right of the banner, only shown when the admin
             picked an existing user submission as the banner image. A nested <a> isn't

@@ -48,6 +48,7 @@ const UpcomingContest = ({
     : publicQuery;
   const upcomingResult = (data as any)?.data ?? EMPTY_CONTESTS;
   const hasMore = Boolean((data as any)?.meta?.hasNextPage);
+  const regularContests = allContests.filter((contest) => !contest?.isPhotographyOfYear);
 
   // Accumulate contests as pages load
   useEffect(() => {
@@ -94,13 +95,13 @@ const UpcomingContest = ({
             </div>
             <Button onClick={() => void refetch()}>Retry</Button>
           </div>
-        ) : allContests.length <= 0 ? (
+        ) : regularContests.length <= 0 && !hasMore ? (
           <div className="col-span-full flex w-full flex-col items-center justify-center py-20">
             <Image alt="" src="/images/no-result-found.webp" width={400} height={400} />
             <p>No Data Found!</p>
           </div>
         ) : (
-          allContests?.map((contest: any, index: number) => (
+          regularContests.map((contest: any, index: number) => (
             <UpcomingContestCard key={index} contest={contest} refetch={refetch} />
           ))
         )}

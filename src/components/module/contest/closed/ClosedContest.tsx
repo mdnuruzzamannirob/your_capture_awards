@@ -22,6 +22,7 @@ const EMPTY_CONTESTS: any[] = [];
 const ClosedContest = ({ isAuthenticated: propIsAuthenticated = false }: ClosedContestProps) => {
   const [page, setPage] = useState(1);
   const [allContests, setAllContests] = useState<any[]>([]);
+  const regularContests = allContests.filter((contest) => !contest?.isPhotographyOfYear);
 
   // Use client-side auth as source of truth (synchronous, no hydration delay)
   const { isAuthenticated: clientIsAuthenticated } = useAuth();
@@ -91,13 +92,13 @@ const ClosedContest = ({ isAuthenticated: propIsAuthenticated = false }: ClosedC
             </div>
             <Button onClick={() => void refetch()}>Retry</Button>
           </div>
-        ) : allContests.length <= 0 ? (
+        ) : regularContests.length <= 0 && !hasMore ? (
           <div className="col-span-full flex w-full flex-col items-center justify-center py-20">
             <Image alt="" src="/images/no-result-found.webp" width={400} height={400} />
             <p>No Data Found!</p>
           </div>
         ) : (
-          allContests?.map((contest: any, index: number) => (
+          regularContests.map((contest: any, index: number) => (
             <ClosedContestCard key={index} contest={contest} />
           ))
         )}
