@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useGetPhotographyOfTheYearContestsQuery } from '@/store/apis/contestApi';
 import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import { formatMoney } from '@/utils/formatMoney';
+import { htmlToPlainText } from '@/utils/htmlToPlainText';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -165,7 +166,8 @@ export default function PhotographerOfTheYearContestsPage() {
                   </div>
 
                   <p className="text-muted-foreground line-clamp-3 min-h-[4.5rem] text-sm leading-6">
-                    {contest.description || 'See contest details, rules, and current rankings.'}
+                    {htmlToPlainText(contest.description ?? '') ||
+                      'See contest details, rules, and current rankings.'}
                   </p>
 
                   <Button asChild className="mt-auto w-full">

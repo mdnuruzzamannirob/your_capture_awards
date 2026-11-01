@@ -28,7 +28,7 @@ import RulesTab from './RulesTab';
 import WinnersTab from './WinnersTab';
 
 const ContestDetails = ({ id }: { id: string }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isHydrated } = useAuth();
   const publicContestQuery = useGetPublicContestQuery({ id }, { skip: isAuthenticated });
   const privateContestQuery = useGetContestQuery({ id }, { skip: !isAuthenticated });
   const { data: contestData, isLoading: contestLoading } = isAuthenticated
@@ -90,12 +90,13 @@ const ContestDetails = ({ id }: { id: string }) => {
     contestRefetchRef.current = contestRefetch;
   }, [contestRefetch]);
 
-  // Auto-open join modal if redirected from login
+  // Auto-open join modal if redirected from login. Wait for hydration: until then
+  // useAuth reports signed out, and the modal would send a signed-in user to /signin.
+  // `remaining` is 0 until the contest has loaded, which is also when the modal mounts.
+  const shouldAutoOpenJoin = modalParam === 'join' && isHydrated && remaining > 0;
   useEffect(() => {
-    if (modalParam === 'join' && uploadModalRef.current) {
-      uploadModalRef.current.open();
-    }
-  }, [modalParam]);
+    if (shouldAutoOpenJoin) uploadModalRef.current?.open();
+  }, [shouldAutoOpenJoin]);
 
   useEffect(() => {
     if (paymentToastShownRef.current) return;
