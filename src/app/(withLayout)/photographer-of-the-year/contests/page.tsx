@@ -100,7 +100,7 @@ export default function PhotographerOfTheYearContestsPage() {
         ) : (
           contests.map((contest: any) => {
             const isActive = contest.status === 'ACTIVE';
-            const href = isActive ? `/contest/${contest.id}?modal=join` : `/contest/${contest.id}`;
+            const href = isActive ? `/contest/${contest.id}` : `/contest/${contest.id}`;
             const entryFee = getContestEntryFeeAmount(contest);
             const statusText = statusLabel[contest.status] ?? contest.status;
 
