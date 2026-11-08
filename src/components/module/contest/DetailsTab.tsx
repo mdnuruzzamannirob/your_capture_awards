@@ -34,19 +34,15 @@ const DetailsTab = ({ contest, value }: { contest: any; value: string }) => {
       <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center lg:gap-3">
         {contest?.isPhotographyOfYear ? (
           // POTY has no votes of its own; its headline is the winners' prize pool.
+          // Only the amount is shown, not how it is split from the entry fees.
           <div className="flex flex-1 items-center gap-3">
             <MdOutlinePaid className="text-primary size-8 lg:size-10" />
-            <div>
-              <p className="flex items-center gap-2 whitespace-nowrap uppercase">
-                <span className="text-lg font-semibold">
-                  {formatMoney(Number(contest?.potyPrizePool?.prizePool ?? 0), entryCurrency)}
-                </span>{' '}
-                Prize pool
-              </p>
-              <p className="text-muted-foreground text-xs">
-                {contest?.potyPrizePool?.sharePercent ?? 60}% of entry fees, shared by the 1st, 2nd and 3rd place winners
-              </p>
-            </div>
+            <p className="flex items-center gap-2 whitespace-nowrap uppercase">
+              <span className="text-lg font-semibold">
+                {formatMoney(Number(contest?.potyPrizePool?.prizePool ?? 0), entryCurrency)}
+              </span>{' '}
+              Prize pool
+            </p>
           </div>
         ) : (
           <p className="flex flex-1 items-center gap-3 whitespace-nowrap uppercase">
