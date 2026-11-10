@@ -1,6 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
+
+// Measure before paint in the browser (no flash of a layout built for the
+// wrong width); plain useEffect during server rendering, where layout effects warn.
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 // Global cache for image aspect ratios to avoid recalculating or reloading
 const aspectCache = new Map<string, number>();
@@ -32,17 +36,33 @@ export function useJustifiedLayout<
   }, []);
 
   // 1. Measure width and set up ResizeObserver whenever the element changes
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!containerEl) return;
 
+    // A grid that scrolls inside its own box (e.g. the photo pickers in the
+    // upload and vote dialogs) must not change width when its scrollbar
+    // appears. Otherwise: rows get taller -> scrollbar appears -> width shrinks
+    // -> rows are recalculated and get shorter -> scrollbar disappears -> width
+    // grows -> ... and the grid (and its dialog) shakes. Reserving the
+    // scrollbar's space keeps the measured width constant. Grids that do not
+    // scroll themselves (the page scrolls) are left as they are.
+    const { overflowY } = window.getComputedStyle(containerEl);
+    if (overflowY === 'auto' || overflowY === 'scroll') {
+      containerEl.style.scrollbarGutter = 'stable';
+    }
+
+    const setWidth = (w: number) => {
+      // Whole pixels only: sub-pixel jitter must not re-flow the rows.
+      const rounded = Math.floor(w);
+      if (rounded > 0) setContainerWidth((prev) => (prev === rounded ? prev : rounded));
+    };
+
     const measure = () => {
-      const w =
+      setWidth(
         containerEl.clientWidth ||
-        containerEl.getBoundingClientRect().width ||
-        containerEl.offsetWidth;
-      if (w > 0) {
-        setContainerWidth(w);
-      }
+          containerEl.getBoundingClientRect().width ||
+          containerEl.offsetWidth,
+      );
     };
 
     // Measure immediately
@@ -52,8 +72,7 @@ export function useJustifiedLayout<
     const observer = new ResizeObserver((entries) => {
       if (entries[0]) {
         // Use clientWidth to ensure scrollbars are excluded, fallback to contentRect
-        const w = containerEl.clientWidth || entries[0].contentRect.width;
-        if (w > 0) setContainerWidth(w);
+        setWidth(containerEl.clientWidth || entries[0].contentRect.width);
       }
     });
     observer.observe(containerEl);
@@ -96,6 +115,17 @@ export function useJustifiedLayout<
     return 1.4;
   }, []);
 
+  // Callers often pass a fresh array on every render. Load image sizes only
+  // when the set of images actually changes, not on every render.
+  const imageKey = useMemo(
+    () =>
+      (items ?? [])
+        .filter((item) => !item.isUploadCard)
+        .map((item) => item.url || item.src || '')
+        .join('|'),
+    [items],
+  );
+
   // 2. Asynchronously load exact aspect ratios for real images
   useEffect(() => {
     if (!items || items.length === 0) return;
@@ -134,7 +164,9 @@ export function useJustifiedLayout<
     return () => {
       active = false;
     };
-  }, [items]);
+    // `items` is read for its URLs only; imageKey changes exactly when they do.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageKey]);
 
   // 3. Partition items into justified rows
   const rows = useMemo(() => {

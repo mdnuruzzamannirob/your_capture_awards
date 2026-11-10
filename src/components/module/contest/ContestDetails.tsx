@@ -15,6 +15,7 @@ import {
 } from '@/store/apis/contestApi';
 import getContestTabs from '@/utils/getContestTabs';
 import { formatMoney } from '@/utils/formatMoney';
+import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 // Use native <img> for banner to avoid Next/Image SSR hydration attribute mismatch
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -59,6 +60,10 @@ const ContestDetails = ({ id }: { id: string }) => {
   const [failedBannerSrc, setFailedBannerSrc] = useState<string | null>(null);
 
   const isJoined = Boolean(contest?.joined);
+  // Photographer of the Year takes registrations and entries while scheduled;
+  // its votes only count from the start date.
+  const isEarlyRegistration = Boolean(contest?.isPhotographyOfYear) && contest?.status === 'UPCOMING';
+  const acceptsEntries = contest?.status === 'ACTIVE' || isEarlyRegistration;
 
   const maxUploads: number = contest?.maxUploads ?? contest?.maxUpload ?? 0;
   const uploadedCount = contest?.uploadCount ?? 0;
@@ -84,6 +89,14 @@ const ContestDetails = ({ id }: { id: string }) => {
   const uploadModalRef = useRef<UploadModalRef>(null);
   const voteModalRef = useRef<VoteModalRef>(null);
   const paymentToastShownRef = useRef(false);
+
+  // Photographer of the Year registers first (pay, or register for free) and
+  // adds photos afterwards. Once the page confirms the user has joined, the
+  // upload dialog opens on its own; it can be closed and reopened later with
+  // "Submit Photo". Set after a free registration, after a confirmed payment
+  // (?modal=upload on the Stripe return URL), or when sent here with ?modal=upload.
+  const [pendingUploadOpen, setPendingUploadOpen] = useState(false);
+  const openUploadAfterPaymentRef = useRef(modalParam === 'upload');
   const contestRefetchRef = useRef(contestRefetch);
 
   useEffect(() => {
@@ -115,6 +128,7 @@ const ContestDetails = ({ id }: { id: string }) => {
 
           if (Boolean(result.data?.data?.joined)) {
             toast.success('Payment confirmed. You can now submit photos.', { id: toastId });
+            if (openUploadAfterPaymentRef.current) setPendingUploadOpen(true);
             router.replace(`/contest/${id}`);
             return;
           }
@@ -145,6 +159,20 @@ const ContestDetails = ({ id }: { id: string }) => {
       router.replace(`/contest/${id}`);
     }
   }, [id, paymentParam, router]);
+
+  // Sent here to add photos (e.g. after registering from a contest list card).
+  useEffect(() => {
+    if (modalParam !== 'upload' || paymentParam || !isHydrated) return;
+    setPendingUploadOpen(true);
+    router.replace(`/contest/${id}`);
+  }, [id, isHydrated, modalParam, paymentParam, router]);
+
+  // Open the upload dialog once the joined state has loaded.
+  useEffect(() => {
+    if (!pendingUploadOpen || !isJoined) return;
+    setPendingUploadOpen(false);
+    if (remaining > 0) uploadModalRef.current?.open();
+  }, [pendingUploadOpen, isJoined, remaining]);
 
   if (contestLoading || !contest || Object.keys(contest).length === 0) {
     return <div className="flex items-center justify-center py-20 text-lg">Loading contest...</div>;
@@ -231,7 +259,14 @@ const ContestDetails = ({ id }: { id: string }) => {
                 className="mt-3 space-y-1"
               />
 
-              {contest.status === 'ACTIVE' && (
+              {isEarlyRegistration && (
+                <p className="bg-background/40 mx-auto mt-3 w-fit max-w-md rounded-md px-3 py-1.5 text-sm backdrop-blur-sm">
+                  Registration is open. Votes your photos earn count from{' '}
+                  <strong>{formatDateToDayMonYear(contest.startDate)}</strong>.
+                </p>
+              )}
+
+              {acceptsEntries && (
                 <div className="mt-5 flex items-center justify-center gap-5">
                   {!isMounted || contestLoading ? (
                     buttonSkeleton
@@ -244,7 +279,7 @@ const ContestDetails = ({ id }: { id: string }) => {
                             onClick={() => uploadModalRef.current?.open()}
                             className="bg-background/20 text-foreground border-foreground hover:bg-surface-secondary w-full rounded-md border p-3 text-xl font-medium shadow transition"
                           >
-                            {isJoined ? 'Submit Photo' : 'JOIN'}
+                            {isJoined ? 'Submit Photo' : contest?.isPhotographyOfYear ? 'REGISTER' : 'JOIN'}
                           </button>
 
                           {/* Coin badge — only when not joined and coin required */}
@@ -280,6 +315,10 @@ const ContestDetails = ({ id }: { id: string }) => {
                   <UploadModal
                     ref={uploadModalRef}
                     type={isJoined ? 'upload' : 'join'}
+                    onRegistered={() => {
+                      setPendingUploadOpen(true);
+                      void contestRefetchRef.current();
+                    }}
                     contest={contest}
                     contestType={contest?.type}
                     title={contest?.title}

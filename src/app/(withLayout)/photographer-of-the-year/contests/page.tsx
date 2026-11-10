@@ -25,7 +25,7 @@ const EMPTY_CONTESTS: any[] = [];
 
 const statusLabel: Record<string, string> = {
   ACTIVE: 'Open for entries',
-  UPCOMING: 'Coming soon',
+  UPCOMING: 'Registration open',
   CLOSED: 'Closed',
   COMPLETED: 'Completed',
 };
@@ -100,6 +100,9 @@ export default function PhotographerOfTheYearContestsPage() {
         ) : (
           contests.map((contest: any) => {
             const isActive = contest.status === 'ACTIVE';
+            // Registration opens as soon as a contest is scheduled; votes only
+            // count from the start date.
+            const isRegistrationOpen = contest.status === 'UPCOMING';
             const href = isActive ? `/contest/${contest.id}` : `/contest/${contest.id}`;
             const entryFee = getContestEntryFeeAmount(contest);
             const statusText = statusLabel[contest.status] ?? contest.status;
@@ -128,7 +131,11 @@ export default function PhotographerOfTheYearContestsPage() {
                   <div className="absolute right-4 bottom-4 left-4">
                     <p className="flex items-center gap-1.5 text-xs font-medium text-white/65">
                       <Clock3 className="size-3.5" />
-                      {isActive ? 'Accepting entries now' : 'Contest overview'}
+                      {isActive
+                        ? 'Accepting entries now'
+                        : isRegistrationOpen
+                          ? `Registration open · votes count from ${formatDateToDayMonYear(contest.startDate)}`
+                          : 'Contest overview'}
                     </p>
                     <h2 className="mt-1 line-clamp-2 text-xl leading-tight font-semibold text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.8)]">
                       {contest.title}
@@ -172,7 +179,7 @@ export default function PhotographerOfTheYearContestsPage() {
 
                   <Button asChild className="mt-auto w-full">
                     <Link href={href}>
-                      {isActive ? 'Join contest' : 'View contest'}
+                      {isActive ? 'Join contest' : isRegistrationOpen ? 'Register now' : 'View contest'}
                       <ArrowUpRight className="size-4" />
                     </Link>
                   </Button>

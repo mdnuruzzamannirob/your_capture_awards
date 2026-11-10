@@ -7,6 +7,7 @@ import { useJustifiedLayout } from '@/hooks/useJustifiedLayout';
 import { useStoreModal } from '@/providers/StoreModalProvider';
 import {
   useCreateContestEntryCheckoutMutation,
+  useJoinPhotographyOfTheYearMutation,
   useCreatePhotoToContestMutation,
   useLazyGetUserPhotosQuery,
 } from '@/store/apis/contestApi';
@@ -129,6 +130,12 @@ interface UploadModalProps {
   successMessage?: string;
   redirectOnJoinSuccess?: boolean;
   onSuccess?: () => void;
+  /**
+   * Photographer of the Year registers without choosing photos. Called after a
+   * free registration so the page can open the upload dialog. Without it the
+   * user is taken to the contest page, which opens the dialog itself.
+   */
+  onRegistered?: () => void;
   onSubmit?: (payload: UploadModalPayload) => Promise<void>;
   onUpload?: (data: {
     source: UploadSource;
@@ -171,7 +178,7 @@ function ProfilePhotoJustifiedPicker({
   emptyMessage?: string;
 }) {
   const { containerRef, rows } = useJustifiedLayout({
-    items: photos.map((p) => ({ ...p })),
+    items: photos,
     targetHeight: 150,
     gap: 2,
   });
@@ -296,6 +303,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
       successMessage,
       redirectOnJoinSuccess = true,
       onSuccess,
+      onRegistered,
       onSubmit,
       onUpload,
     },
@@ -309,6 +317,7 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const [uploadModal, setUploadModal] = useState(false);
     const [showCoinConfirm, setShowCoinConfirm] = useState(false);
     const [showMoneyConfirm, setShowMoneyConfirm] = useState(false);
+    const [showRegisterConfirm, setShowRegisterConfirm] = useState(false);
     const [acceptedPaidJoinRules, setAcceptedPaidJoinRules] = useState(false);
     const [uploadSource, setUploadSource] = useState<UploadSource | null>(null);
     const [file, setFile] = useState<File | null>(null);
@@ -327,6 +336,8 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const [createPhotoToContest, { isLoading }] = useCreatePhotoToContestMutation();
     const [createContestEntryCheckout, { isLoading: isEntryCheckoutLoading }] =
       useCreateContestEntryCheckoutMutation();
+    const [joinPhotographyOfTheYear, { isLoading: isRegistering }] =
+      useJoinPhotographyOfTheYearMutation();
     const [isCustomSubmitting, setIsCustomSubmitting] = useState(false);
     const [trigger, { data, isLoading: isPhotosLoading }] = useLazyGetUserPhotosQuery();
     const photos = (Array.isArray(data?.data) ? data.data : (data?.data?.data ?? [])) as {
@@ -345,6 +356,9 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
     const entryCurrency = contest?.currency ?? 'USD';
     const entryFeeAmount = getContestEntryFeeAmount(contest);
     const hasMoneyEntryFee = entryFeeAmount > 0;
+    // Photographer of the Year: joining is a registration (pay, or register for
+    // free) with no photos; entries are added afterwards in the upload dialog.
+    const isPotyRegistration = type === 'join' && Boolean(contest?.isPhotographyOfYear);
     const submissionFormat = useMemo(() => getSubmissionFormat(contest), [contest]);
     const requiredPaidJoinRuleKeys = useMemo(
       () => getRequiredPaidJoinRuleKeys(contest),
@@ -389,6 +403,13 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         if (!isAuthenticated && type === 'join') {
           const returnUrl = `/contest/${contestId}?modal=join`;
           router.push(`/signin?returnTo=${encodeURIComponent(returnUrl)}`);
+          return;
+        }
+
+        if (isPotyRegistration && !hasMoneyEntryFee) {
+          if (isRegistering) return;
+          setAcceptedPaidJoinRules(false);
+          setShowRegisterConfirm(true);
           return;
         }
 
@@ -624,7 +645,11 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         const origin = window.location.origin;
         const response = await createContestEntryCheckout({
           contestId,
-          success_url: `${origin}/contest/${contestId}?payment=success&modal=joinSuccess&contestTitle=${encodeURIComponent(title)}`,
+          // POTY comes back to the contest page and opens the upload dialog
+          // (photos are added after paying); other contests keep their flow.
+          success_url: contest?.isPhotographyOfYear
+            ? `${origin}/contest/${contestId}?payment=success&modal=upload`
+            : `${origin}/contest/${contestId}?payment=success&modal=joinSuccess&contestTitle=${encodeURIComponent(title)}`,
           cancel_url: `${origin}/contest/${contestId}?payment=cancelled`,
           acceptedRuleKeys: acceptedPaidJoinRules ? requiredPaidJoinRuleKeys : [],
         }).unwrap();
@@ -638,9 +663,35 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         toast.success(response.data?.message || response.message || 'You joined the contest.');
         setShowMoneyConfirm(false);
         onSuccess?.();
-        window.location.assign(`/contest/${contestId}?payment=success`);
+        window.location.assign(
+          `/contest/${contestId}?payment=success${contest?.isPhotographyOfYear ? '&modal=upload' : ''}`,
+        );
       } catch (error) {
         toast.error(getApiErrorMessage(error, 'Unable to start contest entry payment.'));
+      }
+    };
+
+    // Free Photographer of the Year registration (no photos needed yet).
+    const handleFreeRegistration = async () => {
+      if (requiredPaidJoinRuleKeys.length > 0 && !acceptedPaidJoinRules) {
+        toast.error('Please accept the contest rules to register.');
+        return;
+      }
+      try {
+        await joinPhotographyOfTheYear({
+          contestId,
+          acceptedRuleKeys: acceptedPaidJoinRules ? requiredPaidJoinRuleKeys : [],
+        }).unwrap();
+        toast.success("You're registered. Add your photos now or any time before the contest ends.");
+        setShowRegisterConfirm(false);
+        setAcceptedPaidJoinRules(false);
+        if (onRegistered) {
+          onRegistered();
+        } else {
+          router.push(`/contest/${contestId}?modal=upload`);
+        }
+      } catch (error) {
+        toast.error(getApiErrorMessage(error, 'Unable to register for this contest.'));
       }
     };
 
@@ -927,6 +978,73 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
         </Dialog>
 
         <Dialog
+          open={showRegisterConfirm}
+          onOpenChange={(open) => {
+            if (isRegistering) return;
+            setShowRegisterConfirm(open);
+            if (!open) setAcceptedPaidJoinRules(false);
+          }}
+        >
+          <DialogContent className="border-border max-w-sm space-y-6 border-2 p-6 text-center">
+            <div className="flex flex-col items-center justify-center gap-3">
+              <div className="bg-primary/10 text-primary border-primary/20 flex h-14 w-14 items-center justify-center rounded-full border text-xl font-bold shadow-inner">
+                ✓
+              </div>
+              <DialogTitle className="text-foreground text-xl font-bold uppercase">
+                Register for free
+              </DialogTitle>
+            </div>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Register for <span className="text-foreground font-semibold">{title}</span>. You can
+              add up to <span className="text-primary font-bold">{maxUploads}</span> photos right
+              after, or any time before the contest ends.
+            </p>
+            {requiredPaidJoinRuleKeys.length > 0 && (
+              <label className="border-border-subtle bg-surface-secondary flex cursor-pointer items-start gap-3 rounded-md border p-3 text-left text-sm">
+                <input
+                  type="checkbox"
+                  checked={acceptedPaidJoinRules}
+                  onChange={(event) => setAcceptedPaidJoinRules(event.target.checked)}
+                  className="mt-0.5 size-4 accent-current"
+                />
+                <span>
+                  I have read and accept the contest eligibility, copyright, and participation
+                  rules.
+                </span>
+              </label>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                setShowRegisterConfirm(false);
+                router.push(`/contest/${contestId}?tab=rules`);
+              }}
+              className="text-primary text-sm underline underline-offset-4"
+            >
+              Review contest rules
+            </button>
+            <div className="flex items-center justify-center gap-4 pt-2">
+              <button
+                onClick={() => setShowRegisterConfirm(false)}
+                disabled={isRegistering}
+                className="border-primary text-primary hover:bg-primary/5 w-full rounded-md border py-2.5 text-sm font-medium transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleFreeRegistration}
+                disabled={
+                  isRegistering || (requiredPaidJoinRuleKeys.length > 0 && !acceptedPaidJoinRules)
+                }
+                className="bg-primary text-primary-foreground hover:bg-primary/95 w-full rounded-md py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isRegistering ? 'Registering...' : 'Register'}
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog
           open={showMoneyConfirm}
           onOpenChange={(open) => {
             setShowMoneyConfirm(open);
@@ -948,6 +1066,9 @@ const UploadModal = forwardRef<UploadModalRef, UploadModalProps>(
                 {formatMoney(entryFeeAmount, entryCurrency)}
               </span>{' '}
               payment through Stripe
+              {contest?.isPhotographyOfYear
+                ? '. You can add your photos right after paying, or any time before the contest ends'
+                : ''}
               {requiredCoins > 0 ? (
                 <>
                   {' '}

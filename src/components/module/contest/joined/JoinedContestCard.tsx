@@ -1,6 +1,7 @@
 'use client';
 
 import CountdownTimer from '@/components/CountdownTimer';
+import { formatDateToDayMonYear } from '@/utils/formatDateToDayMonYear';
 import ContestCorner from '../ContestCorner';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import VoteModal, { VoteModalRef } from '@/components/VoteModal';
@@ -546,7 +547,11 @@ const JoinedContestCard = ({
                 icon={<Vote className="size-3" />}
                 label="Votes"
                 value={(potyEntry?.totalVotes ?? 0).toLocaleString()}
-                hint="weighted total"
+                hint={
+                  potyEntry?.votingOpen === false && potyEntry.votingStartsAt
+                    ? `count from ${formatDateToDayMonYear(potyEntry.votingStartsAt)}`
+                    : 'weighted total'
+                }
               />
               <PotyStat
                 icon={<Trophy className="size-3" />}
@@ -554,7 +559,11 @@ const JoinedContestCard = ({
                 value={
                   potyEntry?.rank ? <span className="text-primary">#{potyEntry.rank}</span> : '-'
                 }
-                hint={`of ${(potyEntry?.totalPhotographers ?? 0).toLocaleString()}`}
+                hint={
+                  potyEntry?.votingOpen === false
+                    ? 'once voting opens'
+                    : `of ${(potyEntry?.totalPhotographers ?? 0).toLocaleString()}`
+                }
               />
               <PotyStat
                 icon={<Images className="size-3" />}

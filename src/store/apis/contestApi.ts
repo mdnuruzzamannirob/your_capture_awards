@@ -76,10 +76,13 @@ export const contestApi = createApi({
       {
         data: {
           joined: boolean;
+          /** False until the start date: entries are in but nothing is scored yet. */
+          votingOpen?: boolean;
+          votingStartsAt?: string | null;
           rank: number | null;
           totalPhotographers: number;
           totalVotes: number;
-          photos: { contestPhotoId: string; userPhotoId: string; voteCount: number; rank: number }[];
+          photos: { contestPhotoId: string; userPhotoId: string; voteCount: number; rank: number | null }[];
         };
       },
       { contestId: string }
@@ -339,6 +342,24 @@ export const contestApi = createApi({
       ],
     }),
 
+    // Free Photographer of the Year registration: joins without submitting a
+    // photo. Entries are added afterwards, any time before the contest ends.
+    joinPhotographyOfTheYear: builder.mutation<
+      { success: boolean; message: string; data?: { contest_id: string; participant_id: string } },
+      { contestId: string; acceptedRuleKeys?: string[] }
+    >({
+      query: ({ contestId, acceptedRuleKeys }) => ({
+        url: `/photographer-of-the-year/${contestId}/join`,
+        method: 'POST',
+        body: { acceptedRuleKeys: acceptedRuleKeys ?? [] },
+      }),
+      invalidatesTags: (result, error, { contestId }) => [
+        { type: 'Contest', id: contestId },
+        { type: 'JoinedContests', id: 'LIST' },
+        { type: 'PublicContests', id: 'LIST' },
+        { type: 'PrivateContests', id: 'LIST' },
+      ],
+    }),
     createContestEntryCheckout: builder.mutation<
       { success: boolean; message: string; data?: { url?: string; message?: string } },
       ContestEntryCheckoutPayload
@@ -456,6 +477,7 @@ export const {
   useGetVoteCountsQuery,
   useCreateVoteMutation,
   useCreateContestEntryCheckoutMutation,
+  useJoinPhotographyOfTheYearMutation,
   usePromoteContestPhotoMutation,
   useTradeContestPhotoMutation,
   useChargeContestExposureMutation,
