@@ -32,7 +32,8 @@ const statusLabel: Record<string, string> = {
 
 const statusStyles: Record<string, string> = {
   ACTIVE: 'bg-success/12 text-success border-success/25',
-  UPCOMING: 'bg-info/12 text-info border-info/25',
+  // Primary on a dark backing so it stays readable over any banner photo.
+  UPCOMING: 'bg-black/60 text-primary border-primary/60',
   CLOSED: 'bg-muted text-muted-foreground border-border',
   COMPLETED: 'bg-muted text-muted-foreground border-border',
 };
