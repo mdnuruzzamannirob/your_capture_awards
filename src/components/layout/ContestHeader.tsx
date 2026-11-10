@@ -24,7 +24,12 @@ const ContestHeader = () => {
     { skip: !contestId || !isAuthenticated },
   );
   const contestQuery = isAuthenticated ? privateContestQuery : publicContestQuery;
-  const isPhotographyOfYear = Boolean(contestQuery.data?.data?.isPhotographyOfYear);
+  // `currentData`, not `data`: when the query is skipped (list pages such as
+  // /contest/joined) or switches to another contest, RTK Query keeps returning
+  // the previous result in `data`. Reading `data` here hid this header on the
+  // list pages after leaving a Photographer of the Year contest, until a reload.
+  const currentContest = contestId ? contestQuery.currentData?.data : undefined;
+  const isPhotographyOfYear = Boolean(currentContest?.isPhotographyOfYear);
 
   const tabs = useMemo(() => {
     const baseTabs = [
@@ -43,7 +48,10 @@ const ContestHeader = () => {
 
   const [mounted, setMounted] = useState(false);
   useLayoutEffect(() => setMounted(true), []);
-  if (!mounted || isPhotographyOfYear || (contestId && contestQuery.isLoading)) return null;
+  // On a contest page, wait until that contest has loaded so the header does
+  // not flash in before a Photographer of the Year contest hides it.
+  const waitingForContest = Boolean(contestId) && !currentContest && contestQuery.isFetching;
+  if (!mounted || isPhotographyOfYear || waitingForContest) return null;
 
   return (
     <header className="bg-background border-border fixed top-[59.45px] right-0 left-0 z-50 border-b">
