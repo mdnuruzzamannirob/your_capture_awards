@@ -395,7 +395,7 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
       {/* Profile Header Bar
           Layout rules (so long names / team names / big numbers never break it):
           - Identity block grows and may shrink (min-w-0); text truncates or clamps.
-          - Actions block (follow, votes, tabs) wraps onto its own line when the row
+          - Actions block (votes, tabs) wraps onto its own line when the row
             runs out of room instead of overlapping or squeezing the identity.
           - grow-[9999] vs grow: on a shared line the identity takes the spare space;
             once the actions wrap, they stretch to the full width. */}
@@ -403,7 +403,7 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
         <div className="container py-3">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
             {/* Identity: Avatar + Name / Location / Team */}
-            <div className="flex min-w-0 grow-[9999] basis-72 items-center gap-3 sm:gap-4">
+            <div className="flex min-w-0 grow-[9999] basis-[28rem] items-center gap-3 sm:gap-4">
               {/* Avatar */}
               <div className="relative -mt-14 shrink-0 sm:-mt-20">
                 {isLoading && !profile ? (
@@ -438,7 +438,7 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                   <div className="bg-surface-secondary h-4 w-48 max-w-full animate-pulse rounded" />
                 </div>
               ) : (
-                <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <div className="flex min-w-0 flex-col gap-1.5">
                   <h1
                     title={fullName}
                     className="text-foreground line-clamp-2 text-base leading-tight font-bold tracking-tight [overflow-wrap:anywhere] sm:text-lg"
@@ -494,21 +494,19 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                   )}
                 </div>
               )}
-            </div>
 
-            {/* Actions: Follow + Votes + Tabs */}
-            <div className="flex min-w-0 grow flex-wrap items-center gap-3">
-              {/* Follow Button — public profile only */}
+              {/* Follow Button — public profile only, sits right next to the name block.
+                  The name block shrinks (min-w-0) so the button is never pushed out. */}
               {!isCurrentUserProfile &&
                 (isLoading && !profile ? (
-                  <div className="bg-surface-secondary h-9 w-24 shrink-0 animate-pulse rounded-sm" />
+                  <div className="bg-surface-secondary h-8 w-24 shrink-0 animate-pulse rounded-sm" />
                 ) : (
                   <button
                     type="button"
                     onClick={handleToggleFollow}
                     disabled={isFollowToggling}
                     className={cn(
-                      'inline-flex h-9 min-w-24 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-sm px-5 text-xs font-semibold transition select-none disabled:cursor-wait disabled:opacity-80',
+                      'inline-flex h-8 min-w-24 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-sm px-4 text-xs font-semibold transition select-none disabled:cursor-wait disabled:opacity-80',
                       isFollowing
                         ? 'bg-surface-secondary text-foreground hover:bg-surface-tertiary'
                         : 'bg-primary hover:bg-primary/90 text-primary-foreground',
@@ -523,7 +521,10 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                     )}
                   </button>
                 ))}
+            </div>
 
+            {/* Actions: Votes + Tabs */}
+            <div className="flex min-w-0 grow flex-wrap items-center gap-3">
               {/* Total votes received across all participated contests */}
               {isLoading && !stats ? (
                 <div className="border-warning-500/25 bg-warning-500/5 flex h-12 min-w-20 shrink-0 animate-pulse items-center justify-center rounded-full border px-5">
