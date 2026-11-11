@@ -38,6 +38,17 @@ type TabConfig = {
   value: number;
 };
 
+const compactNumber = new Intl.NumberFormat('en', {
+  notation: 'compact',
+  maximumFractionDigits: 1,
+});
+
+/** 9,999 stays as-is; 12,345 → 12.3K, 1,250,000 → 1.3M so badges keep a stable width. */
+function formatCount(value: number) {
+  const n = Number(value) || 0;
+  return Math.abs(n) < 10_000 ? n.toLocaleString() : compactNumber.format(n);
+}
+
 function TabButton({
   label,
   value,
@@ -53,14 +64,15 @@ function TabButton({
     <button
       type="button"
       onClick={onClick}
+      title={`${Number(value || 0).toLocaleString()} ${label}`}
       className={cn(
-        'relative flex h-full flex-1 cursor-pointer flex-col items-center justify-center px-5 transition duration-200 outline-none select-none',
+        'relative flex h-full min-w-[4.5rem] flex-[1_0_auto] cursor-pointer flex-col items-center justify-center px-3 transition duration-200 outline-none select-none sm:px-5',
         active
           ? 'bg-primary text-primary-foreground font-bold'
           : 'text-muted-foreground hover:bg-surface-secondary hover:text-foreground',
       )}
     >
-      <span className="text-sm leading-tight">{value.toLocaleString()}</span>
+      <span className="text-sm leading-tight tabular-nums">{formatCount(value)}</span>
       <span className="text-[10px] font-semibold tracking-wider whitespace-nowrap uppercase">
         {label}
       </span>
@@ -165,9 +177,12 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
     data: ownPhotosData,
     isLoading: isOwnPhotosLoading,
     isFetching: isOwnPhotosFetching,
-  } = useGetPhotosQuery({ page: photoPage, limit: 20 }, {
-    skip: !isOwn,
-  });
+  } = useGetPhotosQuery(
+    { page: photoPage, limit: 20 },
+    {
+      skip: !isOwn,
+    },
+  );
 
   // 2. Fetch Profile, Stats and Photos for Other User Profile
   const {
@@ -233,14 +248,14 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
     !isOwn &&
     Boolean(
       (currentUserId && userId === currentUserId) ||
-        (currentUsername && userId === currentUsername),
+      (currentUsername && userId === currentUsername),
     );
   const isCurrentUserProfile =
     isOwn ||
     isRouteCurrentUser ||
     Boolean(
       (currentUserId && profileUserId && currentUserId === profileUserId) ||
-        (currentUsername && profileUsername && currentUsername === profileUsername),
+      (currentUsername && profileUsername && currentUsername === profileUsername),
     );
 
   // Resolved joined team: for own profile from currentUser, for public from API data
@@ -377,22 +392,28 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
         <div className="from-background via-background/20 absolute inset-0 bg-linear-to-t to-transparent" />
       </section>
 
-      {/* Profile Header Bar */}
+      {/* Profile Header Bar
+          Layout rules (so long names / team names / big numbers never break it):
+          - Identity block grows and may shrink (min-w-0); text truncates or clamps.
+          - Actions block (follow, votes, tabs) wraps onto its own line when the row
+            runs out of room instead of overlapping or squeezing the identity.
+          - grow-[9999] vs grow: on a shared line the identity takes the spare space;
+            once the actions wrap, they stretch to the full width. */}
       <section className="border-border bg-surface/60 relative z-10 border-b backdrop-blur-md">
-        <div className="container py-2">
-          <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-center">
-            {/* Left/Center Group: Avatar, Info, Team, Follow Button */}
-            <div className="flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="container py-3">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            {/* Identity: Avatar + Name / Location / Team */}
+            <div className="flex min-w-0 grow-[9999] basis-72 items-center gap-3 sm:gap-4">
               {/* Avatar */}
-              <div className="relative -mt-20 shrink-0">
+              <div className="relative -mt-14 shrink-0 sm:-mt-20">
                 {isLoading && !profile ? (
-                  <div className="border-background bg-surface-secondary size-28 animate-pulse rounded-full border-4 sm:size-34" />
+                  <div className="border-background bg-surface-secondary size-24 animate-pulse rounded-full border-4 sm:size-34" />
                 ) : isOwn ? (
-                  <div className="group/avatar border-background bg-surface-secondary relative size-28 overflow-hidden rounded-full border-4 object-cover shadow-2xl sm:size-34">
+                  <div className="group/avatar border-background bg-surface-secondary relative size-24 overflow-hidden rounded-full border-4 object-cover shadow-2xl sm:size-34">
                     <AvatarDialog />
                   </div>
                 ) : (
-                  <div className="border-background bg-surface-secondary relative size-28 overflow-hidden rounded-full border-4 shadow-2xl sm:size-34">
+                  <div className="border-background bg-surface-secondary relative size-24 overflow-hidden rounded-full border-4 shadow-2xl sm:size-34">
                     {!avatarError && profile?.avatar ? (
                       <Image
                         src={profile.avatar}
@@ -409,112 +430,103 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col gap-2"></div>
-              {/* User Details Group */}
-              <div className="flex flex-wrap items-center gap-3 md:flex-nowrap">
-                {/* Name, Location, Votes stacked in Column */}
-                {isLoading && !profile ? (
-                  <div className="flex shrink-0 flex-col justify-center gap-2">
-                    <div className="bg-surface-secondary h-6 w-36 animate-pulse rounded" />
-                    <div className="bg-surface-secondary h-4 w-24 animate-pulse rounded" />
-                  </div>
-                ) : (
-                  <div className="flex shrink-0 flex-col justify-center">
-                    <h1 className="text-foreground mb-1.5 leading-tight font-bold tracking-tight sm:text-lg">
-                      {fullName}
-                    </h1>
-                    {(profile?.location || profile?.country) && (
-                      <div className="space-y-1">
-                        <span className="text-muted-foreground flex items-center gap-1.5 text-xs font-semibold">
-                          <MapPin className="text-muted-foreground size-3.5" />
-                          {profile?.location || profile?.country}
+
+              {/* Text details */}
+              {isLoading && !profile ? (
+                <div className="flex min-w-0 flex-col gap-2">
+                  <div className="bg-surface-secondary h-6 w-36 max-w-full animate-pulse rounded" />
+                  <div className="bg-surface-secondary h-4 w-48 max-w-full animate-pulse rounded" />
+                </div>
+              ) : (
+                <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <h1
+                    title={fullName}
+                    className="text-foreground line-clamp-2 text-base leading-tight font-bold tracking-tight [overflow-wrap:anywhere] sm:text-lg"
+                  >
+                    {fullName}
+                  </h1>
+
+                  {(profile?.location || profile?.country || joinedTeam?.team) && (
+                    <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
+                      {(profile?.location || profile?.country) && (
+                        <span
+                          title={profile?.location || profile?.country}
+                          className="text-muted-foreground flex max-w-full min-w-0 items-center gap-1.5 text-xs font-semibold"
+                        >
+                          <MapPin className="size-3.5 shrink-0" />
+                          <span className="truncate">{profile?.location || profile?.country}</span>
                         </span>
-                      </div>
-                    )}
-                  </div>
-                )}
+                      )}
 
-                {/* Vertical Divider 1 */}
-                {/* Team Group — from API joinedTeam, with conditional divider */}
-                {isLoading && !profile ? (
-                  <>
-                    <div className="bg-border hidden h-10 w-px shrink-0 self-center sm:block" />
-                    <div className="flex animate-pulse items-center gap-2.5">
-                      <div className="bg-surface-secondary size-10 rounded-full" />
-                      <div className="bg-surface-secondary h-4 w-20 rounded" />
+                      {(profile?.location || profile?.country) && joinedTeam?.team && (
+                        <span className="bg-border h-3.5 w-px shrink-0" aria-hidden />
+                      )}
+
+                      {joinedTeam?.team && (
+                        <a
+                          href={
+                            myTeamId && myTeamId === joinedTeam.team.id
+                              ? '/teams/home'
+                              : `/teams/${joinedTeam.team.id || joinedTeam.team.slug || ''}`
+                          }
+                          title={joinedTeam.team.name}
+                          className="group/team flex max-w-full min-w-0 cursor-pointer items-center gap-2 transition hover:opacity-80"
+                        >
+                          {joinedTeam.team.badge ? (
+                            <Image
+                              src={joinedTeam.team.badge}
+                              alt={joinedTeam.team.name}
+                              width={24}
+                              height={24}
+                              className="border-border bg-surface-secondary group-hover/team:border-border-strong size-6 shrink-0 rounded-full border object-cover transition"
+                            />
+                          ) : (
+                            <div className="border-border bg-surface-secondary text-foreground group-hover/team:border-border-strong flex size-6 shrink-0 items-center justify-center rounded-full border text-[9px] font-bold transition">
+                              {joinedTeam.team.name?.slice(0, 2).toUpperCase() || 'T'}
+                            </div>
+                          )}
+                          <span className="text-foreground truncate text-xs font-semibold">
+                            {joinedTeam.team.name}
+                          </span>
+                        </a>
+                      )}
                     </div>
-                  </>
-                ) : joinedTeam?.team ? (
-                  <>
-                    <div className="bg-border hidden h-10 w-px shrink-0 self-center sm:block" />
-                    <a
-                      href={
-                        myTeamId && myTeamId === joinedTeam.team.id
-                          ? '/teams/home'
-                          : `/teams/${joinedTeam.team.id || joinedTeam.team.slug || ''}`
-                      }
-                      className="group/team flex shrink-0 cursor-pointer items-center gap-2.5 self-center transition hover:opacity-80"
-                    >
-                      {joinedTeam.team.badge ? (
-                        <Image
-                          src={joinedTeam.team.badge}
-                          alt={joinedTeam.team.name}
-                          width={40}
-                          height={40}
-                          className="border-border bg-surface-secondary group-hover/team:border-border-strong size-10 rounded-full border object-cover transition"
-                        />
-                      ) : (
-                        <div className="border-border bg-surface-secondary text-foreground group-hover/team:border-border-strong flex size-10 items-center justify-center rounded-full border text-xs font-bold transition">
-                          {joinedTeam.team.name?.slice(0, 2).toUpperCase() || 'T'}
-                        </div>
-                      )}
-                      <span className="text-foreground group-hover/team:text-foreground text-sm font-semibold transition">
-                        {joinedTeam.team.name}
-                      </span>
-                    </a>
-                  </>
-                ) : null}
-
-                {/* Follow Button — public profile only, with conditional divider */}
-                {isLoading && !profile ? (
-                  !isCurrentUserProfile && (
-                    <>
-                      <div className="bg-border hidden h-10 w-px shrink-0 self-center sm:block" />
-                      <div className="bg-surface-secondary h-8 w-20 animate-pulse rounded" />
-                    </>
-                  )
-                ) : !isCurrentUserProfile ? (
-                  <>
-                    <div className="bg-surface-secondary/50 hidden h-10 w-px shrink-0 self-center sm:block" />
-                    <button
-                      type="button"
-                      onClick={handleToggleFollow}
-                      disabled={isFollowToggling}
-                      className={cn(
-                        'inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 self-center rounded-sm px-5 py-2 text-xs font-semibold transition select-none disabled:cursor-wait disabled:opacity-80',
-                        isFollowing
-                          ? 'bg-surface-secondary text-foreground hover:bg-surface-tertiary'
-                          : 'bg-primary hover:bg-primary/90 text-primary-foreground',
-                      )}
-                    >
-                      {isFollowToggling ? (
-                        <Loader2 className="size-3.5 animate-spin" />
-                      ) : isFollowing ? (
-                        'Following'
-                      ) : (
-                        'Follow'
-                      )}
-                    </button>
-                  </>
-                ) : null}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Right side: Total votes + Scrollable Modern Tabs Box */}
-            <div className="flex w-full items-center gap-3 overflow-hidden lg:w-auto">
+            {/* Actions: Follow + Votes + Tabs */}
+            <div className="flex min-w-0 grow flex-wrap items-center gap-3">
+              {/* Follow Button — public profile only */}
+              {!isCurrentUserProfile &&
+                (isLoading && !profile ? (
+                  <div className="bg-surface-secondary h-9 w-24 shrink-0 animate-pulse rounded-sm" />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleToggleFollow}
+                    disabled={isFollowToggling}
+                    className={cn(
+                      'inline-flex h-9 min-w-24 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-sm px-5 text-xs font-semibold transition select-none disabled:cursor-wait disabled:opacity-80',
+                      isFollowing
+                        ? 'bg-surface-secondary text-foreground hover:bg-surface-tertiary'
+                        : 'bg-primary hover:bg-primary/90 text-primary-foreground',
+                    )}
+                  >
+                    {isFollowToggling ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : isFollowing ? (
+                      'Following'
+                    ) : (
+                      'Follow'
+                    )}
+                  </button>
+                ))}
+
               {/* Total votes received across all participated contests */}
               {isLoading && !stats ? (
-                <div className="border-warning-500/25 bg-warning-500/5 flex h-12 shrink-0 animate-pulse items-center justify-center rounded-full border px-6">
+                <div className="border-warning-500/25 bg-warning-500/5 flex h-12 min-w-20 shrink-0 animate-pulse items-center justify-center rounded-full border px-5">
                   <div className="flex flex-col items-center gap-1.5">
                     <div className="bg-warning-500/25 h-4 w-6 rounded" />
                     <div className="bg-warning-500/20 h-2 w-10 rounded" />
@@ -522,14 +534,14 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                 </div>
               ) : (
                 <div
-                  title="Total votes received across all contests"
-                  className="border-warning-500/40 from-warning-500/20 via-warning-500/8 relative flex h-12 shrink-0 cursor-default items-center justify-center overflow-hidden rounded-full border bg-linear-to-b to-transparent px-6 select-none"
+                  title={`${Number(totalVotes).toLocaleString()} votes received across all contests`}
+                  className="border-warning-500/40 from-warning-500/20 via-warning-500/8 relative flex h-12 min-w-20 shrink-0 cursor-default items-center justify-center overflow-hidden rounded-full border bg-linear-to-b to-transparent px-5 select-none"
                 >
                   {/* Soft gold glow so the badge reads as an earned reward, not a button */}
                   <div className="bg-warning-500/30 pointer-events-none absolute -top-7 left-1/2 size-16 -translate-x-1/2 rounded-full blur-2xl" />
                   <div className="relative flex flex-col items-center justify-center">
-                    <span className="text-warning-500 text-base leading-tight font-bold">
-                      {Number(totalVotes).toLocaleString()}
+                    <span className="text-warning-500 text-base leading-tight font-bold tabular-nums">
+                      {formatCount(totalVotes)}
                     </span>
                     <span className="text-warning-500/70 text-[9px] font-semibold tracking-[0.18em] whitespace-nowrap uppercase">
                       Votes
@@ -538,12 +550,13 @@ export function PublicProfilePage({ isOwn = false, userId }: Props) {
                 </div>
               )}
 
-              <div className="divide-border border-border bg-surface/30 flex h-12 items-center divide-x overflow-x-auto rounded-sm border shadow-md">
+              {/* Tabs: take the remaining width; scroll horizontally only as a last resort */}
+              <div className="divide-border border-border bg-surface/30 flex h-12 max-w-full min-w-0 grow basis-auto [scrollbar-width:none] items-stretch divide-x overflow-x-auto rounded-sm border shadow-md [&::-webkit-scrollbar]:hidden">
                 {isLoading && !stats
                   ? Array.from({ length: isOwn ? 5 : 4 }).map((_, idx) => (
                       <div
                         key={idx}
-                        className="flex h-full flex-1 animate-pulse flex-col items-center justify-center gap-1.5 px-5 whitespace-nowrap"
+                        className="flex h-full min-w-[4.5rem] flex-[1_0_auto] animate-pulse flex-col items-center justify-center gap-1.5 px-3 sm:px-5"
                       >
                         <div className="bg-surface-secondary h-4 w-8 rounded" />
                         <div className="bg-surface-secondary h-2 w-12 rounded" />
