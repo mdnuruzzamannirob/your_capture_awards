@@ -2,7 +2,8 @@ export type StoreItemType = 'BOOST' | 'SWAP' | 'KEY';
 
 export type StoreCategory = 'COINS' | 'BUNDLES';
 
-export type StoreCurrency = 'USD' | 'COINS';
+// Coin packs are priced in USD or EUR (set in the dashboard); bundles in coins.
+export type StoreCurrency = 'USD' | 'EUR' | 'COINS';
 
 export type StoreStats = {
   id: string;
